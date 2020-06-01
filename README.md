@@ -42,18 +42,7 @@ Header related to physics... And I suck at physics, so, don't joke me for being 
 ---
 
 PROGRAMS:
-BrlorgProblems.cpp:
-No, this is not a sponsor, they don't even need it...
-Yes, this is where I try to do my Brilliant.org stuffs... Don't joke me because there is mistakes or failure, hahaha...
-I like to solve math problems by programming, as this not only teaches me math, not only it is my notebook, it also teaches me how to solve math problems by programming;
-I have this philosophy that programming is the "new math".
-
-TESTESAQUI.cpp:
-This is my test zone, there is nothing in this file, it is just a prompt so I have all the tools I need ready to test stuffs...
-
-CIMG arts hihihi =3.cpp:
-Not sure if I'll post it here, but in any case, this is where I use my headers to do silly programming arts.
-But I change it all the time and make separated files for it, so, it is a giant mess, and some of those files don't even work with the new versions of my headers.
+*** NOT SURE IF I'LL POST THOSE, AS THOSE DON'T MATTER TOO MUCH ***
 
 CURL.cpp:
 This is my first use of te CURL library, it works, but this file is not complete, you need to use link the libraries in the project configuration;
