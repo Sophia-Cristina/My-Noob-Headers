@@ -2239,40 +2239,7 @@ public:
 			}
 		}
 	}
-}
-
-	// PLOTAR POLIGRAMA:
-	// void Poligrama(){}
-
-	// PLOTAR MAPA LOGISTICO:
-	//void LogisticMap(double tr, double tt) { double xn1, xn; }
-
-	// PLOTAR DUFFING EQ.:
-	/*void DuffinEq(double th, double ti, double tt)
-	{
-		double tn, td = 0.02, te = 1, tf = 5;
-				
-		for (tn = 0; tn < tt; tn += 0.01)
-		{
-			double Rslt = (((th * cos(ti * tn)) / 2) + 1) * 0.5;
-			cout << "Rslt: " << Rslt << endl;
-			int Rsltg;
-			cout << "(tn / tt) * GradeX = " << (tn / tt) * GradeX << endl;
-			if (Rslt == Derivative(tn + 1) + (td * Derivative(tn)) + (te * tn) + (tf * pow(tn, 3)))
-			{
-
-				Rsltg = (GradeY - ((Rslt / 3) * GradeY)) + BordaX;
-				if (InGrid(Rsltg, (tn / tt) * GradeX))
-				{
-					int TR, TG, TB;
-					Point3D RGB = LinearRGB(tn / tt, 1, 1, TR, TG, TB);
-					unsigned char clr[] = { TR, TG, TB };
-					Imagem.draw_point(((tn / tt) * GradeX) + BordaY, Rsltg, clr);
-				}
-			}
-		}
-	}*/
-	
+}	
 };
 
 
