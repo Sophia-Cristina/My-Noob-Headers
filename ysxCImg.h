@@ -29,6 +29,10 @@ CImg<unsigned char> DrawImageIgnClr(CImg<unsigned char>, CImg<unsigned char>, in
 CImg<unsigned char> DrawImageIgnClrCout(CImg<unsigned char>, CImg<unsigned char>, int, int, unsigned char[3]);
 // ###################################
 
+// ############################################################################################################################################
+// ############################################################################################################################################
+// ############################################################################################################################################
+
 // ############## TÉCNICOS:
 // ABRIR:
 CImg<unsigned char> OpenImg(string FileName) { CImg<unsigned char> Open(Str2Char(FileName).data()); return(Open); }
@@ -68,6 +72,7 @@ void CIMG(string Nome)
 
 // VER IMAGEM MEMORIA:
 void VerImg(CImg<unsigned char> Img) { CImgDisplay Disp(Img, "Imagem porreta, seria porreta uma pequena porra?"); while (!Disp.is_closed()) { Disp.wait(); } }
+void VerImg(CImg<unsigned char> Img, string Title) { CImgDisplay Disp(Img, Str2Char(Title).data()); while (!Disp.is_closed()) { Disp.wait(); } }
 
 // BITMAPRGB:
 Point3D BitmapRGB(CImg<unsigned char> BMP, int x, int y)
@@ -87,6 +92,20 @@ vector<Point3DFlt> BitmapRGBMatrix(CImg<unsigned char> BMP)
 	{
 		for (int n = 0; n < BMP.width(); ++n)
 		{ Point3D RGB = BitmapRGB(BMP, n, m); Point3DFlt RGBFlt; RGBFlt.x = RGB.x / 255.0; RGBFlt.y = RGB.y / 255.0; RGBFlt.z = RGB.z / 255.0; Ret.push_back(RGBFlt); }
+	}
+	return(Ret);
+}
+
+// ALL RGBS FROM BITMAP (in float), IT GOES LIKE R, THEN G, THEN B, THEN NEXT PIXEL, SO THE VECTOR HAVE 3X THE SIZE OF THE IMAGE:
+vector<double> BitmapRGBVector(CImg<unsigned char> BMP)
+{
+	vector<double> Ret;
+	for (int m = 0; m < BMP.height(); ++m)
+	{
+		for (int n = 0; n < BMP.width(); ++n)
+		{
+			Point3D RGB = BitmapRGB(BMP, n, m);  Ret.push_back(RGB.x / 255.0);  Ret.push_back(RGB.y = RGB.y / 255.0);  Ret.push_back(RGB.z = RGB.z / 255.0);
+		}
 	}
 	return(Ret);
 }
@@ -120,8 +139,9 @@ vector<double> BitmapMatrix(CImg<unsigned char> BMP, int R0orG1orB2)
 	return (NewMatrix);
 }
 
-// ############## MATRIZES:
-
+// ############################################################################################################################################
+// ############################################################################################################################################
+// ############################################################################################################################################
 
 // ############## TEXTOS:
 // ADC TEXTO:
@@ -145,6 +165,10 @@ void AdcTextoCirc(CImg<unsigned char>& Img, double r, int x, int y, vector<strin
 	double Div = Tau / Strings.size() * 1.0; int Count = 0;
 	for (double rad = 0; rad <= Tau; rad += Div) { AdcTexto(Img, x + round(cos(rad) * (r - 8)), y + round(sin(rad) * (r - 8)), Strings[Count], R, G, B); ++Count; }
 }
+
+// ############################################################################################################################################
+// ############################################################################################################################################
+// ############################################################################################################################################
 
 // ############## GRAFICOS:
 
@@ -567,7 +591,7 @@ void Circuloxy(CImg<unsigned char>& Img, double r, int tx, int ty, int R, int G,
 {
 	double y, x;
 	int xzero = tx, yzero = ty;
-	double Step = Tau * (1.0 / Circumf(r));
+	double Step = 1.0 / r;
 
 	for (double Rad = 0; Rad <= Tau; Rad += Step) // MUDAR SE NESCESSARIO
 	{
@@ -585,7 +609,7 @@ void Circuloxy(CImg<unsigned char>& Img, double r, int tx, int ty)
 {
 	double y, x;
 	int xzero = tx, yzero = ty;
-	double Step = Tau * (1.0 / Circumf(r));
+	double Step = 1.0 / r;
 
 	for (double Rad = 0; Rad <= Tau; Rad = Rad + Step)
 	{
@@ -607,7 +631,7 @@ void Circulo(CImg<unsigned char>& Img, int R, int G, int B)
 {
 	double y, x;
 	double r = Img.height(); if (Img.width() <= Img.height()) { r = Img.width(); } r -= 1; r *= 0.5;
-	double Step = Tau * (1.0 / Circumf(r));
+	double Step = 1.0 / r;
 	int xzero = floor(Img.width() * 0.5), yzero = Img.height() - floor(Img.height() * 0.5);
 
 	for (double Rad = 0; Rad <= Tau; Rad = Rad + Step)
@@ -626,7 +650,7 @@ void Circulo(CImg<unsigned char>& Img)
 {
 	double y, x;
 	double r = Img.height(); if (Img.width() <= Img.height()) { r = Img.width(); } r -= 2; r *= 0.5;
-	double Step = Tau * (1.0 / Circumf(r));
+	double Step = 1.0 / r;
 	int xzero = floor(Img.width() * 0.5), yzero = Img.height() - floor(Img.height() * 0.5);
 
 	for (double Rad = 0; Rad <= Tau; Rad = Rad + Step)
@@ -940,6 +964,10 @@ CImg<unsigned char> GraduaçãoRGB(CImg<unsigned char> Img, bool Inv) // Talvez 
 	return (ImgRet);
 }
 
+// ############################################################################################################################################
+// ############################################################################################################################################
+// ############################################################################################################################################
+
 // ############## FRACTAIS:
 // PLOTAR PONTOS (STRUCT):
 CImg<unsigned char> PrintPoints(vector<Point> Coord, int SegmentSize, int BackGround, bool Abs)
@@ -994,12 +1022,14 @@ CImg<unsigned char> PrintBinaryWordCircle(int Size, int r, int Iter, bool GeoAri
 		{
 			if (RandomColor) { RGB.x = rand() % 256; RGB.y = rand() % 256; RGB.z = rand() % 256; }
 			if (LRGB) { double Line = 1.0 * (Word - Wordset) / s2; if (BinWords[Word][0] == '0') { RGB = LinearRGB(0.5 + Line, 1, 1); } else { RGB = LinearRGB(Line, 1, 1); } }
-			for (int Char = 0; Char < BinWords[Word].size(); ++Char)
+			int WordSize = BinWords[Word].size();
+			for (int Char = 0; Char < WordSize; ++Char)
 			{
-				int ChrSize = BinWords[Word].size(); Point3D NewRGB = RGB; if (BinWords[Word][Char] == '0') { NewRGB.x = 255 - NewRGB.x; NewRGB.y = 255 - NewRGB.y; NewRGB.z = 255 - NewRGB.z; }
-				double SubDiv = Div / ChrSize; double Rad = Scores[Word - Wordset].x - (SubDiv * (ChrSize - 1)) + (SubDiv * Char); Rad -= (Tau / s) * 0.5; Rad = Tau - Rad;
+				Point3D NewRGB = RGB; if (BinWords[Word][WordSize - 1 - Char] == '0') { NewRGB.x = 255 - NewRGB.x; NewRGB.y = 255 - NewRGB.y; NewRGB.z = 255 - NewRGB.z; }
+				double SubDiv = Div / WordSize; double Rad = Scores[Word - Wordset].x - (SubDiv * (WordSize - 1)) + (SubDiv * Char); Rad -= (Tau / s) * 0.5; Rad = Tau - Rad;
 				if (c > 1) { FillArea(CircleImg, MidS + cos(Rad) * cr * 0.85, MidS + sin(Rad) * cr * 0.85, NewRGB.x, NewRGB.y, NewRGB.z); }
 				else { FillArea(CircleImg, MidS, MidS + sin(Rad + Tau * 0.5) * cr * 0.75, NewRGB.x, NewRGB.y, NewRGB.z); }
+				//AdcTexto(CircleImg, MidS + cos(Rad) * cr * 0.90, MidS + sin(Rad) * cr * 0.90, to_string(BinWords[Word][Char]) + "\n" + BinWords[Word], 255, 0, 0);
 			}
 		}
 		unsigned char IgnoreColor[] = { 127, 127, 127 };
@@ -1007,6 +1037,59 @@ CImg<unsigned char> PrintBinaryWordCircle(int Size, int r, int Iter, bool GeoAri
 	}
 	return (MainImg);
 }
+
+// ############################################################################################################################################
+// ############################################################################################################################################
+// ############################################################################################################################################
+
+// ############## EUCLIDEAN VETORES:
+
+// Print vector line in a cartesian plane:
+void PrintEucVec(CImg<unsigned char>& Img, PointFlt Vector, int x, int y, double Scale, bool Arrow, bool DrawAngle, bool CartesianLines, bool Text, Point3D RGB)
+{
+	Vector.x *= Scale; Vector.y *= Scale;
+	int xend = x + round(Vector.x), yend =Img.height() - (y + round(Vector.y));
+	if (xend < 0) { xend = 0; } if (yend < 0) { yend = 0; }
+	if (xend > Img.width()) { xend = Img.width(); } if (yend > Img.height()) { yend = Img.height(); }
+	unsigned char clr[] = { 127, 127, 127 };
+	if (CartesianLines) { Img.draw_line(0, y, Img.width(), y, clr); Img.draw_line(x, 0, x, Img.height(), clr); }
+	clr[0] = RGB.x; clr[1] = RGB.y; clr[2] = RGB.z;
+	if (Arrow) { Img.draw_arrow(x, y, xend, yend, clr); } else { Img.draw_line(x, y, xend, yend, clr); }
+	if (DrawAngle) { Turn(Img, GetMag(Vector) * 0.2, x, y, 0, GetVecRad(Vector), RGB.x, RGB.y, RGB.z); }
+	if (Text)
+	{
+		string Txt = "[" + to_string(Vector.x) + ", " + to_string(Vector.y) + "]";
+		int Size = Txt.size() * 6;
+		int xtxt = xend - Size * 0.5, ytxt = yend - 10;
+		if (xtxt + Txt.size() * 3.75 > Img.width()) { xtxt = xend - Size * 0.5 - Txt.size() * 3.75; } if (xtxt < 0) { xtxt = xend + Size * 0.5; }
+		if (ytxt < 0) { ytxt = yend + 10; }
+		AdcTexto(Img, xtxt, ytxt, Txt, RGB.x, RGB.y, RGB.z);
+	}
+}
+
+// Print vector line joining tail to tail:
+
+void PrintEucVecTail(CImg<unsigned char>& Img, vector<PointFlt> Vectors, int x, int y, double Scale, bool Arrow, bool DrawAngle, bool CartesianLines, bool Text, bool LRGB, Point3D RGB)
+{
+	if (LRGB) { RGB = { 255, 0, 0 }; }
+	PrintEucVec(Img, Vectors[0], x, y, Scale, Arrow, DrawAngle, CartesianLines, Text, RGB);
+	double sumx = Vectors[0].x, sumy = Vectors[0].y;
+	for (int n = 1; n < Vectors.size(); ++n)
+	{
+		cout << "sumx: " << sumx << " | sumy: " << sumy << " | V.x: " << Vectors[n].x << " | V.y: " << Vectors[n].y << endl;
+		if (LRGB) { RGB = LinearRGB(1.0 * n / Vectors.size(), 1, 1); }
+		int xend = x + sumx, yend = y + sumy;
+		if (xend < 0) { xend = 0; } if (Img.height() - yend < 0) { yend = Img.height(); } if (xend > Img.width()) { xend = Img.width(); } if (Img.height() - yend > Img.height()) { yend = 0; }
+		PrintEucVec(Img, Vectors[n], xend, Img.height() - yend, Scale, Arrow, DrawAngle, true, Text, RGB); // depis muda para false
+		//PrintEucVec(Img, Vectors[n], xend, yend, Scale, Arrow, DrawAngle, true, Text, RGB); // depis muda para false
+		cout << "xend: " << xend << " | Img.height() - yend: " << Img.height() - yend << "\nV.x + xend: " << Vectors[n].x + xend << " | Img.height() - (yend + V.y): " << Img.height() - (yend + Vectors[n].y) << endl;
+		sumx += Vectors[n].x; sumy += Vectors[n].y;
+	}
+}
+
+// ############################################################################################################################################
+// ############################################################################################################################################
+// ############################################################################################################################################
 
 // ############## VETORES:
 // THREE VECTORS TO RGB:
@@ -1101,7 +1184,7 @@ CImg<unsigned char> PrintVectorPolygn(vector<double> Vec, int BackGround, int R,
 }
 
 // IMPRIME DADOS DE UM VETOR POR COLUNA:
-// Esse assume que cada pixel de uma imagem corresponde a um dx:
+// Esse assume que cada pixel de uma imagem corresponde a um dx (PROVAVELMENTE IGUAL O SEM "Norm"):
 CImg<unsigned char> PrintVectorPointNorm(vector<double> Vector)
 {
 	double Min = 0, Max = 0, Total;
@@ -1484,14 +1567,6 @@ public:
 		}
 	}
 
-	// IMPRIME MIDPOINTS DO TRIANGULO (NÃO FUNCIONA, ARRUMAR, provavelmente pois o scale * midpoint fode tudo, tipo, se mid point for 1, o scale vai jogar o primeiro midpoint longe):
-	void TriMidpointPrint()
-	{
-		AdcVert(TriOut, Borda + (Scale * Midpoint[0].x), Offy - (Scale * Midpoint[0].y), 3, Clr);
-		AdcVert(TriOut, Borda + (Scale * Midpoint[1].x), Offy - (Scale * Midpoint[1].y), 3, Clr);
-		AdcVert(TriOut, Borda + (Scale * Midpoint[2].x), Offy - (Scale * Midpoint[2].y), 3, Clr);
-	}
-
 	// IMPRIME LINHAS BISETORAS:
 	void TriBisectorPrint(bool AddText)
 	{
@@ -1522,14 +1597,22 @@ public:
 		Circuloxy(TriOut, inradius * Scale, Pixx, Pixy);
 	}
 
+	// IMPRIME MIDPOINTS DO TRIANGULO (NÃO FUNCIONA, ARRUMAR, provavelmente pois o scale * midpoint fode tudo, tipo, se mid point for 1, o scale vai jogar o primeiro midpoint longe):
+	void TriMidpointPrint()
+	{
+		AdcVert(TriOut, Borda + (Scale * Midpoint[0].x), Offy - (Scale * Midpoint[0].y), 3, Clr);
+		AdcVert(TriOut, Borda + (Scale * Midpoint[1].x), Offy - (Scale * Midpoint[1].y), 3, Clr);
+		AdcVert(TriOut, Borda + (Scale * Midpoint[2].x), Offy - (Scale * Midpoint[2].y), 3, Clr);
+	}
+
 	// IMPRIME TRIÂNGULO COM TODAS FUNÇÕES:
 	void TriAllPrint(bool AddVert, bool AddText)
 	{
 		int R = Clr[0], G = Clr[1], B = Clr[1];
 		TriPeriPrint(AddVert, AddText, true);
-		TriMidpointPrint();
 		TriBisectorPrint(AddText);
 		TriIncirclePrint(AddVert);
+		TriMidpointPrint();
 		// ####### Imprime Linhas Medians #######		
 		// ####### Circumcentro #######
 		Clr[0] = 255; Clr[1] = 0; Clr[2] = 255;
@@ -2195,7 +2278,7 @@ public:
 	
 	// #################################################
 
-	// PLOTAR PARAMETRICO:
+		// PLOTAR PARAMETRICO:
 	void Parametrico(double r, double Ini, double ThisTau, bool LRGB)
 {
 	int TR = R, TG = G, TB = B;
@@ -2239,7 +2322,11 @@ public:
 			}
 		}
 	}
-}	
+}
+
+	// PLOTAR POLIGRAMA:
+	// void Poligrama(){}
+
 };
 
 
