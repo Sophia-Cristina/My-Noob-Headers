@@ -319,6 +319,70 @@ void Vector2Coll(vector<float> Coll, bool CollMsn, int Line)
 
 // Imprime x estapas de uma função:
 
+// #####################################################################################################################################
+// ####### OPENNN:
+
+// MAKE A SINGLE LINE .csv DATASET FOR OPENNN:
+void MakeDataSetFromVector(vector<double> Vector)
+{
+	ofstream oPrint("DATA.csv"); if (!oPrint.is_open()) { cout << "!!! Arquivo não foi aberto. !!!" << endl; }
+	else
+	{
+		for (int n = 0; n < Vector.size(); ++n)
+		{
+			oPrint << Vector[n] << ";";
+		}
+	}
+	oPrint.close();
+}
+
+// MAKES A DATA SET MATRIX:
+void MakeDataSetMatrix(vector<double> Vector, int Width)
+{
+	ofstream oPrint("DATA.csv"); if (!oPrint.is_open()) { cout << "!!! Arquivo não foi aberto. !!!" << endl; }
+	else
+	{
+		int Count = 0;
+		for (int n = 0; n < Vector.size(); ++n)
+		{
+			oPrint << Vector[n] << ";";
+			++Count;
+			if (Count == Width - 1) { oPrint << endl; Count = 0; }
+		}
+	}
+	oPrint.close();
+}
+
+// MAKES A DATASET FOR OPENNN THAT CONSIDERS EACH CHANNEL:
+// FOR FULL UNDERSTANDING OF THE VALUES, CONSIDER EACH 3 ITENS AS ONE COLOR! For example, 1;0.5;0.5;1;1;1;0.25;0.33;0.5; is a 1x3 image.
+void MakeDataSetRGBMatrix(vector<Point3DFlt> Vector, int Width, bool csvORdat)
+{
+	ofstream oPrint; bool Goodtogo = false;
+	if (!csvORdat) { oPrint.open("DATA.csv"); if (!oPrint.is_open()) { cout << "!!! Arquivo não foi aberto. !!!" << endl; } else { Goodtogo = true; } }
+		else { oPrint.open("DATA.dat"); if (!oPrint.is_open()) { cout << "!!! Arquivo não foi aberto. !!!" << endl; } else { Goodtogo = true; }
+	}
+	if (Goodtogo)
+	{
+		int Count = 0;
+		for (int n = 0; n < Vector.size(); ++n)
+		{
+			if (!csvORdat) { oPrint << Vector[n].x << ";" << Vector[n].y << ";" << Vector[n].z << ";"; }
+			else { oPrint << Vector[n].x << " " << Vector[n].y << " " << Vector[n].z << " "; }
+			++Count;
+			if (Count == Width) { oPrint << endl; Count = 0; }
+		}
+	}
+	oPrint.close();
+}
+
+// MAKES A DATASET IN AS INGLE LINE WITH A TARGET INPUT IN THE BEGINNING:
+void MakeDataSetRGBLine(vector<Point3DFlt> Vector, int Target)
+{
+	ofstream oPrint("DATA.csv"); if (!oPrint.is_open()) { cout << "!!! Arquivo não foi aberto. !!!" << endl; }
+	else { oPrint << Target; for (int n = 0; n < Vector.size(); ++n) { oPrint << "," << Vector[n].x << "," << Vector[n].y << "," << Vector[n].z; } }
+	oPrint.close();
+}
+
 // ################################################# FIM ####################################################################################
 
 #endif // SCPARSE_
