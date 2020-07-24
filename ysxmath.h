@@ -93,6 +93,7 @@ vector<int> Factors(int n) { vector<int> V; for (int m = 1; m <= n; ++m) { if (0
 
 // DIVISOR FUNCTION (When x is 1, the function is called the sigma function or sum - of - divisors function)
 int DivFunc(int n, int Power) { vector<int> Fac = PowVec(Factors(n), Power); int Sum = SumVec(Fac); return(Sum); }
+
 // ####### MÉDIAS E RAZÕES:
 // MÉDIA, ARITHMETIC MEAN:
 double Average(vector<double> Vec) { double Soma = 0; if (Vec.size() != 0) { for (int n = 0; n < Vec.size(); ++n) { Soma += Vec[n]; } Soma /= Vec.size(); } return (Soma); }
@@ -160,16 +161,6 @@ bool IsPrime(long n) { n = abs(n); for (int m = 2; m < n - 1; ++m) { if (0 == n 
 // NUMERO TRIANGULAR:
 int TriNmbr(int n) { return ((n * (n + 1)) / 2); }
 
-// ####### COMBINATÓRIA:
-// PERMUTATIONS WITHOUT REPETITION:
-long BinomialCoff(int n, int k) { n = abs(n); k = abs(k); long Fct = (n - k) + 1; for (int a = Fct + 1; a <= n; ++a) { Fct *= a; } return(Fct / Fact(k)); }
-
-// COMBINATION:
-
-// PERMUTATIONS WITHOUT REPETITION:
-//long PermNoRep(int n, int r) { n = abs(n); r = abs(r); long fn = Fact(n), fnr = Fact(n - r), Ret = fn / fnr; cout << "fn: " << fn << " | fnr: " << fnr << endl;
-//cout << "Ret: " << Ret << endl; return(Ret); }
-
 // FIBO NUMBER:
 int GetaFibonmbr(int Fn)
 {
@@ -229,6 +220,42 @@ vector<int> GetaLucasVec(int Ln) // VEJA SE TA CERTO, VEJA SE n NÃO DEVERIA SER
 	}
 	return(Actual);
 }
+
+// ####### COMBINATÓRIA:
+// PERMUTATIONS WITHOUT REPETITION:
+long BinomialCoff(int n, int k) { n = abs(n); k = abs(k); long Fct = (n - k) + 1; for (int a = Fct + 1; a <= n; ++a) { Fct *= a; } return(Fct / Fact(k)); }
+
+// COMBINATION:
+
+// PERMUTATIONS WITHOUT REPETITION:
+//long PermNoRep(int n, int r) { n = abs(n); r = abs(r); long fn = Fact(n), fnr = Fact(n - r), Ret = fn / fnr; cout << "fn: " << fn << " | fnr: " << fnr << endl;
+//cout << "Ret: " << Ret << endl; return(Ret); }
+
+// ####### EUCLIDEAN VECTOR:
+// GET MAGNITUDE:
+double GetMag(PointFlt Vector) { return(hipo(fabs(Vector.x), fabs(Vector.y))); }
+
+// GET RADIAN:
+double GetVecRad(PointFlt Vector)
+{
+	double ax = fabs(Vector.x), ay = fabs(Vector.y); double Rad = asin(ay / hipo(ax, ay));
+	if (Vector.x >= 0 && Vector.y >= 0) { return (Rad); }
+	else if (Vector.x < 0 && Vector.y >= 0) { return (Pi - Rad); }
+	else if (Vector.x < 0 && Vector.y < 0) { return (Pi + Rad); }
+	return ((Pi * 1.5) + ((0.5 * Pi) - Rad));
+}
+
+// GET RADIAN BETWEEN TWO VECTORS:
+double GetRadBetween(PointFlt A, PointFlt B) { double RadA = GetVecRad(A), RadB = GetVecRad(B); if (RadA > RadB) { return(RadA - RadB); } return(RadB - RadA); }
+
+// SUBTRACT, ADD OR MULTIPLY EUC. VECTOR:
+PointFlt SubEucVector(PointFlt A, PointFlt B) { PointFlt C = { A.x - B.x, A.y - B.y }; return(C); }
+PointFlt AddEucVector(PointFlt A, PointFlt B) { PointFlt C = { A.x + B.x, A.y + B.y }; return(C); }
+PointFlt SclrMultEucVec(PointFlt A, double ScalarMultiplier) { PointFlt B = { A.x * ScalarMultiplier, A.y * ScalarMultiplier }; return(B); }
+
+// DOT PRODUCT:
+double DotProd(double AMag, double BMag, double Rad) { return(AMag * BMag * cos(Rad)); }
+double DotProd(PointFlt A, PointFlt B) { return((A.x * B.x) + (A.y * B.y)); }
 
 // ################################################# FIM ####################################################################################
 
