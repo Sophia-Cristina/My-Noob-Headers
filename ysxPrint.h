@@ -375,13 +375,44 @@ void MakeDataSetRGBMatrix(vector<Point3DFlt> Vector, int Width, bool csvORdat)
 	oPrint.close();
 }
 
-// MAKES A DATASET IN AS INGLE LINE WITH A TARGET INPUT IN THE BEGINNING:
+// MAKES A DATASET IN A SINGLE LINE WITH A TARGET INPUT IN THE BEGINNING:
 void MakeDataSetRGBLine(vector<Point3DFlt> Vector, int Target)
 {
 	ofstream oPrint("DATA.csv"); if (!oPrint.is_open()) { cout << "!!! Arquivo não foi aberto. !!!" << endl; }
 	else { oPrint << Target; for (int n = 0; n < Vector.size(); ++n) { oPrint << "," << Vector[n].x << "," << Vector[n].y << "," << Vector[n].z; } }
 	oPrint.close();
 }
+
+// MAKES A DATASET FOR AUTOENCODER
+void MakeAutoEncoderDataSetRGBLine(vector<Point3DFlt> Vector)
+{
+	ofstream oPrint("DATA.csv"); if (!oPrint.is_open()) { cout << "!!! Arquivo não foi aberto. !!!" << endl; }
+	else
+	{
+		int Count = 0, TotalSize = Vector.size() * 2;
+		for (int InOut = 0; InOut < 2; ++InOut)
+		{
+			for (int n = 0; n < Vector.size(); ++n)
+			{
+				oPrint << Vector[n].x << "," << Vector[n].y << "," << Vector[n].z;
+				if (Count < TotalSize - 1) { oPrint << ","; }
+				++Count;
+			} 
+		}
+		oPrint << endl; Count = 0;
+		for (int InOut = 0; InOut < 2; ++InOut)
+		{
+			for (int n = 0; n < Vector.size(); ++n)
+			{
+				oPrint << Vector[n].x << "," << Vector[n].y << "," << Vector[n].z;
+				if (Count < TotalSize - 1) { oPrint << ","; }
+				++Count;
+			}
+		}
+	}
+	oPrint.close();
+}
+
 
 // ################################################# FIM ####################################################################################
 
