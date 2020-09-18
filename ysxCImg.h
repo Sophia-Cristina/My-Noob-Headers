@@ -2,8 +2,6 @@
 
 #ifndef YSXCIMG_H
 #define YSXCIMG_H
-//#ifndef __CIMG_H_INCLUDED__   // if x.h hasn't been included yet...
-//#define __CIMG_H_INCLUDED__
 
 #include "CImg.h"
 #include "ysxmath.h"
@@ -16,8 +14,8 @@
 #include <iostream>
 #include <fstream>
 
-using namespace std;
-using namespace cimg_library;
+using namespace std; // Delete Later
+using namespace cimg_library; // Delete Later
 
 // ###################################
 // ############## FUNÇÕES #######
@@ -33,6 +31,7 @@ CImg<unsigned char> DrawImageIgnClrCout(CImg<unsigned char>, CImg<unsigned char>
 // ############################################################################################################################################
 // ############################################################################################################################################
 
+// ############################################################################################################################################
 // ############## TÉCNICOS:
 // ABRIR:
 CImg<unsigned char> OpenImg(string FileName) { CImg<unsigned char> Open(Str2Char(FileName).data()); return(Open); }
@@ -355,6 +354,8 @@ CImg<unsigned char> FillAll(int Width, int Height)
 void FillArea(CImg<unsigned char>& Img, int x, int y, int R, int G, int B)
 { unsigned char color[] = { R, G, B }; Img.draw_fill(x, y, color, 1, 1, false); }
 
+// ############################################################################################################################################
+
 // BARRAS:
 void AdcBarra(CImg<unsigned char>& Img, bool Eixox, int a, int b, int Espsr, int Eixo, int R, int G, int B) // bool Eixox, int a, int b, int Espessura, int Eixo, int Transparencia (%), int R, int G, int B (R)
 {
@@ -585,6 +586,8 @@ void AdcVert(CImg<unsigned char>& Img, int x, int y, int Size, unsigned char Col
 		}
 	}
 }
+
+// ############################################################################################################################################
 
 // PLOTAR CIRCULO EM DIFERENTE XY:
 void Circuloxy(CImg<unsigned char>& Img, double r, int tx, int ty, int R, int G, int B)
@@ -940,6 +943,7 @@ void Poligono(CImg<unsigned char>& Img, int Lados, double r, int x, int y, bool 
 
 }
 
+// ############################################################################################################################################
 
 // LIMPAR:
 void LimparImagem(CImg<unsigned char>& Img) { CImg<unsigned char> ImagemLimpa(Img.width(), Img.height(), 1, 3, 0); Img = ImagemLimpa; }
@@ -1004,6 +1008,8 @@ CImg<unsigned char> PrintLinePoints(vector<LinePoint> Coord, int SegmentSize, in
 	}
 	return Print;
 }
+
+// PRINT MY FRACTAL:
 CImg<unsigned char> PrintBinaryWordCircle(int Size, int r, int Iter, bool GeoAri, bool RandomColor, bool LRGB, Point3D RGB, bool Cout)
 {
 	CImg<unsigned char> MainImg(Size, Size, 1, 3, 0);
@@ -1205,9 +1211,10 @@ CImg<unsigned char> PrintVectorPointNorm(vector<double> Vector)
 	return (WavePrint);
 }
 
-// Esse o "sy" (Size y) é o tamanho "y" da imagem, "syrto" vai ser multiplicado pelo valor do vetor:
+// Nesse, o "sy" (Size y) é o tamanho "y" da imagem, "syrto" vai ser multiplicado pelo valor do vetor:
 CImg<unsigned char> PrintVectorPointNorm(vector<double> Vector, int sy, double syrto)
 {
+	syrto *= 2;
 	CImg<unsigned char> WavePrint(Vector.size(), sy, 1, 3, 0);
 	double Max, Min; MaxMinVecAbs(Vector, Max, Min);
 	for (int n = 0; n < Vector.size(); ++n)
@@ -1215,7 +1222,7 @@ CImg<unsigned char> PrintVectorPointNorm(vector<double> Vector, int sy, double s
 		double ndiv = (1.0 * n) / (Vector.size() - 1);
 		Point3D RGB = LinearRGB(ndiv, 1, 1);
 		unsigned char Color[] = { RGB.x, RGB.y, RGB.z };
-		WavePrint.draw_point(n, round(sy - (((Vector[n] / Max) * (sy * 0.5) * syrto) + (sy * 0.5))), Color);
+		WavePrint.draw_point(n, round(sy - (((Vector[n] / Max) * (sy * 0.5) * syrto) + (sy * 0.5))), Color); // Change value in accord to half of the image height, multiply by "syrto", and sum to the half height of image.
 	}
 	return (WavePrint);
 }
@@ -1874,7 +1881,7 @@ public:
 
 // ################################################# FIM ####################################################################################
 
-class YSXCIMAIN
+class YSXCIMAIN // Probably will be deleted later, i made this when i was beginning to program and now i see better, faster and simpler ways to do it.
 {
 public:
 	// #################################################
@@ -1896,7 +1903,7 @@ public:
 		Sizex = GradeX + (BordaY * 2), Sizey = GradeY + (BordaX * 2);
 		cout << "YSXCIMAIN CRIADO!\n";
 	}
-	~YSXCIMAIN() { cout << "YSXCIMAIN FOI DELETADO!\n"; }
+	~YSXCIMAIN() { }
 	// #################################################
 	// #################################################
 	// Gráfico:
@@ -2278,7 +2285,7 @@ public:
 	
 	// #################################################
 
-		// PLOTAR PARAMETRICO:
+	// PLOTAR PARAMETRICO:
 	void Parametrico(double r, double Ini, double ThisTau, bool LRGB)
 {
 	int TR = R, TG = G, TB = B;
@@ -2323,10 +2330,7 @@ public:
 		}
 	}
 }
-
-	// PLOTAR POLIGRAMA:
-	// void Poligrama(){}
-
+	
 };
 
 
