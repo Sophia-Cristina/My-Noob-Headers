@@ -16,7 +16,7 @@
 #include <algorithm>
 #include <vector>
 
-using namespace std;
+using namespace std; // To be deleted in the future
 
 // #####################################################################################################################################
 // ############## FORWARD DECLARATIONS ##############
@@ -69,11 +69,17 @@ public:
 #include "ysxplg\\ysxGeo.h";
 #include "ysxplg\\ysxCalc.h";
 #include "ysxplg\\ysxFractal.h";
+#include "ysxplg\\ysxVector.h";
 
 // #####################################################################################################################################
 
+// ############################
+// ############################
+// ############################
+
 // ############## MATEMATICA ##############
 
+// ############################
 // ####### MULTIPLOS OU DIVISORES:
 // GCD (GREATEST COMMON DIVISOR):
 int GCD(int a, int b)
@@ -140,6 +146,7 @@ double SumntoPowIniEnd(int n, int Ini, int End) { double Soma = 0; for (int m = 
 
 double CubeofTwoCubes(double x, double y) { return(pow((x * x * x) + (y * y * y), 1.0 / 3)); }
 
+// ############################
 // ####### ALGEBRA:
 // FATORIAL:
 long Fact(int a) { int Fact = 1; if (a > 0) { for (int n = 1; n <= a; ++n) { Fact *= n; } return (Fact); } else { return (1); } }
@@ -154,6 +161,7 @@ PointFlt QuadraticEq(double a, double b, double c)
 	return(Root);
 }
 
+// ############################
 // ####### NUMEROS:
 // É PRIMO?:
 bool IsPrime(long n) { n = abs(n); for (int m = 2; m < n - 1; ++m) { if (0 == n % m) { return(false); } } return(true); }
@@ -221,6 +229,7 @@ vector<int> GetaLucasVec(int Ln) // VEJA SE TA CERTO, VEJA SE n NÃO DEVERIA SER
 	return(Actual);
 }
 
+// ############################
 // ####### COMBINATÓRIA:
 // PERMUTATIONS WITHOUT REPETITION:
 long BinomialCoff(int n, int k) { n = abs(n); k = abs(k); long Fct = (n - k) + 1; for (int a = Fct + 1; a <= n; ++a) { Fct *= a; } return(Fct / Fact(k)); }
@@ -231,6 +240,7 @@ long BinomialCoff(int n, int k) { n = abs(n); k = abs(k); long Fct = (n - k) + 1
 //long PermNoRep(int n, int r) { n = abs(n); r = abs(r); long fn = Fact(n), fnr = Fact(n - r), Ret = fn / fnr; cout << "fn: " << fn << " | fnr: " << fnr << endl;
 //cout << "Ret: " << Ret << endl; return(Ret); }
 
+// ############################
 // ####### EUCLIDEAN VECTOR:
 // GET MAGNITUDE:
 double GetMag(PointFlt Vector) { return(hipo(fabs(Vector.x), fabs(Vector.y))); }
@@ -259,13 +269,16 @@ double DotProd(PointFlt A, PointFlt B) { return((A.x * B.x) + (A.y * B.y)); }
 
 // ################################################# FIM ####################################################################################
 
+// ############################
+// ############################
+// ############################
+
+// ############################
 // ############## TECNICOS  ##############
 // STR2CHAR:
 vector<char> Str2Char(string ThisStr)
 {
-	// char * ThisChr; | Estilo antigo, tinha que usar delete[] ThisChr, mas o return não permitia
 	int TxtLim = ThisStr.length() + 1;
-	// ThisChr = new char[TxtLim];
 	vector<char> ThisChr(TxtLim);
 	for (int chr = 0; chr < ThisStr.length(); ++chr)
 	{
@@ -275,7 +288,34 @@ vector<char> Str2Char(string ThisStr)
 	return(ThisChr);
 }
 
+vector<wchar_t> Str2wChart(string ThisStr)
+{
+	int TxtLim = ThisStr.length() + 1;
+	vector<wchar_t> ThisChr(TxtLim);
+	for (int chr = 0; chr < ThisStr.length(); ++chr)
+	{
+		ThisChr[chr] = ThisStr.at(chr);
+		if (chr == ThisStr.length() - 1) { ThisChr[chr + 1] = '\0'; }
+	}
+	return(ThisChr);
+}
+
 string Char2Str(char C) { string Str = { C }; return (Str); }
+
+string Char2Str(vector<char> C) { string Str = C.data(); return (Str); }
+
+// HEX NUMBERS (AS string) TO A STRING OF ASCII (char, byte):
+string Hex2ASCII(string hex) // Geeksforgeeks functions to convert Hex to ASCII
+{
+	string ascii = "";
+	for (size_t i = 0; i < hex.length(); i += 2)
+	{
+		string part = hex.substr(i, 2);
+		char ch = stoul(part, nullptr, 16);
+		ascii += ch;
+	}
+	return ascii;
+}
 
 // IS NUMBER?:
 bool IsNmbr(char C)
@@ -403,331 +443,20 @@ char LetterIndex(int Index, bool Capital)
 // PEGA CASAS DECIMAIS:
 double GetDec(double x) { return(x - floor(x)); }
 
-// CONVERSORES:
-vector<float> Int2Float(vector<int> Int) { vector<float> V; for (int n = 0; n < Int.size(); ++n) { V.push_back(Int[n]); } return(V); }
-vector<int> Float2Int(vector<float> Float) { vector<int> V; for (int n = 0; n < Float.size(); ++n) { V.push_back(Float[n]); } return(V); }
-vector<double> Float2Double(vector<float> Float) { vector<double> V; for (int n = 0; n < Float.size(); ++n) { V.push_back(Float[n]); } return(V); }
-vector<float> Double2Float(vector<double> Double) { vector<float> V; for (int n = 0; n < Double.size(); ++n) { V.push_back(Double[n]); } return(V); }
+// ################################################# FIM ####################################################################################
+
+// ############################
+/*
+SETOR VETOR FOI MUDADO PARA ysxVector.h
+*/
+// ############################
+
 
 // ################################################# FIM ####################################################################################
 
-// ############## VETORES  ##############
-// QUICKSORT:
-void QuickSort(vector<int>& V, int l, int r)
-{ if (l >= r) { return; } int pivot = V[r]; int cnt = l; for (int i = l; i <= r; ++i) { if (V[i] <= pivot) { swap(V[cnt], V[i]); ++cnt; } } QuickSort(V, l, cnt - 2); QuickSort(V, cnt, r); }
-void QuickSort(vector<double>& V, int l, int r)
-{ if (l >= r) { return; } double pivot = V[r]; int cnt = l; for (int i = l; i <= r; ++i) { if (V[i] <= pivot) { swap(V[cnt], V[i]); ++cnt; } } QuickSort(V, l, cnt - 2); QuickSort(V, cnt, r); }
-void QuickSortPtx(vector<PointFlt>& V, int l, int r)
-{ if (l >= r) { return; } double pivot = V[r].x; int cnt = l; for (int i = l; i <= r; ++i) { if (V[i].x <= pivot) { swap(V[cnt].x, V[i].x); swap(V[cnt].y, V[i].y); ++cnt; } } QuickSortPtx(V, l, cnt - 2); QuickSortPtx(V, cnt, r); }
-void QuickSortPty(vector<PointFlt>& V, int l, int r)
-{ if (l >= r) { return; } double pivot = V[r].y; int cnt = l; for (int i = l; i <= r; ++i) { if (V[i].y <= pivot) { swap(V[cnt].x, V[i].x); swap(V[cnt].y, V[i].y); ++cnt; } } QuickSortPty(V, l, cnt - 2); QuickSortPty(V, cnt, r); }
-
-// UNE VETORES:
-vector<int> JoinVectors(vector<int> VecPre, vector<int> VecSuf) { vector<int> Vec = VecPre; for (int n = 0; n < VecSuf.size(); ++n) { Vec.push_back(VecSuf[n]); } return(Vec); }
-vector<float> JoinVectors(vector<float> VecPre, vector<float> VecSuf) { vector<float> Vec = VecPre; for (int n = 0; n < VecSuf.size(); ++n) { Vec.push_back(VecSuf[n]); } return(Vec); }
-vector<double> JoinVectors(vector<double> VecPre, vector<double> VecSuf)
-{ vector<double> Vec = VecPre; for (int n = 0; n < VecSuf.size(); ++n) { Vec.push_back(VecSuf[n]); } return(Vec); }
-vector<char> JoinVectors(vector<char> VecPre, vector<char> VecSuf) { vector<char> Vec = VecPre; for (int n = 0; n < VecSuf.size(); ++n) { Vec.push_back(VecSuf[n]); } return(Vec); }
-vector<string> JoinVectors(vector<string> VecPre, vector<string> VecSuf)
-{ vector<string> Vec = VecPre; for (int n = 0; n < VecSuf.size(); ++n) { Vec.push_back(VecSuf[n]); } return(Vec); }
-vector<bool> JoinVectors(vector<bool> VecPre, vector<bool> VecSuf) { vector<bool> Vec = VecPre; for (int n = 0; n < VecSuf.size(); ++n) { Vec.push_back(VecSuf[n]); } return(Vec); }
-
-// MÁXIMO E MINIMO DE VETOR:
-int MaxVec(vector<int> Vec) { int Max = Vec[0]; for (int n = 1; n < Vec.size(); ++n) { if (Vec[n] > Max) Max = Vec[n]; } return(Max); }
-double MaxVec(vector<double> Vec) { double Max = Vec[0]; for (int n = 1; n < Vec.size(); ++n) { if (Vec[n] > Max) Max = Vec[n]; } return(Max); }
-void MaxMinVec(vector<int> Vec, int& Max, int& Min)
-{
-	int max = Vec[0], min = Vec[0];
-	for (int n = 1; n < Vec.size(); ++n)
-	{
-		if (Vec[n] > max) max = Vec[n];
-		if (Vec[n] < min) min = Vec[n];
-	}
-	Max = max; Min = min;
-}
-void MaxMinVecAbs(vector<int> Vec, int& Max, int& Min)
-{
-	int max = Vec[0], min = Vec[0];
-	for (int n = 1; n < Vec.size(); ++n)
-	{
-		if (Vec[n] > max) max = Vec[n];
-		if (Vec[n] < min) min = Vec[n];
-	}
-	int Absmx = 0, Absmn = 0;
-	if (max < 0) { Absmx = abs(max); max += Absmx; min += Absmx; }
-	if (min < 0) { Absmn = abs(min); max += Absmn; min += Absmn; }
-	Max = max; Min = min;
-}
-void MaxMinVec(vector<double> Vec, double& Max, double& Min)
-{
-	double max = Vec[0], min = Vec[0];
-	for (int n = 1; n < Vec.size(); ++n)
-	{
-		if (Vec[n] > max) max = Vec[n];
-		if (Vec[n] < min) min = Vec[n];
-	}
-	
-	Max = max; Min = min;
-}
-void MaxMinVecAbs(vector<double> Vec, double& Max, double& Min)
-{
-	double max = Vec[0], min = Vec[0];
-	for (int n = 1; n < Vec.size(); ++n)
-	{
-		if (Vec[n] > max) max = Vec[n];
-		if (Vec[n] < min) min = Vec[n];
-	}
-	double Absmx = 0, Absmn = 0;
-	if (max < 0) { Absmx = abs(max); max += Absmx; min += Absmx; }
-	if (min < 0) { Absmn = abs(min); max += Absmn; min += Absmn; }
-	Max = max; Min = min;
-}
-void MaxSizeBoolMatrix(vector<CellBool> Vec, int& Maxi, int& Maxj)
-{
-	int maxi = Vec[0].i, maxj = Vec[0].j;
-	for (int n = 1; n < Vec.size(); ++n)
-	{
-		if (Vec[n].i > maxi) maxi = Vec[n].i;
-		if (Vec[n].j > maxj) maxj = Vec[n].j;
-	}
-	Maxi = maxi; Maxj = maxj;
-}
-
-// PONTO MÁXIMO E MINIMO DE VETORES:
-void MaxMinVecPoint(vector<Point>& VecPoint, Point& Max, Point& Min, bool Abs)
-{
-	Point max(VecPoint[0]), min(VecPoint[0]);
-	for (size_t n = 1; n < VecPoint.size(); ++n)
-	{
-		if (VecPoint[n].x > max.x) max.x = VecPoint[n].x; else if (VecPoint[n].x < min.x) min.x = VecPoint[n].x;
-		if (VecPoint[n].y > max.y) max.y = VecPoint[n].y; else if (VecPoint[n].y < min.y) min.y = VecPoint[n].y;
-	}
-	if (Abs) // Construção
-	{
-		int absx, absy;
-		bool absxb = false, absyb = false;
-		if (Abs)
-		{
-			if (min.x < 0) { absx = abs(min.x); max.x += absx; min.x = 0; absxb = true; }
-			if (min.y < 0) { absy = abs(min.y); max.y += absy; min.y = 0; absyb = true; }
-		}
-		if (absxb || absyb)
-		{
-			for (size_t n = 0; n < VecPoint.size(); ++n)
-			{
-				if (absxb) { VecPoint[n].x += absx; }
-				if (absyb) { VecPoint[n].y += absy; }
-			}
-		}
-	}
-	Max = max; Min = min;
-}
-void MaxMinVecLinePoint(vector<LinePoint>& VecLinePoint, LinePoint& Max, LinePoint& Min, bool Abs)
-{
-	LinePoint max(VecLinePoint[0]), min(VecLinePoint[0]);
-	for (size_t n = 1; n < VecLinePoint.size(); ++n)
-	{
-		if (VecLinePoint[n].x0 > max.x0) max.x0 = VecLinePoint[n].x0; else if (VecLinePoint[n].x0 < min.x0) min.x0 = VecLinePoint[n].x0;
-		if (VecLinePoint[n].y0 > max.y0) max.y0 = VecLinePoint[n].y0; else if (VecLinePoint[n].y0 < min.y0) min.y0 = VecLinePoint[n].y0;
-		if (VecLinePoint[n].x1 > max.x1) max.x1 = VecLinePoint[n].x1; else if (VecLinePoint[n].x1 < min.x1) min.x1 = VecLinePoint[n].x1;
-		if (VecLinePoint[n].y1 > max.y1) max.y1 = VecLinePoint[n].y1; else if (VecLinePoint[n].y1 < min.y1) min.y1 = VecLinePoint[n].y1;
-	}
-	if (Abs) // Construção
-	{
-		int absx, absy;
-		bool absxb0 = false, absyb0 = false, absxb1 = false, absyb1 = false;
-		if (Abs)
-		{
-			if (min.x0 < 0) { absx = abs(min.x0); max.x0 += absx; min.x0 = 0; absxb0 = true; }
-			if (min.y0 < 0) { absy = abs(min.y0); max.y0 += absy; min.y0 = 0; absyb0 = true; }
-			if (min.x0 < 0) { absx = abs(min.x0); max.x0 += absx; min.x0 = 0; absxb1 = true; }
-			if (min.y0 < 0) { absy = abs(min.y0); max.y0 += absy; min.y0 = 0; absyb1 = true; }
-		}
-		if (absxb0 || absyb0 || absxb1 || absyb1)
-		{
-			for (size_t n = 0; n < VecLinePoint.size(); ++n)
-			{
-				if (absxb0) { VecLinePoint[n].x0 += absx; }
-				if (absyb0) { VecLinePoint[n].y0 += absy; }
-				if (absxb1) { VecLinePoint[n].x1 += absx; }
-				if (absyb1) { VecLinePoint[n].y1 += absy; }
-			}
-		}
-	}
-	Max = max; Min = min;
-}
-
-// SOMA/MULTIPLICA DADOS:
-int SumVec(vector<int> Vec) { int Sum = Vec[0]; for (int n = 1; n < Vec.size(); ++n) { Sum += Vec[n]; } return(Sum); }
-double SumVec(vector<double> Vec) { double Sum = Vec[0]; for (int n = 1; n < Vec.size(); ++n) { Sum += Vec[n]; } return(Sum); }
-int MultVec(vector<int> Vec) { int Mult = Vec[0]; for (int n = 1; n < Vec.size(); ++n) { Mult *= Vec[n]; } return(Mult); } // Procure não ter zeros
-double MultVec(vector<double> Vec) { double Mult = Vec[0]; for (int n = 1; n < Vec.size(); ++n) { Mult *= Vec[n]; } return(Mult); }
-
-// POWER VECOTR TERMS:
-vector<int> PowVec(vector<int> Vec, int Pow) { vector<int> V; for (int n = 0; n < Vec.size(); ++n) { V.push_back(pow(Vec[n], Pow)); } return(V); }
-vector<double> PowVec(vector<double> Vec, double Pow) { vector<double> V; for (int n = 0; n < Vec.size(); ++n) { V.push_back(pow(Vec[n], Pow)); } return(V); }
-
-// Two vectors:
-void SumVecTerms(vector<int>& Vec, int Sum) { for (int n = 0; n < Vec.size(); ++n) { Vec[n] += Sum; } }
-void SumVecTerms(vector<double>& Vec, double Sum) { for (int n = 0; n < Vec.size(); ++n) { Vec[n] += Sum; } }
-void MultVecTerms(vector<int>& Vec, double Mult) { for (int n = 1; n < Vec.size(); ++n) { Vec[n] *= Mult; } } // Procure não ter zeros
-void MultVecTerms(vector<double>& Vec, double Mult) { for (int n = 1; n < Vec.size(); ++n) { Vec[n] *= Mult; } }
-
-// Seq. & Series:
-void SumVecTermsArith(vector<int>& Vec, int Sum, double Diff) { for (int n = 0; n < Vec.size(); ++n) { Vec[n] += Sum + (n * Diff); } }
-void SumVecTermsArith(vector<double>& Vec, double Sum, double Diff) { for (int n = 0; n < Vec.size(); ++n) { Vec[n] += Sum + (n * Diff); } }
-void MultVecTermsArith(vector<int>& Vec, double Mult, double Diff) { for (int n = 1; n < Vec.size(); ++n) { Vec[n] *= Mult + (n * Diff); } } // Procure não ter zeros
-void MultVecTermsArith(vector<double>& Vec, double Mult, double Diff) { for (int n = 1; n < Vec.size(); ++n) { Vec[n] *= Mult + (n * Diff); } }
-void SumVecTermsGeo(vector<int>& Vec, int Sum, double Ratio) { for (int n = 0; n < Vec.size(); ++n) { Vec[n] += Sum * (n * Ratio); } }
-void SumVecTermsGeo(vector<double>& Vec, double Sum, double Ratio) { for (int n = 0; n < Vec.size(); ++n) { Vec[n] += Sum * (n * Ratio); } }
-void MultVecTermsGeo(vector<int>& Vec, double Mult, double Ratio) { for (int n = 1; n < Vec.size(); ++n) { Vec[n] *= Mult * (n * Ratio); } } // Procure não ter zeros
-void MultVecTermsGeo(vector<double>& Vec, double Mult, double Ratio) { for (int n = 1; n < Vec.size(); ++n) { Vec[n] *= Mult * (n * Ratio); } }
-
-// Two vectors and vector return:
-vector<int> SumTwoVec(vector<int> Vec0, vector<int> Vec1)
-{
-	vector<int> V; bool v0v1 = false;
-	int Size = 0; if (Vec0.size() <= Vec1.size()) { Size = Vec0.size(); } else { Size = Vec1.size(); v0v1 = true; }
-	for (int n = 0; n < Size; ++n) { V.push_back(Vec0[n] + Vec1[n]); }
-	if (!v0v1) { if (Vec1.size() - Size > 0) { for (int n = Size; n < Vec1.size(); ++n) { V.push_back(Vec1[n]); } } }
-	else { if (Vec0.size() - Size > 0) { for (int n = Size; n < Vec0.size(); ++n) { V.push_back(Vec0[n]); } } }
-	return(V);
-}
-vector<float> SumTwoVec(vector<float> Vec0, vector<float> Vec1)
-{
-	vector<float> V; bool v0v1 = false;
-	int Size = 0; if (Vec0.size() <= Vec1.size()) { Size = Vec0.size(); }
-	else { Size = Vec1.size(); v0v1 = true; }
-	for (int n = 0; n < Size; ++n) { V.push_back(Vec0[n] + Vec1[n]); }
-	if (!v0v1) { if (Vec1.size() - Size > 0) { for (int n = Size; n < Vec1.size(); ++n) { V.push_back(Vec1[n]); } } }
-	else { if (Vec0.size() - Size > 0) { for (int n = Size; n < Vec0.size(); ++n) { V.push_back(Vec0[n]); } } }
-	return(V);
-}
-vector<double> SumTwoVec(vector<double> Vec0, vector<double> Vec1)
-{
-	vector<double> V; bool v0v1 = false;
-	int Size = 0; if (Vec0.size() <= Vec1.size()) { Size = Vec0.size(); }
-	else { Size = Vec1.size(); v0v1 = true; }
-	for (int n = 0; n < Size; ++n) { V.push_back(Vec0[n] + Vec1[n]); }
-	if (!v0v1) { if (Vec1.size() - Size > 0) { for (int n = Size; n < Vec1.size(); ++n) { V.push_back(Vec1[n]); } } }
-	else { if (Vec0.size() - Size > 0) { for (int n = Size; n < Vec0.size(); ++n) { V.push_back(Vec0[n]); } } }
-	return(V);
-}
-
-// ### Operations with Zero:
-// Se o segundo vetor tiver um numero no mesmo indice que o primeiro vetor tem um zero, ele substitui o zero pelo valor do indice:
-vector<int> SubstituteZero(vector<int> Vec0, vector<int> Vec1)
-{
-	vector<int> V; bool v0v1 = false;
-	int Size = 0; if (Vec0.size() <= Vec1.size()) { Size = Vec0.size(); } else { Size = Vec1.size(); v0v1 = true; }
-	for (int n = 0; n < Size; ++n) { if (Vec0[n] != 0) { V.push_back(Vec0[n]); } else { V.push_back(Vec1[n]); } }
-	if (!v0v1) { if (Vec1.size() - Size > 0) { for (int n = Size; n < Vec1.size(); ++n) { V.push_back(Vec1[n]); } } }
-	else { if (Vec0.size() - Size > 0) { for (int n = Size; n < Vec0.size(); ++n) { V.push_back(Vec0[n]); } } }
-	return(V);
-}
-vector<float> SubstituteZero(vector<float> Vec0, vector<float> Vec1)
-{
-	vector<float> V; bool v0v1 = false;
-	int Size = 0; if (Vec0.size() <= Vec1.size()) { Size = Vec0.size(); } else { Size = Vec1.size(); v0v1 = true; }
-	for (int n = 0; n < Size; ++n) { if (Vec0[n] != 0) { V.push_back(Vec0[n]); } else { V.push_back(Vec1[n]); } }
-	if (!v0v1) { if (Vec1.size() - Size > 0) { for (int n = Size; n < Vec1.size(); ++n) { V.push_back(Vec1[n]); } } }
-	else { if (Vec0.size() - Size > 0) { for (int n = Size; n < Vec0.size(); ++n) { V.push_back(Vec0[n]); } } }
-	return(V);
-}
-vector<double> SubstituteZero(vector<double> Vec0, vector<double> Vec1)
-{
-	vector<double> V; bool v0v1 = false;
-	int Size = 0; if (Vec0.size() <= Vec1.size()) { Size = Vec0.size(); } else { Size = Vec1.size(); v0v1 = true; }
-	for (int n = 0; n < Size; ++n) { if (Vec0[n] != 0) { V.push_back(Vec0[n]); } else { V.push_back(Vec1[n]); } }
-	if (!v0v1) { if (Vec1.size() - Size > 0) { for (int n = Size; n < Vec1.size(); ++n) { V.push_back(Vec1[n]); } } }
-	else { if (Vec0.size() - Size > 0) { for (int n = Size; n < Vec0.size(); ++n) { V.push_back(Vec0[n]); } } }
-	return(V);
-}
-
-// Insert zeros in random positions into a vector:
-vector<double> InsertRandomZeros(vector<double> Vector, int Zeros)
-{
-	if (Zeros < 1) { Zeros = 1; }
-	vector<double> V;
-	for (int Z = 0; Z < Zeros; ++Z)
-	{
-		int Rand = rand() % Vector.size();
-		for (int n = 0; n < Vector.size(); ++n)
-		{
-			V.push_back(Vector[n]); if (n == Rand) { V.push_back(0); }
-		}
-		Vector = V;
-	}
-	return (V);
-}
-
-// Insert zeros at beginning or the end of a vector:
-vector<double> InsertZerosBeginorEnd(vector<double> Vector, int Zeros, bool BeginEnd)
-{
-	vector<double> V;
-	if (!BeginEnd) { for (int Z = 0; Z < Zeros; ++Z) { V.push_back(0); } }
-	for (int n = 0; n < Vector.size(); ++n) { V.push_back(Vector[n]); }
-	if (BeginEnd) { for (int Z = 0; Z < Zeros; ++Z) { V.push_back(0); } }
-	return (V);
-}
-
-// Insert zeros between each term:
-vector<double> InsertZerosBetweenTerms(vector<double> Vector, int Zeros, bool BeforeAfter, bool BeforeAndAfter)
-{
-	vector<double > V;
-	for (int n = 0; n < Vector.size(); ++n)
-	{
-		if (BeforeAndAfter) { BeforeAfter = false; }
-		if (!BeforeAfter) { for (int Z = 0; Z < Zeros; ++Z) { V.push_back(0); } }
-		V.push_back(Vector[n]);
-		if (BeforeAndAfter) { BeforeAfter = true; }
-		if (BeforeAfter) { for (int Z = 0; Z < Zeros; ++Z) { V.push_back(0); } }
-	}
-	return (V);
-}
-vector<double> InsertZerosBetweenTermsExpo(vector<double> Vector, int Zeros, double InitialPower, bool BeforeAfter, bool BeforeAndAfter)
-{
-	vector<double> V;
-	for (int n = 0; n < Vector.size(); ++n)
-	{
-		double Zr = pow(Zeros, (n + InitialPower));
-		if (BeforeAndAfter) { BeforeAfter = false; }
-		if (!BeforeAfter) { for (int Z = 0; Z < Zr; ++Z) { V.push_back(0); } }
-		V.push_back(Vector[n]);
-		if (BeforeAndAfter) { BeforeAfter = true; }
-		if (BeforeAfter) { for (int Z = 0; Z < Zr; ++Z) { V.push_back(0); } }
-	}
-	return (V);
-}
-
-// Insert zeros at a term:
-vector<double> InsertZerosatTerm(vector<double> Vector, int Zeros, int at, bool BeforeAfter)
-{
-	vector<double> V;
-	for (int n = 0; n < Vector.size(); ++n)
-	{
-		if (!BeforeAfter && n == at) { for (int Z = 0; Z < Zeros; ++Z) { V.push_back(0); } }
-		V.push_back(Vector[n]);
-		if (BeforeAfter && n == at) { for (int Z = 0; Z < Zeros; ++Z) { V.push_back(0); } }
-	}
-	return (V);
-}
-
-// Delete zeros:
-vector<double> DeleteZeros(vector<double> Vector)
-{
-	vector<double> V;
-	for (int n = 0; n < Vector.size(); ++n) { if (Vector[n] != 0) { V.push_back(Vector[n]); } }
-	return (V);
-}
-
-// PEGA MARGEM DE EXPONENTE:
-vector<long> PowerOfn(double n, int From, int To) { vector<long> Vec; for (int a = From; a <= To; ++a) { Vec.push_back(pow(n, a)); } return(Vec); }
-vector<long> PowerByn(double n, int From, int To) { vector<long> Vec; for (int a = From; a <= To; ++a) { Vec.push_back(pow(a, n)); } return(Vec); }
-vector<double> nRootOfm(double n, int m1, int m2) { vector<double> Vec; for (int m = m1; m <= m2; ++m) { Vec.push_back(pow(m, 1.0 / n)); }	return(Vec); }
-vector<double> mRootOfn(double n, int m1, int m2) { vector<double> Vec; for (int m = m1; m <= m2; ++m) { Vec.push_back(pow(n, 1.0 / m)); } return(Vec); }
-
-// ################################################# FIM ####################################################################################
+// ############################
+// ############################
+// ############################
 
 // ############## DADOS  ##############
 // PEGA LINHAS DE .TXT E RETORNA EM UM VETOR:
@@ -757,6 +486,7 @@ void CoutText(string Filename)
 }
 
 // COUT DE UM VETOR:
+void CoutVector(vector<short int> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << endl; } }
 void CoutVector(vector<int> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << endl; } }
 void CoutVector(vector<long> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << endl; } }
 void CoutVector(vector<float> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << endl; } }
@@ -770,6 +500,10 @@ void CoutVector(vector<Point3D> Vec) { for (int n = 0; n < Vec.size(); ++n) { co
 void CoutVector(vector<Point3DFlt> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ".x: " << Vec[n].x << " | .y: " << Vec[n].y << " | .z: " << Vec[n].z << endl; } }
 
 // ################################################# FIM ####################################################################################
+
+// ############################
+// ############################
+// ############################
 
 // ############## CLASSES ##############
 // KERNEL PARA CONVOLUÇÃO DE MATRIZES:
@@ -925,6 +659,10 @@ public:
 
 // ################################################# FIM ####################################################################################
 
+// ############################
+// ############################
+// ############################
+
 // ############## MISC. ##############
 // GEMATRIA:
 int Char2Gematria(char C)
@@ -968,19 +706,23 @@ double Char2GemaPerCent(char C) // VEJA, DEPOIS DE L 12, M É 15
 int Str2Gematria(string S) { int Ret = 0; for (int n = 0; n < S.size(); ++n) { Ret += Char2Gematria(S[n]); } return(Ret); }
 double Str2GemaPerCent(string S) { double Ret = 0; for (int n = 0; n < S.size(); ++n) { Ret += Char2GemaPerCent(S[n]); } Ret /= S.size(); return(Ret); }
 
-// ALPHA OMEGA POLAR SSCORE:
+// SCORE PARA POSIÇÃO DAS PEÇAS DO FRACTAL:
 double AOScore(double Radian)
 {
 	double Score = 0;
 	double Sin = sin(Radian), Cos = cos(Radian);
-	Score += Sin; // Eixo Vertical recebe bonus alpha
-	Score += Cos * 0.5; // Eixo Horizontal recebe bonus omega, mas menos bonus
-	if (Sin > 0) { Sin *= 1.25; } if (Cos < 0) { Cos *= 1.25; } // Eixo "Vertical" é "Alpha", "Horizontal" é "Omega"
+	Score += Sin;
+	Score += Cos * 0.5;
+	if (Sin > 0) { Sin *= 1.25; } if (Cos < 0) { Cos *= 1.25; }
 	Score += Sin; Score += Cos;
-	return (Score / 2.704162); // Melhor aproximação que cheguei, não importa muito mesmo, o que importa é a razão perante outros, e esta confirmado que funciona
+	return (Score / 2.704162);
 }
 
 // ################################################# FIM ####################################################################################
+
+// ############################
+// ############################
+// ############################
 
 // ############## RANDOM ##############
 // RANDOM-N FOR M-TIMES:
@@ -1042,6 +784,11 @@ vector<int> RandomIChing(int Tries) { vector<int> ICs; int IC; for (int a = 0; a
 
 // ################################################# FIM ####################################################################################
 
+// ############################
+// ############################
+// ############################
+
+// ############################
 class TestIt
 {
 	public: 
@@ -1051,7 +798,8 @@ class TestIt
 			int Choice = 0; cin >> Choice;
 			if (Choice == 1) { TestGeo tst; tst.Test(); } if (Choice == 2) { TestCalc tst; tst.Test(); } if (Choice == 3) { TestPhis tst; tst.Test(); }
 			if (Choice == 0)
-			{
+			{ 
+				// Teste functions here:
 				cout << "Digite qual função:\n";
 				cout << "| 1 = Testa primo | 2 = Char to integer | 3 = String to integer |\n";
 				cout << "| 4 = Str2Dec | 5 = IsDec? | 6 = Dec2Frac |\n";
