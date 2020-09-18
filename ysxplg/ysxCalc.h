@@ -89,9 +89,16 @@ double msinBeats(double Beats, double BPM) { return( BPM2ms(BPM) * Beats); } // 
 double BeatsinTime(int Min, int Sec, double BPM) { return(Time2ms(Min, Sec) / BPM2ms(BPM)); } // Dado minutos e segundos, retorna a quantia de 'beats' que caberiam nesse tempo
 double samptoms(double samp, double samprate) { return((samp * 1000.0) / samprate); } // Dada quantia de samples que passaram, quanto isso significa em milissegundos
 double mstosamp(double ms, double samprate) { return((ms / samprate) / 1000.0); } // Dada quantia de milissegundos que passaram, quanto isso significa em numero de samples
+double SamplesinMS(double ms, int SampleRate) { return((ms * SampleRate) / 1000); } // How much samples have in x miliseconds
+double Tau2Samples(int SampleRate) { return(SampleRate / Tau); } // SamplesRate divided by tal | 44100 / 6.2831 = 7018.7329903525843074077739647279
+double Sample_n2Rad(int n, int SampleRate) { return(Tau * n / SampleRate); } // If the SampleRate was a table, 'n' would be the index, when 'n = TableSize', the function returns 2*PI
+double Rad2Sample_n(double x, int SampleRate) { return((x / Tau) * SampleRate); } // If the SampleRate was a table, the return would be the index, when 'x = 2*PI', the function returns SampleRate (ex.: 2*PI / 2*PI) * 44100)
+
 // ### Notas e Patterns:
 // # Frequencias:
-double MIDItoFreq(int MIDI, int Temperament, double BaseFreq) { return(pow(2.0, (MIDI - (Temperament * 5.0)) / Temperament) * BaseFreq); } // Por enquanto inicia na nota "A".
+//double MIDItoFreq(int MIDI, int Temperament, double BaseFreq) { return(pow(2.0, (MIDI - (Temperament * 5.75)) / Temperament) * BaseFreq); } // A3 = 57; C3 = 48;
+double MIDItoFreq(int MIDI, int Temperament, double BaseFreq) { return(pow(2.0, ((double)MIDI / Temperament)) * BaseFreq * 0.0185814); } // Modo Reduzido, mas fixo em 'A3 = 57'
+double FreqtoMIDI(double Freq, int Temperament, double BaseFreq) { return(69 + 12 * log2(Freq / BaseFreq)); }
 
 // ####### ####### #######
 // ####### CALCULOS:
@@ -99,14 +106,14 @@ double MIDItoFreq(int MIDI, int Temperament, double BaseFreq) { return(pow(2.0, 
 double Linex(double x, double a, double b) { return(b + x * a); } // y = b + x * a
 
 // FORMULA COMPLEXA:
-double Formula(double a, double Omega, double x, double b, double c, double d) // ((a * Seno(x^b)) / c) + d
+double Formula(double a, double Omega, double x, double b, double c, double d) // ((a * Seno(x^b)) + c) / d
 {
 	double Seno = sin((Omega / 160) * pow(x, b));
 	// #######
 	double ThisFormula = a * Seno; // FORMULA AQUI!!!!!!!
 	// #######
-	if (c == 0) { c = 0.000000001; } // Divisão por 0
-	double Retorno = ((ThisFormula * 1.0) / c) + d;
+	if (d == 0) { d = 0.000000001; } // Divisão por 0
+	double Retorno = (ThisFormula + c) / d;
 	return (Retorno);
 }
 
@@ -114,7 +121,8 @@ double Formula(double a, double Omega, double x, double b, double c, double d) /
 double MiniForm(double n, double Omega)
 {
 	//double x = (Tau * Omega) * n; // Dependendo da formula, não é nescessario.
-	return (/*Formula: */sin(n * Omega)/**/);
+	//return (/*Formula: */sin(n * Omega)/**/);
+	return Formula(1, Omega, n, 3, 0, 1);
 	//return (NonStatWaveFunc(1.0 / (n + 1), 6.2831, n, 1, Omega, 0));
 	//return (SimpleHarmOsc(90, 220, n, 0));
 	//return (Sum(Omega, n, 1, 1, 21));
@@ -159,48 +167,12 @@ double ModForm(double n, double Omega) { return((MiniForm(n, Omega) + 1) * 0.5);
 double ModForm(double n, double Rto, double Omega) { return((MiniForm(n, Omega) + 1) * Rto); }
 double ModForm(double n, double Sum, double Rto, double Omega) { return((MiniForm(n, Omega) + Sum) * Rto); }
 
-// INTEGRAL: // ignore this one, it is giving a wrong return, use "Integral" function
-double IntgrlRAM(double a, double b, int Omega, int Iteracao, short int OpRet)
-{
-	if (OpRet > 3) { OpRet = 3; } if (OpRet < 1) { OpRet = 1; }
-	if (a > b) { double Tmp; Tmp = a; a = b; b = Tmp; }
-	double LRAM = 0, RRAM = 0, MRAM = 0;
-	double DDiv = (b - a) / Iteracao;
-	for (int n = 1; n <= Iteracao; ++n)
-	{
-		// FORMULA:
-		// Miniform: MiniForm((n * DDiv) + a, 1)
-		RRAM = RRAM + (MiniForm((n * DDiv) + a, Omega) * DDiv);
-		LRAM = LRAM + (MiniForm((n - 1 * DDiv) + a, Omega) * DDiv);
-		MRAM = ((RRAM - LRAM) * 0.5) + LRAM;
-		// #######
-	}
-	if (OpRet == 2) { return(LRAM); } else if (OpRet == 3) { return(RRAM); } else { return(MRAM); }
-}
 // Numerical integration: mid-ordinate rule:
 double Integral(double a, double b, int n, double Omega)
 {
 	double dt = (b - a) / n; double sum = 0;
 	for (int i = 1; i <= n; i++) sum += MiniForm(a + (i - 0.5) * dt, Omega) * dt;
 	return sum;
-}
-
-// INTEGRAL ABSOLUTO:
-double IntgrlAbs(double a, double b, int m, int Iteracao)
-{
-	if (a > b) { double Tmp; Tmp = a; a = b; b = Tmp; }
-	double LRAM = 0, RRAM = 0, MRAM = 0;
-	double DDiv = (b - a) / Iteracao;
-	for (int n = 1; n <= Iteracao; ++n)
-	{
-		// FORMULA:
-		// Miniform: MiniForm((n * DDiv) + a, 1)
-		RRAM = RRAM + fabs(MiniForm((n * DDiv) + a, 1) * DDiv); // Acho que fabs é float e absé int
-		LRAM = LRAM + fabs(MiniForm((n - 1 * DDiv) + a, 1) * DDiv);
-		MRAM = ((RRAM - LRAM) * 0.5) + LRAM;
-		// #######
-	}
-	return(MRAM);
 }
 
 // ARC LENGTH:
@@ -227,7 +199,6 @@ double d2xdt2(double x0, double x1, double x2, double t0, double t1)
 {
 	double dx1 = x2 - x1, dx0 = x1 - x0, dt = t1 - t0; return((x2 - (2 * x1) + dx0) / (dt * dt));
 }
-
 // ####### SEQUENCIA E SERIES #######
 // ### SOMAÇÃO:
 double Sum(double m, double x, double Amp, int n, int n2)
@@ -287,7 +258,6 @@ double FourierSeries(double x, int Harmonics, double P, double Omega, double Int
 vector<double> ArithSequence(double a, double d, int n) { vector<double> S{ a }; for (int k = 1; k < n; ++k) { S.push_back(S[0] + (d * k)); } return (S); }
 double ArithSeqnth(double a, double d, int n) { return(a + d * (n - 1)); }
 double ArithSeqSum(double a, double d, int n) { return(n * 0.5 * (2 * a + d * (n - 1))); }
-//double ArithSeqProduct() {}
 
 // Geométrica:
 vector<double> GeoSequence(double a, double r, int n) { vector<double> S{ a }; for (int k = 1; k < n; ++k) { S.push_back(S[0] * pow(r, k)); } return (S); }
@@ -301,12 +271,31 @@ double Serie(int a1, int an)
 	return (0);
 }
 
+// ### I THINK IT IS CALLED SIG FUNCTIONS:
 // SIGMOID (ver variavel)
-double Sigmoid(double x) { return (1 / (1 + (pow(Exp, - x)))); }
+double Sigmoid(double x) { return (1 / (1 + (pow(Exp, -x)))); }
 
 // RECTIFIER:
 double Softplus(double x) { return(log(1 + pow(Exp, x))); }
-double ReLU(double x) {	if (x < 0) { return(0); } else return(x); }
+double ReLU(double x) { if (x < 0) { return(0); } else return(x); }
+
+// ### ESPECIAL:
+
+// Find a periodic value from 'sine' through a 'margin_b' of 'frequencies' multiplied by 'a' on the line of specific 'Radian'; (use 'Value' in set { -1 <= Value <= 1) }:
+// The math is just 'if (sin(Radian * a * b) == Value)'
+vector<int> FindValueInSine(double a, int b0, int b1, double Value, double Radian)
+{ vector<int> Return; for (int b = b0; b < b1; ++b) { if (sin(Radian * a * b) == Value) { Return.push_back(b); } } return(Return); }
+
+// The same, but based on a music scale (MIDI):
+vector<int> FindValueInSineinMIDI(double a, int MIDIini, int MIDIend, double Value, double Radian, int Temperament, double BaseFreq)
+{ vector<int> Return; for (int M = MIDIini; M < MIDIend; ++M) { if (sin(Radian * a * MIDItoFreq(M, Temperament, BaseFreq)) == Value) { Return.push_back(M); } } return(Return); }
+
+// The same, but based on a music scale (Frequency):
+vector<double> FindValueInSineinFreq(double a, int FreqIni, int FreqEnd, double Increment, double Value, double Radian, int Temperament, double BaseFreq)
+{ vector<double> Return; for (int f = FreqIni; f < FreqEnd; f += Increment) { if (sin(Radian * a * f) == Value) { Return.push_back(FreqtoMIDI(f, Temperament, BaseFreq)); } } return(Return); }
+
+// ### MISC:
+double EzSeqForm(double a, double b, double c, double d, double e) { return(pow(pow(a, b + c), d) / e); }
 
 // ####### ####### ####### ####### ####### #######
 
