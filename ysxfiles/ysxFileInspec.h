@@ -117,7 +117,7 @@ public:
 	// CHAR CHUNK:
 	vector<char> GetBufferChar(int Size, int Index)
 	{
-		int SizeTotal; int Begin = Index * Size; int End = Begin + Size;
+		int SizeTotal; int Begin = Index; int End = Begin + Size;
 		vector<char> Buffer;
 
 		if (FileIn.is_open())
@@ -137,7 +137,6 @@ public:
 	{
 		int SizeTotal;
 		const int IntSize = sizeof (int);
-		//Size *= IntSize;
 		int SizeinBytes = Size * IntSize;
 		int Begin = Index * SizeinBytes; int End = Begin + SizeinBytes;
 		vector<int> Buffer;
@@ -149,7 +148,6 @@ public:
 			SizeTotal = FileIn.tellg();
 			if (End <= SizeTotal)
 			{
-				//Buffer = vector<int>::vector(Size); int* BufferPointer = &Buffer.at(0);
 				char* Byte = Bytes;
 				for (int n = 0; n < Size; ++n)
 				{
