@@ -3,6 +3,8 @@ I'm noob on c++, I just want a back-up of my codes, this is also a way to share 
 There is nothing advanced and since I use those codes since the beginning of my programming journey, it have lot of rubbish that I'm lazy to fix.
 I love to do music and I began to learn programming because music. Since "music is math", I'm enjoying using c++ to make small silly programs to use in other softwares for music.
 
+* I'm constantly fixing the headers, so i kept the "using namespace std" on it, i know it is a bad practice nowadays and i'm thinking about taking it off one day.
+
 ysxCImg.h:
 Uses the header "CImg" (cimg.eu) to do useful things, some that uses other headers I made;
 There is functions that "CImg" header already have, that the "CImg" header do better, but I used to learn;
