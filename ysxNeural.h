@@ -1,5 +1,5 @@
 // TUTORIAL PARA NEURAL NET: https://youtu.be/KkwX7FkLfug
-// https://vimeo.com/19569529 // Guy comment about something to fix, this file have the said fix
+// https://vimeo.com/19569529
 
 #pragma once
 
@@ -55,7 +55,7 @@ public:
 	// Era Private:
 	double SumDOW(const Layer &NextLayer) const;
 	double Output;
-	double tInput; // This Input, e nÃ£o o do Net. | CORREÃ‡ÃƒO, VER ACIMA!
+	double tInput; // This Input, e não o do Net. | CORREÇÃO, VER ACIMA!
 	vector<Connection> Weights;
 	unsigned Index;
 	double Gradient;
@@ -104,21 +104,21 @@ double Neuron::SumDOW(const Layer &NextLayer) const
 void Neuron::CalcHiddenGrads(const Layer &NextLayer)
 {
 	double dow = SumDOW(NextLayer);
-	Gradient = dow * Neuron::TransferDeriv(tInput); // CORREÃ‡ÃƒO
+	Gradient = dow * Neuron::TransferDeriv(tInput); // CORREÇÃO
 	//Gradient = dow * Neuron::TransferDeriv(Output);
 }
 
 void Neuron::CalcOutGrads(double targetVal)
 {
 	double Delta = targetVal - Output;
-	Gradient = Delta * Neuron::TransferDeriv(tInput); // CORREÃ‡ÃƒO
+	Gradient = Delta * Neuron::TransferDeriv(tInput); // CORREÇÃO
 	//Gradient = Delta * Neuron::TransferDeriv(Output);
 }
 
 double Neuron::Transfer(double x) {	return tanh(x); }
 
 //double Neuron::TransferDeriv(double x) { return (1.0 - x * x); }
-double Neuron::TransferDeriv(double x) { return (1.0 - tanh(x) * tanh(x)); } // CORREÃ‡ÃƒO, VER TOPO!
+double Neuron::TransferDeriv(double x) { return (1.0 - tanh(x) * tanh(x)); } // CORREÇÃO, VER TOPO!
 
 void Neuron::FF(const Layer &PrevLayer)
 {
@@ -133,7 +133,7 @@ void Neuron::FF(const Layer &PrevLayer)
 			PrevLayer[n].Weights[Index].Weight;
 	}
 
-	tInput = Sum; // CORREÃ‡ÃƒO!
+	tInput = Sum; // CORREÇÃO!
 	Output = Neuron::Transfer(Sum);
 }
 
@@ -424,7 +424,7 @@ public:
 
 
 // #################################################
-// ####### FUNÃ‡Ã•ES INFORMATIVAS #######
+// ####### FUNÇÕES INFORMATIVAS #######
 // #################################################
 
 // COUT elementos de um vetor:
@@ -451,7 +451,7 @@ void SaveVectorImg(vector<double> Vector, int x, int y, string Sufix, double Rsi
 	if (Rsize != 1.0) { Resize(round(x * Rsize), round(y * Rsize), 6, ResultImg); }
 	ResultImg.save_bmp(Str2Char(str).data());
 }
-// Salva uma Imagem com a cor sendo funÃ§Ã£o de 'y':
+// Salva uma Imagem com a cor sendo função de 'y':
 void SaveVectorInfoLRGB(vector<double> Vector, string Sufix, double Rsize)
 {
 	double SqrtVec = sqrt(Vector.size());
@@ -475,7 +475,7 @@ void SaveVectorInfoLRGB(vector<double> Vector, string Sufix, double Rsize)
 	if (Rsize != 1.0) { Resize(round(x * Rsize), round(y * Rsize), 6, ResultImg); }
 	ResultImg.save_bmp(Str2Char(str).data());
 }
-// Salva uma Imagem com a cor sendo funÃ§Ã£o de 'y' dividido em 3 partes, de vermelho a azul:
+// Salva uma Imagem com a cor sendo função de 'y' dividido em 3 partes, de vermelho a azul:
 void SaveVectorInfoTriClr(vector<double> Vector, string Sufix, double Rsize)
 {
 	double SqrtVec = sqrt(Vector.size());

@@ -16,12 +16,12 @@
 #include <algorithm>
 #include <vector>
 
-using namespace std; // To be deleted in the future
+using namespace std;
 
 // #####################################################################################################################################
 // ############## FORWARD DECLARATIONS ##############
 // Extern:
-double SrfSphr(double);
+double SphereSurf(double);
 double WaveLgh(double, double);
 double MiniForm(double, double);
 double Derivative(double, double); double Derivative(double, double, double);
@@ -38,7 +38,7 @@ vector<int> PowVec(vector<int>, int);
 vector<double> PowVec(vector<double>, double);
 // #####################################################################################################################################
 // ############## TOOLS ##############
-// DECLARE OBJECTOS QUE SERÃƒO USADOS EM TODOS OS HEADERS AQUI!
+// DECLARE OBJECTOS QUE SERÃO USADOS EM TODOS OS HEADERS AQUI!
 // ####### STRUCTS:
 struct Point { int x, y; }; // Coordenadas em int | Era Point { int x, y; Point(int x, int y) : x(x), y(y) {} };, mas funcionou assim
 struct PointFlt { double x, y; }; // Coordenadas em flt
@@ -100,8 +100,8 @@ vector<int> Factors(int n) { vector<int> V; for (int m = 1; m <= n; ++m) { if (0
 // DIVISOR FUNCTION (When x is 1, the function is called the sigma function or sum - of - divisors function)
 int DivFunc(int n, int Power) { vector<int> Fac = PowVec(Factors(n), Power); int Sum = SumVec(Fac); return(Sum); }
 
-// ####### MÃ‰DIAS E RAZÃ•ES:
-// MÃ‰DIA, ARITHMETIC MEAN:
+// ####### MÉDIAS E RAZÕES:
+// MÉDIA, ARITHMETIC MEAN:
 double Average(vector<double> Vec) { double Soma = 0; if (Vec.size() != 0) { for (int n = 0; n < Vec.size(); ++n) { Soma += Vec[n]; } Soma /= Vec.size(); } return (Soma); }
 
 // ROOT MEAN SQUARE:
@@ -134,13 +134,13 @@ PointFlt GeoHarmMean(PointFlt Point, int Iter)
 double PowerMean(vector<double> Vec, double p)
 { double Soma = 0; int n = Vec.size(); for (int i = 0; i < n; ++i) { Soma += pow(Vec[i], p); } Soma *= 1.0 / n; Soma = pow(Soma, 1 / p); return(Soma); }
 
-// RAZÃƒO ENTRE DUAS RAZÃ•ES: (Ex.: Cerveja, a = 365ml, Rta = 0.046; CachaÃ§a, b = 50ml, Rtb = 0.39; Retorno = 0.86102564...
+// RAZÃO ENTRE DUAS RAZÕES: (Ex.: Cerveja, a = 365ml, Rta = 0.046; Cachaça, b = 50ml, Rtb = 0.39; Retorno = 0.86102564...
 double MixRatio(int a, int Rta, int b, int Rtb) { return((a * Rta) / (b * Rtb)); }
 
-// RAZÃƒO DA RAZÃƒO:
+// RAZÃO DA RAZÃO:
 double RatioRatio(int a, int Rto) { return((a * Rto) / a); }
 
-// SOMA DE POTENCIA: (Vai somando desde o 'm' atÃ© 'n' elevado por 'p' ou vai somando n de 'p0 a p1')
+// SOMA DE POTENCIA: (Vai somando desde o 'm' até 'n' elevado por 'p' ou vai somando n de 'p0 a p1')
 double SumIniEndtoPow(int Ini, int End, int p) { double Soma = 0; for (int m = Ini; m <= End; ++m) { Soma += pow(m, p); } return (Soma); }
 double SumntoPowIniEnd(int n, int Ini, int End) { double Soma = 0; for (int m = Ini; m <= End; ++m) { Soma += pow(n, m); } return (Soma); }
 
@@ -163,7 +163,7 @@ PointFlt QuadraticEq(double a, double b, double c)
 
 // ############################
 // ####### NUMEROS:
-// Ã‰ PRIMO?:
+// É PRIMO?:
 bool IsPrime(long n) { n = abs(n); for (int m = 2; m < n - 1; ++m) { if (0 == n % m) { return(false); } } return(true); }
 
 // NUMERO TRIANGULAR:
@@ -184,7 +184,7 @@ int GetaFibonmbr(int Fn)
 	}
 	return(Actual);
 }
-vector<int> GetaFiboVec(int Fn) // VEJA SE TA CERTO, VEJA SE n NÃƒO DEVERIA SER 2
+vector<int> GetaFiboVec(int Fn) // VEJA SE TA CERTO, VEJA SE n NÃO DEVERIA SER 2
 {
 	if (Fn < 1) { vector<int> A; A.push_back(1); return(A); }
 	if (Fn == 2) { vector<int> A; A.push_back(1); A.push_back(1); return(A); }
@@ -214,7 +214,7 @@ int GetaLucasnmbr(int Ln)
 	}
 	return(Actual);
 }
-vector<int> GetaLucasVec(int Ln) // VEJA SE TA CERTO, VEJA SE n NÃƒO DEVERIA SER 2
+vector<int> GetaLucasVec(int Ln) // VEJA SE TA CERTO, VEJA SE n NÃO DEVERIA SER 2
 {
 	if (Ln < 1) { vector<int> A; A.push_back(2); return(A); }
 	if (Ln == 2) { vector<int> A; A.push_back(2); A.push_back(1); return(A); }
@@ -230,7 +230,7 @@ vector<int> GetaLucasVec(int Ln) // VEJA SE TA CERTO, VEJA SE n NÃƒO DEVERIA SER
 }
 
 // ############################
-// ####### COMBINATÃ“RIA:
+// ####### COMBINATÓRIA:
 // PERMUTATIONS WITHOUT REPETITION:
 long BinomialCoff(int n, int k) { n = abs(n); k = abs(k); long Fct = (n - k) + 1; for (int a = Fct + 1; a <= n; ++a) { Fct *= a; } return(Fct / Fact(k)); }
 
@@ -275,10 +275,14 @@ double DotProd(PointFlt A, PointFlt B) { return((A.x * B.x) + (A.y * B.y)); }
 
 // ############################
 // ############## TECNICOS  ##############
+
+// ####### CONVERSORES:
 // STR2CHAR:
 vector<char> Str2Char(string ThisStr)
 {
+	// char * ThisChr; | Estilo antigo, tinha que usar delete[] ThisChr, mas o return não permitia
 	int TxtLim = ThisStr.length() + 1;
+	// ThisChr = new char[TxtLim];
 	vector<char> ThisChr(TxtLim);
 	for (int chr = 0; chr < ThisStr.length(); ++chr)
 	{
@@ -290,7 +294,9 @@ vector<char> Str2Char(string ThisStr)
 
 vector<wchar_t> Str2wChart(string ThisStr)
 {
+	// char * ThisChr; | Estilo antigo, tinha que usar delete[] ThisChr, mas o return não permitia
 	int TxtLim = ThisStr.length() + 1;
+	// ThisChr = new char[TxtLim];
 	vector<wchar_t> ThisChr(TxtLim);
 	for (int chr = 0; chr < ThisStr.length(); ++chr)
 	{
@@ -302,20 +308,81 @@ vector<wchar_t> Str2wChart(string ThisStr)
 
 string Char2Str(char C) { string Str = { C }; return (Str); }
 
-string Char2Str(vector<char> C) { string Str = C.data(); return (Str); }
+string Char2Str(vector<char> C) { string Str; for (int n = 0; n < C.size(); ++n) { Str.push_back(C[n]); } return (Str); }
 
-// HEX NUMBERS (AS string) TO A STRING OF ASCII (char, byte):
-string Hex2ASCII(string hex) // Geeksforgeeks functions to convert Hex to ASCII
+// CHAR2INT:
+int Chr2Int(char C)
 {
-	string ascii = "";
-	for (size_t i = 0; i < hex.length(); i += 2)
-	{
-		string part = hex.substr(i, 2);
-		char ch = stoul(part, nullptr, 16);
-		ascii += ch;
-	}
-	return ascii;
+	int a;
+	if (C == '1') { return(1); } if (C == '2') { return(2); } if (C == '3') { return(3); } if (C == '4') { return(4); } if (C == '5') { return(5); }
+	if (C == '6') { return(6); } if (C == '7') { return(7); } if (C == '8') { return(8); } if (C == '9') { return(9); } if (C == '0') { return(0); }
 }
+
+// STR2INT:
+int Str2Int(string S)
+{
+	int a = 0, Count = 0;
+	char C; bool Oktogo = false, Neg = false;
+	vector<int> Array;
+	for (int n = 0; n < S.length(); ++n)
+	{
+		if (S[n] == '1' || S[n] == '2' || S[n] == '3' || S[n] == '4' || S[n] == '5' || S[n] == '6' || S[n] == '7' || S[n] == '8' || S[n] == '9' || S[n] == '-')
+		{
+			Oktogo = true;
+		} // se não for ok antes, e for depois, retornara true
+	}
+	if (Oktogo == true)
+	{
+		for (int n = 0; n < S.length(); ++n)
+		{
+			if (S[0] == '-') { Neg = true; }
+			if (S[n] == '1') { Array.push_back(1); ++Count; } if (S[n] == '2') { Array.push_back(2); ++Count; } if (S[n] == '3') { Array.push_back(3); ++Count; }
+			if (S[n] == '4') { Array.push_back(4); ++Count; } if (S[n] == '5') { Array.push_back(5); ++Count; } if (S[n] == '6') { Array.push_back(6); ++Count; }
+			if (S[n] == '7') { Array.push_back(7); ++Count; } if (S[n] == '8') { Array.push_back(8); ++Count; } if (S[n] == '9') { Array.push_back(9); ++Count; }
+			if (S[n] == '0' && n != 0) { Array.push_back(0); ++Count; }
+		}
+		for (int n = 0; n < Count; ++n)
+		{
+			if (Array[n] != 0) { a = a + (Array[n] * (pow(10, (Count - n - 1)))); }
+			else { for (int m = 1; m <= Count - n; m = m * 10) { a = a * 1; } }
+		}
+	}
+	else { a = 0; }
+	if (Neg) { a *= -1; }
+	return(a);
+}
+
+// STR2DEC:
+double Str2Double(string S)
+{
+	int n = 0;
+	string Str, Str0;
+	while (S[n] != '.' && n < S.length()) { Str.push_back(S[n]); ++n; }
+	if (n + 1 < S.length()) { for (int m = n + 1; m < S.length(); ++m) { Str0.push_back(S[m]); } }
+	else { Str0 = "0"; }
+	int Int = Str2Int(Str), Int2 = Str2Int(Str0);
+	return (Int + (Int2 * (1.0 / pow(10, Str0.length()))));
+}
+
+// IS DECIMAL?:
+bool IsDec(string S) { double x = Str2Double(S); if (1.0 == x / round(x)) { return (false); } else { return (true); } }
+
+// DEC2FRAC:
+Point Dec2Frac(double n)
+{
+	Point ab;
+	int m = 0;
+	bool Got = false;
+	while (!Got)
+	{
+		double Div = (1.0 * m) / n; if (n == m / round(Div)) { ab.x = m; ab.y = round(Div); Got = true; } ++m;
+		if (m > 999999999) { cout << "Numero muito grande!\n"; ab.x = 1; ab.y = 1; Got = true; }
+	}
+	return(ab);
+}
+
+// #####################
+// ####### PROPRIEDADES DOS NUMEROS:
 
 // IS NUMBER?:
 bool IsNmbr(char C)
@@ -335,73 +402,7 @@ bool IsNmbr(char C)
 	}
 }
 
-// CHAR2INT:
-int Chr2Int(char C)
-{
-	int a;
-	if (C == '1') { return(1); } if (C == '2') { return(2); } if (C == '3') { return(3); } if (C == '4') { return(4); } if (C == '5') { return(5); }
-	if (C == '6') { return(6); } if (C == '7') { return(7); } if (C == '8') { return(8); } if (C == '9') { return(9); } if (C == '0') { return(0); }
-}
 
-// STR2INT:
-int Str2Int(string S)
-{
-	int a = 0, Count = 0;
-	char C; bool Oktogo = false, Neg = false;
-	vector<int> Array;
-	for (int n = 0; n < S.length(); ++n)
-	{
-		if (S[n] == '1' || S[n] == '2' || S[n] == '3' || S[n] == '4' || S[n] == '5' || S[n] == '6' || S[n] == '7' || S[n] == '8' || S[n] == '9' || S[n] == '-')
-		{ Oktogo = true; } // se nÃ£o for ok antes, e for depois, retornara true
-	}
-	if (Oktogo == true)
-	{
-		for (int n = 0; n < S.length(); ++n)
-		{
-			if (S[0] == '-') { Neg = true; }
-			if (S[n] == '1') { Array.push_back(1); ++Count; } if (S[n] == '2') { Array.push_back(2); ++Count; } if (S[n] == '3') { Array.push_back(3); ++Count; }
-			if (S[n] == '4') { Array.push_back(4); ++Count; } if (S[n] == '5') { Array.push_back(5); ++Count; } if (S[n] == '6') { Array.push_back(6); ++Count; }
-			if (S[n] == '7') { Array.push_back(7); ++Count; } if (S[n] == '8') { Array.push_back(8); ++Count; } if (S[n] == '9') { Array.push_back(9); ++Count; }
-			if (S[n] == '0' && n != 0) { Array.push_back(0); ++Count; }
-		}
-		for (int n = 0; n < Count; ++n)
-		{
-			if (Array[n] != 0) { a = a + (Array[n] * (pow(10, (Count - n - 1)))); }
-			else { for (int m = 1; m <= Count - n; m = m * 10) { a = a * 1; } }
-		}
-	}
-	else { a = 0; }
-	if (Neg) { a *= - 1; }
-	return(a);
-}
-
-// STR2DEC:
-double Str2Dec(string S)
-{
-	int n = 0;
-	string Str, Str0;
-	while (S[n] != '.' && n < S.length()) { Str.push_back(S[n]); ++n; }
-	if (n + 1 < S.length()) { for (int m = n + 1; m < S.length(); ++m) { Str0.push_back(S[m]); } } else { Str0 = "0"; }
-	int Int = Str2Int(Str), Int2 = Str2Int(Str0);
-	return (Int + (Int2 * (1.0 / pow(10, Str0.length()))));
-}
-
-// IS DECIMAL?:
-bool IsDec(string S) { double n = Str2Dec(S); if (1.0 == n / round(n)) { return (false); } else { return (true); } }
-
-// DEC2FRAC:
-Point Dec2Frac(double n)
-{
-	Point ab;
-	int m = 0;
-	bool Got = false;
-	while (!Got)
-	{
-		double Div = (1.0 * m) / n; if (n == m / round(Div)) { ab.x = m; ab.y = round(Div); Got = true; } ++m;
-		if (m > 999999999) { cout << "Numero muito grande!\n"; ab.x = 1; ab.y = 1; Got = true; }
-	}
-	return(ab);
-}
 
 // INDICE DAS LETRAS:
 int LetterIndex(char C)
@@ -464,8 +465,8 @@ vector<double> DataTextLine(string File)
 {
 	vector<double> Ret;
 	string Line;
-	ifstream Data(File); if (!Data.is_open()) { cout << "! DADOS NÃƒO FORAM ABERTOS !\n"; }
-	else { while (getline(Data, Line)) { Ret.push_back(Str2Dec(Line)); } } Data.close();
+	ifstream Data(File); if (!Data.is_open()) { cout << "! DADOS NÃO FORAM ABERTOS !\n"; }
+	else { while (getline(Data, Line)) { Ret.push_back(Str2Double(Line)); } } Data.close();
 	return(Ret);
 }
 
@@ -473,7 +474,7 @@ vector<double> DataTextLine(string File)
 vector<double> DataTextItem(string File)
 {
 	vector<double> Ret;
-	ifstream Data(File); if (!Data.is_open()) { cout << "! DADOS NÃƒO FORAM ABERTOS !\n"; }
+	ifstream Data(File); if (!Data.is_open()) { cout << "! DADOS NÃO FORAM ABERTOS !\n"; }
 	else { while (!Data.eof()) { double Db; Data >> Db; Ret.push_back(Db); } } Data.close();
 	return(Ret);
 }
@@ -481,7 +482,7 @@ vector<double> DataTextItem(string File)
 // COUT TEXTO:
 void CoutText(string Filename)
 {
-	string Line; ifstream Data(Filename); if (!Data.is_open()) { cout << "! DADOS NÃƒO FORAM ABERTOS !\n"; }
+	string Line; ifstream Data(Filename); if (!Data.is_open()) { cout << "! DADOS NÃO FORAM ABERTOS !\n"; }
 	else { while (getline(Data, Line)) { cout << Line << endl; } } Data.close();
 }
 
@@ -498,6 +499,22 @@ void CoutVector(vector<Point> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout
 void CoutVector(vector<PointFlt> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ".x: " << Vec[n].x << " | .y: " << Vec[n].y << endl; } }
 void CoutVector(vector<Point3D> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ".x: " << Vec[n].x << " | .y: " << Vec[n].y << " | .z: " << Vec[n].z << endl; } }
 void CoutVector(vector<Point3DFlt> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ".x: " << Vec[n].x << " | .y: " << Vec[n].y << " | .z: " << Vec[n].z << endl; } }
+// COUT DE UM VETOR COM COLUNAS:
+void CoutVector(vector<short int> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " "; ++c; if (c == Cols) { cout << endl; c = 0; } } }
+void CoutVector(vector<int> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " ";  ++c; if (c == Cols) { cout << endl; c = 0; } } }
+void CoutVector(vector<long> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " ";  ++c; if (c == Cols) { cout << endl; c = 0; } } }
+void CoutVector(vector<float> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " ";  ++c; if (c == Cols) { cout << endl; c = 0; } } }
+void CoutVector(vector<double> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " ";  ++c; if (c == Cols) { cout << endl; c = 0; } } }
+void CoutVector(vector<bool> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " ";  ++c; if (c == Cols) { cout << endl; c = 0; } } }
+void CoutVector(vector<string> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " ";  ++c; if (c == Cols) { cout << endl; c = 0; } } }
+void CoutVector(vector<char> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " ";  ++c; if (c == Cols) { cout << endl; c = 0; } } }
+void CoutVector(vector<Point> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ".x: " << Vec[n].x << " | .y: " << Vec[n].y << " "; ++c; if (c == Cols) { cout << endl; c = 0; } } }
+void CoutVector(vector<PointFlt> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ".x: " << Vec[n].x << " | .y: " << Vec[n].y << " "; ++c; if (c == Cols) { cout << endl; c = 0; } } }
+void CoutVector(vector<Point3D> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ".x: " << Vec[n].x << " | .y: " << Vec[n].y << " | .z: " << Vec[n].z << " "; ++c; if (c == Cols) { cout << endl; c = 0; } } }
+void CoutVector(vector<Point3DFlt> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ".x: " << Vec[n].x << " | .y: " << Vec[n].y << " | .z: " << Vec[n].z << " "; ++c; if (c == Cols) { cout << endl; c = 0; } } }
+// COUT STRING AS INT:
+void CoutStringInt(string Str) { int i; for (int n = 0; n < Str.size(); ++n) { i = Str[n]; cout << n << ": " << i << endl; } }
+void CoutStringInt(string Str, int Cols) { int i; int c = 0; for (int n = 0; n < Str.size(); ++n) { i = Str[n]; cout << n << ": " << i << " "; ++c; if (c == Cols) { cout << endl; c = 0; } } }
 
 // ################################################# FIM ####################################################################################
 
@@ -506,7 +523,7 @@ void CoutVector(vector<Point3DFlt> Vec) { for (int n = 0; n < Vec.size(); ++n) {
 // ############################
 
 // ############## CLASSES ##############
-// KERNEL PARA CONVOLUÃ‡ÃƒO DE MATRIZES:
+// KERNEL PARA CONVOLUÇÃO DE MATRIZES:
 class MatrixKernel
 {
 public:
@@ -678,7 +695,7 @@ int Char2Gematria(char C)
 	else if (C == 'x' || C == 'X') { return(6); } else if (C == 'y' || C == 'Y') { return(7); } else if (C == 'z' || C == 'Z') { return(8); }
 	else { return(0); }
 }
-double Char2GemaPerCent(char C) // VEJA, DEPOIS DE L 12, M Ã‰ 15
+double Char2GemaPerCent(char C) // VEJA, DEPOIS DE L 12, M É 15
 {
 	if (IsNmbr(C)) { return(Chr2Int(C) / 10.0); } if (C == 'a') { return(1 / 56.0); } else if (C == 'b') { return(2 / 56.0); }
 	else if (C == 'c') { return(3 / 56.0); } else if (C == 'A') { return(0.5 + (1 / 56.0)); } else if (C == 'B') { return(0.5 + (2 / 56.0)); }
@@ -706,16 +723,16 @@ double Char2GemaPerCent(char C) // VEJA, DEPOIS DE L 12, M Ã‰ 15
 int Str2Gematria(string S) { int Ret = 0; for (int n = 0; n < S.size(); ++n) { Ret += Char2Gematria(S[n]); } return(Ret); }
 double Str2GemaPerCent(string S) { double Ret = 0; for (int n = 0; n < S.size(); ++n) { Ret += Char2GemaPerCent(S[n]); } Ret /= S.size(); return(Ret); }
 
-// SCORE PARA POSIÃ‡ÃƒO DAS PEÃ‡AS DO FRACTAL:
+// ALPHA OMEGA POLAR SSCORE:
 double AOScore(double Radian)
 {
 	double Score = 0;
 	double Sin = sin(Radian), Cos = cos(Radian);
-	Score += Sin;
-	Score += Cos * 0.5;
-	if (Sin > 0) { Sin *= 1.25; } if (Cos < 0) { Cos *= 1.25; }
+	Score += Sin; // Eixo Vertical recebe bonus alpha
+	Score += Cos * 0.5; // Eixo Horizontal recebe bonus omega, mas menos bonus
+	if (Sin > 0) { Sin *= 1.25; } if (Cos < 0) { Cos *= 1.25; } // Eixo "Vertical" é "Alpha", "Horizontal" é "Omega"
 	Score += Sin; Score += Cos;
-	return (Score / 2.704162);
+	return (Score / 2.704162); // Melhor aproximação que cheguei, não importa muito mesmo, o que importa é a razão perante outros, e esta confirmado que funciona
 }
 
 // ################################################# FIM ####################################################################################
@@ -798,11 +815,10 @@ class TestIt
 			int Choice = 0; cin >> Choice;
 			if (Choice == 1) { TestGeo tst; tst.Test(); } if (Choice == 2) { TestCalc tst; tst.Test(); } if (Choice == 3) { TestPhis tst; tst.Test(); }
 			if (Choice == 0)
-			{ 
-				// Teste functions here:
-				cout << "Digite qual funÃ§Ã£o:\n";
+			{
+				cout << "Digite qual função:\n";
 				cout << "| 1 = Testa primo | 2 = Char to integer | 3 = String to integer |\n";
-				cout << "| 4 = Str2Dec | 5 = IsDec? | 6 = Dec2Frac |\n";
+				cout << "| 4 = Str2Double | 5 = IsDec? | 6 = Dec2Frac |\n";
 				cout << "| 7 = BinomialCoff | 8 = Perm. no rep.\n";
 				cout << "| 9 = Quadratic Eq. | 10 = GDC | 11 = LCM | 12 Tri. Number |\n";
 				int Op; cin >> Op;
@@ -810,7 +826,7 @@ class TestIt
 				if (Op == 1) { cout << "IsPrime(n);\n"; long Opn; cout << "n: "; cin >> Opn; cout << "RETORNO: " << IsPrime(Opn) << endl; }
 				if (Op == 2) { cout << "Chr2Int(C);\n"; char Opc; cout << "Char: "; cin >> Opc; cout << "RETORNO: " << Chr2Int(Opc) << endl; }
 				if (Op == 3) { cout << "Str2Int(S);\n"; string Ops; cout << "String: "; cin >> Ops; cout << "RETORNO: " << Str2Int(Ops) << endl; }
-				if (Op == 4) { cout << "Str2Dec(S);\n"; string Ops; cout << "String: "; cin >> Ops; cout << "RETORNO: " << Str2Dec(Ops) << endl; }
+				if (Op == 4) { cout << "Str2Double(S);\n"; string Ops; cout << "String: "; cin >> Ops; cout << "RETORNO: " << Str2Double(Ops) << endl; }
 				if (Op == 5) { cout << "IsDec(S);\n"; string Ops; cout << "String: "; cin >> Ops; cout << "RETORNO: " << IsDec(Ops) << endl; }
 				if (Op == 6)
 				{
