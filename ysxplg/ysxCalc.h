@@ -8,9 +8,9 @@
 using namespace std;
 
 // #####################################################################################################################################
-// ####### DECLARAÃ‡Ã•ES:
+// ####### DECLARAÇÕES:
 double Sum(double, double, double, int, int);
-double IntgrlRAM(double, double, int, int, short int);
+double Integral(double, double, int, double);
 double MiniForm(double, double);
 double Sigmoid(double);
 
@@ -18,7 +18,7 @@ double Sigmoid(double);
 // ### MINHAS FORMULAS:
 // #####################
 
-// Faz circulos a cada iteraÃ§Ã£o de um delta x:
+// Faz circulos a cada iteração de um delta x:
 double FxPi(double x, int Iter, double Pin)
 {
 	double d = Tau / Iter;
@@ -26,10 +26,10 @@ double FxPi(double x, int Iter, double Pin)
 	int divxflr = floor(divx);
 	double PiSin = Sum(1, (divx - divxflr) * (Pi * Pin), 1, 1, 7); // Lembrar que era sin((divx - divxflr) * (Pi * Pin))
 	return(PiSin * Sum(1, x, 1, 1, 7));
-	// return(PiSin * sin(x)); // Bem legal tambÃ©m
+	// return(PiSin * sin(x)); // Bem legal também
 }
 
-// Faz circulos a cada iteraÃ§Ã£o de um delta x:
+// Faz circulos a cada iteração de um delta x:
 double FxPi0(double x, int Iter, double Pin)
 {
 	double d = Tau / Iter;
@@ -46,7 +46,7 @@ double FxPi0(double x, int Iter, double Pin)
 	return(PiSin * Sum(1, x, 1, 1, 7));
 }
 
-// Faz circulos a cada iteraÃ§Ã£o de um delta x:
+// Faz circulos a cada iteração de um delta x:
 double FxPi1(double x, int Iter, double Pin)
 {
 	double d;
@@ -73,7 +73,7 @@ double FxPi1(double x, int Iter, double Pin)
 // #####################
 
 // ####### ####### #######
-// ####### RELÃ“GIO:
+// ####### RELÓGIO:
 double Time2ms(int Min, int Sec) { return((Sec + (Min * 60)) * 1000); }
 double Time2ms(int Hr, int Min, int Sec) { return((Sec + ((Min * 60) + (Hr * 3600))) * 1000); }
 double ms2Min(double ms) { return((ms / 1000.0) / 60); }
@@ -83,7 +83,7 @@ double Dec2Sec(double Dec) { return(Dec * 60); }
 double BPM2ms(double BPM) { return(60000.0 / BPM); } // Quantos 'ms' tem em cada beat
 double ms2BPM(double ms) { return(60000.0 / ms); } // Qual seria o 'BPM' se o beat tivesse tantos 'ms'
 double ms2Freq(double ms) { return(1.0 / (ms / 1000.0)); } // dado 'ms', retorna a frequencia que oscilaria no mesmo periodo
-double Ptrn2ms(int PtrnSize, int Ptrnn, double BPM) { return((PtrnSize * Ptrnn) * BPM2ms(BPM)); } // no "Renoise" com "64" linhas seria "PtrnSize = 16", Ã© em beats;
+double Ptrn2ms(int PtrnSize, int Ptrnn, double BPM) { return((PtrnSize * Ptrnn) * BPM2ms(BPM)); } // no "Renoise" com "64" linhas seria "PtrnSize = 16", é em beats;
 double Beatsinms(double ms, double BPM) { return(ms / BPM2ms(BPM)); } // Quantos 'beats' tem em tantos 'ms'
 double msinBeats(double Beats, double BPM) { return( BPM2ms(BPM) * Beats); } // Quantos 'ms' tem em tantos beats
 double BeatsinTime(int Min, int Sec, double BPM) { return(Time2ms(Min, Sec) / BPM2ms(BPM)); } // Dado minutos e segundos, retorna a quantia de 'beats' que caberiam nesse tempo
@@ -102,32 +102,32 @@ double FreqtoMIDI(double Freq, int Temperament, double BaseFreq) { return(69 + 1
 
 // ####### ####### #######
 // ####### CALCULOS:
-// LINHA:
-double Linex(double x, double a, double b) { return(b + x * a); } // y = b + x * a
+// LINHA (y = b + x * a):
+double Linex(double x, double a, double b) { return(b + x * a); }
 
-// FORMULA COMPLEXA:
-double Formula(double a, double Omega, double x, double b, double c, double d) // ((a * Seno(x^b)) + c) / d
+// FORMULA COMPLEXA ((a * Seno(x^b)) + c) / d | LEMBRAR DE FAZER UMA FUNÇÃO QUE LEIA QUALQUER FORMULA:
+double Formula(double a, double Omega, double x, double b, double c, double d)
 {
 	double Seno = sin((Omega / 160) * pow(x, b));
 	// #######
 	double ThisFormula = a * Seno; // FORMULA AQUI!!!!!!!
 	// #######
-	if (d == 0) { d = 0.000000001; } // DivisÃ£o por 0
+	if (d == 0) { d = 0.000000001; } // Divisão por 0
 	double Retorno = (ThisFormula + c) / d;
 	return (Retorno);
 }
 
-// MINI FORMULA:
+// MINI FORMULA | LEMBRAR DE FAZER UMA FUNÇÃO QUE LEIA QUALQUER FORMULA:
 double MiniForm(double n, double Omega)
 {
-	//double x = (Tau * Omega) * n; // Dependendo da formula, nÃ£o Ã© nescessario.
+	//double x = (Tau * Omega) * n; // Dependendo da formula, não é nescessario.
 	//return (/*Formula: */sin(n * Omega)/**/);
 	return Formula(1, Omega, n, 3, 0, 1);
 	//return (NonStatWaveFunc(1.0 / (n + 1), 6.2831, n, 1, Omega, 0));
 	//return (SimpleHarmOsc(90, 220, n, 0));
 	//return (Sum(Omega, n, 1, 1, 21));
 	/* Formulas interessantes:
-	sin((Omega / 160) * pow(n, 3)) <------- Classico dos meus testes, muda a frequencia com x e muda direÃ§Ã£o em negativo.
+	sin((Omega / 160) * pow(n, 3)) <------- Classico dos meus testes, muda a frequencia com x e muda direção em negativo.
 	sin(x) ||| sin(x)+(tan(x*((sin((pow(x,3))/200)/4))))/4 ||| sin(x)+(cos(x*((sin((pow(x,3))/200)/4))))/4
 	(sin(x) + ASerModulado) / 2 ||| sin(x) + (cos(x*((sin((pow(x, 3)) / 200) / 4)))) / 4
 	(((cos(x) + (sin(x * 7))/4)/1.25) + ASerModulado) / 2 ||| sin(pow(x,2)) + (cos(x*((sin((pow(x, 3)) / 200) / 4)))) / 4
@@ -138,7 +138,7 @@ double MiniForm(double n, double Omega)
 	1/(1+pow(Exp, - 2 * n))
 
 	FOURIER:
-	Sum(1, n, 1, 1, 77) || VERIFICAR SE ESTA A FORMULA FOURIER NA SOMATÃ“RIA
+	Sum(1, n, 1, 1, 77) || VERIFICAR SE ESTA A FORMULA FOURIER NA SOMATÓRIA
 
 	POLAR:
 	en.wikipedia.org/wiki/File:Rose-rhodonea-curve-7x9-chart-improved.svg
@@ -162,7 +162,7 @@ double MiniForm(double n, double Omega)
 	*/
 }
 
-// MINI FORMULA DA MODULAÃ‡ÃƒO:
+// MINI FORMULA DA MODULAÇÃO:
 double ModForm(double n, double Omega) { return((MiniForm(n, Omega) + 1) * 0.5); }
 double ModForm(double n, double Rto, double Omega) { return((MiniForm(n, Omega) + 1) * Rto); }
 double ModForm(double n, double Sum, double Rto, double Omega) { return((MiniForm(n, Omega) + Sum) * Rto); }
@@ -172,6 +172,14 @@ double Integral(double a, double b, int n, double Omega)
 {
 	double dt = (b - a) / n; double sum = 0;
 	for (int i = 1; i <= n; i++) sum += MiniForm(a + (i - 0.5) * dt, Omega) * dt;
+	return sum;
+}
+
+// INTEGRAL ABSOLUTO:
+double IntgrlAbs(double a, double b, int n, double Omega)
+{
+	double dt = (b - a) / n; double sum = 0;
+	for (int i = 1; i <= n; i++) sum += fabs(MiniForm(a + (i - 0.5) * dt, Omega)) * dt;
 	return sum;
 }
 
@@ -191,20 +199,17 @@ double Derivative(double x1, double x2, double t1, double t2, double Omega) { re
 
 // EQ. DIFERENCIAL DE SEGUNDA ORDEM:
 // Second-Order Central | Finite Difference:
-double d2xdt2(double x, double Omega)
-{ double Limit = 1.0e-6; double Eq = (MiniForm(x + Limit, Omega) - 2 * MiniForm(x, Omega) + MiniForm(x - Limit, Omega)) / (Limit * Limit); return(Eq); }
+double d2xdt2(double x, double Omega) { double Limit = 1.0e-6; double Eq = (MiniForm(x + Limit, Omega) - 2 * MiniForm(x, Omega) + MiniForm(x - Limit, Omega)) / (Limit * Limit); return(Eq); }
 double d2xdt2(double x0, double x1, double dt) { double dx = x1 - x0; return((x1 - (2 * x0) + (x0 - dx)) / (dt * dt)); }
 double d2xdt2(double x, double dx, double dt, double Omega) { double Eq = (MiniForm(x + dx, Omega) - 2 * MiniForm(x, Omega) + MiniForm(x - dx, Omega)) / dt; return(Eq); }
-double d2xdt2(double x0, double x1, double x2, double t0, double t1)
-{
-	double dx1 = x2 - x1, dx0 = x1 - x0, dt = t1 - t0; return((x2 - (2 * x1) + dx0) / (dt * dt));
-}
+double d2xdt2(double x0, double x1, double x2, double t0, double t1) { double dx1 = x2 - x1, dx0 = x1 - x0, dt = t1 - t0; return((x2 - (2 * x1) + dx0) / (dt * dt)); }
+
 // ####### SEQUENCIA E SERIES #######
-// ### SOMAÃ‡ÃƒO:
+// ### SOMAÇÃO:
 double Sum(double m, double x, double Amp, int n, int n2)
 {
 	double Sm = 0, Form;
-	for (int Step = n; Step <= n2; ++Step) // LEMBRAR DE VERIFICAR SE STP2 NÃƒO ESTA MODIFICADO
+	for (int Step = n; Step <= n2; ++Step) // LEMBRAR DE VERIFICAR SE STP2 NÃO ESTA MODIFICADO
 	{
 		// FORMULA:
 		Form = ((4 / (Step * Pi))*sin((Step * Pi * x * m) / ((n + n - 1) * Pi))) / 2.333333;
@@ -223,7 +228,7 @@ double Sum(double m, double x, double Amp, int n, int n2)
 		Maclaurin series: pow(x, n); || -((1 / n) * pow(x, n))
 		*/
 	}
-	Sm *= Amp; // LEMBRAR VER SE NÃƒO ESTA MODIFICADO ESSA TAMBÃ‰M
+	Sm *= Amp; // LEMBRAR VER SE NÃO ESTA MODIFICADO ESSA TAMBÉM
 	return(Sm);
 }
 
@@ -235,7 +240,7 @@ double FourierSeries(double x, int Harmonics, double P, double Omega, double Int
 	double IntSuma = 0, IntSumb = 0, dt = (1.0 * Integr - P) / IntIter;
 	for (int i = 1; i <= IntIter; i++) { a0 += MiniForm(P + (i - 0.5) * dt, Omega) * dt; }
 	a0 = (1.0 / P) * a0;
-	for (int n = 0; n <= Harmonics; ++n) // LEMBRAR DE VERIFICAR SE STP2 NÃƒO ESTA MODIFICADO
+	for (int n = 0; n <= Harmonics; ++n) // LEMBRAR DE VERIFICAR SE STP2 NÃO ESTA MODIFICADO
 	{
 		// Integrais:
 		for (int i = 1; i <= IntIter; i++)
@@ -254,12 +259,13 @@ double FourierSeries(double x, int Harmonics, double P, double Omega, double Int
 }
 
 // ### SEQUENCIAS:
-// AritimÃ©tica:
+// Aritimética:
 vector<double> ArithSequence(double a, double d, int n) { vector<double> S{ a }; for (int k = 1; k < n; ++k) { S.push_back(S[0] + (d * k)); } return (S); }
 double ArithSeqnth(double a, double d, int n) { return(a + d * (n - 1)); }
 double ArithSeqSum(double a, double d, int n) { return(n * 0.5 * (2 * a + d * (n - 1))); }
+//double ArithSeqProduct() {}
 
-// GeomÃ©trica:
+// Geométrica:
 vector<double> GeoSequence(double a, double r, int n) { vector<double> S{ a }; for (int k = 1; k < n; ++k) { S.push_back(S[0] * pow(r, k)); } return (S); }
 double GeoSeqnth(double a, double r, int n) { return(a * pow(3, n - 1)); }
 double GeoSeqSum(double a, double r, int n) { return(a * ((1 - pow(r, n))/(1 - r))); }
@@ -305,8 +311,8 @@ class TestCalc
 public:
 	void Test()
 	{
-		cout << "Digite qual funÃ§Ã£o:\n";
-		cout << "| 1 = Formula | 2 = ModForm | 3 = MiniForm | 4 = SomaÃ§Ã£o |\n";
+		cout << "Digite qual função:\n";
+		cout << "| 1 = Formula | 2 = ModForm | 3 = MiniForm | 4 = Somação |\n";
 		cout << "| 5 = Integral M-L-RRAM | 6 = IntegralAbs| 7 = Derivativos |\n";
 		cout << "| 8 = Diff. Eq. 2nd Order |\n";
 		cout << "#######\n MISC:\n";
@@ -340,13 +346,13 @@ public:
 		if (Op == 5)
 		{
 			cout << "IntgrlRAM(a, b, Iteracao, 1-2-3 OpRet);\n";
-			double Opa, Opb; int Opi, Opr; cout << "a: "; cin >> Opa; cout << "b: "; cin >> Opb; cout << "IteraÃ§Ãµes: "; cin >> Opi; cout << "1 M, 2 L ou 3 R-RAM: "; cin >> Opr;
-			cout << "RETORNO: " << IntgrlRAM(Opa, Opb, 0, Opi, Opr) << endl;
+			double Opa, Opb; int Opi, Opo; cout << "a: "; cin >> Opa; cout << "b: "; cin >> Opb; cout << "Iterações: "; cin >> Opi; cout << "Omega: "; cin >> Opo;
+			cout << "RETORNO: " << Integral(Opa, Opb, Opi, Opo) << endl;
 		}
 		if (Op == 6)
 		{
 			cout << "IntgrlAbs(a, b, Iteracao);\n";
-			double Opa, Opb; int Opi; cout << "a: "; cin >> Opa; cout << "b: "; cin >> Opb; cout << "IteraÃ§Ãµes: "; cin >> Opi;
+			double Opa, Opb; int Opi; cout << "a: "; cin >> Opa; cout << "b: "; cin >> Opb; cout << "Iterações: "; cin >> Opi;
 			cout << "RETORNO: " << IntgrlAbs(Opa, Opb, 0, Opi) << endl;
 		}
 		if (Op == 7)

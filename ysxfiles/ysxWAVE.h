@@ -6,13 +6,8 @@
 #include <vector>
 #include <iostream>
 
-// MEU:
-#include "ysxFileInspec.h"
-
 using namespace std;
 
-// #####################################################################################################################################
-// MY LITTLE GUIDE: https://www.onlinegdb.com/HyavW4JBD
 // #####################################################################################################################################
 /*
 // http://soundfile.sapp.org/doc/WaveFormat/
@@ -164,7 +159,7 @@ string WAVEHeaderHex()
 	return("52494646a400000057415645666d7420100000000100010044ac000088580100020010006461746180000000"); // A WAVE FILE HEADER IN HEXADECIMAL:
 }
 
-string MemoHeaderChar() // Probably not working well, and somewhat useless
+string MemoHeaderChar() // !!!!!!! NOT WORKING !!!!!!!
 {
 	string Return;
 	char Buffer[44]; char* p = Buffer;
@@ -239,6 +234,7 @@ public:
 		DChnk.ID[0] = 'd'; DChnk.ID[1] = 'a'; DChnk.ID[2] = 't'; DChnk.ID[3] = 'a';
 		DChnk.Size = 0;
 		
+		//WAVEHeaderHexWriteIt();
 		WriteHeader();
 		ReadHeader();
 		
@@ -274,7 +270,7 @@ public:
 	struct RIFFChunk
 	{
 		char RIFF[4]; // 4 - 'RIFF' | Resource Interchange File Format
-		unsigned int ChunkSize; // 4 - make sure to read only 4 bits | (4 + (8 + Subchunk1Size) + (8 + Subchunk2Size))
+		unsigned int ChunkSize; // 4 - make sure to read only 4 bits | I think it works like this: (4 + (8 + Subchunk1Size) + (8 + Subchunk2Size))
 		char WAVE[4]; // 4 - 'WAVE'
 		// TOTAL: 12
 	};
@@ -319,7 +315,7 @@ public:
 	bool IsChunkSizeCorrect() { if (RChnk.ChunkSize == (4 + (8 + FChnk.Size) + (8 + DChnk.Size))) { return(true); } else { return(false); } }
 
 	// WRITE THE HEX STRING TO HEADER (STANDARD HEADER, WHEN YOU CREATE YOUR OWN WAV):
-	void WAVEHeaderHexWriteIt()
+	/*void WAVEHeaderHexWriteIt()
 	{
 		string Buffer = Hex2ASCII(WAVEHeaderHex());
 		char* p = (char*)&Buffer.at(0);
@@ -328,7 +324,7 @@ public:
 		q = (char*)&FChnk; for (int n = 0; n < 24; ++n) { *q = *p; ++q; ++p; }
 		q = (char*)&DChnk; for (int n = 0; n < 8; ++n) { *q = *p; ++q; ++p; }
 		GetDataSize(); GetChunkSize();
-	}
+	}*/
 
 	// #################################################
 	// #################################################
@@ -618,10 +614,15 @@ public:
 		for (int n = Begin; n < End; )
 		{
 			wavFile.read((char*)&ReadInt, Bytes);
-      double Push = ReadInt;
+
+			double Push = ReadInt;
+
 			if (Push > 0) { Push /= 32767.0; } else { Push /= 32768.0; }
+
 			if (FChnk.NumChannels == 1) { GETDATA.push_back(Push); }
+
 			else { if (Switch) { GETDATA.push_back(Push); Switch = false; } else { Switch = true; } }
+			
 			n = wavFile.tellg();
 		}
 		wavFile.seekg(0, ios::beg);
@@ -632,7 +633,7 @@ public:
 	// #################################################
 	// #################################################
 		
-	// PREPARE DATA TO OUTPUT: (!!! ATTENTION: This function Multiplies the data by 32768 !!!)
+	// PREPARE DATA TO OUTPUT: (!!! ATTENTION: This function Multiplies the data by 32767 !!!)
 	DATASHINT PrepareData(vector<double> In)
 	{ DATASHINT Buffer; for (int n = 0; n < In.size(); ++n) { if (In[n] > 0) { Buffer.push_back(round(In[n] * 32767)); } else { Buffer.push_back(round(In[n] * 32768)); } } return(Buffer);	}
 	DATASHINT PrepareData(DATAFLT In)

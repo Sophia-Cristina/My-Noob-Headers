@@ -30,7 +30,7 @@ vector<string> BinaryWordsSeq(int Iter) // Sequencia binaria que funciona assim:
 	Word = Words[0];
 	int Wordsn = 0;
 
-	// AÃ‡ÃƒO:
+	// AÇÃO:
 	for (int Wordn = 1; Wordn < Iter; ++Wordn)
 	{
 		bool First = false, Second = false;
@@ -46,7 +46,7 @@ vector<string> BinaryWordsSeq(int Iter) // Sequencia binaria que funciona assim:
 	return(Words);
 }
 
-// AREA POR ITERAÃ‡ÃƒO DO MEU "BINARY WORD SEQUENCY FRACTAL":
+// AREA POR ITERAÇÃO DO MEU "BINARY WORD SEQUENCY FRACTAL":
 vector<long> BinaryWordSeqArea(int Iter)
 {
 	if (Iter <= 0) { Iter = 1; }
@@ -61,7 +61,7 @@ vector<long> BinaryWordSeqArea(int Iter)
 	return(Areas);
 }
 
-// AREA DE CADA ITERAÃ‡ÃƒO DO MEU "BINARY WORD SEQUENCY FRACTAL":
+// AREA DE CADA ITERAÇÃO DO MEU "BINARY WORD SEQUENCY FRACTAL":
 vector<long> BinaryWordSeqArean(int Iter)
 {
 	if (Iter <= 0) { Iter = 1; }
@@ -91,6 +91,149 @@ vector<int> BinaryWordValue(vector<string> Words)
 	return (V);
 }
 
+// MATRIZ DE COORDENADAS DE UM FRACTAL COM TAIS SEQUENCIAS !!! ERRO:
+vector<Point> MatrixFractalBinary(vector<string> Words)
+{
+	// Descobre numero de iterações:
+	int Iter, Size = Words.size();
+	for (int n = 1; Size == 0; ++n)
+	{
+		Size -= pow(2, n);
+		Iter = n;
+	}
+	cout << "Iter: " << Iter << endl;
+
+	// Verifica pontuação para devida coordenada:
+	vector<int> Scores;
+	for (int n = 0; n < Words.size(); ++n)
+	{
+		int Score = 0;
+		for (int m = 0; m < Words[n].size(); ++m)
+		{
+			if (Words[n][m] == '1') { Score += 1 * pow(10, ((Words.size() - 1) - m)); }
+		}
+		Scores.push_back(Score);
+	}
+
+	// Verifica pontuação de cada coordenada:
+	vector<double> CrdTargs;
+	vector<Point> Coord;
+	for (int n = 0; n < Iter; ++n)
+	{
+		int Stages = pow(2, n + 1);
+		double ThetaDiv = Tau / Stages;
+		double ThetaOffset = Pi * 0.5;
+		for (int Tht = ThetaOffset + ThetaDiv; Tht <= Tau + ThetaOffset; Tht += ThetaDiv) // Qualquer coisa tira o ThetaDiv
+		{
+			double Bonus = 0;
+			// Bonus:
+			if (sin(Tht) > 0) { Bonus += 2; }
+			if (sin(Tht) < 0) { Bonus += -2; }
+			if (cos(Tht) > 0) { Bonus += 2; }
+			if (cos(Tht) < 0) { Bonus += -2; }
+			// Target:
+			CrdTargs.push_back((2 * sin(Tht)) + cos(Tht) + Bonus);
+		}
+		// Associa pontuação a coordenadas:
+		vector<double> Best;
+		for (int m = 0; m < Stages; ++m)
+		{
+			for (int k = 0; k < Stages; ++k)
+			{
+				double Delta = CrdTargs[k];
+				Best.push_back(0);
+				for (int l = 0; l < Stages; ++l)
+				{
+					double ActualDelta = CrdTargs[k] - Scores[l];
+					if (ActualDelta < Delta) { Delta = ActualDelta; Best[k] = l; }
+				}
+			}
+		}
+		// Adiciona em Coordenada:
+		int x, y, r;
+		double ThetaDiv2 = ThetaDiv / n;
+		for (int Tht = ThetaOffset; Tht <= Tau + ThetaOffset; Tht += ThetaDiv2) // Qualquer coisa tira o ThetaDiv
+		{
+			r = n;
+			Point GetCrd;
+			Coord.push_back(GetCrd);
+		}
+	}
+
+	return(Coord);
+}
+
+// ESPIRAL COM COMBINAÇÕES DA SEQUENCIA BINARIA !!! ERRO:
+vector<LinePoint> SpiralFractalBinary(int Iter)
+{
+	// As primeiras 3 iterações devem ser feitas manualmente, pois um ciclo não se completa e seria chato fazer uma função só para isso
+	vector<LinePoint> Coord(2);
+	Coord[0].x0 = 0; Coord[0].y0 = 0; Coord[0].x1 = 0; Coord[0].y1 = 0;
+	Coord[1].x0 = 0; Coord[1].y0 = 1; Coord[1].x1 = 0; Coord[1].y1 = 1;
+	cout << "ITER1 DONE!\n\n";
+	if (Iter == 1) { return(Coord); }
+	LinePoint IniLines;
+	IniLines.x0 = 0; IniLines.y0 = 2; IniLines.x1 = 1; IniLines.y1 = 2;
+	Coord.push_back(IniLines);
+	IniLines.x0 = 1; IniLines.y0 = 1; IniLines.x1 = 1; IniLines.y1 = 0;
+	Coord.push_back(IniLines);
+	IniLines.x0 = 1; IniLines.y0 = -1; IniLines.x1 = 0; IniLines.y1 = -1;
+	Coord.push_back(IniLines);
+	IniLines.x0 = -1; IniLines.y0 = -1; IniLines.x1 = -1; IniLines.y1 = 0;
+	Coord.push_back(IniLines);
+	cout << "ITER2 DONE!\n\n";
+	if (Iter == 2) { return(Coord); }
+
+	// Ação:
+	enum { Up, Down, Left, Right };
+	int Dir = Right, Crdn = 1;
+	int inix = 0, iniy = 1, Top = 1;
+	bool Pair = true;
+	for (int n = 2; n <= Iter; ++n)
+	{
+		++Top;
+		int x0, x1, y0, y1;
+		if (Pair) { x0 = 0; }
+		for (int m = 0; m < pow(2, n); ++m)
+		{
+			//if (m == 0) {  }
+			//LinePoint Map;
+			
+		}
+	}
+	cout << "ITERn DONE!\n\n";
+}
+// #####################################################################################################################################
+
+// #####################################################################################################################################
+// SEQUENCIA DE LINHAS DE QUADRADOS (Ver no caderno, não é quadrados de potencia):
+vector<int> SeqQuadrado(int Iter)
+{
+	if (Iter < 1) { Iter = 1; }
+	vector<int> Ret;
+	for (int n = 1; n <= Iter; ++n)
+	{
+		Ret.push_back((n * 2) - 1);
+	}
+	return(Ret);
+}
+
+vector<Point> SeqQdrdCoord(int Iter)
+{
+	vector<Point> Points;
+	Point Push;
+	Push.x = 0; Push.y = 0;
+	Points.push_back(Push);
+	enum Dir { Up, Left, Down, Right};
+	if (Iter > 1)
+	{
+		for (int n = 2; n <= Iter; ++n)
+		{
+
+		}
+	}
+	return(Points);
+}
 // #####################################################################################################################################
 
 // #####################################################################################################################################

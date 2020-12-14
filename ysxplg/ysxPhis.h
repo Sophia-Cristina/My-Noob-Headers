@@ -8,7 +8,7 @@
 using namespace std;
 
 // #####################################################################################################################################
-// ####### DECLARA√á√ïES:
+// ####### DECLARA«’ES:
 double DensityAir(double, double, double);
 // #####################
 // ####### FERRAMENTAS:
@@ -28,11 +28,10 @@ struct Particle { double Force, Momentum, Velocity, Mass, Direction, /*Radians*/
 // ### FIM | MINHAS ###
 // #####################
 // #####################################################################################################################################
-// Boa parte das fun√ß√µes aqui s√£o simples e iguais, mas a ideia √© memorizar, se esquecer qual √© a formula, escreva o nome da formula e mesmo que seja simples, ja saber√°
-// o que fazer, inclusive com os comentarios em cada fun√ß√£o.
+// Boa parte das funÁıes aqui s„o simples e iguais, mas a ideia È memorizar, se esquecer qual È a formula, escreva o nome da formula e mesmo que seja simples, ja saber·
+// o que fazer, inclusive com os comentarios em cada funÁ„o.
 // ####### ####### #######
 // ####### CONVERSORES:
-
 // COMPRIMENTOS: 
 // https://en.wikipedia.org/wiki/Conversion_of_units
 double kmh2ms(double kmh) { return(kmh / 3.6); } // km/h to m/s
@@ -62,14 +61,15 @@ double lbs2kg(double lbs) { return(lbs * 0.45359237); } // Pounds to kg
 double kg2lbs(double kg) { return(kg / 0.45359237); } // kg to pounds
 double oz2g(double oz) { return(oz * 28.349523125); } // oz to grams
 double g2oz(double g) { return(g / 28.349523125); } // grams to oz
-double g2gr(double g) { return(g / 0.06479891); } // grams to grains
+double g2gr(double g) { return(g / 0.06479891); } // grams to grainss
 double gr2g(double g) { return(g * 0.06479891); } // grains to grams
+
 
 // TEMPERATURAS:
 double Fahr2Cel(double F) { return((F - 32) * (5.0 / 9)); }
 double Cel2Fahr(double C) { return((C * 9.0 / 5) + 32); }
 
-// PRESS√ÉO:
+// PRESS√O:
 double atm2pa(double atm) { return(atm * 101325); }
 double pa2atm(double Pa) { return(Pa / 101325); }
 
@@ -78,13 +78,13 @@ double pa2atm(double Pa) { return(Pa / 101325); }
 // Sound Intensity to Decibels for propper sound intesity level
 // https://en.wikipedia.org/wiki/Sound_intensity#Sound_intensity_level:
 double SndInt2db(double I) { double Result = 10 * log10(I / 1.0e-12); if (Result < 0) { Result = 0; } return(Result); }
-double SndInt2db(double I, double I0) { double Result = 10 * log10(I / I0); if (Result < 0) { Result = 0; } return(Result); }
+double SndInt2db(double I, double I0) { double Result = 10 * log10(I / I0); if (Result < 0) { Result = 0; }return(Result); }
 double SndInt2db(double I, double p, double Watts, double m2) { double Result = 10 * log10(I / ((p * Watts) / m2)); if (Result < 0) { Result = 0; } return(Result); }
 
 // #####################################################################################################################################
 // ######################################################## UNIDADES ########################################################
 // #####################################################################################################################################
-// ####### FOR√áA, ENERGIA, POT√äNCIA E MASSA:
+// ####### FOR«A, ENERGIA, POT NCIA E MASSA:
 double Joules(double NorWorPaorC, double morsorcubemorV) { return(NorWorPaorC * morsorcubemorV); } // (Newton or Watts or Pa or Coulomb) * (meter or seconds or meter^3 or Volts) | Energy
 double Joules(double kg, double m, double s) { return((kg * m * m) / (s * s)); } // (kg * meter^2) / s^2 | Energy
 double Watts(double J, double s) { return(J / s); } // Its simple Joules per sec | Power
@@ -92,9 +92,9 @@ double Watts(double N, double m, double s) { return((N * m) / s); } // (Newton *
 double Newtons(double m) { return(m * 9.80665); } // Newton = mass * acceleration | Force
 double Newtons(double m, double a) { return(m * a); } // Newton = mass * acceleration | Force
 double Newtons(double kg, double meter, double s) { return((kg * meter) / (s * s)); } // Newton = (kg * meter) / s^2 | Force
-double Tension(double kg, double Angle) { double Fd = kg * 9.80665; return(Fd / sin(Angle)); }
+double Tension(double kg, double Angle) { double Fd = kg * 9.80665; return(Fd / sin(Angle)); } // x = kg | y = Angle (radians)
 double Momentum(double kg, double ms) { return(kg * ms); } // Momentum
-double Pressure(double Force, double Area) { return(Force / Area); } // Press√£o
+double Pressure(double Force, double Area) { return(Force / Area); } // Press„o
 double NormForce(double kg) { return(kg * Gravity); } // Normal force
 double NormForce(double kg, double Ang) { return(kg * Gravity * cos(Ang)); } // Normal force
 
@@ -121,11 +121,11 @@ Force MakeForce(double Frc, double Ang, double Mass)
 	Velo = (x2 - x1) / (t2 - t1); Acell = d2x/dt2 = (v2 - v1) / (t2 - t1); Jerk = d3x/dt3 = (a2 - a1) / (t2 - t1)
 	Velo = Derivative(x1, x2, t1, t2); Acell = Derivative(v1, v2, t1, t2)
 */
-// Parece estar funcionando corretamente, mas me questiono se √© "t3 - t0" ou "(t3 - t2) + (t1 - t0)":
+// Parece estar funcionando corretamente, mas me questiono se È "t3 - t0" ou "(t3 - t2) + (t1 - t0)":
 double Accel(double x0, double x1, double x2, double x3, double t0, double t1, double t2, double t3)
-{ return((((x3 - x2) / (t3 - t2)) - ((x1 - x0) / (t1 - t0))) / ((t3 - t2) * (t1 - t0))); } // antes a divis√£o era (t3 - t0), agora mutiplica
-// √Æ_ Pode ser que tenha que ter (x3 - x2)/dt2 - (x2 - x1)/dt1 -(x1 - x0) / dt0
-// √Æ_ Acho que nenhum desses funciona.
+{ return((((x3 - x2) / (t3 - t2)) - ((x1 - x0) / (t1 - t0))) / ((t3 - t2) * (t1 - t0))); } // antes a divis„o era (t3 - t0), agora mutiplica
+// Ó_ Pode ser que tenha que ter (x3 - x2)/dt2 - (x2 - x1)/dt1 -(x1 - x0) / dt0
+// Ó_ Acho que nenhum desses funciona.
 
 double Accel(double F, double m) { return(F / m); } // Acceleration can be written as Force / mass
 // BASE:
@@ -139,18 +139,18 @@ double WindSpeedHghtGrad(double h0, double h, double SurfRough) { return(SurfRou
 // PARTICULA:
 double ParticleVel(double d1, double d2, double t1, double t2) { return((d2 - d1) / (t2 - t1)); } // d = displacement; t = time;
 
-//  Cin√©tica:
+//  CinÈtica:
 double KineticEnrg(double kg, double ms) { return(0.5 * kg * ms * ms); } // Speed in m/s | return = Joules
 double KineticEnMom(double p, double kg) { return((p * p) / (2 * kg)); } // The kinetic energy of an object is related to its momentum
 double Density(double kg, double Vol) { return(kg / Vol); } // Densidade, kg/m^3
-double DensityAir(double Pa, double GasConst, double T) { return((Pa / (GasConst * T))); } // Pa = Pressure; Gas Constant in J/(kg¬∑K); T = Temperature in Kelvins
+double DensityAir(double Pa, double GasConst, double T) { return((Pa / (GasConst * T))); } // Pa = Pressure; Gas Constant in J/(kg∑K); T = Temperature in Kelvins
 double Stiffness(double F, double d) { return(F / d); } // Force / Displacement (menor distancia entre x1 e x2)| https://en.wikipedia.org/wiki/Displacement_(vector)
 
 // ####### ELASTICIDADE E ETC:
 double BulkMod(double P1, double P2, double p1, double p2) { return((P2 - P1)/ (- (p2 - p1) / p1)); } // P = pressure | p = density | change p (elasticity) to v if needed
 
 // #####################################################################################################################################
-// ######################################################## AC√öSTICA ########################################################
+// ######################################################## AC⁄STICA ########################################################
 // #####################################################################################################################################
 // https://en.wikipedia.org/wiki/List_of_equations_in_wave_theory
 
@@ -193,7 +193,7 @@ double SoundPress(double Watts, double Area, double v) { return((Watts / Area) /
 
 // #####################################################################################################################################
 // NON-STATIONARY WAVE FUNCTION:
-// * Ver se isso n√£o √© o mesmo que "particle displacement" *
+// * Ver se isso n„o È o mesmo que "particle displacement" *
 // https://brilliant.org/wiki/waves/
 // Waves moving (non-stationary) have a disturbance that varies both with time 't' as the distance 'z' can be expressed mathematically as *Formula*
 // where 'A(z, t)' is the amplitude envelope of the wave, 'k' is the wave number, and 'Phase' is the phase constant. The velocity 'v' of this wave is given by 'v = Omega / k';
@@ -234,7 +234,7 @@ double SimpleHarmOsc(double Tht0, double T, double t, double phi) { return(Tht0 
 // #####################################################################################################################################
 // #####################
 // ### MATRIZES:
-// CRIA MATRIZ DERIVADA DE OUTRA MATRIZ:
+// CRIA MATRIZ DERIVADa DE OUTRA MATRIZ:
 vector<double> VecDeriv(vector<double> VecData, double dt)
 { vector<double> Derivatives; for (int n = 1; n < VecData.size(); ++n) { Derivatives.push_back((VecData[n] - VecData[n - 1]) / dt); } return(Derivatives); }
 
@@ -254,10 +254,10 @@ vector<double> NonStatWaveVec(int VectorSize, double SndSpeed, double Distance, 
 	return (ThisVector);
 }
 
-// CRIA MATRIZ DE INTENSIDADE DO SOM (ESF√âRA):
+// CRIA MATRIZ DE INTENSIDADE DO SOM (ESF…RA):
 vector<double> SndIntSphVec(int Size, double Watts, double r, double WRto)
 {
-	double tWatts = Watts; // Ratio Watts, por enquanto n√£o sei
+	double tWatts = Watts; // Ratio Watts, por enquanto n„o sei
 	double dr = r / Size;
 	vector<double> Ret;
 	for (int n = 0; n <= Size; ++n)
@@ -330,7 +330,7 @@ public:
 	double Frequency;
 	double WaveLenght;
 	double Pressure;
-	double Omega; // Omega, radians per sec; Frequencia em termos musicais, 440hz √© na verdade 440omega;
+	double Omega; // Omega, radians per sec; Frequencia em termos musicais, 440hz È na verdade 440omega;
 	double Velocity;
 	double Wavenumber;
 	double Distance;
@@ -347,7 +347,7 @@ public:
 		WaveFunction = NonStatWaveVec(VectorSize, Velocity, Distance, Watts, 1, Wavenumber, Omega, 0);
 	}
 
-	// Fazer vetor com raz√µes por tempo:
+	// Fazer vetor com razıes por tempo:
 	vector<double> MakeModVector(double Velr, double Freqr, double tPhase) // r = rate, if you leave as '1' it will not modulate, ex.: "tVel = Velocity * Velr".
 	{
 		vector<double> ThisVector;
@@ -412,9 +412,9 @@ VelAclNtnMntJlWt::VelAclNtnMntJlWt(double ms2, double kg, double OpForce, double
 {
 	if (CellSize < 1) { CellSize = 1; }
 	CellSize = Seconds / CellSize;
-	int Cnt = 1; // Conta quantas c√©lulas do vetor se passaram, todo vetor come√ßa com uma c√©lula
-	double NetF; // Esse objeto vai reduzir a for√ßa em a√ß√£o pela de Oposi√ß√£o (OpForce)
-	double SecFrac = 1 / Seconds; // Fra√ß√£o do total de segundos, resultando na raz√£o de um segundo
+	int Cnt = 1; // Conta quantas cÈlulas do vetor se passaram, todo vetor comeÁa com uma cÈlula
+	double NetF; // Esse objeto vai reduzir a forÁa em aÁ„o pela de OposiÁ„o (OpForce)
+	double SecFrac = 1 / Seconds; // FraÁ„o do total de segundos, resultando na raz„o de um segundo
 	Vel.push_back(0);
 	Moment.push_back(kg * Vel[0]);
 	Acell.push_back(ms2);
@@ -446,8 +446,8 @@ class TestPhis
 public:
 	void Test()
 	{
-		cout << "Digite qual fun√ß√£o:\n";
-		cout << "| 1 = Velocidade, Acelera√ß√£o e Jerk |\n";
+		cout << "Digite qual funÁ„o:\n";
+		cout << "| 1 = Velocidade, AceleraÁ„o e Jerk |\n";
 		cout << "| 2 = SoundIntSph | 3 = SoundIntPA | 4 = SoundIntPv |\n";
 		cout << "| 4 = Kinetic Energy | 5 = Kinetic En. Momentum | 6 = Momentum |\n";
 		cout << "| 7 = Density | 8 = Pressure  | 9 e 10 = NormForce |\n";

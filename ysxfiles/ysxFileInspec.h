@@ -11,12 +11,14 @@
 
 using namespace std;
 
-// TAKE CARE WITH THIS FILE, IT IS SOMEWHAT NEW AND I'M NOT SURE IF EVERYTHING IS WORKING CORRECTLY
-
 // #####################################################################################################################################
 // ####### STRUCTS #######
 // INDEX:
 
+
+// #####################################################################################################################################
+// #####################################################################################################################################
+// #####################################################################################################################################
 
 // #####################################################################################################################################
 // #######  IN / OUT #######
@@ -24,18 +26,48 @@ using namespace std;
 // SAVE IN A BINARY FILE OVERWRITTING IT:
 void ofsVectorOut(vector<double> V, string Path) { ofstream F(Path, ios::binary); if (F.is_open()) { char Bytes = sizeof(double); for (int n = 0; n < V.size(); ++n) { F.write((char*)&V[n], Bytes); } } F.close(); }
 
-// GET A VECTOR FROM OF A BINARY:
-vector<double> ifsVectorIn(string Path)
+// GET A VECTOR FROM OF A BINARY (WHICH CONSIST ENTIRELY OF THE SAME TYPE OBJECT):
+vector<double> ifsVectorDblIn(string Path)
 {
-	vector<double> Buffer; char Bytes = sizeof(double);
-	ifstream F(Path, ios::binary);
-	if (F.is_open())
-	{
-		while (!F.eof()) { double Compile; char* p = (char*)&Compile; F.read(p, Bytes); Buffer.push_back(Compile); }
-	}
+	vector<double> Buffer; char Bytes = sizeof(double); ifstream F(Path, ios::binary);
+	if (F.is_open()) { F.seekg(0, ios::end); int Size = F.tellg(); F.seekg(0, ios::beg); while (F.tellg() < Size) { double Compile; char* p = (char*)&Compile; F.read(p, Bytes); Buffer.push_back(Compile); } }
 	else { cout << "Something went wrong while loading file.\n"; }
-	F.close();
-	return(Buffer);
+	F.close(); return(Buffer);
+}
+vector<double> ifsVectorDblIn(string Path, int Index)
+{
+	vector<double> Buffer; char Bytes = sizeof(double); ifstream F(Path, ios::binary);
+	if (F.is_open()) { F.seekg(0, ios::end); int Size = F.tellg(); F.seekg(0, ios::beg); while (F.tellg() < Size) { double Compile; char* p = (char*)&Compile; F.read(p, Bytes); Buffer.push_back(Compile); } }
+	else { cout << "Something went wrong while loading file.\n"; }
+	F.close(); return(Buffer);
+}
+vector<double> ifsVectorDblIn(string Path, int Index, int End)
+{
+	vector<double> Buffer; char Bytes = sizeof(double); ifstream F(Path, ios::binary);
+	if (F.is_open()) { F.seekg(0, ios::end); int Size = F.tellg(); F.seekg(0, ios::beg); while (F.tellg() < Size) { double Compile; char* p = (char*)&Compile; F.read(p, Bytes); Buffer.push_back(Compile); } }
+	else { cout << "Something went wrong while loading file.\n"; }
+	F.close(); return(Buffer);
+}
+vector<int> ifsVectorIntIn(string Path)
+{
+	vector<int> Buffer; char Bytes = sizeof(int); ifstream F(Path, ios::binary);
+	if (F.is_open()) { F.seekg(0, ios::end); int Size = F.tellg(); F.seekg(0, ios::beg); while (F.tellg() < Size) { int Compile; char* p = (char*)&Compile; F.read(p, Bytes); Buffer.push_back(Compile); } }
+	else { cout << "Something went wrong while loading file.\n"; }
+	F.close(); return(Buffer);
+}
+vector<int> ifsVectorIntIn(string Path, int Index)
+{
+	vector<int> Buffer; char Bytes = sizeof(int); ifstream F(Path, ios::binary);
+	if (F.is_open()) { F.seekg(0, ios::end); int Size = F.tellg(); F.seekg(0, ios::beg); while (F.tellg() < Size) { int Compile; char* p = (char*)&Compile; F.read(p, Bytes); Buffer.push_back(Compile); } }
+	else { cout << "Something went wrong while loading file.\n"; }
+	F.close(); return(Buffer);
+}
+vector<int> ifsVectorIntIn(string Path, int Index, int End)
+{
+	vector<int> Buffer; char Bytes = sizeof(int); ifstream F(Path, ios::binary);
+	if (F.is_open()) { F.seekg(0, ios::end); int Size = F.tellg(); F.seekg(0, ios::beg); while (F.tellg() < Size) { int Compile; char* p = (char*)&Compile; F.read(p, Bytes); Buffer.push_back(Compile); } }
+	else { cout << "Something went wrong while loading file.\n"; }
+	F.close(); return(Buffer);
 }
 
 // APPEND TO THE END OF A BINARY FILE:
@@ -47,23 +79,23 @@ void fsVectorOutApp(vector<double> V, string Path)
 	F.close();
 }
 
-// !!!!!!! FAZER UMA FUN√á√ÉO AQUI QUE COPIA O FIM DE UM ARQUIVO DESFE UM INDEX E APPEND UM VECTOR ALI E COLA O INDEX NO FIM DO VECTOR = A, B, C | A, [D, E] | A, D, E, B, C !!!!!!!
+// !!!!!!! FAZER UMA FUN«√O AQUI QUE COPIA O FIM DE UM ARQUIVO DESFE UM INDEX E APPEND UM VECTOR ALI E COLA O INDEX NO FIM DO VECTOR = A, B, C | A, [D, E] | A, D, E, B, C !!!!!!!
 // #######  REST:
 
 // GET FROM OF A BINARY (you should know if index on input is possible):
-double ifsInChar(string Path, int Index)
+char ifsInChar(string Path, int Index)
 {
 	ifstream F(Path, ios::binary); char c; if (F.is_open()) { F.seekg(Index); F.read(&c, sizeof(char)); } else { cout << "Something went wrong while loading file.\n"; } F.close(); return(c);
 }
-double ifsInSInt(string Path, int Index)
+short int ifsInSInt(string Path, int Index)
 {
-	ifstream F(Path, ios::binary); float Compile; if (F.is_open()) { F.seekg(Index); F.read((char*)&Compile, sizeof(float)); } else { cout << "Something went wrong while loading file.\n"; } F.close(); return(Compile);
+	ifstream F(Path, ios::binary); short int Compile; if (F.is_open()) { F.seekg(Index); F.read((char*)&Compile, sizeof(short int)); } else { cout << "Something went wrong while loading file.\n"; } F.close(); return(Compile);
 }
-double ifsInInt(string Path, int Index)
+int ifsInInt(string Path, int Index)
 {
-	ifstream F(Path, ios::binary); float Compile; if (F.is_open()) { F.seekg(Index); F.read((char*)&Compile, sizeof(float)); } else { cout << "Something went wrong while loading file.\n"; } F.close(); return(Compile);
+	ifstream F(Path, ios::binary); int Compile; if (F.is_open()) { F.seekg(Index); F.read((char*)&Compile, sizeof(int)); } else { cout << "Something went wrong while loading file.\n"; } F.close(); return(Compile);
 }
-double ifsInFlt(string Path, int Index)
+float ifsInFlt(string Path, int Index)
 {
 	ifstream F(Path, ios::binary); float Compile; if (F.is_open()) { F.seekg(Index); F.read((char*)&Compile, sizeof(float)); } else { cout << "Something went wrong while loading file.\n"; } F.close(); return(Compile);
 }
@@ -71,6 +103,38 @@ double ifsInDbl(string Path, int Index)
 {
 	ifstream F(Path, ios::binary); double Compile; if (F.is_open()) { F.seekg(Index); F.read((char*)&Compile, sizeof(double)); } else { cout << "Something went wrong while loading file.\n"; } F.close(); return(Compile);
 }
+
+/*// GET FROM OF A BINARY (you should know if index on input is possible), FROM ONE INDEX TO ANOTHER:
+string ifsInChar(string Path, int Index, int LastIndex)
+{
+	string Buffer;
+	ifstream F(Path, ios::binary); char c; if (F.is_open()) { F.seekg(Index); while (F.tellg() < LastIndex) { F.read(&c, sizeof(char)); Buffer.push_back(c); } }
+	else { cout << "Couldn't open file.\n"; } F.close(); return(Buffer);
+}
+vector<short int> ifsInSInt(string Path, int Index, int LastIndex)
+{
+	vector<short int> Buffer;
+	ifstream F(Path, ios::binary); short int Compile; if (F.is_open()) { F.seekg(Index); while (F.tellg() < LastIndex) { F.read((char*)&Compile, sizeof(short int)); Buffer.push_back(Compile); } }
+	else { cout << "Couldn't open file.\n"; } F.close(); return(Buffer);
+}
+vector<int> ifsInInt(string Path, int Index, int LastIndex)
+{
+	vector<int> Buffer;
+	ifstream F(Path, ios::binary); int Compile; if (F.is_open()) { F.seekg(Index); while (F.tellg() < LastIndex) { F.read((char*)&Compile, sizeof(int)); Buffer.push_back(Compile); } }
+	else { cout << "Couldn't open file.\n"; } F.close(); return(Buffer);
+}
+vector<float> ifsInFlt(string Path, int Index, int LastIndex)
+{
+	vector<float> Buffer;
+	ifstream F(Path, ios::binary); float Compile; if (F.is_open()) { F.seekg(Index); while (F.tellg() < LastIndex) { F.read((char*)&Compile, sizeof(float)); Buffer.push_back(Compile); } }
+	else { cout << "Couldn't open file.\n"; } F.close(); return(Buffer);
+}
+vector<double> ifsInDbl(string Path, int Index, int LastIndex)
+{
+	vector<double> Buffer;
+	ifstream F(Path, ios::binary); double Compile; if (F.is_open()) { F.seekg(Index); while (F.tellg() < LastIndex) { F.read((char*)&Compile, sizeof(double)); Buffer.push_back(Compile); } }
+	else { cout << "Couldn't open file.\n"; } F.close(); return(Buffer);
+}*/
 
 // APPEND TO THE END OF A BINARY FILE:
 void fsOutApp(char C, string Path) { fstream F(Path, ios::binary); if (F.is_open()) { F.seekp(0, ios::end); F.write(&C, sizeof(char)); } else { cout << "Something went wrong while loading file.\n"; } F.close(); }
@@ -89,13 +153,13 @@ class GetFileInfo
 public:
 	ifstream FileIn;
 	string Path;
-	unsigned int Bytes;
+	unsigned int FileSize;
 
 	GetFileInfo(string InputPath)
 	{
 		FileIn.open(InputPath, ios::binary);
 		Path = InputPath;
-		Bytes = NumberOfBytes();
+		FileSize = NumberOfBytes();
 	}
 
 	~GetFileInfo() { FileIn.close(); }
@@ -117,7 +181,7 @@ public:
 	// CHAR CHUNK:
 	vector<char> GetBufferChar(int Size, int Index)
 	{
-		int SizeTotal; int Begin = Index; int End = Begin + Size;
+		int SizeTotal; int Begin = Index * Size; int End = Begin + Size;
 		vector<char> Buffer;
 
 		if (FileIn.is_open())
@@ -137,6 +201,7 @@ public:
 	{
 		int SizeTotal;
 		const int IntSize = sizeof (int);
+		//Size *= IntSize;
 		int SizeinBytes = Size * IntSize;
 		int Begin = Index * SizeinBytes; int End = Begin + SizeinBytes;
 		vector<int> Buffer;
@@ -148,6 +213,7 @@ public:
 			SizeTotal = FileIn.tellg();
 			if (End <= SizeTotal)
 			{
+				//Buffer = vector<int>::vector(Size); int* BufferPointer = &Buffer.at(0);
 				char* Byte = Bytes;
 				for (int n = 0; n < Size; ++n)
 				{
@@ -188,6 +254,7 @@ public:
 
 	// #################################################
 	
+	// PRINT CHAR BUFFER IN A ".txt" FILE:
 	void PrintBufferChar(int Size, int Index)
 	{
 		FileIn.seekg(0, ios::end);
@@ -207,6 +274,7 @@ public:
 		Out.close();
 	}
 
+	// PRINT ENTIRE FILE AS CHAR IN A ".txt" FILE:
 	void PrintFileChar()
 	{
 		int Size;
@@ -224,6 +292,41 @@ public:
 		ofstream Out("PrintFileChar.txt");
 		Out.write(Buffer.data(), Size);
 		Out.close();
+	}
+
+	// #################################################
+
+	// COUT INFORMATION:
+	void CoutFileInfo(int BufferSize)
+	{
+		cout << "#####################\n\n";
+		string EntireFile = GetFileChar().data();
+		string Buffer = GetBufferChar(BufferSize, 0).data();
+		vector<int> BufferInt = GetBufferInt(BufferSize / 4, 0, 0);
+		cout << "####### FILE:\n(string size: " << EntireFile.size() << ")\n";
+		cout << EntireFile << "\n\n";
+		cout << "\n#####################\n\n";
+		cout << "####### BUFFER:\n(string size: " << Buffer.size() << ", int size: " << BufferInt.size() << ")\n";
+		cout << Buffer << "\n\n";
+		CoutVector(BufferInt);
+		cout << "\n#####################\n\n";
+	}
+
+	// PRINT INFORMATION:
+	void PrintFileInfo(int BufferSize)
+	{
+		ofstream PrintOut("PrintFileInfo.txt");
+		PrintOut << "#####################\n\n";
+		string EntireFile = GetFileChar().data();
+		string Buffer = GetBufferChar(BufferSize, 0).data();
+		vector<int> BufferInt = GetBufferInt(BufferSize / 4, 0, 0);
+		PrintOut << "####### FILE:\n(File size: " << FileSize << "string size: " << EntireFile.size() << ")\n";
+		PrintOut << EntireFile << "\n\n";
+		PrintOut << "\n#####################\n\n";
+		PrintOut << "####### BUFFER:\n(string size: " << Buffer.size() << ", int size: " << BufferInt.size() << ")\n";
+		PrintOut << Buffer << "\n\n";
+		CoutVector(BufferInt);
+		PrintOut << "\n#####################\n\n";
 	}
 
 	// #################################################
