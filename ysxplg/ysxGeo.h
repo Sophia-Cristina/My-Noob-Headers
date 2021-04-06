@@ -5,8 +5,6 @@
 
 #include "ysxConst.h";
 
-using namespace std;
-
 // #####################################################################################################################################
 
 // ATENÇÃO: QUASE TODOS OS ANGULOS DEVEM SER COLOCADOS COMO RADIANOS, USAR FUNÇÃO "Ang2Rad" SE NÃO SOUBER!!!!!!!
@@ -49,7 +47,7 @@ using namespace std;
 // 'Peri = Perimeter';
 // 'Surf = Surface Area';
 // 'Vol = Volume';
-// 'Eq & Eql = Equal';
+// 'Eq & Eql = Equal OR Equilateral OR Something related';
 // # FIGURES:
 // 'Tri = Triangle';
 // 'Rect = Rectangle';

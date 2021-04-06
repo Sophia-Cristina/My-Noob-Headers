@@ -5,8 +5,6 @@
 
 #include "ysxDoc.h"
 
-using namespace std;
-
 // #####################################################################################################################################
 
 // ####### Constants:
@@ -49,7 +47,7 @@ const double EquiTriArea = 0.433012701892219; // 0.43301270189221932338186158537
 
 
 // CIRCLES:
-const double CircleSqrArea = 0.785398163397448; //0.78539816339744830961566084581988; // Circle of r = 0.5 | The area of a circle inside a square of sides 1
+const double CircleSqrArea = 0.785398163397448; // 0.78539816339744830961566084581988; // Circle of r = 0.5 | The area of a circle inside a square of sides 1
 const double SqrAreaCircle = 0.214601836602552; // 0.21460183660255169038433915418012; // If you remove a circle of r = 0.5 from a square of area 1, you get this area left
 // In a square of side 1, 4 quarter circles in the four directions cross each other, the center figure have this area:
 const double Center4QuartCircArea = 0.31514674362772; // 0.3151467436277204526267681195873;

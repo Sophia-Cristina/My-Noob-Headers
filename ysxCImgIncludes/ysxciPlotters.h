@@ -3,7 +3,6 @@
 #ifndef YSXCIPLOTTER_H
 #define YSXCIPLOTTER_H
 
-using namespace std;
 using namespace cimg_library;
 
 // ###################################
@@ -105,13 +104,110 @@ void Circulo(CImg<unsigned char>& Img)
 	}
 }
 
+// Marca Métrica (vertical OU horizontal), não uasr 'a1 = 12':
+// Faça mudanças depois, pois a métrica é baseada na imagem inteira.
+void MetricLines(CImg<unsigned char>& I, double a1, double a2, double Div, bool VertHori, bool Text, int R, int G, int B) // REFAZER, e adicionar polar
+{
+	if (a1 > a2) { double T = a1; a1 = a2; a2 = T; }
+	double sx = I.width(), sy = I.height(); // size x and y
+	double Delta = a2 - a1;
+	if (Delta > 0)
+	{
+		Div = Delta / Div;
+		double Ratio = 1;
+		double Mid = 1;
+
+		if (VertHori) { Ratio = sx / Delta;	Mid = sy * 0.5; }
+		else { Ratio = sy / Delta; Mid = sx * 0.5; }
+
+
+		int C = 0;
+		for (double a = a1; a <= a2; a += Div)
+		{
+			if (VertHori)
+			{
+				int x = C * Div * Ratio; ++C;
+				for (int y = 0; y < sy; ++y)
+				{
+					unsigned char RGB[] = { R, G, B };
+					I.draw_point(x, y, RGB);
+				}
+				if (Text) { AdcTexto(I, x, Mid, to_string(a), (255 - R) * 0.5, (255 - G) * 0.5, (255 - B) * 0.5); }
+			}
+			else
+			{
+				int y = sy - (C * Div * Ratio); ++C;
+				for (int x = 0; x < sx; ++x)
+				{
+					unsigned char RGB[] = { R, G, B };
+					I.draw_point(x, y, RGB);
+				}
+				if (Text) { AdcTexto(I, Mid, y, to_string(a), (255 - R) * 0.5, (255 - G) * 0.5, (255 - B) * 0.5); }
+			}
+		}
+	}
+}
+
+// POLAR (arrumar, roubei da classe, colocar x e y), fazer um com raio:
+// FAZER UMA VERSÃO COM VECTOR, SEM SER POLIGONAL COMO AQUELE QUE JÁ TEM.
+void Polar(CImg<unsigned char>& I, double r, int x, int y, double t1, double t2, double Omega)
+{
+	if (t1 < 0) { t1 =  Tau + t1; }
+	if (t2 < t1) { double T = t1; t1 = t2; t2 = T; }
+	while (t2 > Tau) { t2 -= Tau; } while (t1 > Tau) { t1 -= Tau; }
+	double Step = (t2 - t1) / (Tau * r); // Ver se no polar vale a pena
+	// Plotadora
+	for (double t = t1; t <= t2; t = t + Step)
+	{
+		// ### ESCREVA AQUI A SUA FORMULA:
+		double Amp = r * MiniForm(t, Omega);
+		// #######
+
+		int iy = y + round(Amp * sin(t));
+		int ix = x + round(Amp * cos(t));
+
+		// Plota Polar:
+		if (InImg(I, y, x))
+		{
+			double Progresso = ((t - t1) / (t2 - t1));
+			Point3D RGB = LinearRGB(Progresso, 1, 1);
+			unsigned char color[] = { RGB.x, RGB.y, RGB.z };
+			I.draw_point(ix, iy, color);
+		}
+	}
+}
+void Polar(CImg<unsigned char>& I, double r, double x, double y, double t1, double t2, double Omega, int R, int G, int B)
+{
+	if (t1 < 0) { t1 = Tau + t1; }
+	if (t2 < t1) { double T = t1; t1 = t2; t2 = T; }
+	while (t2 > Tau) { t2 -= Tau; } while (t1 > Tau) { t1 -= Tau; }
+	double Step = (t2 - t1) / (Tau * r); // Ver se no polar vale a pena
+	// Plotadora
+	for (double t = t1; t <= t2; t = t + Step)
+	{
+		// ### ESCREVA AQUI A SUA FORMULA:
+		double Amp = r * MiniForm(t, Omega);
+		// #######
+
+		y = round(Amp * sin(t));
+		x = round(Amp * cos(t));
+
+		// Plota Polar:
+		if (InImg(I, y, x))
+		{
+			unsigned char color[] = { R, G, B };
+			I.draw_point(x, y, color);
+		}
+	}
+}
+
 // TURN:
 void Turn(CImg<unsigned char>& Img, double r, int tx, int ty, double Ini, double Turn, int R, int G, int B)
 {
 	double y, x;
 	double Rad;
 	if (Ini > Turn) { double Tmp; Tmp = Ini; Ini = Turn; Turn = Tmp; }
-	double Step = (Turn - Ini) / Circumf(r);
+	double Step = (Turn - Ini) / (Tau * r);
 
 	for (Rad = Ini; Rad <= Turn; Rad += Step)
 	{
@@ -131,7 +227,7 @@ void Turn(CImg<unsigned char>& Img, double r, int tx, int ty, double Ini, double
 	double y, x;
 	double Rad;
 	if (Ini > Turn) { double Tmp; Tmp = Ini; Ini = Turn; Turn = Tmp; }
-	double Step = (Turn - Ini) / Circumf(r);
+	double Step = (Turn - Ini) / (Tau * r);
 
 	for (Rad = Ini; Rad <= Turn; Rad += Step)
 	{
@@ -558,6 +654,25 @@ CImg<unsigned char> PrintVectorPointNorm(vector<double> Vector)
 	}
 	return (WavePrint);
 }
+/*CImg<unsigned char> PrintVectorComplex(vector<complex<double>> Vector) // POR ENQUANTO É COPIA DO PRINT VECTOR NORM
+{
+	double Min = 0, Max = 0, Total;
+	for (int n = 0; n < Vector.size(); ++n)
+	{
+		if (Vector[n] > Max) { Max = Vector[n]; }
+		if (Vector[n] < Min) { Min = Vector[n]; }
+	}
+	Total = fabs(Max) + fabs(Min);
+	CImg<unsigned char> WavePrint(Vector.size(), ceil(Total), 1, 3, 0);
+	for (int n = 0; n < Vector.size(); ++n)
+	{
+		double ndiv = (1.0 * n) / (Vector.size() - 1);
+		Point3D RGB = LinearRGB(ndiv, 1, 1);
+		unsigned char Color[] = { RGB.x, RGB.y, RGB.z };
+		WavePrint.draw_point(n, round(Total - (Vector[n] - Min)), Color);
+	}
+	return (WavePrint);
+}*/
 
 // Nesse, o "sy" (Size y) é o tamanho "y" da imagem, "syrto" vai ser multiplicado pelo valor do vetor:
 CImg<unsigned char> PrintVectorPointNorm(vector<double> Vector, int sy, double syrto)
@@ -574,17 +689,53 @@ CImg<unsigned char> PrintVectorPointNorm(vector<double> Vector, int sy, double s
 	}
 	return (WavePrint);
 }
+CImg<unsigned char> PrintVectorPointNorm(vector<double> Vector, int sy, double syrto, int R, int G, int B)
+{
+	syrto *= 2;
+	CImg<unsigned char> WavePrint(Vector.size(), sy, 1, 3, 0);
+	double Max, Min; MaxMinVecAbs(Vector, Max, Min);
+	for (int n = 0; n < Vector.size(); ++n)
+	{
+		unsigned char Color[] = { R, G, B };
+		WavePrint.draw_point(n, round(sy - (((Vector[n] / Max) * (sy * 0.5) * syrto) + (sy * 0.5))), Color); // Change value in accord to half of the image height, multiply by "syrto", and sum to the half height of image.
+	}
+	return (WavePrint);
+}
+void PrintVectorPointOnImg(CImg<unsigned char>& Img, vector<double> Vector, double syrto)
+{
+	syrto *= 2;
+	int sy = Img.height(), sx = Img.width();
+	double Max, Min; MaxMinVecAbs(Vector, Max, Min);
+	double ReciRatio = 1.0 / ((double)Vector.size() / sx);
+	for (int n = 0; n < Vector.size(); ++n)
+	{
+		double ndiv = (1.0 * n) / (Vector.size() - 1);
+		Point3D RGB = LinearRGB(ndiv, 1, 1);
+		unsigned char Color[] = { RGB.x, RGB.y, RGB.z };
+		int xi = round(n * ReciRatio); // 'x' coordinate from 'i'mage
+		int yi = round(sy - (((Vector[n] / Max) * (sy * 0.5) * syrto) + (sy * 0.5)));
+		if (yi > sy) { yi = sy; } if (yi < 0) { yi = 0; }
+		if (xi > sx) { xi = sx; } if (xi < 0) { xi = 0; }
+		Img.draw_point(xi, yi, Color); // Read comment from function above
+	}
+}
 
 // Imprime vetor como barras, tipo grafico estastistico: (LEMBRAR DE FAZER COM QUE SE NÃO TIVER VALOR NEGATIVO, USAR METADE DA IMAGEM!)
+// Largura é 'N * (Width + 2 * Border)'
 CImg<unsigned char> PrintVectorBars(vector<double> Vector, int Width, double Ratio, int Borderx, int Bordery, bool xAxis)
 {
 	double Max, Min; bool Neg = false; MaxMinVec(Vector, Max, Min); if (Min < 0) { Neg = true; } MaxMinVecAbs(Vector, Max, Min); Max *= Ratio; Min *= Ratio;
 	CImg<unsigned char> VecPrint; //vector<CImg<unsigned char>> Prints;
 	if (Neg)
 	{
-		if (xAxis) { CImg<unsigned char> I(Max + Min + 2 + Borderx * 2, Width * Vector.size(), 1, 3, 0); VecPrint = I; } else { CImg<unsigned char> I(Width * Vector.size(), Max + Min + 2 + Bordery * 2, 1, 3, 0); VecPrint = I; }
+		if (xAxis) { CImg<unsigned char> I(Max + Min + 2 + Borderx * 2, (Width + Bordery) * Vector.size(), 1, 3, 0); VecPrint = I; }
+		else { CImg<unsigned char> I((Width + Bordery) * Vector.size(), Max + Min + 2 + Bordery * 2, 1, 3, 0); VecPrint = I; }
 	}
-	else { if (xAxis) { CImg<unsigned char> I(Max + 2 + Borderx * 2 , Width * Vector.size(), 1, 3, 0); VecPrint = I; } else { CImg<unsigned char> I(Width * Vector.size(), Max + 2 + Bordery * 2, 1, 3, 0); VecPrint = I; } }
+	else
+	{
+		if (xAxis) { CImg<unsigned char> I(Max + 2 + Borderx * 2 , (Width + Borderx) * Vector.size(), 1, 3, 0); VecPrint = I; }
+		else { CImg<unsigned char> I((Width + Borderx) * Vector.size(), Max + 2 + Bordery * 2, 1, 3, 0); VecPrint = I; }
+	}
 	int Mid = 0;
 	if (Neg) { double NewMax, NewMin; MaxMinVec(Vector, NewMax, NewMin); NewMin *= Ratio; if (xAxis) { Mid = round((NewMin * -1) + Borderx); } else { Mid = round((NewMin * -1) + Bordery); } }
 	//else { if (xAxis) { Mid = VecPrint.width(); } else { Mid = VecPrint.height(); } }
@@ -594,13 +745,13 @@ CImg<unsigned char> PrintVectorBars(vector<double> Vector, int Width, double Rat
 		{
 			if (xAxis)
 			{
-				if (Vector[n] >= 0) { VecPrint.draw_image(Mid, n * Width, ValueBarAbs(Width, Vector[n], Ratio, Borderx, Bordery, xAxis)); }
-				else { VecPrint.draw_image(Mid + (Vector[n] * Ratio), n * Width, ValueBarAbs(Width, Vector[n], Ratio, Borderx, Bordery, xAxis)); } // + porque é "+ -", o que torna "-"
+				if (Vector[n] >= 0) { VecPrint.draw_image(Mid, n * (Width + Bordery), ValueBarAbs(Width, Vector[n], Ratio, Borderx, Bordery, xAxis)); }
+				else { VecPrint.draw_image(Mid + (Vector[n] * Ratio), n * (Width + Bordery), ValueBarAbs(Width, Vector[n], Ratio, Borderx, Bordery, xAxis)); } // + porque é "+ -", o que torna "-"
 			}
 			else
 			{
-				if (Vector[n] >= 0) { VecPrint.draw_image(n * Width, VecPrint.height() - (Mid + (Vector[n] * Ratio)), ValueBarAbs(Width, Vector[n], Ratio, Borderx, Bordery, xAxis)); }
-				else { VecPrint.draw_image(n * Width, VecPrint.height() - Mid, ValueBarAbs(Width, Vector[n], Ratio, Borderx, Bordery, xAxis)); }
+				if (Vector[n] >= 0) { VecPrint.draw_image(n * (Width + Borderx), VecPrint.height() - (Mid + (Vector[n] * Ratio)), ValueBarAbs(Width, Vector[n], Ratio, Borderx, Bordery, xAxis)); }
+				else { VecPrint.draw_image(n * (Width + Borderx), VecPrint.height() - Mid, ValueBarAbs(Width, Vector[n], Ratio, Borderx, Bordery, xAxis)); }
 			}
 		}
 	}

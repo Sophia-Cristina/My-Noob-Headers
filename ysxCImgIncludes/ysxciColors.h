@@ -3,7 +3,6 @@
 #ifndef YSXCICOLORS_H
 #define YSXCICOLORS_H
 
-using namespace std;
 using namespace cimg_library;
 
 // ###################################
@@ -22,9 +21,82 @@ typedef vector<vector<Point3DFlt>> IMGDataSet; // !!!!!!! !!!!!!! !!!!!!! PAY AT
 // ############################################################################################################################################
 
 // ############################################################################################################################################
+// ############## TÉCNICOS:
+
+// INSIDE A GAP OF RGB NUMBERS:
+bool InsideRGBGap(unsigned char RGB[3], int R0, int R1, int G0, int G1, int B0, int B1)
+{ if (RGB[0] >= R0 && RGB[0] <= R1 && RGB[1] >= G0 && RGB[1] <= G1 && RGB[2] >= B0 && RGB[2] <= B1) { return(true); } else { return(false); } }
+bool InsideRGBGap(Point3D RGB, int R0, int R1, int G0, int G1, int B0, int B1)
+{ if (RGB.x >= R0 && RGB.x <= R1 && RGB.y >= G0 && RGB.y <= G1 && RGB.z >= B0 && RGB.z <= B1) { return(true); } else { return(false); } }
+bool InsideRGBGapOR(unsigned char RGB[3], int R0, int R1, int G0, int G1, int B0, int B1)
+{ if (RGB[0] >= R0 || RGB[0] <= R1 || RGB[1] >= G0 || RGB[1] <= G1 || RGB[2] >= B0 || RGB[2] <= B1) { return(true); } else { return(false); } }
+bool InsideRGBGapOR(Point3D RGB, int R0, int R1, int G0, int G1, int B0, int B1)
+{ if (RGB.x >= R0 || RGB.x <= R1 || RGB.y >= G0 || RGB.y <= G1 || RGB.z >= B0 || RGB.z <= B1) { return(true); } else { return(false); } }
+
+
+// MAX / MIN OF PIXEL X AND Y:
+Point MaxxMinxPixel(vector<Pixel> VP)
+{
+	Point MM;
+	int Maxx = VP[0].x, Minx = VP[0].x;
+	for (int n = 1; n < VP.size(); ++n)
+	{
+		if (VP[n].x > Maxx) { Maxx = VP[n].x; }
+		if (VP[n].x < Minx) { Minx = VP[n].x; }
+	}
+	float Absmx = 0, Absmn = 0;
+	if (Maxx < 0) { Absmx = abs(Maxx); Maxx += Absmx; Minx += Absmx; }
+	if (Minx < 0) { Absmn = abs(Minx); Maxx += Absmn; Minx += Absmn; }
+
+	MM.x = Maxx; MM.y = Minx;
+	return(MM);
+}
+Point MaxyMinyPixel(vector<Pixel> VP)
+{
+	Point MM;
+	int Maxy = VP[0].x, Miny = VP[0].x;
+	for (int n = 1; n < VP.size(); ++n)
+	{
+		if (VP[n].y > Maxy) { Maxy = VP[n].y; }
+		if (VP[n].y < Miny) { Miny = VP[n].y; }
+	}
+	float Absmx = 0, Absmn = 0;
+	if (Maxy < 0) { Absmx = abs(Maxy); Maxy += Absmx; Miny += Absmx; }
+	if (Miny < 0) { Absmn = abs(Miny); Maxy += Absmn; Miny += Absmn; }
+
+	MM.x = Maxy; MM.y = Miny;
+	return(MM);
+}
+void MaxMinPixel(vector<Pixel> VP, Point& MaxxMinx, Point& MaxyMiny)
+{
+	int Maxx = VP[0].x, Minx = VP[0].x;
+	int Maxy = VP[0].y, Miny = VP[0].y;
+	for (int n = 1; n < VP.size(); ++n)
+	{
+		if (VP[n].x > Maxx) { Maxx = VP[n].x; }
+		if (VP[n].x < Minx) { Minx = VP[n].x; }
+		if (VP[n].y > Maxy) { Maxy = VP[n].y; }
+		if (VP[n].y < Miny) { Miny = VP[n].y; }
+	}
+	float Absmx = 0, Absmn = 0;
+	if (Maxx < 0) { Absmx = abs(Maxx); Maxx += Absmx; Minx += Absmx; }
+	if (Minx < 0) { Absmn = abs(Minx); Maxx += Absmn; Minx += Absmn; }
+
+	if (Maxy < 0) { Absmx = abs(Maxy); Maxy += Absmx; Miny += Absmx; }
+	if (Miny < 0) { Absmn = abs(Miny); Maxy += Absmn; Miny += Absmn; }
+
+	MaxxMinx.x = Maxx; MaxxMinx.y = Minx;
+	MaxyMiny.x = Maxx; MaxyMiny.y = Miny;
+}
+
+// ############################################################################################################################################
+// ############################################################################################################################################
+// ############################################################################################################################################
+
+// ############################################################################################################################################
 // ############## BITMAP:
 
-// BITMAPRGB:
+// BITMAP RGB:
 Point3D BitmapRGB(CImg<unsigned char> BMP, int x, int y)
 {
 	Point3D Ret;
@@ -33,15 +105,38 @@ Point3D BitmapRGB(CImg<unsigned char> BMP, int x, int y)
 	Ret.x = BMP(x, y, 0, 0); Ret.y = BMP(x, y, 0, 1); Ret.z = BMP(x, y, 0, 2);
 	return(Ret);
 }
-
-// ALL RGBS FROM BITMAP (in float):
-vector<Point3DFlt> BitmapRGBMatrix(CImg<unsigned char> BMP)
+// BITMAP PIXEL:
+Pixel BitmapPixel(CImg<unsigned char> BMP, int x, int y)
 {
-	vector<Point3DFlt> Ret;
+	Pixel Ret;
+	if (x > BMP.width() - 1) { x = BMP.width() - 1; } if (x < 0) { x = 0; }
+	if (y > BMP.height() - 1) { y = BMP.height() - 1; } if (y < 0) { y = 0; }
+	Ret.RGB[0] = BMP(x, y, 0, 0); Ret.RGB[1] = BMP(x, y, 0, 1); Ret.RGB[2] = BMP(x, y, 0, 2);
+	Ret.x = x; Ret.y = y;
+	return(Ret);
+}
+
+// ALL RGBS FROM BITMAP:
+vector<Point3D> BitmapRGBMatrix(CImg<unsigned char> BMP)
+{
+	vector<Point3D> Ret;
 	for (int m = 0; m < BMP.height(); ++m)
 	{
 		for (int n = 0; n < BMP.width(); ++n)
-		{ Point3D RGB = BitmapRGB(BMP, n, m); Point3DFlt RGBFlt; RGBFlt.x = RGB.x / 255.0; RGBFlt.y = RGB.y / 255.0; RGBFlt.z = RGB.z / 255.0; Ret.push_back(RGBFlt); }
+		{ Point3D RGB = BitmapRGB(BMP, n, m); Ret.push_back(RGB); }
+	}
+	return(Ret);
+}
+// ALL PIXELS FROM BITMAP:
+vector<Pixel> BitmapPixelMatrix(CImg<unsigned char> BMP)
+{
+	vector<Pixel> Ret;
+	for (int m = 0; m < BMP.height(); ++m)
+	{
+		for (int n = 0; n < BMP.width(); ++n)
+		{
+			Pixel Pix = BitmapPixel(BMP, n, m); Ret.push_back(Pix);
+		}
 	}
 	return(Ret);
 }
@@ -55,6 +150,21 @@ vector<double> BitmapRGBVector(CImg<unsigned char> BMP)
 		for (int n = 0; n < BMP.width(); ++n)
 		{
 			Point3D RGB = BitmapRGB(BMP, n, m);  Ret.push_back(RGB.x / 255.0);  Ret.push_back(RGB.y = RGB.y / 255.0);  Ret.push_back(RGB.z = RGB.z / 255.0);
+		}
+	}
+	return(Ret);
+}
+
+// LIMITED PIXEL MATRIX:
+vector<Pixel> BitmapPixelLimMatrix(CImg<unsigned char> BMP, int R0, int R1, int G0, int G1, int B0, int B1)
+{
+	vector<Pixel> Ret;
+	for (int m = 0; m < BMP.height(); ++m)
+	{
+		for (int n = 0; n < BMP.width(); ++n)
+		{
+			Pixel Pix = BitmapPixel(BMP, n, m);
+			if (InsideRGBGap(Pix.RGB, R0, R1, G0, G1, B0, B1)) { Ret.push_back(Pix); }
 		}
 	}
 	return(Ret);
@@ -106,7 +216,7 @@ Point3D LinearRGB(double n, double Lum, double Cont)
 	//cout << "### Numero: " << n << "\n\n";
 
 	//cout << "Estapas:\n" << 1.0 / 6 << " | " << 2.0 / 6 << " | " << 3.0 / 6 << " | " << 4.0 / 6 << endl << 5.0 / 6 << " | " << 6.0 / 6 << "\n\n";
-	if (n > 1.0) { while (n > 1.0) { n -= 1; } } if (n < 0.0) { while (n < 0.0) { n += 1; } }
+	if (n < 0.0) { n *= -1; } if (n > 1.0 || n < - 1.0) { n = n - floor(n); }
 	if (Lum > 2.0) { Lum = 2.0; } if (Lum < 0.0) { Lum = 0.0; }
 	if (Cont > 1.0) { Cont = 1.0; } if (Cont < 0.0) { Cont = 0.0; }
 	int R, G, B;
@@ -174,7 +284,7 @@ Point3D LinearRGB(double n, double Lum, double Cont)
 // ####### PRINTS:
 
 // Brilho:
-void PaletaLinRGBLum(int sx, int sy, double div)
+CImg<unsigned char> PaletaLinRGBLum(int sx, int sy, double div)
 {
 	CImg<unsigned char> Paleta(sx, sy, 1, 3, 0);
 
@@ -189,13 +299,11 @@ void PaletaLinRGBLum(int sx, int sy, double div)
 		}
 	}
 
-	Paleta.save_bmp("PaletaLum.bmp");
-	CImgDisplay Display(Paleta, "Paleta:");
-	while (!Display.is_closed()) { Display.wait(); }
+	return(Paleta);
 }
 
 // Contraste:
-void PaletaLinRGBCont(int sx, int sy, double div)
+CImg<unsigned char> PaletaLinRGBCont(int sx, int sy, double div)
 {
 	CImg<unsigned char> Paleta(sx, sy, 1, 3, 0);
 
@@ -209,13 +317,11 @@ void PaletaLinRGBCont(int sx, int sy, double div)
 		}
 	}
 
-	Paleta.save_bmp("PaletaCont.bmp");
-	CImgDisplay Display(Paleta, "Paleta:");
-	while (!Display.is_closed()) { Display.wait(); }
+	return(Paleta);
 }
 
 // Só uma linha de cor:
-void PaletaLinRGB(int sx, int sy)
+CImg<unsigned char> PaletaLinRGB(int sx, int sy)
 {
 	CImg<unsigned char> Paleta(sx, sy, 1, 3, 0);
 
@@ -228,9 +334,7 @@ void PaletaLinRGB(int sx, int sy)
 			Paleta.draw_point(nx, ny, color);
 		}
 	}
-	Paleta.save_bmp("Paleta.bmp");
-	CImgDisplay Display(Paleta, "Paleta:");
-	while (!Display.is_closed()) { Display.wait(); }
+	return(Paleta);
 }
 
 // GRADUAÇÃO:

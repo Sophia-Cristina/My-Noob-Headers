@@ -16,7 +16,21 @@
 #include <algorithm>
 #include <vector>
 
-using namespace std;
+// ############################################################################################################################################
+// ############################################################################################################################################
+// ############################################################################################################################################
+// ################################################# ANOTAÇÕES E ATENÇÕES #################################################
+// !!!!!!!	
+// !!!!!!!	UM DIA MUDEI O NOME DE UMA FUNÇÃO E PENSEI NO PERIGO QUE SERIA ESQUECER O NOME NOVO OU VELHO, ENTÃO EU DEVERIA...
+// !!!!!!!	... CATALOGAR TODAS AS MUDANÇAS QUE PODEM AFETAR VERSÕES DE CÓDIGO, E PODERIA SER AQUI MESMO;
+// !!!!!!!	
+// !!!!!!!	CATALOGO DE MUDANÇAS:
+// !!!!!!!	FUNÇÃO 'IsNumber' SE CHAMAVA 'IsNmbr';
+// !!!!!!!	
+// ################################################# ANOTAÇÕES E ATENÇÕES #################################################
+// ############################################################################################################################################
+// ############################################################################################################################################
+// ############################################################################################################################################
 
 // #####################################################################################################################################
 // ############## FORWARD DECLARATIONS ##############
@@ -30,12 +44,12 @@ double d2xdt2(double, double);
 double LawSinAngle(double, double, double);
 
 // Intern:
-int SumVec(vector<int>);
-double SumVec(vector<double>);
-int MultVec(vector<int>);
-double MultVec(vector<double>);
-vector<int> PowVec(vector<int>, int);
-vector<double> PowVec(vector<double>, double);
+int SumVec(std::vector<int>);
+double SumVec(std::vector<double>);
+int MultVec(std::vector<int>);
+double MultVec(std::vector<double>);
+std::vector<int> PowVec(std::vector<int>, int);
+std::vector<double> PowVec(std::vector<double>, double);
 // #####################################################################################################################################
 // ############## TOOLS ##############
 // DECLARE OBJECTOS QUE SERÃO USADOS EM TODOS OS HEADERS AQUI!
@@ -58,8 +72,8 @@ class MatrixFlt
 {
 public:
 	int i, j;
-	vector<double> Datas;
-	MatrixFlt(int Matrixi, int Matrixj) { i = Matrixi; j = Matrixj; vector<double> V(i * j); Datas = V; }
+	std::vector<double> Datas;
+	MatrixFlt(int Matrixi, int Matrixj) { i = Matrixi; j = Matrixj; std::vector<double> V(i * j); Datas = V; }
 };
 
 // #####################################################################################################################################
@@ -69,6 +83,8 @@ public:
 #include "ysxplg\\ysxGeo.h";
 #include "ysxplg\\ysxCalc.h";
 #include "ysxplg\\ysxFractal.h";
+#include "ysxplg\\ysxMusic.h"
+#include "ysxplg\\ysxElectr.h" // Conta com sinais também, porém tem no 'ysxGeo.h' as trigonometrias
 #include "ysxplg\\ysxVector.h";
 
 // #####################################################################################################################################
@@ -95,23 +111,23 @@ int GCD(int a, int b)
 int LCM(int a, int b) { a = abs(a); b = abs(b); return ((a * b) / GCD(a, b)); }
 
 // FACTORS:
-vector<int> Factors(int n) { vector<int> V; for (int m = 1; m <= n; ++m) { if (0 == n % m) { V.push_back(m); } } return (V); }
+std::vector<int> Factors(int n) { std::vector<int> V; for (int m = 1; m <= n; ++m) { if (0 == n % m) { V.push_back(m); } } return (V); }
 
 // DIVISOR FUNCTION (When x is 1, the function is called the sigma function or sum - of - divisors function)
-int DivFunc(int n, int Power) { vector<int> Fac = PowVec(Factors(n), Power); int Sum = SumVec(Fac); return(Sum); }
+int DivFunc(int n, int Power) { std::vector<int> Fac = PowVec(Factors(n), Power); int Sum = SumVec(Fac); return(Sum); }
 
 // ####### MÉDIAS E RAZÕES:
 // MÉDIA, ARITHMETIC MEAN:
-double Average(vector<double> Vec) { double Soma = 0; if (Vec.size() != 0) { for (int n = 0; n < Vec.size(); ++n) { Soma += Vec[n]; } Soma /= Vec.size(); } return (Soma); }
+double Average(std::vector<double> Vec) { double Soma = 0; if (Vec.size() != 0) { for (int n = 0; n < Vec.size(); ++n) { Soma += Vec[n]; } Soma /= Vec.size(); } return (Soma); }
 
 // ROOT MEAN SQUARE:
-double RMS(vector<double> Vec) { double Soma = 0; int n = Vec.size(); if (n != 0) { for (int i = 0; i < n; ++i) { Soma += Vec[i] * Vec[i]; } Soma /= n; } return (sqrt(Soma)); }
+double RMS(std::vector<double> Vec) { double Soma = 0; int n = Vec.size(); if (n != 0) { for (int i = 0; i < n; ++i) { Soma += Vec[i] * Vec[i]; } Soma /= n; } return (sqrt(Soma)); }
 
 // HARMONIC MEAN:
-double HarmMean(vector<double> Vec) { double Soma = 0; int n = Vec.size(); if (n != 0) { for (int i = 0; i < n; ++i) { Soma += 1.0 / Vec[i]; } n /= Soma; } return (n); }
+double HarmMean(std::vector<double> Vec) { double Soma = 0; int n = Vec.size(); if (n != 0) { for (int i = 0; i < n; ++i) { Soma += 1.0 / Vec[i]; } n /= Soma; } return (n); }
 
 // GEOMETRIC MEAN:
-double GeoMean(vector<double> Vec)
+double GeoMean(std::vector<double> Vec)
 { double Mult = 0; if (Vec.size() != 0) { for (int n = 0; n < Vec.size(); ++n) { Mult *= Vec[n]; } Mult = pow(Mult, 1 / Vec.size()); } return (Mult); }
 
 // ARITHMETIC-GEOMETRIC MEAN:
@@ -131,7 +147,7 @@ PointFlt GeoHarmMean(PointFlt Point, int Iter)
 }
 
 // POWER MEAN OR GENERALIZED MEAN:
-double PowerMean(vector<double> Vec, double p)
+double PowerMean(std::vector<double> Vec, double p)
 { double Soma = 0; int n = Vec.size(); for (int i = 0; i < n; ++i) { Soma += pow(Vec[i], p); } Soma *= 1.0 / n; Soma = pow(Soma, 1 / p); return(Soma); }
 
 // RAZÃO ENTRE DUAS RAZÕES: (Ex.: Cerveja, a = 365ml, Rta = 0.046; Cachaça, b = 50ml, Rtb = 0.39; Retorno = 0.86102564...
@@ -184,12 +200,12 @@ int GetaFibonmbr(int Fn)
 	}
 	return(Actual);
 }
-vector<int> GetaFiboVec(int Fn) // VEJA SE TA CERTO, VEJA SE n NÃO DEVERIA SER 2
+std::vector<int> GetaFiboVec(int Fn) // VEJA SE TA CERTO, VEJA SE n NÃO DEVERIA SER 2
 {
-	if (Fn < 1) { vector<int> A; A.push_back(1); return(A); }
-	if (Fn == 2) { vector<int> A; A.push_back(1); A.push_back(1); return(A); }
+	if (Fn < 1) { std::vector<int> A; A.push_back(1); return(A); }
+	if (Fn == 2) { std::vector<int> A; A.push_back(1); A.push_back(1); return(A); }
 	int One = 1, Two = 1;
-	vector<int> Actual{1, 1};
+	std::vector<int> Actual{1, 1};
 	for (int n = 3; n <= Fn; ++n)
 	{
 		Actual.push_back(One + Two);
@@ -214,12 +230,12 @@ int GetaLucasnmbr(int Ln)
 	}
 	return(Actual);
 }
-vector<int> GetaLucasVec(int Ln) // VEJA SE TA CERTO, VEJA SE n NÃO DEVERIA SER 2
+std::vector<int> GetaLucasVec(int Ln) // VEJA SE TA CERTO, VEJA SE n NÃO DEVERIA SER 2
 {
-	if (Ln < 1) { vector<int> A; A.push_back(2); return(A); }
-	if (Ln == 2) { vector<int> A; A.push_back(2); A.push_back(1); return(A); }
+	if (Ln < 1) { std::vector<int> A; A.push_back(2); return(A); }
+	if (Ln == 2) { std::vector<int> A; A.push_back(2); A.push_back(1); return(A); }
 	int One = 2, Two = 1;
-	vector<int> Actual{ 2, 1 };
+	std::vector<int> Actual{ 2, 1 };
 	for (int n = 3; n <= Ln; ++n)
 	{
 		Actual.push_back(One + Two);
@@ -278,12 +294,12 @@ double DotProd(PointFlt A, PointFlt B) { return((A.x * B.x) + (A.y * B.y)); }
 
 // ####### CONVERSORES:
 // STR2CHAR:
-vector<char> Str2Char(string ThisStr)
+std::vector<char> Str2Char(string ThisStr)
 {
 	// char * ThisChr; | Estilo antigo, tinha que usar delete[] ThisChr, mas o return não permitia
 	int TxtLim = ThisStr.length() + 1;
 	// ThisChr = new char[TxtLim];
-	vector<char> ThisChr(TxtLim);
+	std::vector<char> ThisChr(TxtLim);
 	for (int chr = 0; chr < ThisStr.length(); ++chr)
 	{
 		ThisChr[chr] = ThisStr.at(chr);
@@ -292,12 +308,12 @@ vector<char> Str2Char(string ThisStr)
 	return(ThisChr);
 }
 
-vector<wchar_t> Str2wChart(string ThisStr)
+std::vector<wchar_t> Str2wChart(string ThisStr)
 {
 	// char * ThisChr; | Estilo antigo, tinha que usar delete[] ThisChr, mas o return não permitia
 	int TxtLim = ThisStr.length() + 1;
 	// ThisChr = new char[TxtLim];
-	vector<wchar_t> ThisChr(TxtLim);
+	std::vector<wchar_t> ThisChr(TxtLim);
 	for (int chr = 0; chr < ThisStr.length(); ++chr)
 	{
 		ThisChr[chr] = ThisStr.at(chr);
@@ -308,7 +324,7 @@ vector<wchar_t> Str2wChart(string ThisStr)
 
 string Char2Str(char C) { string Str = { C }; return (Str); }
 
-string Char2Str(vector<char> C) { string Str; for (int n = 0; n < C.size(); ++n) { Str.push_back(C[n]); } return (Str); }
+string Char2Str(std::vector<char> C) { string Str; for (int n = 0; n < C.size(); ++n) { Str.push_back(C[n]); } return (Str); }
 
 // CHAR2INT:
 int Chr2Int(char C)
@@ -323,7 +339,7 @@ int Str2Int(string S)
 {
 	int a = 0, Count = 0;
 	char C; bool Oktogo = false, Neg = false;
-	vector<int> Array;
+	std::vector<int> Array;
 	for (int n = 0; n < S.length(); ++n)
 	{
 		if (S[n] == '1' || S[n] == '2' || S[n] == '3' || S[n] == '4' || S[n] == '5' || S[n] == '6' || S[n] == '7' || S[n] == '8' || S[n] == '9' || S[n] == '-')
@@ -385,29 +401,15 @@ Point Dec2Frac(double n)
 // ####### PROPRIEDADES DOS NUMEROS:
 
 // IS NUMBER?:
-bool IsNmbr(char C)
-{
-	{
-		if (C == '1') { return(true); }
-		else if (C == '2') { return(true); }
-		else if (C == '3') { return(true); }
-		else if (C == '4') { return(true); }
-		else if (C == '5') { return(true); }
-		else if (C == '6') { return(true); }
-		else if (C == '7') { return(true); }
-		else if (C == '8') { return(true); }
-		else if (C == '9') { return(true); }
-		else if (C == '0') { return(true); }
-		else { return (false); }
-	}
-}
+bool IsNumber(char C) { if (C > 47 && C < 58) { return(true); } return (false); }
 
-
+// IS LETTER?:
+bool IsLetter(char C) { if (C > 64 && C < 91) { cout << "C = " << (int)C << endl; return(true); } else if (C > 96 && C < 123) { cout << "C = " << (int)C << endl; return(true); }  return (false); }
 
 // INDICE DAS LETRAS:
 int LetterIndex(char C)
 {
-	if (IsNmbr(C)) { return(Chr2Int(C)); }	if (C == 'a' || C == 'A') { return(1); }
+	if (IsNumber(C)) { return(Chr2Int(C)); }	if (C == 'a' || C == 'A') { return(1); }
 	else if (C == 'b' || C == 'B') { return(2); } else if (C == 'c' || C == 'C') { return(3); }
 	else if (C == 'd' || C == 'D') { return(4); } else if (C == 'e' || C == 'E') { return(5); }
 	else if (C == 'f' || C == 'F') { return(6); } else if (C == 'g' || C == 'G') { return(7); }
@@ -461,9 +463,9 @@ SETOR VETOR FOI MUDADO PARA ysxVector.h
 
 // ############## DADOS  ##############
 // PEGA LINHAS DE .TXT E RETORNA EM UM VETOR:
-vector<double> DataTextLine(string File)
+std::vector<double> DataTextLine(string File)
 {
-	vector<double> Ret;
+	std::vector<double> Ret;
 	string Line;
 	ifstream Data(File); if (!Data.is_open()) { cout << "! DADOS NÃO FORAM ABERTOS !\n"; }
 	else { while (getline(Data, Line)) { Ret.push_back(Str2Double(Line)); } } Data.close();
@@ -471,9 +473,9 @@ vector<double> DataTextLine(string File)
 }
 
 // PEGA ITEM (UM DOUBLE) DE .TXT E RETORNA EM UM VETOR:
-vector<double> DataTextItem(string File)
+std::vector<double> DataTextItem(string File)
 {
-	vector<double> Ret;
+	std::vector<double> Ret;
 	ifstream Data(File); if (!Data.is_open()) { cout << "! DADOS NÃO FORAM ABERTOS !\n"; }
 	else { while (!Data.eof()) { double Db; Data >> Db; Ret.push_back(Db); } } Data.close();
 	return(Ret);
@@ -487,31 +489,52 @@ void CoutText(string Filename)
 }
 
 // COUT DE UM VETOR:
-void CoutVector(vector<short int> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << endl; } }
-void CoutVector(vector<int> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << endl; } }
-void CoutVector(vector<long> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << endl; } }
-void CoutVector(vector<float> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << endl; } }
-void CoutVector(vector<double> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << endl; } }
-void CoutVector(vector<bool> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << endl; } }
-void CoutVector(vector<string> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << endl; } }
-void CoutVector(vector<char> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << endl; } }
-void CoutVector(vector<Point> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ".x: " << Vec[n].x << " | .y: " << Vec[n].y << endl; } }
-void CoutVector(vector<PointFlt> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ".x: " << Vec[n].x << " | .y: " << Vec[n].y << endl; } }
-void CoutVector(vector<Point3D> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ".x: " << Vec[n].x << " | .y: " << Vec[n].y << " | .z: " << Vec[n].z << endl; } }
-void CoutVector(vector<Point3DFlt> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ".x: " << Vec[n].x << " | .y: " << Vec[n].y << " | .z: " << Vec[n].z << endl; } }
+void CoutVector(std::vector<short int> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << endl; } }
+void CoutVector(std::vector<int> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << endl; } }
+void CoutVector(std::vector<long> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << endl; } }
+void CoutVector(std::vector<float> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << endl; } }
+void CoutVector(std::vector<double> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << endl; } }
+void CoutVector(std::vector<bool> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << endl; } }
+void CoutVector(std::vector<string> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << endl; } }
+void CoutVector(std::vector<char> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << endl; } }
+void CoutVector(std::vector<Point> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ".x: " << Vec[n].x << " | .y: " << Vec[n].y << endl; } }
+void CoutVector(std::vector<PointFlt> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ".x: " << Vec[n].x << " | .y: " << Vec[n].y << endl; } }
+void CoutVector(std::vector<Point3D> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ".x: " << Vec[n].x << " | .y: " << Vec[n].y << " | .z: " << Vec[n].z << endl; } }
+void CoutVector(std::vector<Point3DFlt> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ".x: " << Vec[n].x << " | .y: " << Vec[n].y << " | .z: " << Vec[n].z << endl; } }
 // COUT DE UM VETOR COM COLUNAS:
-void CoutVector(vector<short int> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " "; ++c; if (c == Cols) { cout << endl; c = 0; } } }
-void CoutVector(vector<int> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " ";  ++c; if (c == Cols) { cout << endl; c = 0; } } }
-void CoutVector(vector<long> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " ";  ++c; if (c == Cols) { cout << endl; c = 0; } } }
-void CoutVector(vector<float> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " ";  ++c; if (c == Cols) { cout << endl; c = 0; } } }
-void CoutVector(vector<double> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " ";  ++c; if (c == Cols) { cout << endl; c = 0; } } }
-void CoutVector(vector<bool> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " ";  ++c; if (c == Cols) { cout << endl; c = 0; } } }
-void CoutVector(vector<string> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " ";  ++c; if (c == Cols) { cout << endl; c = 0; } } }
-void CoutVector(vector<char> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " ";  ++c; if (c == Cols) { cout << endl; c = 0; } } }
-void CoutVector(vector<Point> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ".x: " << Vec[n].x << " | .y: " << Vec[n].y << " "; ++c; if (c == Cols) { cout << endl; c = 0; } } }
-void CoutVector(vector<PointFlt> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ".x: " << Vec[n].x << " | .y: " << Vec[n].y << " "; ++c; if (c == Cols) { cout << endl; c = 0; } } }
-void CoutVector(vector<Point3D> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ".x: " << Vec[n].x << " | .y: " << Vec[n].y << " | .z: " << Vec[n].z << " "; ++c; if (c == Cols) { cout << endl; c = 0; } } }
-void CoutVector(vector<Point3DFlt> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ".x: " << Vec[n].x << " | .y: " << Vec[n].y << " | .z: " << Vec[n].z << " "; ++c; if (c == Cols) { cout << endl; c = 0; } } }
+void CoutVector(std::vector<short int> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " "; ++c; if (c == Cols) { cout << endl; c = 0; } } }
+void CoutVector(std::vector<int> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " ";  ++c; if (c == Cols) { cout << endl; c = 0; } } }
+void CoutVector(std::vector<long> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " ";  ++c; if (c == Cols) { cout << endl; c = 0; } } }
+void CoutVector(std::vector<float> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " ";  ++c; if (c == Cols) { cout << endl; c = 0; } } }
+void CoutVector(std::vector<double> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " ";  ++c; if (c == Cols) { cout << endl; c = 0; } } }
+void CoutVector(std::vector<bool> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " ";  ++c; if (c == Cols) { cout << endl; c = 0; } } }
+void CoutVector(std::vector<string> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " ";  ++c; if (c == Cols) { cout << endl; c = 0; } } }
+void CoutVector(std::vector<char> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " ";  ++c; if (c == Cols) { cout << endl; c = 0; } } }
+void CoutVector(std::vector<Point> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ".x: " << Vec[n].x << " | .y: " << Vec[n].y << " "; ++c; if (c == Cols) { cout << endl; c = 0; } } }
+void CoutVector(std::vector<PointFlt> Vec, int Cols)
+{
+	int c = 0; for (int n = 0; n < Vec.size(); ++n)
+	{
+		cout << n << ".x: " << Vec[n].x << " | .y: " << Vec[n].y << " ";
+		++c; if (c == Cols) { cout << endl; c = 0; }
+	}
+}
+void CoutVector(std::vector<Point3D> Vec, int Cols)
+{
+	int c = 0; for (int n = 0; n < Vec.size(); ++n)
+	{
+		cout << n << ".x: " << Vec[n].x << " | .y: " << Vec[n].y << " | .z: " << Vec[n].z << " ";
+		++c; if (c == Cols) { cout << endl; c = 0; }
+	}
+}
+void CoutVector(std::vector<Point3DFlt> Vec, int Cols)
+{
+	int c = 0; for (int n = 0; n < Vec.size(); ++n)
+	{
+		cout << n << ".x: " << Vec[n].x << " | .y: " << Vec[n].y << " | .z: " << Vec[n].z << " ";
+		++c; if (c == Cols) { cout << endl; c = 0; }
+	}
+}
 // COUT STRING AS INT:
 void CoutStringInt(string Str) { int i; for (int n = 0; n < Str.size(); ++n) { i = Str[n]; cout << n << ": " << i << endl; } }
 void CoutStringInt(string Str, int Cols) { int i; int c = 0; for (int n = 0; n < Str.size(); ++n) { i = Str[n]; cout << n << ": " << i << " "; ++c; if (c == Cols) { cout << endl; c = 0; } } }
@@ -529,20 +552,20 @@ class MatrixKernel
 public:
 	int i, j; // Begins on '1'
 	Point Mid = { 1, 1 };
-	vector<double> Datas;
-	vector<double> Output;
+	std::vector<double> Datas;
+	std::vector<double> Output;
 
 	// FAZ KERNEL VAZIO:
 	MatrixKernel(int Matrixi, int Matrixj)
 	{
 		if (Matrixi < 1) { Matrixi = 1; } if (Matrixj < 1) { Matrixj = 1; }
 		i = Matrixi; j = Matrixj; Point Pt = { ceil(i * 0.5), ceil(j * 0.5) }; Mid = Pt;
-		vector<double> V(i * j); Datas = V;
+		std::vector<double> V(i * j); Datas = V;
 		for (int n = 0; n < (i * j) - 1; ++n) { Datas[n] = 1; }
 	}
 
 	// FAZ KERNEL ATRAVEZ DE UM VETOR E O TAMANHO DE UMA LINHA (j):
-	MatrixKernel(vector<double> MatrixInput, int Matrixj)
+	MatrixKernel(std::vector<double> MatrixInput, int Matrixj)
 	{
 		if (Matrixj > MatrixInput.size()) { j = MatrixInput.size(); } if (Matrixj < 1) { j = 1; } else { j = Matrixj; }
 		i = ceil(MatrixInput.size() / (j * 1.0));
@@ -551,13 +574,13 @@ public:
 	}
 
 	// FAZ O TRABALHO DE SOMAR:
-	void Sum(vector<double> Input, int Inj, bool UseAreaRatio, bool SubArea, bool ReciprocalRatio, bool IgnoreNeg, bool InvertNegSub)
+	void Sum(std::vector<double> Input, int Inj, bool UseAreaRatio, bool SubArea, bool ReciprocalRatio, bool IgnoreNeg, bool InvertNegSub)
 	{
 		if (Inj > Input.size()) { Inj = Input.size(); }	if (Inj < 1) { Inj = 1; }
 		int Ini = ceil(Input.size() / (Inj * 1.0));
 		Point Pt = { ceil(i * 0.5), ceil(j * 0.5) }; Mid = Pt;
 		//cout << "### Mid.x: " << Mid.x << " | Mid.y: " << Mid.y << endl;
-		vector<double> Out;
+		std::vector<double> Out;
 		//cout << "####### i = " << i << " | j = " << j << "\nInput i = " << Ini << " | Input j = " << Inj << "\n#######\n";
 		if (Input.size() >= Datas.size() && Inj >= j && Ini >= i)
 		{
@@ -611,13 +634,13 @@ public:
 	}
 
 	// FAZ O TRABALHO DE MULTIPLICAR:
-	void Multiply(vector<double> Input, int Inj, bool UseAreaRatio, bool SubArea, bool ReciprocalRatio, bool IgnoreNeg, bool InvertNegSub)
+	void Multiply(std::vector<double> Input, int Inj, bool UseAreaRatio, bool SubArea, bool ReciprocalRatio, bool IgnoreNeg, bool InvertNegSub)
 	{
 		if (Inj > Input.size()) { Inj = Input.size(); }	if (Inj < 1) { Inj = 1; }
 		int Ini = ceil(Input.size() / (Inj * 1.0));
 		Point Pt = { ceil(i * 0.5), ceil(j * 0.5) }; Mid = Pt;
 		//cout << "### Mid.x: " << Mid.x << " | Mid.y: " << Mid.y << endl;
-		vector<double> Out;
+		std::vector<double> Out;
 		//cout << "####### i = " << i << " | j = " << j << "\nInput i = " << Ini << " | Input j = " << Inj << "\n#######\n";
 		if (Input.size() >= Datas.size() && Inj >= j && Ini >= i)
 		{
@@ -684,7 +707,7 @@ public:
 // GEMATRIA:
 int Char2Gematria(char C)
 {
-	if (IsNmbr(C)) { return(Chr2Int(C)); }	if (C == 'a' || C == 'A') { return(1); } else if (C == 'b' || C == 'B') { return(2); }
+	if (IsNumber(C)) { return(Chr2Int(C)); }	if (C == 'a' || C == 'A') { return(1); } else if (C == 'b' || C == 'B') { return(2); }
 	else if (C == 'c' || C == 'C') { return(3); } else if (C == 'd' || C == 'D') { return(4); } else if (C == 'e' || C == 'E') { return(5); }
 	else if (C == 'f' || C == 'F') { return(6); } else if (C == 'g' || C == 'G') { return(7); } else if (C == 'h' || C == 'H') { return(8); }
 	else if (C == 'i' || C == 'I') { return(9); } else if (C == 'j' || C == 'J') { return(1); } else if (C == 'k' || C == 'K') { return(2); }
@@ -697,7 +720,7 @@ int Char2Gematria(char C)
 }
 double Char2GemaPerCent(char C) // VEJA, DEPOIS DE L 12, M É 15
 {
-	if (IsNmbr(C)) { return(Chr2Int(C) / 10.0); } if (C == 'a') { return(1 / 56.0); } else if (C == 'b') { return(2 / 56.0); }
+	if (IsNumber(C)) { return(Chr2Int(C) / 10.0); } if (C == 'a') { return(1 / 56.0); } else if (C == 'b') { return(2 / 56.0); }
 	else if (C == 'c') { return(3 / 56.0); } else if (C == 'A') { return(0.5 + (1 / 56.0)); } else if (C == 'B') { return(0.5 + (2 / 56.0)); }
 	else if (C == 'C') { return(0.5 + (3 / 56.0)); } if (C == 'd') { return(4 / 56.0); } else if (C == 'e') { return(5 / 56.0); }
 	else if (C == 'f') { return(6 / 56.0); } else if (C == 'D') { return(0.5 + (4 / 56.0)); } else if (C == 'E') { return(0.5 + (5 / 56.0)); }
@@ -735,6 +758,22 @@ double AOScore(double Radian)
 	return (Score / 2.704162); // Melhor aproximação que cheguei, não importa muito mesmo, o que importa é a razão perante outros, e esta confirmado que funciona
 }
 
+// PROGRESS BAR:
+void CoutProgressBar(double ZeroToOne, int Size)
+{
+	if (ZeroToOne < 0) { ZeroToOne = 0; } if (ZeroToOne > 1) { ZeroToOne = 1; }
+	cout << "PROGRESS: [";
+	int Round = round(ZeroToOne * Size); for (int n = 0; n < Size; ++n) { if (n <= Round) { cout << "#"; } else { cout << "_"; } }
+	cout << "];\n";
+}
+void CoutProgressBar(double ZeroToOne, int Size, string BarName)
+{
+	if (ZeroToOne < 0) { ZeroToOne = 0; } if (ZeroToOne > 1) { ZeroToOne = 1; }
+	cout << BarName << ": [";
+	int Round = round(ZeroToOne * Size); for (int n = 0; n < Size; ++n) { if (n <= Round) { cout << "#"; } else { cout << "_"; } }
+	cout << "];\n";
+}
+
 // ################################################# FIM ####################################################################################
 
 // ############################
@@ -743,15 +782,15 @@ double AOScore(double Radian)
 
 // ############## RANDOM ##############
 // RANDOM-N FOR M-TIMES:
-vector<int> Randomnm(int n, int m) { vector<int> rndret; for (int a = 0; a < m; ++a) { rndret.push_back(rand() % n); } return(rndret); }
+std::vector<int> Randomnm(int n, int m) { std::vector<int> rndret; for (int a = 0; a < m; ++a) { rndret.push_back(rand() % n); } return(rndret); }
 
 // RANDOM N TIMES:
-vector<Point> RandomDominoes(int Tries) { vector<Point> Pts; for (int a = 0; a < Tries; ++a) { Point Pt; Pt.x = rand() % 7; Pt.y = rand() % 7; Pts.push_back(Pt); } return(Pts); }
+std::vector<Point> RandomDominoes(int Tries) { std::vector<Point> Pts; for (int a = 0; a < Tries; ++a) { Point Pt; Pt.x = rand() % 7; Pt.y = rand() % 7; Pts.push_back(Pt); } return(Pts); }
 
 // RANDOM CARD:
-vector<NameValue> RandomCard(int Tries)
+std::vector<NameValue> RandomCard(int Tries)
 {
-	vector<NameValue>Cards;
+	std::vector<NameValue>Cards;
 	NameValue Card;
 	for (int a = 0; a < Tries; ++a)
 	{
@@ -765,9 +804,9 @@ vector<NameValue> RandomCard(int Tries)
 }
 
 // RANDOM TAROT:
-vector<NameValue> RandomTarot(int Tries)
+std::vector<NameValue> RandomTarot(int Tries)
 {
-	vector<NameValue>Cards;
+	std::vector<NameValue>Cards;
 	NameValue Card;
 	for (int a = 0; a < Tries; ++a)
 	{
@@ -794,10 +833,10 @@ vector<NameValue> RandomTarot(int Tries)
 }
 
 // RANDOM PSALM:
-vector<int> RandomPSalm(int Tries) { vector<int> PSs; int PS; for (int a = 0; a < Tries; ++a) { PS = (rand() % 150) + 1; PSs.push_back(PS); } return(PSs); }
+std::vector<int> RandomPSalm(int Tries) { std::vector<int> PSs; int PS; for (int a = 0; a < Tries; ++a) { PS = (rand() % 150) + 1; PSs.push_back(PS); } return(PSs); }
 
 // RANDOM ICHING:
-vector<int> RandomIChing(int Tries) { vector<int> ICs; int IC; for (int a = 0; a < Tries; ++a) { IC = (rand() % 64) + 1; ICs.push_back(IC); } return(ICs); }
+std::vector<int> RandomIChing(int Tries) { std::vector<int> ICs; int IC; for (int a = 0; a < Tries; ++a) { IC = (rand() % 64) + 1; ICs.push_back(IC); } return(ICs); }
 
 // ################################################# FIM ####################################################################################
 
@@ -860,21 +899,21 @@ class TestIt
 		}
 		void TestRandom(int Rnd, int Tries)
 		{
-			vector<int> RandomVec = Randomnm(Rnd, Tries);
+			std::vector<int> RandomVec = Randomnm(Rnd, Tries);
 			for (int n = 0; n < RandomVec.size(); ++n) { cout << "Random[" << n << "] + 1: " << RandomVec[n] + 1 << endl; }
 
 			int Resto; cout << "Ver outros randoms? "; cin >> Resto;
 			if (Resto != 0)
 			{
-				vector<NameValue> Cards = RandomCard(Tries);
+				std::vector<NameValue> Cards = RandomCard(Tries);
 				for (int n = 0; n < Cards.size(); ++n) { cout << "Cards[" << n << "].Name: " << Cards[n].Name << " | Cards[" << n << "].Value: " << Cards[n].Value << endl; }
-				vector<Point> Dominoes = RandomDominoes(Tries);
+				std::vector<Point> Dominoes = RandomDominoes(Tries);
 				for (int n = 0; n < Dominoes.size(); ++n) { cout << "Dominoes[" << n << "].x: " << Dominoes[n].x << " | Dominoes[" << n << "].y: " << Dominoes[n].y << endl; }
-				vector<NameValue> Tarots = RandomTarot(Tries);
+				std::vector<NameValue> Tarots = RandomTarot(Tries);
 				for (int n = 0; n < Tarots.size(); ++n) { cout << "Tarots[" << n << "].Name: " << Tarots[n].Name << " | Tarots[" << n << "].Value: " << Tarots[n].Value << endl; }
-				vector<int> Ichings = RandomIChing(Tries);
+				std::vector<int> Ichings = RandomIChing(Tries);
 				for (int n = 0; n < Ichings.size(); ++n) { cout << "Ichings[" << n << "]: " << Ichings[n] << endl; }
-				vector<int> PSalms = RandomPSalm(Tries);
+				std::vector<int> PSalms = RandomPSalm(Tries);
 				for (int n = 0; n < PSalms.size(); ++n) { cout << "PSalms[" << n << "]: " << PSalms[n] << endl; }
 			}
 		}

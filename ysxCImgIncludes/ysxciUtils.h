@@ -3,7 +3,6 @@
 #ifndef YSXCIUTILS_H
 #define YSXCIUTILS_H
 
-using namespace std;
 using namespace cimg_library;
 
 // ###################################
@@ -155,7 +154,7 @@ CImg<unsigned char> RetCell(int Sizex, int Sizey, int Borderx, int Bordery, stri
 CImg<unsigned char> ValueBarAbs(int Width, double Value, double Ratio, int Borderx, int Bordery, bool xAxis, unsigned char Color[3])
 {
 	CImg<unsigned char> Bar;
-	Value = abs(Value * Ratio);
+	Value = fabs(Value * Ratio);
 	int Border = 0; if (xAxis) { Border = Borderx; } else { Border = Bordery; }
 	if (Value >= 1 + 2 * Border)
 	{
@@ -170,7 +169,7 @@ CImg<unsigned char> ValueBarAbs(int Width, double Value, double Ratio, int Borde
 CImg<unsigned char> ValueBarAbs(int Width, double Value, double Ratio, int Borderx, int Bordery, bool xAxis)
 {
 	CImg<unsigned char> Bar;
-	Value = abs(Value * Ratio);
+	Value = fabs(Value * Ratio);
 	int Border = 0; if (xAxis) { Border = Borderx; } else { Border = Bordery; }
 	if (Value >= 1 + 2 * Border)
 	{
