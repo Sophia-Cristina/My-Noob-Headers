@@ -19,18 +19,18 @@ using namespace cimg_library; // UNCOMMENT IF YOU ARE HAVING A PROBLEM
 // ############################################################################################################################################
 // ############################################################################################################################################
 // ############################################################################################################################################
-// ################################################# ANOTAÇÕES E ATENÇÕES #################################################
+// ################################################# ANOTAÃ‡Ã•ES E ATENÃ‡Ã•ES #################################################
 // !!!!!!!	
 // !!!!!!!	FAZER TODOS POSSIVEIS PLOTTERS ESCREVEREM NUMA IMAGEM DE INPUT;
-// !!!!!!!	FAZER TODOS POSSIVEIS PLOTTERS ACEITAREM VECTORS COMO INPUT, E ASSIM ACABAR COM RDUNDANCIAS DE FUNÇÕES, TIPO "POLAR", "CIRCULO" E "TURN";
+// !!!!!!!	FAZER TODOS POSSIVEIS PLOTTERS ACEITAREM VECTORS COMO INPUT, E ASSIM ACABAR COM RDUNDANCIAS DE FUNÃ‡Ã•ES, TIPO "POLAR", "CIRCULO" E "TURN";
 // !!!!!!!	
-// ################################################# ANOTAÇÕES E ATENÇÕES #################################################
+// ################################################# ANOTAÃ‡Ã•ES E ATENÃ‡Ã•ES #################################################
 // ############################################################################################################################################
 // ############################################################################################################################################
 // ############################################################################################################################################
 
 // ###################################
-// ############## DECLARAÇÕES:
+// ############## DECLARAÃ‡Ã•ES:
 CImg<unsigned char> DrawImageIgnClr(CImg<unsigned char>, CImg<unsigned char>, int, int, unsigned char[3]);
 CImg<unsigned char> DrawImageIgnClrCout(CImg<unsigned char>, CImg<unsigned char>, int, int, unsigned char[3]);
 bool InImg(CImg<unsigned char>, int, int);
@@ -62,11 +62,11 @@ struct Pixel { unsigned int x; unsigned int y; unsigned char RGB[3]; };
 // ############################################################################################################################################
 
 // ############################################################################################################################################
-// ############## TÉCNICOS:
+// ############## TÃ‰CNICOS:
 // ABRIR:
 CImg<unsigned char> OpenImg(string FileName) { CImg<unsigned char> Open(Str2Char(FileName).data()); return(Open); }
 
-// SALVAR (Com uso de 'string to char', minha função que cria um vetor de char com um string, acho que cimg aceita só um 'char array'):
+// SALVAR (Com uso de 'string to char', minha funÃ§Ã£o que cria um vetor de char com um string, acho que cimg aceita sÃ³ um 'char array'):
 void SaveBmp(CImg<unsigned char> Image, string FileName) { Image.save_bmp(Str2Char(FileName).data()); }
 void SavePng(CImg<unsigned char> Image, string FileName) { Image.save_png(Str2Char(FileName).data()); }
 void SavePng(CImg<unsigned char> Image, string FileName, int BytesPerPixel) { Image.save_png(Str2Char(FileName).data(), BytesPerPixel); }
@@ -153,7 +153,7 @@ void AdcTexto(CImg<unsigned char>& Img, int x, int y, string String, int R, int 
 	CImgList<unsigned char> font(const unsigned int font_height = 19, const bool variable_size = true);
 	Img.draw_text(x, y, Texto.data(), color);
 }
-void AdcTextoCirc(CImg<unsigned char>& Img, double r, int x, int y, vector<string> Strings, int R, int G, int B) // Adiciona em direções de um circulo, como raios, como numeros num relógio
+void AdcTextoCirc(CImg<unsigned char>& Img, double r, int x, int y, vector<string> Strings, int R, int G, int B) // Adiciona em direÃ§Ãµes de um circulo, como raios, como numeros num relÃ³gio
 {
 	double Div = Tau / Strings.size() * 1.0; int Count = 0;
 	for (double rad = 0; rad <= Tau; rad += Div) { AdcTexto(Img, x + round(cos(rad) * (r - 8)), y + round(sin(rad) * (r - 8)), Strings[Count], R, G, B); ++Count; }
@@ -165,7 +165,7 @@ void AdcTextoCirc(CImg<unsigned char>& Img, double r, int x, int y, vector<strin
 
 // ############## GRAFICOS:
 
-// REFAZ IMAGEM COM CERTA COR (PRETA SE NÃO TIVER RGB):
+// REFAZ IMAGEM COM CERTA COR (PRETA SE NÃƒO TIVER RGB):
 void FillAlpha(CImg<unsigned char>& Img) { CImg<unsigned char> FilledImg(Img.width(), Img.height(), 1, 4, 0); unsigned char C[] = { 0, 0, 0, 0 }; Img.draw_fill(1, 1, C, 1, 1); Img = FilledImg; }
 void FillAll(CImg<unsigned char>& Img) { CImg<unsigned char> FilledImg(Img.width(), Img.height(), 1, 3, 0); Img = FilledImg; }
 void FillAll(CImg<unsigned char>& Img, int R, int G, int B)
@@ -207,12 +207,12 @@ CImg<unsigned char> FillAll(int Width, int Height, int R, int G, int B)
 // ############## IMAGENS ##############
 // ###################################
 
-// MIXA IMAGENS E PODE REMOVER FUNDO (Não esta ignorando cor, esta ignorando uma só variavel de cor, arrumar depois):
+// MIXA IMAGENS E PODE REMOVER FUNDO (NÃ£o esta ignorando cor, esta ignorando uma sÃ³ variavel de cor, arrumar depois):
 CImg<unsigned char> MixRGB(CImg<unsigned char> Img0, CImg<unsigned char> Img1)
 {
 	int Width = 1, Height = 1;
 	if (Img0.width() > Img1.width()) { Width = Img1.width(); }
-	else { Width = Img0.width(); } // Maior que (>), pois, ao passar pelo pixel, não vai pedir memória aonde não tem
+	else { Width = Img0.width(); } // Maior que (>), pois, ao passar pelo pixel, nÃ£o vai pedir memÃ³ria aonde nÃ£o tem
 	if (Img0.height() > Img1.height()) { Height = Img1.height(); }
 	else { Height = Img0.height(); }
 	CImg<unsigned char> Ret(Width, Height, 1, 3, 0);
@@ -284,7 +284,7 @@ CImg<unsigned char> MixRGB(CImg<unsigned char> Img0, CImg<unsigned char> Img1, b
 CImg<unsigned char> MixRGB(CImg<unsigned char> Img0, CImg<unsigned char> Img1, unsigned char IgnoreColor[3])
 {
 	int Width = 1, Height = 1;
-	if (Img0.width() > Img1.width()) { Width = Img1.width(); } else { Width = Img0.width(); } // Maior que (>), pois, ao passar pelo pixel, não vai pedir memória aonde não tem
+	if (Img0.width() > Img1.width()) { Width = Img1.width(); } else { Width = Img0.width(); } // Maior que (>), pois, ao passar pelo pixel, nÃ£o vai pedir memÃ³ria aonde nÃ£o tem
 	if (Img0.height() > Img1.height()) { Height = Img1.height(); } else { Height = Img0.height(); }
 	CImg<unsigned char> Ret(Width, Height, 1, 3, 0);
 	for (int n = 0; n < Height; ++n)
@@ -307,7 +307,7 @@ CImg<unsigned char> MixRGB(CImg<unsigned char> Img0, CImg<unsigned char> Img1, i
 	if (x < 0) { x = 0; } if (y < 0) { y = 0; }
 	int Width = 1, Height = 1;
 	if (Img0.width() > Img1.width()) { Width = Img1.width(); }
-	else { Width = Img0.width(); } // Maior que (>), pois, ao passar pelo pixel, não vai pedir memória aonde não tem
+	else { Width = Img0.width(); } // Maior que (>), pois, ao passar pelo pixel, nÃ£o vai pedir memÃ³ria aonde nÃ£o tem
 	if (Img0.height() > Img1.height()) { Height = Img1.height(); }
 	else { Height = Img0.height(); }
 	CImg<unsigned char> Ret(Width, Height, 1, 3, 0);
@@ -478,10 +478,10 @@ public:
 	~YSXCIMAIN() { }
 	// #################################################
 	// #################################################
-	// Gráfico:
-	int BordaX = 1, BordaY = 1; // Deixar um espaço de 175 pixeis.
-	int GradeX, GradeY; // Grade da plotagem, numero para dividirr a dimensão da função.
-	int R = 255, G = 0, B = 127; // Cor da linha da função.
+	// GrÃ¡fico:
+	int BordaX = 1, BordaY = 1; // Deixar um espaÃ§o de 175 pixeis.
+	int GradeX, GradeY; // Grade da plotagem, numero para dividirr a dimensÃ£o da funÃ§Ã£o.
+	int R = 255, G = 0, B = 127; // Cor da linha da funÃ§Ã£o.
 	int Rbrd = 255, Gbrd = 255, Bbrd = 255; // RGBborda.
 	int Rbrr = 77, Gbrr = 77, Bbrr = 77; // RGBbarra.
 	int Rbkg = 200, Gbkg = 200, Bbkg = 200; // RGBbackground.
@@ -490,23 +490,23 @@ public:
 	// Matematica:
 	int AreaImg = ((BordaX + BordaY) * 2) + (GradeX*GradeY); // Area da Imagem (Pixeis)
 	int AreaPlot = GradeX * GradeY; // Area da Plotagem (Pixeis)
-	double xDiv; // Passos das funções.
+	double xDiv; // Passos das funÃ§Ãµes.
 	double Random = (rand() % 1000001) / 1000000;
 	double Omega = 1; // Frequencia angular, sin(x * Omega)
-	vector<string> ParseExp; // Expressões que passarão por uma classe que traduz algebraicamente retornando um valor.
+	vector<string> ParseExp; // ExpressÃµes que passarÃ£o por uma classe que traduz algebraicamente retornando um valor.
 	vector<int> PlyCoord; // Ainda pensando em/como colocar, salva um poligono.
 	
 	// Imagens:
-	CImg<unsigned char> Imagem; // Imagem principal para modificações
+	CImg<unsigned char> Imagem; // Imagem principal para modificaÃ§Ãµes
 	CImg<unsigned char> Bitmap;
 	
 	// #####################
-	// ####### FUNÇÕES #######
+	// ####### FUNÃ‡Ã•ES #######
 	// #####################
 	
-	// ####### Funções Técnicas #######
+	// ####### FunÃ§Ãµes TÃ©cnicas #######
 	// VARIAVEIS:
-	// Refaz variaveis de tamanho e não salva
+	// Refaz variaveis de tamanho e nÃ£o salva
 	void RedoVar() { Sizex = GradeX + (BordaY * 2); Sizey = GradeY + (BordaX * 2); AreaImg = ((BordaX + BordaY) * 2) + (GradeX*GradeY); AreaPlot = GradeX * GradeY; }
 	// Refaz variaveis de tamnho baseado em inputs:
 	void NewVar(int NewX, int NewY)	{ GradeX = NewX; GradeY = NewY; RedoVar(); }
@@ -516,27 +516,27 @@ public:
 	void RedoImg() { RedoVar(); CImg<unsigned char> ImagemConfig(Sizex, Sizey, 1, 3, 0); Imagem = ImagemConfig; }
 	
 	// CONFIGURAR:
-	void Configurar(int Opção)
+	void Configurar(int OpÃ§Ã£o)
 {
-	cout << "####### CONFIGURAÇÕES #######\n";
-	cout << "* Todo numero negativo será multiplicado por '-1'.\n\n";
-	if (Opção == 0)
+	cout << "####### CONFIGURAÃ‡Ã•ES #######\n";
+	cout << "* Todo numero negativo serÃ¡ multiplicado por '-1'.\n\n";
+	if (OpÃ§Ã£o == 0)
 	{
-		cout << "Padrão da grade é 350 x 350.\nAtual é " << GradeX << " x " << GradeY << ".\n";
-		cout << "Você pode deixar 'y' ou 'x' igual a '0' se quiser fazer da imagem apenas barras de suas bordas.\n";
+		cout << "PadrÃ£o da grade Ã© 350 x 350.\nAtual Ã© " << GradeX << " x " << GradeY << ".\n";
+		cout << "VocÃª pode deixar 'y' ou 'x' igual a '0' se quiser fazer da imagem apenas barras de suas bordas.\n";
 		cout << "Defina valor da GradeX:\n"; cin >> GradeX;	if (GradeX < 0) { GradeX = GradeX * -1; } Sizex = GradeX + (BordaY * 2); //Sizex = GradeX + (BordaX * 2);
 		cout << "Defina valor da GradeY:\n"; cin >> GradeY;	if (GradeY < 0) { GradeY = GradeY * -1; } Sizey = GradeY + (BordaX * 2); //Sizey = GradeY + (BordaY * 2);
 		cout << "Imagem(" << Sizex << ", " << Sizey << ", 1, 3, 0)\n";
 	}
-	if (Opção == 1)
+	if (OpÃ§Ã£o == 1)
 	{
-		cout << "Padrão das bordas são 'x = 1' e 'y = 1'.\nAtual é 'x = " << BordaX << "' e 'y = " << BordaY << "'.\n";
-		cout << "Você pode deixar 'y' ou 'x' igual a '0' se quiser fazer da imagem apenas barras de suas bordas.\n";
+		cout << "PadrÃ£o das bordas sÃ£o 'x = 1' e 'y = 1'.\nAtual Ã© 'x = " << BordaX << "' e 'y = " << BordaY << "'.\n";
+		cout << "VocÃª pode deixar 'y' ou 'x' igual a '0' se quiser fazer da imagem apenas barras de suas bordas.\n";
 		cout << "X: "; cin >> BordaX; if (BordaX < 0) { BordaX = BordaX * -1; }	Sizey = GradeY + (BordaX * 2); //Sizey = GradeY + (BordaY * 2);
 		cout << "Y: "; cin >> BordaY; if (BordaY < 0) { BordaY = BordaY * -1; } Sizex = GradeX + (BordaY * 2); //Sizex = GradeX + (BordaX * 2);
 		cout << "Imagem(" << Sizex << ", " << Sizey << ", 1, 3, 0)\n";
 	}
-	if (Opção == 2)
+	if (OpÃ§Ã£o == 2)
 	{
 		cout << "Defina R, G, B da plotadora respectivamente:\nR: "; cin >> R; if (R < 0) { R = R * -1; } cout << "G: "; cin >> G; if (G < 0) { G = G * -1; }
 		cout << "B: "; cin >> B; if (B < 0) { B = B * -1; }
@@ -554,20 +554,20 @@ public:
 }
 
 	// VERIFICA GRADE:
-	bool InGrid(int y, int x) // Verifica se os pixels estão dentro da parte utilizavel da imagem.
+	bool InGrid(int y, int x) // Verifica se os pixels estÃ£o dentro da parte utilizavel da imagem.
 	{ if (y > BordaX && y < GradeY + BordaX) { if (x > BordaY && x < GradeX + BordaY) { return (true); } else { return (false); } } else { return (false); } }
 	bool InGridy(int y) { if (y > BordaX && y < GradeY + BordaX) { return (true); } else { return (false); } }
 	bool InGridx(int x) { if (x > BordaY && x < GradeX + BordaY) { return (true); } else { return (false); }	}
 
-	// ####### Funções Graficas #######
+	// ####### FunÃ§Ãµes Graficas #######
 
 	// #################################################
-	// ####### DECLARAÇÕES:
+	// ####### DECLARAÃ‡Ã•ES:
 	// #################################################
 	// #####################
-	// ####### FUNÇÕES MATEMATICAS:
+	// ####### FUNÃ‡Ã•ES MATEMATICAS:
 	// #####################
-	// FUNÇÃO DE LINHA:
+	// FUNÃ‡ÃƒO DE LINHA:
 	void FuncLinx(double a, double b, double x1, double x2, int EspessuraFx, bool LRGB)
 	{
 		// Input:
@@ -584,7 +584,7 @@ public:
 			x = x1 + ((x2 - x1) * xdiv);
 
 			// ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### #######
-			y = Linex(x, a, b); // ESCREVA AQUI SUA FUNÇÃO.
+			y = Linex(x, a, b); // ESCREVA AQUI SUA FUNÃ‡ÃƒO.
 
 			// Y e GradeY:
 			double yg = BordaX + ((GradeY - 2) - (((y + 1) * 0.5) * (GradeY - 3))); // GRADEY
@@ -617,7 +617,7 @@ public:
 			{
 				if (ygRound > BordaX)
 				{
-					unsigned char color[] = { TR, TG, TB }; // Cor do gráfico.
+					unsigned char color[] = { TR, TG, TB }; // Cor do grÃ¡fico.
 					Imagem.draw_point(xn, ygRound, color);
 				}
 			}
@@ -626,7 +626,7 @@ public:
 	}
 
 	// PLOTAR F(X):
-	void Funcx(double Métrica, bool UsarMétrica, double a, double x1, double x2, int EspessuraFx, int PlotDrv, bool LRGB)
+	void Funcx(double MÃ©trica, bool UsarMÃ©trica, double a, double x1, double x2, int EspessuraFx, int PlotDrv, bool LRGB)
 {
 	// Input:
 	double x, y, ydrv;
@@ -639,7 +639,7 @@ public:
 
 	if (x1 > x2) { int xTemp = x1; x1 = x2; x2 = xTemp; } // Inverte.
 
-	// ##### Começa aqui #
+	// ##### ComeÃ§a aqui #
 
 	// ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### #######
 	// PLOTADORA:
@@ -650,7 +650,7 @@ public:
 
 		// ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### #######
 		// ####### FORMULA ####### FORMULA ####### FORMULA ####### FORMULA ####### FORMULA #######
-		y = MiniForm(x, Omega); // ESCREVA AQUI SUA FUNÇÃO.
+		y = MiniForm(x, Omega); // ESCREVA AQUI SUA FUNÃ‡ÃƒO.
 		// ####### FORMULA ####### FORMULA ####### FORMULA ####### FORMULA ####### FORMULA #######
 		if (PlotDrv == 1) { ydrv = (1 / a) * Derivative(x, Omega); /*FuncLinx(ydrv, y - (x * ydrv), x1, x2, round(EspessuraFx * 0.25), LRGB);*/ } // Derivativo
 		if (PlotDrv == 2) { ydrv = (1 / a) * d2xdt2(x, Omega); } // Second-order derivative
@@ -705,7 +705,7 @@ public:
 					unsigned char clrdrv[] = { round(255 - TR), round((255 - TG) / 1.5), round((255 - TB) / 1.5) }; // Cor do derivativo
 					Imagem.draw_point(xn, ygdrv, clrdrv);
 				}
-				unsigned char color[] = { TR, TG, TB }; // Cor do gráfico.
+				unsigned char color[] = { TR, TG, TB }; // Cor do grÃ¡fico.
 				Imagem.draw_point(xn, ygRound, color);
 				
 				cout << "PLOTTED: xn: " << xn << ", ygRound: " << ygRound << endl;
@@ -719,7 +719,7 @@ public:
 	cout << "####### Fim! #######\n\n";
 }
 	
-	// PLOTAR F(X, Y): // Lembrar de modificar essa função para 'z' ser cor;
+	// PLOTAR F(X, Y): // Lembrar de modificar essa funÃ§Ã£o para 'z' ser cor;
 	void Funcxy(double a, double x1, double x2, double y1, double y2, int PlotDrv)
 	{
 		// Input:
@@ -732,7 +732,7 @@ public:
 
 		if (x1 > x2) { int xTemp = x1; x1 = x2; x2 = xTemp; } // Inverte.
 
-		// ##### Começa aqui #####
+		// ##### ComeÃ§a aqui #####
 			
 		// ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### #######
 		// PLOTADORA:
@@ -749,7 +749,7 @@ public:
 
 				// ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### #######
 				// ####### FORMULA ####### FORMULA ####### FORMULA ####### FORMULA ####### FORMULA #######
-				z = NonStatWaveFunc(a / (x + 1), x2, x, y, Omega, ((x + y) * 0.125)); // ESCREVA AQUI SUA FUNÇÃO.
+				z = NonStatWaveFunc(a / (x + 1), x2, x, y, Omega, ((x + y) * 0.125)); // ESCREVA AQUI SUA FUNÃ‡ÃƒO.
 				z *= 1.0 / a;
 				// ####### FORMULA ####### FORMULA ####### FORMULA ####### FORMULA ####### FORMULA #######
 				if (PlotDrv == 1) { zdrv = ((1 / a) * Derivative(x, Omega * 7 * (y / 3))) * ((1 / a) * ((cos((y + 0.000000001) * 0.5) - cos(y * 0.5)) / 0.000000001)); } // Derivativo
@@ -774,87 +774,6 @@ public:
 
 	
 	// #################################################
-
-	void TMap(double Amp, double t1, double t2, double Periodo, double PAmp, int Mod, bool PrintPath, bool LRGB)
-	{
-		int TR = R, TG = G, TB = B;
-		double y, x;
-		double t, T = 0, xt, xtT;
-		int xzero = floor((GradeX / 2) + (BordaY / 1.33333)), yzero = Sizey - (floor((GradeY / 2) + (BordaX)));
-
-		for (t = t1; t <= t2; t += 0.0001)
-		{
-			double Progresso = (t / t2);
-			if (t1 == t2 / 8) { cout << "12.5%\n"; } if (t1 == t2 / 4) { cout << "25%\n"; } if (t1 == t2 / 2) { cout << "50%\n"; } if (t1 == t2 * 0.75 ) { cout << "75%\n"; }
-			// ### ESCREVA AQUI A SUA FORMULA:
-			// Pode retirar xt se preferir.
-			xt = Amp * (cos(ModForm(t + sin(t), 1) * Tau) + sin(Integral(0, t, 100, 1))) * 0.5;
-			xtT = Amp * MiniForm(t + sin(t) * T, 1);
-			// ####### MODOS #############################################################################
-			if (Mod == 0)
-			{
-				y = round((xt + xtT) * 0.5 * sin(t));
-				x = round((xt + xtT) * 0.5 * cos(t));
-			}
-			if (Mod == 1)
-			{
-				y = round(xtT * sin(t));
-				x = round(xtT * cos(t));
-			}
-			if (Mod == 2)
-			{
-				y = round((xt * xtT) * sin(t));
-				x = round((xt * xtT) * cos(t));
-			}
-			if (Mod == 3)
-			{
-				y = round(Integral(0, (1.0 / 3) * (t + xt + T), 100, 1) * (xt + xtT) * 0.5 * sin(t));
-				x = round(Integral(0, (1.0 / 3) * (t + xt + T), 100, 1) * (xt + xtT) * 0.5 * cos(t));
-			}
-			if (Mod == 4)
-			{
-				y = round((xt + xtT) * 0.5 * sin(t));
-				x = round((xt + xtT) * 0.5 * cos(t));
-				PAmp *= xt + xtT; //PAmp *= (xt + xtT) * 0.5;
-			}
-			if (Mod == 5)
-			{
-				y = round(xt * sin(t));
-				x = round(xtT * cos(t));
-			}
-			if (Mod == 6)
-			{
-				y = round(xtT * sin(t));
-				x = round(xt * cos(t));
-			}
-			// ###########################################################################################
-			int CorrectX = x + xzero;
-			int CorrectY = Sizey - (y + yzero);
-			// Plota função:
-			if (PrintPath)
-			{
-				if (InGrid(CorrectY, CorrectX))
-				{
-					if (LRGB == true) { Point3D RGB = LinearRGB(Progresso, 1, 1); TR = RGB.x; TG = RGB.y; TB = RGB.z; }
-					unsigned char color[] = { TR, TG, TB };
-					Imagem.draw_point(CorrectX, CorrectY, color);
-				}
-			}
-
-			// Muda T:
-			if (t > (Periodo * T))
-			{
-				T += Periodo * PAmp;
-				if (InGrid(CorrectY, CorrectX))
-				{
-					if (LRGB == true) { Point3D RGB = LinearRGB(Progresso, 1, 1); TR = RGB.x; TG = RGB.y; TB = RGB.z; }
-					unsigned char color[] = { TR, TG, TB };
-					AdcVert(Imagem, CorrectX, CorrectY, 3, color);
-				}
-			}
-			// #######
-		}
-	}
 
 	// PLOTAR PARAMETRICO:
 	void Parametrico(double r, double Ini, double ThisTau, bool LRGB)
