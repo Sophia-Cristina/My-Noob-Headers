@@ -4,7 +4,7 @@
 #define YSXCIMG_H
 
 #include "CImg.h"
-#include "ysxmath.h"
+#include "ysxMath.h"
 #include <vector>
 #include <string>
 #include <functional>
@@ -14,23 +14,31 @@
 #include <fstream>
 #include <complex>
 
+// #####################
+// ####### By Sophia Cristina
+// ####### Header made do some useful stuffs with 'CImg.h'
+// #####################
+
 using namespace cimg_library; // UNCOMMENT IF YOU ARE HAVING A PROBLEM
 
 // ############################################################################################################################################
 // ############################################################################################################################################
 // ############################################################################################################################################
-// ################################################# ANOTAÃ‡Ã•ES E ATENÃ‡Ã•ES #################################################
+// ################################################# ANOTAÇÕES E ATENÇÕES #################################################
 // !!!!!!!	
 // !!!!!!!	FAZER TODOS POSSIVEIS PLOTTERS ESCREVEREM NUMA IMAGEM DE INPUT;
-// !!!!!!!	FAZER TODOS POSSIVEIS PLOTTERS ACEITAREM VECTORS COMO INPUT, E ASSIM ACABAR COM RDUNDANCIAS DE FUNÃ‡Ã•ES, TIPO "POLAR", "CIRCULO" E "TURN";
+// !!!!!!!	FAZER TODOS POSSIVEIS PLOTTERS ACEITAREM VECTORS COMO INPUT, E ASSIM ACABAR COM RDUNDANCIAS DE FUNÇÕES, TIPO "POLAR", "CIRCULO" E "TURN";
 // !!!!!!!	
-// ################################################# ANOTAÃ‡Ã•ES E ATENÃ‡Ã•ES #################################################
+// !!!!!!!	CATALOGO DE MUDANÇAS (MANTENHA EM ORDEM):
+// !!!!!!!	FUNÇÕES COM NOMES TIPO 'SaveBmp' AGORA SÃO 'SaveBMP';
+// !!!!!!!	
+// ################################################# ANOTAÇÕES E ATENÇÕES #################################################
 // ############################################################################################################################################
 // ############################################################################################################################################
 // ############################################################################################################################################
 
 // ###################################
-// ############## DECLARAÃ‡Ã•ES:
+// ############## DECLARAÇÕES:
 CImg<unsigned char> DrawImageIgnClr(CImg<unsigned char>, CImg<unsigned char>, int, int, unsigned char[3]);
 CImg<unsigned char> DrawImageIgnClrCout(CImg<unsigned char>, CImg<unsigned char>, int, int, unsigned char[3]);
 bool InImg(CImg<unsigned char>, int, int);
@@ -62,16 +70,16 @@ struct Pixel { unsigned int x; unsigned int y; unsigned char RGB[3]; };
 // ############################################################################################################################################
 
 // ############################################################################################################################################
-// ############## TÃ‰CNICOS:
+// ############## TÉCNICOS:
 // ABRIR:
 CImg<unsigned char> OpenImg(string FileName) { CImg<unsigned char> Open(Str2Char(FileName).data()); return(Open); }
 
-// SALVAR (Com uso de 'string to char', minha funÃ§Ã£o que cria um vetor de char com um string, acho que cimg aceita sÃ³ um 'char array'):
-void SaveBmp(CImg<unsigned char> Image, string FileName) { Image.save_bmp(Str2Char(FileName).data()); }
-void SavePng(CImg<unsigned char> Image, string FileName) { Image.save_png(Str2Char(FileName).data()); }
-void SavePng(CImg<unsigned char> Image, string FileName, int BytesPerPixel) { Image.save_png(Str2Char(FileName).data(), BytesPerPixel); }
-void SaveJpg(CImg<unsigned char> Image, string FileName) { Image.save_jpeg(Str2Char(FileName).data(), 100); } // 100% quality
-void SaveJpg(CImg<unsigned char> Image, string FileName, int QualityPercent) { Image.save_jpeg(Str2Char(FileName).data(), QualityPercent); }
+// SALVAR (Com uso de 'string to char', minha função que cria um vetor de char com um string, acho que cimg aceita só um 'char array'):
+void SaveBMP(CImg<unsigned char> Image, string FileName) { Image.save_bmp(Str2Char(FileName).data()); }
+void SavePNG(CImg<unsigned char> Image, string FileName) { Image.save_png(Str2Char(FileName).data()); }
+void SavePNG(CImg<unsigned char> Image, string FileName, int BytesPerPixel) { Image.save_png(Str2Char(FileName).data(), BytesPerPixel); }
+void SaveJPG(CImg<unsigned char> Image, string FileName) { Image.save_jpeg(Str2Char(FileName).data(), 100); } // 100% quality
+void SaveJPG(CImg<unsigned char> Image, string FileName, int QualityPercent) { Image.save_jpeg(Str2Char(FileName).data(), QualityPercent); }
 
 // VERIFICA SE VALOR ESTA DENTRO DA IMAGEM:
 bool InImg(CImg<unsigned char> Img, int y, int x)
@@ -84,7 +92,7 @@ bool InImg(CImg<unsigned char> Img, int y, int x)
 void CIMG(string Nome)
 {
 	CImg<unsigned char> ImagemAbrir(Str2Char(Nome).data()), Grafico(100, 100, 1, 3, 0);
-	const unsigned char red[] = { 255,0,0 }, green[] = { 0,255,0 }, blue[] = { 0,0,255 };
+	const unsigned char red[] = { 255, 0, 0 }, green[] = { 0, 255, 0 }, blue[] = { 0, 0, 255 };
 
 	CImgDisplay main_disp(ImagemAbrir, "Bela Arte:"), draw_disp(Grafico, "Perfil de Intensidade");
 	while (!main_disp.is_closed() && !draw_disp.is_closed()) {
@@ -103,8 +111,8 @@ void CIMG(string Nome)
 void VerImg(CImg<unsigned char> Img) { CImgDisplay Disp(Img, "Imagem"); while (!Disp.is_closed()) { Disp.wait(); } }
 void VerImg(CImg<unsigned char> Img, string Title) { CImgDisplay Disp(Img, Str2Char(Title).data()); while (!Disp.is_closed()) { Disp.wait(); } }
 
-// POEM DADOS NA MATRIZ ATRAVEZ DE UM BITMAP (GRAYSCALE):
-vector<double> BitmapMatrix(CImg<unsigned char> BMP)
+// POEM DADOS NO VETOR ATRAVEZ DE UM BITMAP (GRAYSCALE):
+vector<double> BitmapVector(CImg<unsigned char> BMP)
 {
 	vector<double> NewMatrix;
 	Point3D RGB;
@@ -114,8 +122,8 @@ vector<double> BitmapMatrix(CImg<unsigned char> BMP)
 	}
 	return (NewMatrix);
 }
-// POEM DADOS NA MATRIZ ATRAVEZ DE UM BITMAP (R = 0, G = 1, B = 2):
-vector<double> BitmapMatrix(CImg<unsigned char> BMP, int R0orG1orB2)
+// POEM DADOS NO VETOR ATRAVEZ DE UM BITMAP (R = 0, G = 1, B = 2):
+vector<double> BitmapVector(CImg<unsigned char> BMP, int R0orG1orB2)
 {
 	vector<double> NewMatrix;
 	Point3D RGB;
@@ -137,7 +145,7 @@ vector<double> BitmapMatrix(CImg<unsigned char> BMP, int R0orG1orB2)
 // ############################################################################################################################################
 
 // ############## TEXTOS:
-// ADC TEXTO:
+// ADC TEXTO (PODE SE USAR A FUNÇÃO .DATA() DO STRING MESMO):
 void AdcTexto(CImg<unsigned char>& Img, int x, int y, string String, int R, int G, int B)
 {
 	// www.cplusplus.com/reference/string/string/at/
@@ -153,7 +161,7 @@ void AdcTexto(CImg<unsigned char>& Img, int x, int y, string String, int R, int 
 	CImgList<unsigned char> font(const unsigned int font_height = 19, const bool variable_size = true);
 	Img.draw_text(x, y, Texto.data(), color);
 }
-void AdcTextoCirc(CImg<unsigned char>& Img, double r, int x, int y, vector<string> Strings, int R, int G, int B) // Adiciona em direÃ§Ãµes de um circulo, como raios, como numeros num relÃ³gio
+void AdcTextoCirc(CImg<unsigned char>& Img, double r, int x, int y, vector<string> Strings, int R, int G, int B) // Adiciona em direções de um circulo, como raios, como numeros num relógio
 {
 	double Div = Tau / Strings.size() * 1.0; int Count = 0;
 	for (double rad = 0; rad <= Tau; rad += Div) { AdcTexto(Img, x + round(cos(rad) * (r - 8)), y + round(sin(rad) * (r - 8)), Strings[Count], R, G, B); ++Count; }
@@ -165,7 +173,7 @@ void AdcTextoCirc(CImg<unsigned char>& Img, double r, int x, int y, vector<strin
 
 // ############## GRAFICOS:
 
-// REFAZ IMAGEM COM CERTA COR (PRETA SE NÃƒO TIVER RGB):
+// REFAZ IMAGEM COM CERTA COR (PRETA SE NÃO TIVER RGB):
 void FillAlpha(CImg<unsigned char>& Img) { CImg<unsigned char> FilledImg(Img.width(), Img.height(), 1, 4, 0); unsigned char C[] = { 0, 0, 0, 0 }; Img.draw_fill(1, 1, C, 1, 1); Img = FilledImg; }
 void FillAll(CImg<unsigned char>& Img) { CImg<unsigned char> FilledImg(Img.width(), Img.height(), 1, 3, 0); Img = FilledImg; }
 void FillAll(CImg<unsigned char>& Img, int R, int G, int B)
@@ -207,12 +215,12 @@ CImg<unsigned char> FillAll(int Width, int Height, int R, int G, int B)
 // ############## IMAGENS ##############
 // ###################################
 
-// MIXA IMAGENS E PODE REMOVER FUNDO (NÃ£o esta ignorando cor, esta ignorando uma sÃ³ variavel de cor, arrumar depois):
+// MIXA IMAGENS E PODE REMOVER FUNDO (Não esta ignorando cor, esta ignorando uma só variavel de cor, arrumar depois):
 CImg<unsigned char> MixRGB(CImg<unsigned char> Img0, CImg<unsigned char> Img1)
 {
 	int Width = 1, Height = 1;
 	if (Img0.width() > Img1.width()) { Width = Img1.width(); }
-	else { Width = Img0.width(); } // Maior que (>), pois, ao passar pelo pixel, nÃ£o vai pedir memÃ³ria aonde nÃ£o tem
+	else { Width = Img0.width(); } // Maior que (>), pois, ao passar pelo pixel, não vai pedir memória aonde não tem
 	if (Img0.height() > Img1.height()) { Height = Img1.height(); }
 	else { Height = Img0.height(); }
 	CImg<unsigned char> Ret(Width, Height, 1, 3, 0);
@@ -234,8 +242,10 @@ CImg<unsigned char> MixRGB(CImg<unsigned char> Img0, CImg<unsigned char> Img1)
 CImg<unsigned char> MixRGB(CImg<unsigned char> Img0, CImg<unsigned char> Img1, bool IgnoreBlack, bool IgnoreWhite)
 {
 	int Width = 1, Height = 1;
-	if (Img0.width() > Img1.width()) { Width = Img1.width(); } else { Width = Img0.width(); }
-	if (Img0.height() > Img1.height()) { Height = Img1.height(); } else { Height = Img0.height(); }
+	if (Img0.width() > Img1.width()) { Width = Img1.width(); }
+	else { Width = Img0.width(); }
+	if (Img0.height() > Img1.height()) { Height = Img1.height(); }
+	else { Height = Img0.height(); }
 	CImg<unsigned char> Ret(Width, Height, 1, 3, 0);
 	for (int n = 0; n < Height; ++n)
 	{
@@ -284,8 +294,10 @@ CImg<unsigned char> MixRGB(CImg<unsigned char> Img0, CImg<unsigned char> Img1, b
 CImg<unsigned char> MixRGB(CImg<unsigned char> Img0, CImg<unsigned char> Img1, unsigned char IgnoreColor[3])
 {
 	int Width = 1, Height = 1;
-	if (Img0.width() > Img1.width()) { Width = Img1.width(); } else { Width = Img0.width(); } // Maior que (>), pois, ao passar pelo pixel, nÃ£o vai pedir memÃ³ria aonde nÃ£o tem
-	if (Img0.height() > Img1.height()) { Height = Img1.height(); } else { Height = Img0.height(); }
+	if (Img0.width() > Img1.width()) { Width = Img1.width(); }
+	else { Width = Img0.width(); } // Maior que (>), pois, ao passar pelo pixel, não vai pedir memória aonde não tem
+	if (Img0.height() > Img1.height()) { Height = Img1.height(); }
+	else { Height = Img0.height(); }
 	CImg<unsigned char> Ret(Width, Height, 1, 3, 0);
 	for (int n = 0; n < Height; ++n)
 	{
@@ -294,9 +306,12 @@ CImg<unsigned char> MixRGB(CImg<unsigned char> Img0, CImg<unsigned char> Img1, u
 		{
 			Point3D RGB0 = BitmapRGB(Img0, m, n), RGB1 = BitmapRGB(Img1, m, n);
 			unsigned char Clr[3];
-			if (IgnoreColor[0] != RGB0.x) { Clr[0] = round((RGB0.x + RGB1.x) * 0.5); } else { Clr[0] = RGB1.x; }
-			if (IgnoreColor[1] != RGB0.y) { Clr[1] = round((RGB0.y + RGB1.y) * 0.5); } else { Clr[1] = RGB1.y; }
-			if (IgnoreColor[2] != RGB0.z) { Clr[2] = round((RGB0.z + RGB1.z) * 0.5); } else { Clr[2] = RGB1.z; }
+			if (IgnoreColor[0] != RGB0.x) { Clr[0] = round((RGB0.x + RGB1.x) * 0.5); }
+			else { Clr[0] = RGB1.x; }
+			if (IgnoreColor[1] != RGB0.y) { Clr[1] = round((RGB0.y + RGB1.y) * 0.5); }
+			else { Clr[1] = RGB1.y; }
+			if (IgnoreColor[2] != RGB0.z) { Clr[2] = round((RGB0.z + RGB1.z) * 0.5); }
+			else { Clr[2] = RGB1.z; }
 			Ret.draw_point(m, n, Clr);
 		}
 	}
@@ -307,7 +322,7 @@ CImg<unsigned char> MixRGB(CImg<unsigned char> Img0, CImg<unsigned char> Img1, i
 	if (x < 0) { x = 0; } if (y < 0) { y = 0; }
 	int Width = 1, Height = 1;
 	if (Img0.width() > Img1.width()) { Width = Img1.width(); }
-	else { Width = Img0.width(); } // Maior que (>), pois, ao passar pelo pixel, nÃ£o vai pedir memÃ³ria aonde nÃ£o tem
+	else { Width = Img0.width(); } // Maior que (>), pois, ao passar pelo pixel, não vai pedir memória aonde não tem
 	if (Img0.height() > Img1.height()) { Height = Img1.height(); }
 	else { Height = Img0.height(); }
 	CImg<unsigned char> Ret(Width, Height, 1, 3, 0);
@@ -341,7 +356,7 @@ CImg<unsigned char> DrawImageIgnClr(CImg<unsigned char> Img0, CImg<unsigned char
 		for (int j = 0; j < Width; ++j)
 		{
 			if (j + x >= Img0.width() - 1) { break; }
-			Point3D RGB = BitmapRGB(Img1, j, i); if (IgnoreColor[0] != RGB.x || IgnoreColor[1] != RGB.y || IgnoreColor[2] != RGB.z)	{ unsigned char Clr[] = { RGB.x, RGB.y, RGB.z }; Ret.draw_point(j + x, i + y, Clr); }
+			Point3D RGB = BitmapRGB(Img1, j, i); if (IgnoreColor[0] != RGB.x || IgnoreColor[1] != RGB.y || IgnoreColor[2] != RGB.z) { unsigned char Clr[] = { RGB.x, RGB.y, RGB.z }; Ret.draw_point(j + x, i + y, Clr); }
 		}
 		if (i + y >= Img0.height() - 1) { break; }
 	}
@@ -388,7 +403,7 @@ CImg<unsigned char> SieveEratosthenes(int n)
 	{
 		// Cores:
 		unsigned char Color[] = { 0, 0, 0 };
-		if (0 == m % 2) { Color[0] = RGBs[0].x; Color[1] = RGBs[0].y; Color[2] = RGBs[0].z;	}
+		if (0 == m % 2) { Color[0] = RGBs[0].x; Color[1] = RGBs[0].y; Color[2] = RGBs[0].z; }
 		if (0 == m % 3) { Color[0] = RGBs[1].x; Color[1] = RGBs[1].y; Color[2] = RGBs[1].z; }
 		if (0 == m % 5) { Color[0] = RGBs[2].x; Color[1] = RGBs[2].y; Color[2] = RGBs[2].z; }
 		if (0 == m % 7) { Color[0] = RGBs[3].x; Color[1] = RGBs[3].y; Color[2] = RGBs[3].z; }
@@ -452,7 +467,7 @@ public:
 
 // ################################################# FIM ####################################################################################
 
-// !!!!!!! DELETAR EM  BREVE !!!!!!!
+// !!!!!!! DELETAR EM  BREVE, NÃO ESTOU MAIS AFIM DISSO EM UMA CLASSE !!!!!!!
 class YSXCIMAIN
 {
 public:
@@ -478,96 +493,99 @@ public:
 	~YSXCIMAIN() { }
 	// #################################################
 	// #################################################
-	// GrÃ¡fico:
-	int BordaX = 1, BordaY = 1; // Deixar um espaÃ§o de 175 pixeis.
-	int GradeX, GradeY; // Grade da plotagem, numero para dividirr a dimensÃ£o da funÃ§Ã£o.
-	int R = 255, G = 0, B = 127; // Cor da linha da funÃ§Ã£o.
+	// Gráfico:
+	int BordaX = 1, BordaY = 1; // Deixar um espaço de 175 pixeis.
+	int GradeX, GradeY; // Grade da plotagem, numero para dividirr a dimensão da função.
+	int R = 255, G = 0, B = 127; // Cor da linha da função.
 	int Rbrd = 255, Gbrd = 255, Bbrd = 255; // RGBborda.
 	int Rbrr = 77, Gbrr = 77, Bbrr = 77; // RGBbarra.
 	int Rbkg = 200, Gbkg = 200, Bbkg = 200; // RGBbackground.
 	int Sizex, Sizey; // Sizex = GradeX + (BordaY * 2), Sizey = GradeY + (BordaX * 2);
 
 	// Matematica:
-	int AreaImg = ((BordaX + BordaY) * 2) + (GradeX*GradeY); // Area da Imagem (Pixeis)
+	int AreaImg = ((BordaX + BordaY) * 2) + (GradeX * GradeY); // Area da Imagem (Pixeis)
 	int AreaPlot = GradeX * GradeY; // Area da Plotagem (Pixeis)
-	double xDiv; // Passos das funÃ§Ãµes.
+	double xDiv; // Passos das funções.
 	double Random = (rand() % 1000001) / 1000000;
 	double Omega = 1; // Frequencia angular, sin(x * Omega)
-	vector<string> ParseExp; // ExpressÃµes que passarÃ£o por uma classe que traduz algebraicamente retornando um valor.
+	vector<string> ParseExp; // Expressões que passarão por uma classe que traduz algebraicamente retornando um valor.
 	vector<int> PlyCoord; // Ainda pensando em/como colocar, salva um poligono.
-	
+
 	// Imagens:
-	CImg<unsigned char> Imagem; // Imagem principal para modificaÃ§Ãµes
+	CImg<unsigned char> Imagem; // Imagem principal para modificações
 	CImg<unsigned char> Bitmap;
-	
+
 	// #####################
-	// ####### FUNÃ‡Ã•ES #######
+	// ####### FUNÇÕES #######
 	// #####################
-	
-	// ####### FunÃ§Ãµes TÃ©cnicas #######
+
+	// ####### Funções Técnicas #######
 	// VARIAVEIS:
-	// Refaz variaveis de tamanho e nÃ£o salva
-	void RedoVar() { Sizex = GradeX + (BordaY * 2); Sizey = GradeY + (BordaX * 2); AreaImg = ((BordaX + BordaY) * 2) + (GradeX*GradeY); AreaPlot = GradeX * GradeY; }
+	// Refaz variaveis de tamanho e não salva
+	void RedoVar() { Sizex = GradeX + (BordaY * 2); Sizey = GradeY + (BordaX * 2); AreaImg = ((BordaX + BordaY) * 2) + (GradeX * GradeY); AreaPlot = GradeX * GradeY; }
 	// Refaz variaveis de tamnho baseado em inputs:
-	void NewVar(int NewX, int NewY)	{ GradeX = NewX; GradeY = NewY; RedoVar(); }
+	void NewVar(int NewX, int NewY) { GradeX = NewX; GradeY = NewY; RedoVar(); }
 	// Refaz variaveis de tamnho baseado em uma imagem:
 	void ImgVar(CImg<unsigned char> Reference) { GradeX = Reference.width(); GradeY = Reference.height(); RedoVar(); }
 	// Refaz variaveis de tamanho e salva nova imagem:
 	void RedoImg() { RedoVar(); CImg<unsigned char> ImagemConfig(Sizex, Sizey, 1, 3, 0); Imagem = ImagemConfig; }
-	
-	// CONFIGURAR:
-	void Configurar(int OpÃ§Ã£o)
-{
-	cout << "####### CONFIGURAÃ‡Ã•ES #######\n";
-	cout << "* Todo numero negativo serÃ¡ multiplicado por '-1'.\n\n";
-	if (OpÃ§Ã£o == 0)
-	{
-		cout << "PadrÃ£o da grade Ã© 350 x 350.\nAtual Ã© " << GradeX << " x " << GradeY << ".\n";
-		cout << "VocÃª pode deixar 'y' ou 'x' igual a '0' se quiser fazer da imagem apenas barras de suas bordas.\n";
-		cout << "Defina valor da GradeX:\n"; cin >> GradeX;	if (GradeX < 0) { GradeX = GradeX * -1; } Sizex = GradeX + (BordaY * 2); //Sizex = GradeX + (BordaX * 2);
-		cout << "Defina valor da GradeY:\n"; cin >> GradeY;	if (GradeY < 0) { GradeY = GradeY * -1; } Sizey = GradeY + (BordaX * 2); //Sizey = GradeY + (BordaY * 2);
-		cout << "Imagem(" << Sizex << ", " << Sizey << ", 1, 3, 0)\n";
-	}
-	if (OpÃ§Ã£o == 1)
-	{
-		cout << "PadrÃ£o das bordas sÃ£o 'x = 1' e 'y = 1'.\nAtual Ã© 'x = " << BordaX << "' e 'y = " << BordaY << "'.\n";
-		cout << "VocÃª pode deixar 'y' ou 'x' igual a '0' se quiser fazer da imagem apenas barras de suas bordas.\n";
-		cout << "X: "; cin >> BordaX; if (BordaX < 0) { BordaX = BordaX * -1; }	Sizey = GradeY + (BordaX * 2); //Sizey = GradeY + (BordaY * 2);
-		cout << "Y: "; cin >> BordaY; if (BordaY < 0) { BordaY = BordaY * -1; } Sizex = GradeX + (BordaY * 2); //Sizex = GradeX + (BordaX * 2);
-		cout << "Imagem(" << Sizex << ", " << Sizey << ", 1, 3, 0)\n";
-	}
-	if (OpÃ§Ã£o == 2)
-	{
-		cout << "Defina R, G, B da plotadora respectivamente:\nR: "; cin >> R; if (R < 0) { R = R * -1; } cout << "G: "; cin >> G; if (G < 0) { G = G * -1; }
-		cout << "B: "; cin >> B; if (B < 0) { B = B * -1; }
-		cout << "Defina R, G, B das bordas respectivamente:\nR: "; cin >> Rbrd;	if (Rbrd < 0) { Rbrd = Rbrd * -1; }	cout << "G: "; cin >> Gbrd;	if (Gbrd < 0) { Gbrd = Gbrd * -1; }
-		cout << "B: "; cin >> Bbrd;	if (Bbrd < 0) { Bbrd = Bbrd * -1; }
-		cout << "Defina R, G, B das barras respectivamente:\nR: "; cin >> Rbrr;	if (Rbrr < 0) { Rbrr = Rbrr * -1; }	cout << "G: "; cin >> Gbrr;	if (Gbrr < 0) { Gbrr = Gbrr * -1; }
-		cout << "B: "; cin >> Bbrr;	if (Bbrr < 0) { Bbrr = Bbrr * -1; }
-		cout << "Defina R, G, B do plano de fundo respectivamente:\nR: "; cin >> Rbkg; if (Rbkg < 0) { Rbkg = Rbkg * -1; } cout << "G: "; cin >> Gbkg;
-		if (Gbkg < 0) { Gbkg = Gbkg * -1; }	cout << "B: "; cin >> Bbkg;	if (Bbkg < 0) { Bbkg = Bbkg * -1; }
-	}
 
-	// Sobreescreve "Imagem":
-	CImg<unsigned char> ImagemConfig(Sizex, Sizey, 1, 3, 0);
-	Imagem = ImagemConfig;
-}
+	// CONFIGURAR:
+	void Configurar(int Opção)
+	{
+		cout << "####### CONFIGURAÇÕES #######\n";
+		cout << "* Todo numero negativo será multiplicado por '-1'.\n\n";
+		if (Opção == 0)
+		{
+			cout << "Padrão da grade é 350 x 350.\nAtual é " << GradeX << " x " << GradeY << ".\n";
+			cout << "Você pode deixar 'y' ou 'x' igual a '0' se quiser fazer da imagem apenas barras de suas bordas.\n";
+			cout << "Defina valor da GradeX:\n"; cin >> GradeX;	if (GradeX < 0) { GradeX = GradeX * -1; } Sizex = GradeX + (BordaY * 2); //Sizex = GradeX + (BordaX * 2);
+			cout << "Defina valor da GradeY:\n"; cin >> GradeY;	if (GradeY < 0) { GradeY = GradeY * -1; } Sizey = GradeY + (BordaX * 2); //Sizey = GradeY + (BordaY * 2);
+			cout << "Imagem(" << Sizex << ", " << Sizey << ", 1, 3, 0)\n";
+		}
+		if (Opção == 1)
+		{
+			cout << "Padrão das bordas são 'x = 1' e 'y = 1'.\nAtual é 'x = " << BordaX << "' e 'y = " << BordaY << "'.\n";
+			cout << "Você pode deixar 'y' ou 'x' igual a '0' se quiser fazer da imagem apenas barras de suas bordas.\n";
+			cout << "X: "; cin >> BordaX; if (BordaX < 0) { BordaX = BordaX * -1; }	Sizey = GradeY + (BordaX * 2); //Sizey = GradeY + (BordaY * 2);
+			cout << "Y: "; cin >> BordaY; if (BordaY < 0) { BordaY = BordaY * -1; } Sizex = GradeX + (BordaY * 2); //Sizex = GradeX + (BordaX * 2);
+			cout << "Imagem(" << Sizex << ", " << Sizey << ", 1, 3, 0)\n";
+		}
+		if (Opção == 2)
+		{
+			cout << "Defina R, G, B da plotadora respectivamente:\nR: "; cin >> R; if (R < 0) { R = R * -1; } cout << "G: "; cin >> G; if (G < 0) { G = G * -1; }
+			cout << "B: "; cin >> B; if (B < 0) { B = B * -1; }
+			cout << "Defina R, G, B das bordas respectivamente:\nR: "; cin >> Rbrd;	if (Rbrd < 0) { Rbrd = Rbrd * -1; }	cout << "G: "; cin >> Gbrd;	if (Gbrd < 0) { Gbrd = Gbrd * -1; }
+			cout << "B: "; cin >> Bbrd;	if (Bbrd < 0) { Bbrd = Bbrd * -1; }
+			cout << "Defina R, G, B das barras respectivamente:\nR: "; cin >> Rbrr;	if (Rbrr < 0) { Rbrr = Rbrr * -1; }	cout << "G: "; cin >> Gbrr;	if (Gbrr < 0) { Gbrr = Gbrr * -1; }
+			cout << "B: "; cin >> Bbrr;	if (Bbrr < 0) { Bbrr = Bbrr * -1; }
+			cout << "Defina R, G, B do plano de fundo respectivamente:\nR: "; cin >> Rbkg; if (Rbkg < 0) { Rbkg = Rbkg * -1; } cout << "G: "; cin >> Gbkg;
+			if (Gbkg < 0) { Gbkg = Gbkg * -1; }	cout << "B: "; cin >> Bbkg;	if (Bbkg < 0) { Bbkg = Bbkg * -1; }
+		}
+
+		// Sobreescreve "Imagem":
+		CImg<unsigned char> ImagemConfig(Sizex, Sizey, 1, 3, 0);
+		Imagem = ImagemConfig;
+	}
 
 	// VERIFICA GRADE:
-	bool InGrid(int y, int x) // Verifica se os pixels estÃ£o dentro da parte utilizavel da imagem.
-	{ if (y > BordaX && y < GradeY + BordaX) { if (x > BordaY && x < GradeX + BordaY) { return (true); } else { return (false); } } else { return (false); } }
+	bool InGrid(int y, int x) // Verifica se os pixels estão dentro da parte utilizavel da imagem.
+	{
+		if (y > BordaX && y < GradeY + BordaX) { if (x > BordaY && x < GradeX + BordaY) { return (true); } else { return (false); } }
+		else { return (false); }
+	}
 	bool InGridy(int y) { if (y > BordaX && y < GradeY + BordaX) { return (true); } else { return (false); } }
-	bool InGridx(int x) { if (x > BordaY && x < GradeX + BordaY) { return (true); } else { return (false); }	}
+	bool InGridx(int x) { if (x > BordaY && x < GradeX + BordaY) { return (true); } else { return (false); } }
 
-	// ####### FunÃ§Ãµes Graficas #######
+	// ####### Funções Graficas #######
 
 	// #################################################
-	// ####### DECLARAÃ‡Ã•ES:
+	// ####### DECLARAÇÕES:
 	// #################################################
 	// #####################
-	// ####### FUNÃ‡Ã•ES MATEMATICAS:
+	// ####### FUNÇÕES MATEMATICAS:
 	// #####################
-	// FUNÃ‡ÃƒO DE LINHA:
+	// FUNÇÃO DE LINHA:
 	void FuncLinx(double a, double b, double x1, double x2, int EspessuraFx, bool LRGB)
 	{
 		// Input:
@@ -584,7 +602,7 @@ public:
 			x = x1 + ((x2 - x1) * xdiv);
 
 			// ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### #######
-			y = Linex(x, a, b); // ESCREVA AQUI SUA FUNÃ‡ÃƒO.
+			y = Linex(x, a, b); // ESCREVA AQUI SUA FUNÇÃO.
 
 			// Y e GradeY:
 			double yg = BordaX + ((GradeY - 2) - (((y + 1) * 0.5) * (GradeY - 3))); // GRADEY
@@ -617,7 +635,7 @@ public:
 			{
 				if (ygRound > BordaX)
 				{
-					unsigned char color[] = { TR, TG, TB }; // Cor do grÃ¡fico.
+					unsigned char color[] = { TR, TG, TB }; // Cor do gráfico.
 					Imagem.draw_point(xn, ygRound, color);
 				}
 			}
@@ -626,100 +644,100 @@ public:
 	}
 
 	// PLOTAR F(X):
-	void Funcx(double MÃ©trica, bool UsarMÃ©trica, double a, double x1, double x2, int EspessuraFx, int PlotDrv, bool LRGB)
-{
-	// Input:
-	double x, y, ydrv;
-
-	int TR = R, TG = G, TB = B;
-		
-	int ygdrv = 0;
-	// MUDE SEMPRE QUE ADICIONAR OUTRAS FORMULAS:
-	if (PlotDrv > 2) { PlotDrv = 2; }
-
-	if (x1 > x2) { int xTemp = x1; x1 = x2; x2 = xTemp; } // Inverte.
-
-	// ##### ComeÃ§a aqui #
-
-	// ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### #######
-	// PLOTADORA:
-	for (double xn = BordaY; xn < GradeX + BordaY; ++xn)
+	void Funcx(double Métrica, bool UsarMétrica, double a, double x1, double x2, int EspessuraFx, int PlotDrv, bool LRGB)
 	{
-		double xdiv = (xn - (BordaY)) / (GradeX - 1);
-		x = x1 + ((x2 - x1) * xdiv);
+		// Input:
+		double x, y, ydrv;
+
+		int TR = R, TG = G, TB = B;
+
+		int ygdrv = 0;
+		// MUDE SEMPRE QUE ADICIONAR OUTRAS FORMULAS:
+		if (PlotDrv > 2) { PlotDrv = 2; }
+
+		if (x1 > x2) { int xTemp = x1; x1 = x2; x2 = xTemp; } // Inverte.
+
+		// ##### Começa aqui #
 
 		// ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### #######
-		// ####### FORMULA ####### FORMULA ####### FORMULA ####### FORMULA ####### FORMULA #######
-		y = MiniForm(x, Omega); // ESCREVA AQUI SUA FUNÃ‡ÃƒO.
-		// ####### FORMULA ####### FORMULA ####### FORMULA ####### FORMULA ####### FORMULA #######
-		if (PlotDrv == 1) { ydrv = (1 / a) * Derivative(x, Omega); /*FuncLinx(ydrv, y - (x * ydrv), x1, x2, round(EspessuraFx * 0.25), LRGB);*/ } // Derivativo
-		if (PlotDrv == 2) { ydrv = (1 / a) * d2xdt2(x, Omega); } // Second-order derivative
-
-		if (PlotDrv > 0) { ygdrv = BordaX + ((GradeY - 2) - ((((ydrv + a) * 0.5) / a) * (GradeY - 3))); } // GRADEY
-		// ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### #######
-		cout << "!!! f(" << x << ") = " << y << endl;
-		if (PlotDrv > 0) { cout << "ydrv: " << ydrv << " | ygdrv: " << ygdrv << endl; }
-
-		// Y e GradeY:
-		y *= 1.0 / a;
-		double yg = BordaX + ((GradeY - 2) - (((y + 1) * 0.5) * (GradeY - 3))); // GRADEY | Formula pode ser: "(((y + a) * 0.5) / a)"
-		int ygRound = round(yg);
-
-		// ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### #######
-		if (LRGB == true) { Point3D RGB = LinearRGB(xdiv, 1, 1); TR = RGB.x; TG = RGB.y; TB = RGB.z; }
-		// Adiciona coluna de espessura:
-		if (EspessuraFx != 0)
+		// PLOTADORA:
+		for (double xn = BordaY; xn < GradeX + BordaY; ++xn)
 		{
-			for (int yEspsr = 1; yEspsr <= EspessuraFx; ++yEspsr)
+			double xdiv = (xn - (BordaY)) / (GradeX - 1);
+			x = x1 + ((x2 - x1) * xdiv);
+
+			// ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### #######
+			// ####### FORMULA ####### FORMULA ####### FORMULA ####### FORMULA ####### FORMULA #######
+			y = MiniForm(x, Omega); // ESCREVA AQUI SUA FUNÇÃO.
+			// ####### FORMULA ####### FORMULA ####### FORMULA ####### FORMULA ####### FORMULA #######
+			if (PlotDrv == 1) { ydrv = (1 / a) * Derivative(x, Omega); /*FuncLinx(ydrv, y - (x * ydrv), x1, x2, round(EspessuraFx * 0.25), LRGB);*/ } // Derivativo
+			if (PlotDrv == 2) { ydrv = (1 / a) * d2xdt2(x, Omega); } // Second-order derivative
+
+			if (PlotDrv > 0) { ygdrv = BordaX + ((GradeY - 2) - ((((ydrv + a) * 0.5) / a) * (GradeY - 3))); } // GRADEY
+			// ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### #######
+			cout << "!!! f(" << x << ") = " << y << endl;
+			if (PlotDrv > 0) { cout << "ydrv: " << ydrv << " | ygdrv: " << ygdrv << endl; }
+
+			// Y e GradeY:
+			y *= 1.0 / a;
+			double yg = BordaX + ((GradeY - 2) - (((y + 1) * 0.5) * (GradeY - 3))); // GRADEY | Formula pode ser: "(((y + a) * 0.5) / a)"
+			int ygRound = round(yg);
+
+			// ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### #######
+			if (LRGB == true) { Point3D RGB = LinearRGB(xdiv, 1, 1); TR = RGB.x; TG = RGB.y; TB = RGB.z; }
+			// Adiciona coluna de espessura:
+			if (EspessuraFx != 0)
 			{
-				if (InGridy(ygRound + yEspsr))
+				for (int yEspsr = 1; yEspsr <= EspessuraFx; ++yEspsr)
 				{
-					unsigned char clrdrv[] = { round(255 - TR) / (yEspsr + 1), round((255 - TG) / 1.5) / (yEspsr + 1), round((255 - TB) / 1.5) / (yEspsr + 1) };
-					if (InGridy(ygdrv + yEspsr) && PlotDrv > 0)
+					if (InGridy(ygRound + yEspsr))
 					{
-						Imagem.draw_point(xn, ygdrv + yEspsr, clrdrv);
-						if (InGridy(ygdrv - yEspsr))
+						unsigned char clrdrv[] = { round(255 - TR) / (yEspsr + 1), round((255 - TG) / 1.5) / (yEspsr + 1), round((255 - TB) / 1.5) / (yEspsr + 1) };
+						if (InGridy(ygdrv + yEspsr) && PlotDrv > 0)
 						{
-							Imagem.draw_point(xn, ygdrv - yEspsr, clrdrv);
+							Imagem.draw_point(xn, ygdrv + yEspsr, clrdrv);
+							if (InGridy(ygdrv - yEspsr))
+							{
+								Imagem.draw_point(xn, ygdrv - yEspsr, clrdrv);
+							}
+						}
+						unsigned char color[] = { round(TR / (yEspsr + 1)), round(TG / (yEspsr + 1)), round(TB / (yEspsr + 1)) };
+						Imagem.draw_point(xn, ygRound + yEspsr, color);
+						if (InGridy(ygRound - yEspsr))
+						{
+							Imagem.draw_point(xn, ygRound - yEspsr, color);
 						}
 					}
-					unsigned char color[] = { round(TR / (yEspsr + 1)), round(TG / (yEspsr + 1)), round(TB / (yEspsr + 1)) };
-					Imagem.draw_point(xn, ygRound + yEspsr, color);
-					if (InGridy(ygRound - yEspsr))
-					{
-						Imagem.draw_point(xn, ygRound - yEspsr, color);
-					}
 				}
 			}
-		}
 
-		// ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### #######
-		// Plotagem:
+			// ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### #######
+			// Plotagem:
 
-		if (ygRound < Sizey - BordaX)
-		{
-			if (ygRound > BordaX)
+			if (ygRound < Sizey - BordaX)
 			{
-				if (InGridy(ygdrv) && PlotDrv > 0)
+				if (ygRound > BordaX)
 				{
-					unsigned char clrdrv[] = { round(255 - TR), round((255 - TG) / 1.5), round((255 - TB) / 1.5) }; // Cor do derivativo
-					Imagem.draw_point(xn, ygdrv, clrdrv);
+					if (InGridy(ygdrv) && PlotDrv > 0)
+					{
+						unsigned char clrdrv[] = { round(255 - TR), round((255 - TG) / 1.5), round((255 - TB) / 1.5) }; // Cor do derivativo
+						Imagem.draw_point(xn, ygdrv, clrdrv);
+					}
+					unsigned char color[] = { TR, TG, TB }; // Cor do gráfico.
+					Imagem.draw_point(xn, ygRound, color);
+
+					cout << "PLOTTED: xn: " << xn << ", ygRound: " << ygRound << endl;
 				}
-				unsigned char color[] = { TR, TG, TB }; // Cor do grÃ¡fico.
-				Imagem.draw_point(xn, ygRound, color);
-				
-				cout << "PLOTTED: xn: " << xn << ", ygRound: " << ygRound << endl;
 			}
+			// ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### #######
 		}
-		// ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### #######
+
+		// #######
+
+		cout << "####### Fim! #######\n\n";
 	}
 
-	// #######
-
-	cout << "####### Fim! #######\n\n";
-}
-	
-	// PLOTAR F(X, Y): // Lembrar de modificar essa funÃ§Ã£o para 'z' ser cor;
+	// PLOTAR F(X, Y): // Lembrar de modificar essa função para 'z' ser cor;
 	void Funcxy(double a, double x1, double x2, double y1, double y2, int PlotDrv)
 	{
 		// Input:
@@ -732,8 +750,8 @@ public:
 
 		if (x1 > x2) { int xTemp = x1; x1 = x2; x2 = xTemp; } // Inverte.
 
-		// ##### ComeÃ§a aqui #####
-			
+		// ##### Começa aqui #####
+
 		// ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### #######
 		// PLOTADORA:
 		//for (double yn = GradeY + BordaX; yn > BordaX; --yn)
@@ -749,7 +767,7 @@ public:
 
 				// ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### #######
 				// ####### FORMULA ####### FORMULA ####### FORMULA ####### FORMULA ####### FORMULA #######
-				z = NonStatWaveFunc(a / (x + 1), x2, x, y, Omega, ((x + y) * 0.125)); // ESCREVA AQUI SUA FUNÃ‡ÃƒO.
+				z = NonStatWaveFunc(a / (x + 1), x2, x, y, Omega, ((x + y) * 0.125)); // ESCREVA AQUI SUA FUNÇÃO.
 				z *= 1.0 / a;
 				// ####### FORMULA ####### FORMULA ####### FORMULA ####### FORMULA ####### FORMULA #######
 				if (PlotDrv == 1) { zdrv = ((1 / a) * Derivative(x, Omega * 7 * (y / 3))) * ((1 / a) * ((cos((y + 0.000000001) * 0.5) - cos(y * 0.5)) / 0.000000001)); } // Derivativo
@@ -757,7 +775,7 @@ public:
 
 				if (PlotDrv > 0) { zgdrv = BordaX + ((GradeY - 2) - ((((zdrv + a) * 0.5) / a) * (GradeY - 3))); } // GRADEY
 				// ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### #######
-								
+
 				// Plotagem:
 				Point3D RGB = LinearRGB((z + 1) * 0.5, 1.0, 1.0); TR = RGB.x; TG = RGB.y; TB = RGB.z;
 				unsigned char Clr[] = { TR, TG, TB };
@@ -772,55 +790,9 @@ public:
 		cout << "####### Fim! #######\n\n";
 	}
 
-	
+
 	// #################################################
 
-	// PLOTAR PARAMETRICO:
-	void Parametrico(double r, double Ini, double ThisTau, bool LRGB)
-{
-	int TR = R, TG = G, TB = B;
-	double y, x;
-	double Rad;
-	int xzero = floor((GradeX / 2) + BordaY), yzero = Sizey - (floor((GradeY / 2) + BordaX));
-	if (ThisTau < Ini) { double temp = ThisTau; ThisTau = Ini; Ini = temp; }
-
-	for (Rad = Ini; Rad <= ThisTau; Rad = Rad + 0.00001)
-	{
-		// Formulas para brincar...
-		/* x = round(((cos(Rad) + cos(6.28318 - 3 * Rad + (6.058785))) / 2) * r);
-		-- x = ((((r * 3) - r) * cos(Rad)) + (r * cos((((r * 3) - r) / r) * Rad)));
-		-- x = (sin(Rad) * (pow(Exp, cos(Rad)) - (2 * cos(4 * Rad) - (pow(sin(Rad / 12), 5))))) * r; // Butterfly
-		-- x = r * (2.1 + 1) * cos(Rad) - (r * cos((2.1 + 1) * Rad)); // Epicycloid
-		*/
-		x = r * (2.1 + 1) * cos(Rad) - (r * cos((2.1 + 1) * Rad));
-		/* y = round(((sin(6.28318 - Rad) + sin (3 * Rad + (4.0 / 7))) / 2) * r);
-		-- y = round(((sin(Rad) + sin(3 * Rad + (6.058785))) / 2) * r);
-		-- y = round(((sin(Rad) + tan(3 * Rad + 6.283185)) / 2) * r);
-		-- y = round(((tan(Rad) + cos(3 * Rad + 6.283185)) / 2) * r);
-		-- y = ((((r * 3) - r) * sin(Rad)) - (r * sin((((r * 3) - r) / r) * Rad)));
-		-- y = (cos(Rad) * (pow(Exp, cos(Rad)) - (2 * cos(4*Rad) - (pow(sin(Rad/12), 5))))) * r; // Butterfly
-		-- y = r * (2.1 + 1) * sin(Rad) - (r * sin((2.1 + 1) * Rad)); // Epicycloid
-		*/
-		y = r * (2.1 + 1) * sin(Rad) - (r * sin((2.1 + 1) * Rad));
-
-		y = round(y);
-		x = round(x);
-		double Progresso = Rad / ThisTau;
-		int CorrectX = x + xzero;
-		int CorrectY = Sizey - (y + yzero);
-
-		if (CorrectY >= BordaX && CorrectY < GradeY + BordaX)
-		{
-			if (CorrectX >= BordaY && CorrectX < GradeX + BordaY)
-			{
-				if (LRGB == true) { Point3D RGB = LinearRGB(Progresso, 1, 1); TR = RGB.x; TG = RGB.y; TB = RGB.z; }
-				unsigned char color[] = { TR, TG, TB };
-				Imagem.draw_point(CorrectX, CorrectY, color);
-			}
-		}
-	}
-}
-	
 };
 
 
