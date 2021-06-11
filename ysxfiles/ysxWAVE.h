@@ -152,14 +152,14 @@ signed: 32767 & -32768 | unsigned: 65535
 // #####################################################################################################################################
 // ####### FUNCTIONS #######
 
-string WAVEHeaderHex()
+std::string WAVEHeaderHex()
 {
 	return("52494646a400000057415645666d7420100000000100010044ac000088580100020010006461746180000000"); // A WAVE FILE HEADER IN HEXADECIMAL:
 }
 
-string MemoHeaderChar() // !!!!!!! NOT WORKING !!!!!!!
+std::string MemoHeaderChar() // !!!!!!! NOT WORKING !!!!!!!
 {
-	string Return;
+	std::string Return;
 	char Buffer[44]; char* p = Buffer;
 	char RIFF[4]; char * q = (char*)RIFF; for (int n = 0; n < 4; ++n) { *p = *q; ++p; ++q; }
 	unsigned int ChunkSize = 36; q = (char*)&ChunkSize; for (int n = 0; n < 4; ++n) { *p = *q; ++p; ++q; }
@@ -188,7 +188,7 @@ class WAVEFile
 {
 public:
 	const int HeaderSize = 44;
-	string Path;
+	std::string Path;
 	fstream wavFile;
 	int FileSize;
 
@@ -196,7 +196,7 @@ public:
 	// #################################################
 	// #################################################
 
-	WAVEFile(string InputPath)
+	WAVEFile(std::string InputPath)
 	{
 		if (wavFile.is_open()) { wavFile.close(); }
 		wavFile.open(InputPath, ios::in | ios::out | ios::binary);
@@ -208,7 +208,7 @@ public:
 		wavFile.seekg(0, ios::beg);
 	}
 
-	WAVEFile(string FileName, unsigned int SampleRate, short int Channels)
+	WAVEFile(std::string FileName, unsigned int SampleRate, short int Channels)
 	{
 		FileName += ".wav";
 		ofstream CREATE(FileName, ios::binary);
@@ -282,7 +282,7 @@ public:
 		unsigned int SampleRate; // 4
 		unsigned int ByteRate; // 4 - == SampleRate * NumChannels * BitsPerSample / 8
 		short int BlockAlign; // 2 - == NumChannels * BitsPerSample / 8 | The number of bytes for one sample including all channels. I wonder what happens when this number isn't an integer?
-		short int BitsPerSample; // 2 - 8 bits = 8 = 1 byte, 16 bits = 16 = 2 bytes, etc.
+		short int BitsPerSample; // 2 - 8 bits = 1 byte, 16 bits = 2 bytes, etc.
 		// TOTAL: 24 + 12 = 36
 	};
 
@@ -315,7 +315,7 @@ public:
 	// WRITE THE HEX STRING TO HEADER (STANDARD HEADER, WHEN YOU CREATE YOUR OWN WAV):
 	/*void WAVEHeaderHexWriteIt()
 	{
-		string Buffer = Hex2ASCII(WAVEHeaderHex());
+		std::string Buffer = Hex2ASCII(WAVEHeaderHex());
 		char* p = (char*)&Buffer.at(0);
 
 		char* q = (char*)&RIFFChnk; for (int n = 0; n < 12; ++n) { *q = *p; ++q; ++p; }
@@ -448,9 +448,38 @@ public:
 
 		std::cout << "CLASS INFO:\n";
 		std::cout << "FileSize: " << FileSize << endl;
-		std::cout << "sizeof: " << sizeof(WAVEFile) << endl;
+		std::cout << "sizeof(WAVEFile): " << sizeof(WAVEFile) << endl;
 
 		std::cout << "#####################\n\n";
+	}
+
+	std::string StringHeaderInfo()
+	{
+		std::string s = "#####################\nPath: " + Path + "\n#####################\n\n";
+		s += "ChunkSize: " + to_string(RIFFChnk.ChunkSize) + " = 4 + (8 + SubChunk1Size) + (8 + SubChunk2Size) =\n               | 4 + (8 + " + to_string(FMTChnk.Size);
+		s += ") + (8 + " + to_string(DATAChnk.Size) + ") =\n";
+		s += "               | 4 + (" + to_string(8 + FMTChnk.Size) + ") + (" + to_string(8 + DATAChnk.Size) + ") = 4 + (" + to_string(8 + FMTChnk.Size + 8 + DATAChnk.Size) + ")\n\n";
+		s += "Wave[4]: " + RIFFChnk.WAVE[0] + RIFFChnk.WAVE[1] + RIFFChnk.WAVE[2] + RIFFChnk.WAVE[3]; s += +"\n\n";
+
+		s += "fmt[4]: " + FMTChnk.fmt[0] + FMTChnk.fmt[1] + FMTChnk.fmt[2] + FMTChnk.fmt[3]; s += "\n";
+		s += "Subchunk1Size: " + to_string(FMTChnk.Size) + "\n";
+		s += "AudioFormat: " + to_string(FMTChnk.AudioFormat) + "\n";
+		s += "NumChannels: " + to_string(FMTChnk.NumChannels) + "\n";
+		s += "SampleRate: " + to_string(FMTChnk.SampleRate) + "\n";
+		s += "ByteRate: " + to_string(FMTChnk.ByteRate) + " = SampleRate * BlockAlign = " + to_string(FMTChnk.SampleRate) + " * " + to_string(FMTChnk.BlockAlign) + "\n";
+		s += "BlockAlign: " + to_string(FMTChnk.BlockAlign) + " = NumChannels * BitsPerSample / 8 = " + to_string(FMTChnk.NumChannels) + " * " + to_string(FMTChnk.BitsPerSample / 8) + "\n";
+		s += "BitsPerSample: " + to_string(FMTChnk.BitsPerSample) + "\n\n";
+
+		s += "Subchunk2ID: " + DATAChnk.ID[0] + DATAChnk.ID[1] + DATAChnk.ID[2] + DATAChnk.ID[3]; s += "\n";
+		s += "Subchunk2Size: " + to_string(DATAChnk.Size) + "\nNOTE: 'short int' size is '2 bytes', Fixed size to 'short int': " + to_string(DATAChnk.Size / 2) + "\n\n";
+		s += "#####################\n\n";
+
+		s += "CLASS INFO:\n";
+		s += "FileSize: " + to_string(FileSize) + "\n";
+		s += "sizeof(WAVEFile): " + to_string(sizeof(WAVEFile)) + "\n";
+
+		s += "#####################\n\n";
+		return(s);
 	}
 
 	// #################################################
@@ -465,15 +494,15 @@ public:
 	{
 		wavFile.seekg(0, ios::end);
 		int End = wavFile.tellg();
-		short int ReadInt;
+		short int ReadSample;
 		int pos = FileSize - DATAChnk.Size;
 		wavFile.seekg(pos);
 
 		DATASHINT GETDATA;
 		for (int n = pos; n < End; )
 		{
-			wavFile.read((char*)&ReadInt, sizeof(ReadInt));
-			GETDATA.push_back(ReadInt);
+			wavFile.read((char*)&ReadSample, sizeof(ReadSample));
+			GETDATA.push_back(ReadSample);
 			n = wavFile.tellg();
 		}
 		wavFile.seekg(0, ios::beg);
@@ -493,14 +522,14 @@ public:
 		int Begin = pos + Index;
 		if (Index + Size > End) { Size -= Index + Size - End; End = Index + Size; }
 		else { End = Index + Size + pos; }
-		int ReadInt;
+		int ReadSample;
 
 		wavFile.seekg(Begin);
 		DATAINT GETDATA;
 		for (int n = Begin; n < End; )
 		{
-			wavFile.read((char*)&ReadInt, Bytes);
-			GETDATA.push_back(ReadInt);
+			wavFile.read((char*)&ReadSample, Bytes);
+			GETDATA.push_back(ReadSample);
 			n = wavFile.tellg();
 		}
 		wavFile.seekg(0, ios::beg);
@@ -545,14 +574,14 @@ public:
 		if (Index + Size > End) { Size -= Index + Size - End; End = Index + Size; }
 		else { End = Index + Size + pos; }
 
-		short int ReadInt;
+		short int ReadSample;
 
 		wavFile.seekg(Begin);
 		DATASHINT GETDATA;
 		for (int n = Begin; n < End; )
 		{
-			wavFile.read((char*)&ReadInt, Bytes);
-			GETDATA.push_back(ReadInt);
+			wavFile.read((char*)&ReadSample, Bytes);
+			GETDATA.push_back(ReadSample);
 			n = wavFile.tellg();
 		}
 		wavFile.seekg(0, ios::beg);
@@ -573,14 +602,14 @@ public:
 		bool Switch = true;
 		if (LeftRight) { Switch = false; }
 
-		short int ReadInt;
+		short int ReadSample;
 
 		wavFile.seekg(Begin);
 		DATASHINT GETDATA;
 		for (int n = Begin; n < End; )
 		{
-			wavFile.read((char*)&ReadInt, Bytes);
-			if (Switch) { GETDATA.push_back(ReadInt); Switch = false; }
+			wavFile.read((char*)&ReadSample, Bytes);
+			if (Switch) { GETDATA.push_back(ReadSample); Switch = false; }
 			else { Switch = true; }
 			n = wavFile.tellg();
 		}
@@ -590,40 +619,42 @@ public:
 
 	// #################################################
 
-	// GET DATA READY TO WORK AS A DOUBLE VECTOR (CONSIDERING THE SHORT INT MAX AT 32768), IGNORE LeftRight IF THERE IS ONLY ONE CHANNEL:
-	vector<double> GetDataReadyToUse(int Index, int Size, bool LeftRight)
+	// GET DATA READY TO WORK AS A DOUBLE VECTOR (CONSIDERING THE SHORT INT MAX AT 32768), IGNORE LeftRight IF THERE IS ONLY ONE CHANNEL.
+	// Use only multiples of '8' as 'FMTChnk.BitsPerSample', or else the vector returns with a single item of number '0':.
+	// The function begins JUST AFTER the end of the '.wav' header, if you want 'Size' to reach the End of file, use the it equal as "DATAChnk.Size":
+	vector<double> GetDataReadyToUse(int Index, int Size, bool LeftRight = false)
 	{
-		int Bytes = sizeof(short int);
-		Index *= Bytes; Size *= Bytes;
-		wavFile.seekg(0, ios::end);
-		int End = wavFile.tellg();
-		int pos = End - DATAChnk.Size;
-		int Begin = pos + Index;
-		if (Index + Size > End) { Size -= Index + Size - End; End = Index + Size; }
-		else { End = Index + Size + pos; }
-
-		bool Switch = true;
-		if (LeftRight) { Switch = false; }
-
-		short int ReadInt;
-
-		wavFile.seekg(Begin);
 		vector<double> GETDATA;
-		for (int n = Begin; n < End; )
+		int Bytes = FMTChnk.BitsPerSample / 8;
+		if (FMTChnk.BitsPerSample % 8 == 0) // !!! PARA GARANTIR O NUMERO DE BYTES PARA OS COMPARADORES !!!
 		{
-			wavFile.read((char*)&ReadInt, Bytes);
+			Index *= Bytes; Size *= Bytes;
+			wavFile.seekg(0, ios::end);
+			int End = wavFile.tellg();
+			int pos = End - DATAChnk.Size;
+			int Begin = pos + Index;
+			if (Index + Size > End) { Size -= Index + Size - End; End = Index + Size; }
+			else { End = Index + Size + pos; }
 
-			double Push = ReadInt;
+			bool Switch = true;
+			if (LeftRight) { Switch = false; }
 
-			if (Push > 0) { Push /= 32767.0; } else { Push /= 32768.0; }
-
-			if (FMTChnk.NumChannels == 1) { GETDATA.push_back(Push); }
-
-			else { if (Switch) { GETDATA.push_back(Push); Switch = false; } else { Switch = true; } }
+			wavFile.seekg(Begin);
 			
-			n = wavFile.tellg();
+			for (int n = Begin; n < End; )
+			{
+				double Push;
+				short int Val; wavFile.read((char*)&Val, Bytes); Push = Val; // !!!!!!! POR ENQUANTO SÓ SHORT INT !!!!!!!
+				//cout << "VAL: " << Push <<  " | ";
+				if (Push > 0) { Push /= (pow(256, Bytes) / 2.0) - 1; } else { Push /= pow(256, Bytes) / 2.0; }
+				if (FMTChnk.NumChannels == 1) { /*cout << "PUSH: " << Push << endl;*/ GETDATA.push_back(Push); }
+				else { if (Switch) { /*cout << "PUSH: " << Push << endl;*/ GETDATA.push_back(Push); Switch = false; } else { Switch = true; } }
+
+				n = wavFile.tellg();
+			}
+			wavFile.seekg(0, ios::beg);
 		}
-		wavFile.seekg(0, ios::beg);
+		else { GETDATA.push_back(0); }
 		return(GETDATA);
 	}
 
