@@ -7,6 +7,7 @@
 // ####### By Sophia Cristina
 // ####### Header made to handle text files, not binary
 // ####### NOT WORKING YET, I MADE IT RECENTLY
+// ####### FUNCTIONS HERE ARE NOW ON ysxMoney.h
 // #####################
 
 // ############################################################################################################################################
