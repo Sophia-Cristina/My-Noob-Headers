@@ -100,7 +100,7 @@ void CIMG(string Nome)
 }
 
 // VER IMAGEM MEMORIA:
-void VerImg(CImg<unsigned char> Img) { CImgDisplay Disp(Img, "Imagem porreta, seria porreta uma pequena porra?"); while (!Disp.is_closed()) { Disp.wait(); } }
+void VerImg(CImg<unsigned char> Img) { CImgDisplay Disp(Img, "Imagem"); while (!Disp.is_closed()) { Disp.wait(); } }
 void VerImg(CImg<unsigned char> Img, string Title) { CImgDisplay Disp(Img, Str2Char(Title).data()); while (!Disp.is_closed()) { Disp.wait(); } }
 
 // POEM DADOS NA MATRIZ ATRAVEZ DE UM BITMAP (GRAYSCALE):
