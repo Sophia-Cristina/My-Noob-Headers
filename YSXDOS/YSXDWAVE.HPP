@@ -4,6 +4,7 @@
 #define YSXDWAVE_H
 
 // !!!!!!! THIS IS THE SAME AS YSXWAVE.H, BUT ADAPTED TO DOS !!!!!!!
+// W.I.P W.I.P W.I.P W.I.P W.I.P W.I.P W.I.P W.I.P W.I.P W.I.P W.I.P W.I.P W.I.P W.I.P
 
 #include <vector>
 #include <iostream>
@@ -646,7 +647,7 @@ public:
 			for (int n = Begin; n < End; )
 			{
 				double Push;
-				short int Val; wavFile.read((char*)&Val, Bytes); Push = Val; // !!!!!!! POR ENQUANTO SÓ SHORT INT !!!!!!!
+				short int Val; wavFile.read((char*)&Val, Bytes); Push = Val; // !!!!!!! POR ENQUANTO SÃ“ SHORT INT !!!!!!!
 				//cout << "VAL: " << Push <<  " | ";
 				if (Push > 0) { Push /= (pow(256, Bytes) / 2.0) - 1; } else { Push /= pow(256, Bytes) / 2.0; }
 				if (FMTChnk.NumChannels == 1) { /*cout << "PUSH: " << Push << endl;*/ GETDATA.push_back(Push); }
