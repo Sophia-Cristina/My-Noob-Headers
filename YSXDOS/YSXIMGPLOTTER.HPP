@@ -1,9 +1,7 @@
 #pragma once
 
-#ifndef YSXCIPLOTTER_H
-#define YSXCIPLOTTER_H
-
-using namespace cimg_library;
+#ifndef YSXDIMGPLOTTER_H
+#define YSXDIMGPLOTTER_H
 
 // ###################################
 // ############## FUNÇÕES #######
@@ -22,11 +20,11 @@ using namespace cimg_library;
 // ############## CIRCULARES:
 
 // PLOTAR CIRCULO EM DIFERENTE XY:
-void Circuloxy(CImg<unsigned char>& Img, double r, int Imgx, int Imgy, int R, int G, int B)
+void Circuloxy(double r, int x, int y, int Width, unsigned char ColorIndex)
 {
-	double y, x;
-	int xzero = Imgx, yzero = Imgy;
+	int xzero = x, yzero = y;
 	double Step = 1.0 / r;
+	int Height = 200; if (Width == 640) { Height = 480; }
 
 	for (double Rad = 0; Rad <= Tau; Rad += Step) // MUDAR SE NESCESSARIO
 	{
@@ -35,8 +33,8 @@ void Circuloxy(CImg<unsigned char>& Img, double r, int Imgx, int Imgy, int R, in
 		
 		if (InImg(Img, y + yzero, x + xzero))
 		{
-			unsigned char color[] = { R, G, B };
-			Img.draw_point(x + xzero, y + yzero, color);
+			
+			PixelVGA(x + xzero, y + yzero, 320, ColorIndex);
 		}
 	}
 }

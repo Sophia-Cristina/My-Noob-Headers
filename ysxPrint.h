@@ -3,7 +3,12 @@
 #ifndef YSXPRINT_H
 #define YSXPRINT_H
 
-#include "ysxmath.h"
+#include "ysxMath.h"
+
+// #####################
+// ####### By Sophia Cristina
+// ####### Header made to print useful '.txt' files.
+// #####################
 
 // #####################################################################################################################################
 
@@ -346,12 +351,40 @@ void PrtBPMInfo(double BPM, double Div, double Div0, double Increment, double In
 }
 
 // Imprime Informações que possam ser adiquiridas atravéz de milisegundos:
-void PrtmsInfo(double ms, int Div)
+void PrtmsInfo(double ms, double Div, double Div0, double Increment, double Increment0)
 {
 	ofstream oPrint("PrtmsInfo.txt"); if (!oPrint.is_open()) { cout << "!!! Arquivo não foi aberto. !!!" << endl; }
 	else
 	{
 		oPrint << "ms em minutos: " << ms2Min(ms) << " | ms em BPM: " << ms2BPM(ms) << " | ms em freq.: " << ms2Freq(ms) << endl;
+		oPrint << "4 beats (ms): " << ms * 4 << " | 4 * 4/4: " << 4 * ms * 4 << " | 16 * 4 / 4: " << 16 * ms * 4 << endl;
+		oPrint << "Minutes (4 * 4/4  = pattern Renoise):\n4/4: " << ms2Min(ms) * 4 << " | 4 * 4/4: " << 4 * (ms2Min(ms) * 4) << endl;
+		oPrint << "8 * 4/4: " << 8 * (ms2Min(ms) * 4) << " | 16 * 4 / 4: " << 16 * (ms2Min(ms) * 4) << endl;
+		oPrint << "Freq.: " << ms2Freq(ms) << "hz;\n";
+		oPrint << "-------\nDivisões:\n";
+		for (double n = 1; n <= Div; n += Increment) { double b = ms / n;  oPrint << "Beat: " << ms << " / " << n << " = " << b << " || " << ms2Freq(b) << "hz;\n"; }
+		oPrint << "!!!!!!!\n";
+		for (double m = 1; m < Div0; m += Increment0)
+		{
+			for (double n = 1; n <= 10; n += Increment)
+			{
+				double b = (ms / n) + (ms / m);
+				oPrint << "(" << ms << " / " << n << ") + Beat / " << m << " = " << b << " || " << ms2Freq(b) << "hz;\n";
+			}
+			oPrint << endl;
+		}
+		oPrint << "-------\nMultiplicações:\n";
+		for (double n = 1; n <= Div; n += Increment) { double b = ms * n;  oPrint << "Beat: " << ms << " * " << n << " = " << b << " || " << ms2Freq(b) << "hz;\n"; }
+		oPrint << "!!!!!!!\n";
+		for (double m = 1; m < Div0; m += Increment0)
+		{
+			for (double n = 1; n <= 10; n += Increment)
+			{
+				double b = (ms / n) + (ms * m);
+				oPrint << "(" << ms << " / " << n << ") + (Beat * " << m << ") = " << b << " || " << ms2Freq(b) << "hz;\n";
+			}
+			oPrint << endl;
+		}
 	}
 	oPrint.close();
 }

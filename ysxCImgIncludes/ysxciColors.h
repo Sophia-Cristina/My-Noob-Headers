@@ -131,11 +131,11 @@ vector<Point3D> BitmapRGBMatrix(CImg<unsigned char> BMP)
 vector<Pixel> BitmapPixelMatrix(CImg<unsigned char> BMP)
 {
 	vector<Pixel> Ret;
-	for (int m = 0; m < BMP.height(); ++m)
+	for (int y = 0; y < BMP.height(); ++y)
 	{
-		for (int n = 0; n < BMP.width(); ++n)
+		for (int x = 0; x < BMP.width(); ++x)
 		{
-			Pixel Pix = BitmapPixel(BMP, n, m); Ret.push_back(Pix);
+			Pixel Pix = BitmapPixel(BMP, x, y); Ret.push_back(Pix);
 		}
 	}
 	return(Ret);
@@ -212,58 +212,41 @@ vector<Pixel> BitmapPixelLimMatrix(CImg<unsigned char> BMP, int R0, int R1, int 
 // LINEAR RGB:
 Point3D LinearRGB(double n, double Lum, double Cont)
 {
-	//cout << "####### LINEAR RGB #######\n";
-	//cout << "### Numero: " << n << "\n\n";
-
-	//cout << "Estapas:\n" << 1.0 / 6 << " | " << 2.0 / 6 << " | " << 3.0 / 6 << " | " << 4.0 / 6 << endl << 5.0 / 6 << " | " << 6.0 / 6 << "\n\n";
-	if (n < 0.0) { n *= -1; } if (n > 1.0 || n < - 1.0) { n = n - floor(n); }
+	if (n < 0.0) { n *= -1; } if (n > 1.0) { n = n - floor(n); }
 	if (Lum > 2.0) { Lum = 2.0; } if (Lum < 0.0) { Lum = 0.0; }
 	if (Cont > 1.0) { Cont = 1.0; } if (Cont < 0.0) { Cont = 0.0; }
-	int R, G, B;
-	Point3D RGB;
-	double m, delta;
+	int R = 0, G = 0, B = 0;
+	double m;
 
 	if (n <= 1.0 / 6)
 	{
 		m = n * 6;
-		R = 255;
-		G = round(255 * m);
-		B = 0;
+		R = 255; G = round(255 * m); B = 0;
 	}
 	if (n <= 2.0 / 6 && n > 1.0 / 6)
 	{
 		m = (n - (1.0 / 6)) * 6;
-		R = round(255 - (255 * m));
-		G = 255;
-		B = 0;
+		R = round(255 - (255 * m)); G = 255; B = 0;
 	}
 	if (n <= 3.0 / 6 && n > 2.0 / 6)
 	{
 		m = (n - (2.0 / 6)) * 6;
-		R = 0;
-		G = 255;
-		B = round(255 * m);
+		R = 0; G = 255;	B = round(255 * m);
 	}
 	if (n <= 4.0 / 6 && n > 3.0 / 6)
 	{
 		m = (n - (3.0 / 6)) * 6;
-		R = 0;
-		G = round(255 - (255 * m));
-		B = 255;
+		R = 0; G = round(255 - (255 * m)); B = 255;
 	}
 	if (n <= 5.0 / 6 && n > 4.0 / 6)
 	{
 		m = (n - (4.0 / 6)) * 6;
-		R = round(255 * m);
-		G = 0;
-		B = 255;
+		R = round(255 * m); G = 0; B = 255;
 	}
 	if (n <= 6.0 / 6 && n > 5.0 / 6)
 	{
 		m = (n - (5.0 / 6)) * 6;
-		R = 255;
-		G = 0;
-		B = round(255 - (255 * m));
+		R = 255; G = 0; B = round(255 - (255 * m));
 	}
 
 	// Contraste:
@@ -277,7 +260,7 @@ Point3D LinearRGB(double n, double Lum, double Cont)
 
 	// Limite:
 	if (R > 255) { R = 255; } if (G > 255) { G = 255; } if (B > 255) { B = 255; }
-	RGB.x = R; RGB.y = G; RGB.z = B;
+	Point3D RGB; RGB.x = R; RGB.y = G; RGB.z = B;
 	return(RGB);
 }
 
