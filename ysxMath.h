@@ -26,8 +26,8 @@
 // ############################################################################################################################################
 // ################################################# ANOTAÇÕES E ATENÇÕES #################################################
 // !!!!!!!	
-// !!!!!!!	UM DIA MUDEI O NOME DE UMA FUNÇÃO E PENSEI NO PERIGO QUE SERIA ESQUECER O NOME NOVO OU VELHO, ENTÃO EU DEVERIA...
-// !!!!!!!	... CATALOGAR TODAS AS MUDANÇAS QUE PODEM AFETAR VERSÕES DE CÓDIGO, E PODERIA SER AQUI MESMO;
+// !!!!!!!	UM DIA MUDEI O NOME DE UMA FUNÇÃO E PENSEI NO PERIGO QUE SERIA ESQUECER O NOME NOVO OU VELHO, ENTÃO EU DEVERIA
+// !!!!!!!	CATALOGAR TODAS AS MUDANÇAS QUE PODEM AFETAR VERSÕES DE CÓDIGO, E PODERIA SER AQUI MESMO;
 // !!!!!!!	
 // !!!!!!!	CATALOGO DE MUDANÇAS (MANTENHA EM ORDEM):
 // !!!!!!!	* FUNÇÃO 'IsNumber' SE CHAMAVA 'IsNmbr';
@@ -55,43 +55,60 @@ int MultVec(std::vector<int>);
 double MultVec(std::vector<double>);
 std::vector<int> PowVec(std::vector<int>, int);
 std::vector<double> PowVec(std::vector<double>, double);
+double Average(std::vector<double>);
+
 // #####################################################################################################################################
 // ############## TOOLS ##############
+
 // DECLARE OBJECTOS QUE SERÃO USADOS EM TODOS OS HEADERS AQUI!
+
 // ####### STRUCTS:
-struct Point { int x, y; }; // Coordenadas em int | Era Point { int x, y; Point(int x, int y) : x(x), y(y) {} };, mas funcionou assim
-struct PointFlt { double x, y; }; // Coordenadas em flt
-struct Point3D { int x, y, z; }; // Coordenadas em int 3D
-struct Point3DFlt { double x, y, z; }; // Coordenadas em flt 3D
+struct Point { int x, y; }; // Coordinates in int
+struct PointB { unsigned char x, y; }; // Coordinates in bytes
+struct PointFlt { double x, y; }; // Coordinates in flt
+struct Point3D { int x, y, z; }; // Coordinates in int 3D
+struct Point3DB { unsigned char x, y, z; }; // Coordinates in bytes 3D
+struct Point3DFlt { double x, y, z; }; // Coordinates in flt 3D
 struct CellBool { int i, j; bool b; }; // Matriz de Bool
 struct CellBool3D { int i, j, k; bool b; }; // Matriz de Bool 3D
 struct CellInt { int i, j; int n; }; // Matriz de integer
 struct CellInt3D { int i, j, k; int n; }; // Matriz de integer
 struct CellFlt { int i, j; float x; }; // Matriz de float
 struct CellFlt3D { int i, j; float x; }; // Matriz de float
-struct LinePoint { int x0, y0, x1, y1; }; // Para fazer linhas
-struct LinePoint3D { int x0, y0, z0, x1, y1, z1; }; // Para fazer linhas
+struct LinePoint { Point P0, P1; }; // Para fazer linhas
+struct LinePoint3D { Point3D P0, P1; }; // Para fazer linhas
 
-// ####### CLASSES COMO FERRAMENTA:
-class MatrixFlt
+// ####### ABREVIATIONS:
+/*
+typedef vector<vector<char>>		   Matrix2Dc; // char
+typedef vector<vector<int>>			   Matrix2Di; // int
+typedef vector<vector<double>>		   Matrix2Df; // float
+typedef vector<vector<double>>		   Matrix2Dd; // double
+typedef vector<vector<vector<char>>>   Matrix3Dc; // char
+typedef vector<vector<vector<int>>>	   Matrix3Di; // int
+typedef vector<vector<vector<double>>> Matrix3Df; // float
+typedef vector<vector<vector<double>>> Matrix3Dd; // double
+
+unsigned char* Matrix2Dtochar(Matrix2Dc M)
 {
-public:
-	int i, j;
-	std::vector<double> Datas;
-	MatrixFlt(int Matrixi, int Matrixj) { i = Matrixi; j = Matrixj; std::vector<double> V(i * j); Datas = V; }
-};
+	//int Sizex = M.size();
+	//int Sizey = M[0].size();
+	//unsigned char* m 
+}
+*/
 
 // #####################################################################################################################################
 
 #include "ysxplg\\ysxConst.h";
-#include "ysxplg\\ysxPhis.h";
+#include "ysxplg\\ysxConv.h"
+#include "ysxplg\\ysxVector.h";
+#include "ysxplg\\ysxPhys.h";
 #include "ysxplg\\ysxGeo.h";
 #include "ysxplg\\ysxCalc.h";
-#include "ysxplg\\ysxFractal.h";
+#include "ysxplg\\ysxElectr.h" // There is signals too, but there is trigonomotry in 'ysxGeo.h'. Also #include 'ysxBytes.h'.
 #include "ysxplg\\ysxMusic.h"
-#include "ysxplg\\ysxElectr.h" // Conta com sinais também, porém tem no 'ysxGeo.h' as trigonometrias
-#include "ysxplg\\ysxVector.h";
-#include "ysxplg\\ysxMoney.h"; // Tudo relacionado a dinheiro e economia, mesmo que não estes em si
+#include "ysxplg\\ysxMoney.h"; // Things about money and related to economy and etc...
+#include "ysxplg\\ysxFractal.h";
 
 // #####################################################################################################################################
 
@@ -108,12 +125,11 @@ int GCD(int a, int b)
 {
 	a = abs(a); b = abs(b);
 	if (b == a) { return (a); } if (b > a) { int tmp = a; a = b; b = tmp; }
-	int GDC;
 	int Mod = a % b, ModDiv = b, ActualMod;
 	if (b == 0) { return (a); } else { while (Mod != 0) { ActualMod = ModDiv % Mod; ModDiv = Mod; Mod = ActualMod; } return (ModDiv); }
 }
 
-// LCM (LEAST COMMON MULTUPLE):
+// LCM (LEAST COMMON MULTIPLE):
 int LCM(int a, int b) { a = abs(a); b = abs(b); return ((a * b) / GCD(a, b)); }
 
 // FACTORS:
@@ -172,7 +188,7 @@ double CubeofTwoCubes(double x, double y) { return(pow((x * x * x) + (y * y * y)
 // ############################
 // ####### ALGEBRA:
 // FACTORIAL:
-long Fact(int a) { int Fact = 1; if (a > 0) { for (int n = 1; n <= a; ++n) { Fact *= n; } return (Fact); } else { return (1); } }
+long long Fact(int a) { int Fact = 1; if (a > 0) { for (int n = 1; n <= a; ++n) { Fact *= n; } return (Fact); } else { return (1); } }
 
 // QUADRATIC EQUATION:
 PointFlt QuadraticEq(double a, double b, double c)
@@ -182,6 +198,24 @@ PointFlt QuadraticEq(double a, double b, double c)
 	if (Delta == 0) { Root.x = -b / (2 * a); Root.y = -b / (2 * a);	return(Root); }
 	Root.x = (-b + sqrt(Delta)) / (2 * a); Root.y = (-b - sqrt(Delta)) / (2 * a);
 	return(Root);
+}
+
+// COLLATZ CONJECTURE:
+// Creates a vector with each iteration process until the number reaches 1
+std::vector<int> CollatzConj(int n)
+{
+	std::vector<int> V;
+	if (n < 1) { V.push_back(1); return(V); }
+	else
+	{
+		int v = n;
+		while (v != 1)
+		{
+			if (v % 2 == 0) { v /= 2; V.push_back(v); }
+			else { v = v * 3 + 1; V.push_back(v); }
+		}
+	}
+	return(V);
 }
 
 // ############################
@@ -255,12 +289,12 @@ std::vector<int> GetaLucasVec(int Ln) // VEJA SE TA CERTO, VEJA SE n NÃO DEVERIA
 // ############################
 // ####### COMBINATORICS:
 // PERMUTATIONS WITHOUT REPETITION:
-long BinomialCoff(int n, int k) { n = abs(n); k = abs(k); long Fct = (n - k) + 1; for (int a = Fct + 1; a <= n; ++a) { Fct *= a; } return(Fct / Fact(k)); }
+long long BinomialCoff(int n, int k) { n = abs(n); k = abs(k); long Fct = (n - k) + 1; for (int a = Fct + 1; a <= n; ++a) { Fct *= a; } return(Fct / Fact(k)); }
 
 // COMBINATION:
 
 // PERMUTATIONS WITHOUT REPETITION:
-//long PermNoRep(int n, int r) { n = abs(n); r = abs(r); long fn = Fact(n), fnr = Fact(n - r), Ret = fn / fnr; cout << "fn: " << fn << " | fnr: " << fnr << endl;
+//long long PermNoRep(int n, int r) { n = abs(n); r = abs(r); long fn = Fact(n), fnr = Fact(n - r), Ret = fn / fnr; cout << "fn: " << fn << " | fnr: " << fnr << endl;
 //cout << "Ret: " << Ret << endl; return(Ret); }
 
 // ############################
@@ -273,9 +307,9 @@ double GetVecRad(PointFlt Vector)
 {
 	double ax = fabs(Vector.x), ay = fabs(Vector.y); double Rad = asin(ay / hipo(ax, ay));
 	if (Vector.x >= 0 && Vector.y >= 0) { return (Rad); }
-	else if (Vector.x < 0 && Vector.y >= 0) { return (Pi - Rad); }
-	else if (Vector.x < 0 && Vector.y < 0) { return (Pi + Rad); }
-	return ((Pi * 1.5) + ((0.5 * Pi) - Rad));
+	else if (Vector.x < 0 && Vector.y >= 0) { return (PI - Rad); }
+	else if (Vector.x < 0 && Vector.y < 0) { return (PI + Rad); }
+	return ((PI * 1.5) + ((0.5 * PI) - Rad));
 }
 
 // GET RADIAN BETWEEN TWO VECTORS:
@@ -300,8 +334,8 @@ double DotProd(PointFlt A, PointFlt B) { return((A.x * B.x) + (A.y * B.y)); }
 // ############## TECHNICALS  ##############
 
 // ####### CONVERTERS:
-// STR2CHAR:
-std::vector<char> Str2Char(string Str)
+// STRING TO CHAR (should use std::string.data() instead):
+std::vector<char> Str2Char(std::string Str)
 {
 	// char * C; // Oldschool
 	int TxtLim = Str.length() + 1;
@@ -315,7 +349,7 @@ std::vector<char> Str2Char(string Str)
 	return(C);
 }
 
-std::vector<wchar_t> Str2wChart(string Str)
+std::vector<wchar_t> Str2wChart(std::string Str)
 {
 	int TxtLim = Str.length() + 1;
 	std::vector<wchar_t> C(TxtLim);
@@ -327,9 +361,11 @@ std::vector<wchar_t> Str2wChart(string Str)
 	return(C);
 }
 
-string Char2Str(char C) { string Str = { C }; return (Str); }
+// STRING TO CHAR ARRAY:
+char* Str2Array(std::string Str) { return((char*)&Str[0]); }
 
-string Char2Str(std::vector<char> C) { string Str; for (int n = 0; n < C.size(); ++n) { Str.push_back(C[n]); } return (Str); }
+std::string Char2Str(std::vector<char> C) { std::string Str; for (int n = 0; n < C.size(); ++n) { Str.push_back(C[n]); } return (Str); }
+std::string Char2Str(char* C, int Size) { std::string Str; for (int n = 0; n < Size; ++n) { Str.push_back(C[n]); } return (Str); }
 
 // CHAR2INT:
 int Chr2Int(char C)
@@ -340,7 +376,7 @@ int Chr2Int(char C)
 }
 
 // STR2INT:
-int Str2Int(string S)
+int Str2Int(std::string S)
 {
 	int a = 0, Count = 0;
 	char C; bool Oktogo = false, Neg = false;
@@ -374,10 +410,10 @@ int Str2Int(string S)
 }
 
 // STR2DEC:
-double Str2Double(string S)
+double Str2Double(std::string S)
 {
 	int n = 0;
-	string Str, Str0;
+	std::string Str, Str0;
 	while (S[n] != '.' && n < S.length()) { Str.push_back(S[n]); ++n; }
 	if (n + 1 < S.length()) { for (int m = n + 1; m < S.length(); ++m) { Str0.push_back(S[m]); } }
 	else { Str0 = "0"; }
@@ -386,7 +422,7 @@ double Str2Double(string S)
 }
 
 // IS DECIMAL?:
-bool IsDec(string S) { double x = Str2Double(S); if (1.0 == x / round(x)) { return (false); } else { return (true); } }
+bool IsDec(std::string S) { double x = Str2Double(S); if (1.0 == x / round(x)) { return (false); } else { return (true); } }
 
 // DEC2FRAC:
 Point Dec2Frac(double n)
@@ -450,18 +486,18 @@ char LetterIndex(int Index, bool Capital)
 
 // It means 'String to Int / Double Clean Char', get a string with chars and number,
 // filter only the numbers, return it as a int or double:
-int Str2IntClnChr(string s)
+int Str2IntClnChr(std::string s)
 {
-	string t;
+	std::string t;
 	for (int n = 0; n < s.size(); ++n)
 	{
 		if (IsNumber(s[n])) { t.push_back(s[n]); }
 	}
 	return(Str2Int(t));
 }
-double Str2DblClnChr(string s)
+double Str2DblClnChr(std::string s)
 {
-	string t; bool FirstDot = false;
+	std::string t; bool FirstDot = false;
 	for (int n = 0; n < s.size(); ++n)
 	{
 		if (IsNumber(s[n])) { t.push_back(s[n]); }
@@ -481,17 +517,17 @@ double GetDec(double x) { return(x - floor(x)); }
 
 // ############## DATAS  ##############
 // GET LINES FROM A .TXT AND RETURN AS VECTOR:
-std::vector<double> DataTextLine(string File)
+std::vector<double> DataTextLine(std::string File)
 {
 	std::vector<double> Ret;
-	string Line;
+	std::string Line;
 	ifstream Data(File); if (!Data.is_open()) { cout << "! DADOS NÃO FORAM ABERTOS !\n"; }
 	else { while (getline(Data, Line)) { Ret.push_back(Str2Double(Line)); } } Data.close();
 	return(Ret);
 }
 
 // GET ITEM (A DOUBLE) FROM A .TXT AND RETURN AS VECTOR:
-std::vector<double> DataTextItem(string File)
+std::vector<double> DataTextItem(std::string File)
 {
 	std::vector<double> Ret;
 	ifstream Data(File); if (!Data.is_open()) { cout << "! DADOS NÃO FORAM ABERTOS !\n"; }
@@ -500,9 +536,9 @@ std::vector<double> DataTextItem(string File)
 }
 
 // COUT TEXT:
-void CoutText(string Filename)
+void CoutText(std::string Filename)
 {
-	string Line; ifstream Data(Filename); if (!Data.is_open()) { cout << "! DADOS NÃO FORAM ABERTOS !\n"; }
+	std::string Line; ifstream Data(Filename); if (!Data.is_open()) { cout << "! DADOS NÃO FORAM ABERTOS !\n"; }
 	else { while (getline(Data, Line)) { cout << Line << endl; } } Data.close();
 }
 
@@ -513,22 +549,22 @@ void CoutVector(std::vector<long> Vec) { for (int n = 0; n < Vec.size(); ++n) { 
 void CoutVector(std::vector<float> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << endl; } }
 void CoutVector(std::vector<double> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << endl; } }
 void CoutVector(std::vector<bool> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << endl; } }
-void CoutVector(std::vector<string> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << endl; } }
+void CoutVector(std::vector<std::string> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << endl; } }
 void CoutVector(std::vector<char> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << endl; } }
 void CoutVector(std::vector<Point> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ".x: " << Vec[n].x << " | .y: " << Vec[n].y << endl; } }
 void CoutVector(std::vector<PointFlt> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ".x: " << Vec[n].x << " | .y: " << Vec[n].y << endl; } }
 void CoutVector(std::vector<Point3D> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ".x: " << Vec[n].x << " | .y: " << Vec[n].y << " | .z: " << Vec[n].z << endl; } }
 void CoutVector(std::vector<Point3DFlt> Vec) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ".x: " << Vec[n].x << " | .y: " << Vec[n].y << " | .z: " << Vec[n].z << endl; } }
 // COUT VECTOR WITH COLLUMS:
-void CoutVector(std::vector<short int> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " "; ++c; if (c == Cols) { cout << endl; c = 0; } } }
-void CoutVector(std::vector<int> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " ";  ++c; if (c == Cols) { cout << endl; c = 0; } } }
-void CoutVector(std::vector<long> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " ";  ++c; if (c == Cols) { cout << endl; c = 0; } } }
-void CoutVector(std::vector<float> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " ";  ++c; if (c == Cols) { cout << endl; c = 0; } } }
-void CoutVector(std::vector<double> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " ";  ++c; if (c == Cols) { cout << endl; c = 0; } } }
-void CoutVector(std::vector<bool> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " ";  ++c; if (c == Cols) { cout << endl; c = 0; } } }
-void CoutVector(std::vector<string> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " ";  ++c; if (c == Cols) { cout << endl; c = 0; } } }
-void CoutVector(std::vector<char> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " ";  ++c; if (c == Cols) { cout << endl; c = 0; } } }
-void CoutVector(std::vector<Point> Vec, int Cols) { int c = 0; for (int n = 0; n < Vec.size(); ++n) { cout << n << ".x: " << Vec[n].x << " | .y: " << Vec[n].y << " "; ++c; if (c == Cols) { cout << endl; c = 0; } } }
+void CoutVector(std::vector<short int> Vec, int Cols) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " | "; if (n % Cols == Cols - 1) { cout << endl; } } }
+void CoutVector(std::vector<int> Vec, int Cols) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " | ";  if (n % Cols == Cols - 1) { cout << endl; } } }
+void CoutVector(std::vector<long> Vec, int Cols) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " | ";  if (n % Cols == Cols - 1) { cout << endl; } } }
+void CoutVector(std::vector<float> Vec, int Cols) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " | ";  if (n % Cols == Cols - 1) { cout << endl; } } }
+void CoutVector(std::vector<double> Vec, int Cols) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " | ";  if (n % Cols == Cols - 1) { cout << endl; } } }
+void CoutVector(std::vector<bool> Vec, int Cols) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " | ";  if (n % Cols == Cols - 1) { cout << endl; } } }
+void CoutVector(std::vector<std::string> Vec, int Cols) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " | ";  if (n % Cols == Cols - 1) { cout << endl; } } }
+void CoutVector(std::vector<char> Vec, int Cols) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ": " << Vec[n] << " | ";  if (n % Cols == Cols - 1) { cout << endl; } } }
+void CoutVector(std::vector<Point> Vec, int Cols) { for (int n = 0; n < Vec.size(); ++n) { cout << n << ".x: " << Vec[n].x << " | .y: " << Vec[n].y << " "; if (n % Cols == Cols - 1) { cout << endl; } } }
 void CoutVector(std::vector<PointFlt> Vec, int Cols)
 {
 	int c = 0; for (int n = 0; n < Vec.size(); ++n)
@@ -554,8 +590,8 @@ void CoutVector(std::vector<Point3DFlt> Vec, int Cols)
 	}
 }
 // COUT STRING AS INT:
-void CoutStringInt(string Str) { int i; for (int n = 0; n < Str.size(); ++n) { i = Str[n]; cout << n << ": " << i << endl; } }
-void CoutStringInt(string Str, int Cols) { int i; int c = 0; for (int n = 0; n < Str.size(); ++n) { i = Str[n]; cout << n << ": " << i << " "; ++c; if (c == Cols) { cout << endl; c = 0; } } }
+void CoutStringInt(std::string Str) { int i; for (int n = 0; n < Str.size(); ++n) { i = Str[n]; cout << n << ": " << i << endl; } }
+void CoutStringInt(std::string Str, int Cols) { int i; int c = 0; for (int n = 0; n < Str.size(); ++n) { i = Str[n]; cout << n << ": " << i << " "; ++c; if (c == Cols) { cout << endl; c = 0; } } }
 
 // ################################################# FIM ####################################################################################
 
@@ -759,8 +795,8 @@ double Char2GemaPerCent(char C)
 	else { return(0); }
 }
 
-int Str2Gematria(string S) { int Ret = 0; for (int n = 0; n < S.size(); ++n) { Ret += Char2Gematria(S[n]); } return(Ret); }
-double Str2GemaPerCent(string S) { double Ret = 0; for (int n = 0; n < S.size(); ++n) { Ret += Char2GemaPerCent(S[n]); } Ret /= S.size(); return(Ret); }
+int Str2Gematria(std::string S) { int Ret = 0; for (int n = 0; n < S.size(); ++n) { Ret += Char2Gematria(S[n]); } return(Ret); }
+double Str2GemaPerCent(std::string S) { double Ret = 0; for (int n = 0; n < S.size(); ++n) { Ret += Char2GemaPerCent(S[n]); } Ret /= S.size(); return(Ret); }
 
 // ALPHA OMEGA POLAR SCORE (PERSONAL ART ITEM):
 double AOScore(double Radian)
@@ -782,7 +818,7 @@ void CoutProgressBar(double ZeroToOne, int Size)
 	int Round = round(ZeroToOne * Size); for (int n = 0; n < Size; ++n) { if (n <= Round) { cout << "#"; } else { cout << "_"; } }
 	cout << "];\n";
 }
-void CoutProgressBar(double ZeroToOne, int Size, string BarName)
+void CoutProgressBar(double ZeroToOne, int Size, std::string BarName)
 {
 	if (ZeroToOne < 0) { ZeroToOne = 0; } if (ZeroToOne > 1) { ZeroToOne = 1; }
 	cout << BarName << ": [";
@@ -824,13 +860,14 @@ std::vector<NameValue> RandomTarot(int Tries)
 {
 	std::vector<NameValue>Cards;
 	NameValue Card;
+	std::vector<std::string> CardNames = TarotCards();
 	for (int a = 0; a < Tries; ++a)
 	{
 		int Rnd = (rand() % 78) + 1;
 		bool MinMaj = false; // Minor or Major Arcana?
 		if (Rnd > 22) { MinMaj = false; }
 		else { MinMaj = true; }
-		if (MinMaj) { Card.Name = TarotCards[Rnd - 1]; Card.Value = Rnd; Cards.push_back(Card); }
+		if (MinMaj) { Card.Name = CardNames[Rnd - 1]; Card.Value = Rnd; Cards.push_back(Card); }
 		else
 		{
 			Card.Value = (rand() % 14) + 1;
@@ -880,9 +917,9 @@ class TestIt
 
 				if (Op == 1) { cout << "IsPrime(n);\n"; long Opn; cout << "n: "; cin >> Opn; cout << "RETORNO: " << IsPrime(Opn) << endl; }
 				if (Op == 2) { cout << "Chr2Int(C);\n"; char Opc; cout << "Char: "; cin >> Opc; cout << "RETORNO: " << Chr2Int(Opc) << endl; }
-				if (Op == 3) { cout << "Str2Int(S);\n"; string Ops; cout << "String: "; cin >> Ops; cout << "RETORNO: " << Str2Int(Ops) << endl; }
-				if (Op == 4) { cout << "Str2Double(S);\n"; string Ops; cout << "String: "; cin >> Ops; cout << "RETORNO: " << Str2Double(Ops) << endl; }
-				if (Op == 5) { cout << "IsDec(S);\n"; string Ops; cout << "String: "; cin >> Ops; cout << "RETORNO: " << IsDec(Ops) << endl; }
+				if (Op == 3) { cout << "Str2Int(S);\n"; std::string Ops; cout << "String: "; cin >> Ops; cout << "RETORNO: " << Str2Int(Ops) << endl; }
+				if (Op == 4) { cout << "Str2Double(S);\n"; std::string Ops; cout << "String: "; cin >> Ops; cout << "RETORNO: " << Str2Double(Ops) << endl; }
+				if (Op == 5) { cout << "IsDec(S);\n"; std::string Ops; cout << "String: "; cin >> Ops; cout << "RETORNO: " << IsDec(Ops) << endl; }
 				if (Op == 6)
 				{
 					cout << "Dec2Frac(n, &a, &b);\n"; double Opn; cout << "n: "; cin >> Opn; int Opa = Dec2Frac(Opn).x, Opb = Dec2Frac(Opn).y;

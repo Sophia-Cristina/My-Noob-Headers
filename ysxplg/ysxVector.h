@@ -9,7 +9,8 @@
 // ################################################# ANOTAÇÕES E ATENÇÕES #################################################
 // !!!!!!!	
 // !!!!!!!	CATALOGO DE MUDANÇAS (MANTENHA EM ORDEM):
-// !!!!!!!	FUNÇÃO 'ExpSignalVec' AGORA É 'ExponentVec'. E EU NÃO LEMBRO O PORQUE ERA 'Signal';
+// !!!!!!!	* FUNÇÃO 'ExpSignalVec' AGORA É 'ExponentVec'. E EU NÃO LEMBRO O PORQUE ERA 'Signal';
+// !!!!!!!	* Funões de vetores trigonométricos e sinais agora está em 'ysxElectr.h'
 // !!!!!!!	
 // ################################################# ANOTAÇÕES E ATENÇÕES #################################################
 // ############################################################################################################################################
@@ -30,6 +31,10 @@ vector<double> Float2Double(vector<float> Float) { vector<double> V; for (int n 
 vector<float> Double2Float(vector<double> Double) { vector<float> V; for (int n = 0; n < Double.size(); ++n) { V.push_back(Double[n]); } return(V); }
 vector<short int> Double2SInt(vector<double> Double) { vector<short int> V; for (int n = 0; n < Double.size(); ++n) { V.push_back(Double[n]); } return(V); }
 vector<short int> Float2SInt(vector<float> Float) { vector<short int> V; for (int n = 0; n < Float.size(); ++n) { V.push_back(Float[n]); } return(V); }
+vector<unsigned char> Double2uChar(vector<double> Double) { vector<unsigned char> V; for (int n = 0; n < Double.size(); ++n) { V.push_back(round(Double[n] * 255)); } return(V); }
+vector<char> Double2Char(vector<double> Double) { vector<char> V; for (int n = 0; n < Double.size(); ++n) { V.push_back(round(Double[n] * 127)); } return(V); }
+vector<unsigned char> Float2uChar(vector<float> Float) { vector<unsigned char> V; for (int n = 0; n < Float.size(); ++n) { V.push_back(round(Float[n] * 255)); } return(V); }
+vector<char> Float2Char(vector<float> Float) { vector<char> V; for (int n = 0; n < Float.size(); ++n) { V.push_back(round(Float[n] * 127)); } return(V); }
 
 // UNE VETORES:
 vector<int> JoinVectors(vector<int> VecPre, vector<int> VecSuf) { for (int n = 0; n < VecSuf.size(); ++n) { VecPre.push_back(VecSuf[n]); } return(VecPre); }
@@ -300,146 +305,7 @@ void QuickSortPty(vector<PointFlt>& V, int l, int r)
 // #####################################################################################################################################
 
 // ############################
-// ####### TRIGONEMETRICOS E SINAIS
-// ############################
-
-// Seno (phase in radians):
-vector<double> SineWaveVec(int Size, double x0, double x1, double Amp, double Freq, double Phase)
-{
-	vector<double> R; if (x0 > x1) { double t = x0; x0 = x1; x1 = t; } double Delta = (x1 - x0) / Size; for (int n = 0; n < Size; ++n) { R.push_back(Amp * sin(Phase + (x0 + (Delta * n * Freq)))); } return(R);
-}
-
-// Coseno (phase in radians):
-vector<double> CosineWaveVec(int Size, double x0, double x1, double Amp, double Freq, double Phase)
-{
-	vector<double> R; if (x0 > x1) { double t = x0; x0 = x1; x1 = t; } double Delta = (x1 - x0) / Size; for (int n = 0; n < Size; ++n) { R.push_back(Amp * cos(Phase + (x0 + (Delta * n * Freq)))); } return(R);
-}
-
-// Tangente (phase in radians):
-vector<double> TangentWaveVec(int Size, double x0, double x1, double Amp, double Freq, double Phase)
-{
-	vector<double> R; if (x0 > x1) { double t = x0; x0 = x1; x1 = t; } double Delta = (x1 - x0) / Size; for (int n = 0; n < Size; ++n) { R.push_back(Amp * tan(Phase + (x0 + (Delta * n * Freq)))); } return(R);
-}
-
-// Cotangente (phase in radians):
-vector<double> CotangentWaveVec(int Size, double x0, double x1, double Amp, double Freq, double Phase)
-{
-	vector<double> R; if (x0 > x1) { double t = x0; x0 = x1; x1 = t; } double Delta = (x1 - x0) / Size; for (int n = 0; n < Size; ++n) { R.push_back(Amp * cot(Phase + (x0 + (Delta * n * Freq)))); } return(R);
-}
-
-// SquareWave (phase in radians):
-vector<double> SquareWaveVec(int Size, double x0, double x1, double Amp, double Freq, double Phase)
-{
-	vector<double> R; if (x0 > x1) { double t = x0; x0 = x1; x1 = t; } double Delta = (x1 - x0) / Size; for (int n = 0; n < Size; ++n) { R.push_back(Amp * rect(Phase + (x0 + (Delta * n * Freq)))); } return(R);
-}
-
-// SawWave (phase in radians):
-vector<double> SawWaveVec(int Size, double x0, double x1, double Amp, double Freq, double Phase)
-{
-	vector<double> R; if (x0 > x1) { double t = x0; x0 = x1; x1 = t; } double Delta = (x1 - x0) / Size; for (int n = 0; n < Size; ++n) { R.push_back(Amp * saw(Phase + (x0 + (Delta * n * Freq)))); } return(R);
-}
-
-// SawWave (phase in radians):
-vector<double> TriWaveVec(int Size, double x0, double x1, double Amp, double Freq, double Phase)
-{
-	vector<double> R; if (x0 > x1) { double t = x0; x0 = x1; x1 = t; } double Delta = (x1 - x0) / Size; for (int n = 0; n < Size; ++n) { R.push_back(Amp * tri(Phase + (x0 + (Delta * n) * Freq))); } return(R);
-}
-
-// Miniform vector (phase in radians):
-vector<double> MiniFormVec(int Size, double x0, double x1, double Amp, double Freq, double Phase)
-{
-	vector<double> R; if (x0 > x1) { double t = x0; x0 = x1; x1 = t; } double Delta = (x1 - x0) / Size; for (int n = 0; n < Size; ++n) { R.push_back(Amp * MiniForm(Phase + x0 + (Delta * n), Freq)); } return(R);
-}
-
-// Linha:
-vector<double> LineVec(int Size, double x0, double x1, double Sum, double Mult)
-{
-	vector<double> R; if (x0 > x1) { double t = x0; x0 = x1; x1 = t; } double Delta = (x1 - x0) / Size; for (int n = 0; n < Size; ++n) { double x = x0 + (Delta * n); R.push_back(Sum + x * Mult); } return(R);
-}
-
-// Linha curva por exponente | 'x^Pow / Div^Pow':
-vector<double> ExpCurveVec(int Size, double x0, double x1, double Pow, double Div)
-{
-	vector<double> R; if (x0 > x1) { double t = x0; x0 = x1; x1 = t; } double Delta = (x1 - x0) / Size;
-	for (int n = 0; n < Size; ++n) { double x = x0 + (Delta * n); R.push_back(pow(x, Pow) / pow(Div, Pow)); }
-	return(R);
-}
-
-// Vetor Exponencial 'a^n'':
-vector<double> ExponentVec(int Size, double x0, double x1, double a)
-{
-	vector<double> V;
-	for (int n = 0; n < Size; ++n)
-	{
-		V.push_back(pow(a, n));
-	}
-	return(V);
-}
-
-// Vetor Exponencial 'B * (r^n)':
-vector<double> ExponentVec(int Size, double x0, double x1, double B, double r)
-{
-	vector<double> V;
-
-	for (int n = 0; n < Size; ++n)
-	{
-		V.push_back(B * pow(r, n));
-	}
-	return(V);
-}
-
-// Sinal Degrau:
-vector<double> StepSigVec(int n0, int n1) { vector<double> V; for (int n = n0; n < n1; ++n) { V.push_back(StepSig(n)); } return(V); }
-
-// ### COM TEMPO:
-
-// Seno com mudança de frequencia por tempo:
-vector<double> SineWaveVecTimeFreq(int Size, double x0, double x1, double TimeRatio, double Gain, double Freq, double Phase)
-{
-	vector<double> R; if (x0 > x1) { double t = x0; x0 = x1; x1 = t; }
-	double Delta = (x1 - x0) / Size;
-	for (int n = 0; n < Size; ++n) { R.push_back(Gain * sin(Phase + x0 + Freq * pow(TimeRatio, n) * Delta * n)); } return(R);
-}
-// Seno com mudança de fase por tempo:
-vector<double> SineWaveVecTimePhase(int Size, double x0, double x1, double TimeRatio, double Gain, double Freq, double Phase)
-{
-	vector<double> R; if (x0 > x1) { double t = x0; x0 = x1; x1 = t; }
-	double Delta = (x1 - x0) / Size;
-	for (int n = 0; n < Size; ++n) { R.push_back(Gain * sin((pow(TimeRatio, n) * Phase) + (x0 + (Delta * n * Freq)))); } return(R);
-}
-// Seno com mudança de ganho por tempo:
-vector<double> SineWaveVecTimeGain(int Size, double x0, double x1, double TimeRatio, double Gain, double Freq, double Phase)
-{
-	vector<double> R; if (x0 > x1) { double t = x0; x0 = x1; x1 = t; }
-	double Delta = (x1 - x0) / Size;
-	for (int n = 0; n < Size; ++n) { R.push_back((pow(TimeRatio, n) * Gain) * sin(Phase + x0 + (Delta * n * Freq))); } return(R);
-}
-// Seno com mudança de frequencia por modulação (FM):
-vector<double> SineWaveVecFM(int Size, double x0, double x1, double Gain, double Freq, double FreqFM, double Phase)
-{
-	vector<double> R; if (x0 > x1) { double t = x0; x0 = x1; x1 = t; }
-	double Delta = (x1 - x0) / Size;
-	for (int n = 0; n < Size; ++n)
-	{
-		double x = Phase + (x0 + Freq * Delta * n);
-		double xm = Phase + (x0 + FreqFM * Delta * n);
-		R.push_back(Gain * sin(sin(x) * FreqFM));
-	}
-	return(R);
-}
-
-// ### NOISE:
-
-// White noise:
-vector<double> WhiteNoise(int Size)
-{ vector<double> WN; for (int n = 0; n < Size; ++n) { int Random = rand() % 20001; double RealVal = (Random - 10000) / 10000.0; WN.push_back(RealVal); } return(WN); }
-
-// #####################################################################################################################################
-// #####################################################################################################################################
-// #####################################################################################################################################
-
-// ############################
-// ####### MÁXIMO E MINIMO DE VETOR
+// ####### MAX AND MINIMUM OF A VECTOR
 // ############################
 
 int MaxVec(vector<int> Vec) { int Max = Vec[0]; for (int n = 1; n < Vec.size(); ++n) { if (Vec[n] > Max) Max = Vec[n]; } return(Max); }
@@ -612,10 +478,10 @@ void MaxMinVecLinePoint(vector<LinePoint>& VecLinePoint, LinePoint& Max, LinePoi
 	LinePoint oMax(VecLinePoint[0]), oMin(VecLinePoint[0]);
 	for (size_t n = 1; n < VecLinePoint.size(); ++n)
 	{
-		if (VecLinePoint[n].x0 > oMax.x0) oMax.x0 = VecLinePoint[n].x0; else if (VecLinePoint[n].x0 < oMin.x0) oMin.x0 = VecLinePoint[n].x0;
-		if (VecLinePoint[n].y0 > oMax.y0) oMax.y0 = VecLinePoint[n].y0; else if (VecLinePoint[n].y0 < oMin.y0) oMin.y0 = VecLinePoint[n].y0;
-		if (VecLinePoint[n].x1 > oMax.x1) oMax.x1 = VecLinePoint[n].x1; else if (VecLinePoint[n].x1 < oMin.x1) oMin.x1 = VecLinePoint[n].x1;
-		if (VecLinePoint[n].y1 > oMax.y1) oMax.y1 = VecLinePoint[n].y1; else if (VecLinePoint[n].y1 < oMin.y1) oMin.y1 = VecLinePoint[n].y1;
+		if (VecLinePoint[n].P0.x > oMax.P0.x) oMax.P0.x = VecLinePoint[n].P0.x; else if (VecLinePoint[n].P0.x < oMin.P0.x) oMin.P0.x = VecLinePoint[n].P0.x;
+		if (VecLinePoint[n].P0.y > oMax.P0.y) oMax.P0.y = VecLinePoint[n].P0.y; else if (VecLinePoint[n].P0.y < oMin.P0.y) oMin.P0.y = VecLinePoint[n].P0.y;
+		if (VecLinePoint[n].P1.x > oMax.P1.x) oMax.P1.x = VecLinePoint[n].P1.x; else if (VecLinePoint[n].P1.x < oMin.P1.x) oMin.P1.x = VecLinePoint[n].P1.x;
+		if (VecLinePoint[n].P1.y > oMax.P1.y) oMax.P1.y = VecLinePoint[n].P1.y; else if (VecLinePoint[n].P1.y < oMin.P1.y) oMin.P1.y = VecLinePoint[n].P1.y;
 	}
 	if (Abs) // Construção
 	{
@@ -623,19 +489,19 @@ void MaxMinVecLinePoint(vector<LinePoint>& VecLinePoint, LinePoint& Max, LinePoi
 		bool absxb0 = false, absyb0 = false, absxb1 = false, absyb1 = false;
 		if (Abs)
 		{
-			if (oMin.x0 < 0) { absx = abs(oMin.x0); oMax.x0 += absx; oMin.x0 = 0; absxb0 = true; }
-			if (oMin.y0 < 0) { absy = abs(oMin.y0); oMax.y0 += absy; oMin.y0 = 0; absyb0 = true; }
-			if (oMin.x0 < 0) { absx = abs(oMin.x0); oMax.x0 += absx; oMin.x0 = 0; absxb1 = true; }
-			if (oMin.y0 < 0) { absy = abs(oMin.y0); oMax.y0 += absy; oMin.y0 = 0; absyb1 = true; }
+			if (oMin.P0.x < 0) { absx = abs(oMin.P0.x); oMax.P0.x += absx; oMin.P0.x = 0; absxb0 = true; }
+			if (oMin.P0.y < 0) { absy = abs(oMin.P0.y); oMax.P0.y += absy; oMin.P0.y = 0; absyb0 = true; }
+			if (oMin.P0.x < 0) { absx = abs(oMin.P0.x); oMax.P0.x += absx; oMin.P0.x = 0; absxb1 = true; }
+			if (oMin.P0.y < 0) { absy = abs(oMin.P0.y); oMax.P0.y += absy; oMin.P0.y = 0; absyb1 = true; }
 		}
 		if (absxb0 || absyb0 || absxb1 || absyb1)
 		{
 			for (size_t n = 0; n < VecLinePoint.size(); ++n)
 			{
-				if (absxb0) { VecLinePoint[n].x0 += absx; }
-				if (absyb0) { VecLinePoint[n].y0 += absy; }
-				if (absxb1) { VecLinePoint[n].x1 += absx; }
-				if (absyb1) { VecLinePoint[n].y1 += absy; }
+				if (absxb0) { VecLinePoint[n].P0.x += absx; }
+				if (absyb0) { VecLinePoint[n].P0.y += absy; }
+				if (absxb1) { VecLinePoint[n].P1.x += absx; }
+				if (absyb1) { VecLinePoint[n].P1.y += absy; }
 			}
 		}
 	}
@@ -764,137 +630,7 @@ void SumVecTermsGeo(vector<double>& Vec, double Sum, double Ratio) { for (int n 
 void MultVecTermsGeo(vector<int>& Vec, double Mult, double Ratio) { for (int n = 0; n < Vec.size(); ++n) { Vec[n] *= Mult * pow(Ratio, n); } } // Procure não ter zeros
 void MultVecTermsGeo(vector<double>& Vec, double Mult, double Ratio) { for (int n = 0; n < Vec.size(); ++n) { Vec[n] *= Mult * pow(Ratio, n); } }
 
-// ####### ENVELOPES #######
-
-// Attack Decay, considerando o numero de dados num 'vector',
-// portanto A e D são razões:
-vector<double> AttackDecay(vector<double> Input, double A, double D, double Gain)
-{
-	vector<double> R;
-	double Sum = A + D, RatioA = A / Sum, RatioD = D / Sum;
-	int Size = Input.size(); int SizeA = floor(Size * RatioA), SizeD = Size - SizeA;
-	double DeltaA = 1.0 / SizeA, DeltaD = 1.0 / SizeD;
-	cout << " Size: " << Size << " | SA: " << SizeA << " | SD: " << SizeD << " | DeltaA: " << DeltaA << " | DeltaD: " << DeltaD << endl;
-	for (int n = 0; n < SizeA; ++n) { double x = DeltaA * n; R.push_back(x * Input[n] * Gain); }
-	for (int n = SizeA; n < Size; ++n) { double x = DeltaD * (n - SizeA); R.push_back((1 - x) * Input[n] * Gain); }	
-	return(R);
-}
-
-// Attack Envelope
-vector<double> AttackVector(vector<double> Input, double Gain)
-{
-	vector<double> R;
-	int Size = Input.size();
-	for (int n = 0; n < Size; ++n) { double x = n / (double)Size; R.push_back(x * Input[n] * Gain); }
-	return(R);
-}
-// Attack Exponetial Envelope
-vector<double> AttackExpVector(vector<double> Input, double Pow, double Gain)
-{
-	vector<double> R;
-	int Size = Input.size();
-	for (int n = 0; n < Size; ++n) { double x = pow(n, Pow) / pow(Size, Pow); R.push_back(x * Input[n] * Gain); }
-	return(R);
-}
-
-// Decay Envelope
-vector<double> DecayVector(vector<double> Input, double Gain)
-{
-	vector<double> R;
-	int Size = Input.size();
-	for (int n = 0; n < Size; ++n) { double x = (Size - n) / Size; R.push_back(x * Input[n] * Gain); }
-	return(R);
-}
-
-// Decay Exponetial Envelope
-vector<double> DecayExpVector(vector<double> Input, double Pow, double Gain)
-{
-	vector<double> R;
-	int Size = Input.size();
-	for (int n = 0; n < Size; ++n) { double x = pow(Size - n, Pow) / pow(Size, Pow); R.push_back(x * Input[n] * Gain); }
-	return(R);
-}
-
-// Change Input Vector by a graduation from L1 to L2, similar to an Attack, but with both sides:
-vector<double> LineEnvelop(vector<double> Input, double L1, double L2, double Gain)
-{
-	vector<double> R;
-	int Size = Input.size();
-	if (L1 > 1) { L1 = 1; } if (L1 < 0) { L1 = 0; } if (L2 > 1) { L2 = 1; } if (L2 < 0) { L2 = 0; }
-	//double BigL = L2; if (L1 > L2) { BigL = L1; } double SmallL = L1; if (L1 > L2) { SmallL = L2; }
-	//double DeltaL = BigL - SmallL, Delta = DeltaL / Size;
-	double DeltaL = L2 - L1, Delta = DeltaL / Size;
-	for (int n = 0; n < Size; ++n) { double x = L1 + Delta * n; R.push_back(x * Input[n] * Gain); }
-	return(R);
-}
-
-// Change Input Vector by a exponential graduation from L1 to L2, similar to an Attack, but with both sides:
-/*vector<double> LineExpEnvelop(vector<double> Input, double L1, double L2, double Pow, double Gain)
-{
-	vector<double> R;
-	int Size = Input.size();
-	if (L1 > 1) { L1 = 1; } if (L1 < 0) { L1 = 0; } if (L2 > 1) { L2 = 1; } if (L2 < 0) { L2 = 0; }
-	//double BigL = L2; if (L1 > L2) { BigL = L1; } double SmallL = L1; if (L1 > L2) { SmallL = L2; }
-	//double DeltaL = BigL - SmallL, Delta = DeltaL / Size;
-	double Delta = L2 - L1;
-	for (int n = 0; n < Size; ++n) { double x = L1 + pow(Delta * n, Pow) / pow(Size, Pow); R.push_back(x * Input[n] * Gain); }
-	return(R);
-}*/
-
-// MODULATE VECTOR WITH ANOTHER VECTOR.
-// Last index will be from input:
-vector<double> VectorEnvelop(vector<double> Input, vector<double> Modulator, double Gain)
-{
-	vector<double> V; for (int n = 0; n < Input.size(); ++n) { if (n < Modulator.size()) { V.push_back(Input[n] * Modulator[n] * Gain); } else { V.push_back(Input[n] * Gain); } } return(V);
-}
-
-// vector<double> ADSR
-
-// ####### NORMALIZERS #######
-
-// IF BIGGER THAN Y THEN Y:
-vector<double> LimitToptoY(vector<double> fx, double Y) { vector<double> gx = fx; for (int n = 0; n < gx.size(); ++n) { if (gx[n] > Y) { gx[n] = Y; } } return(gx); }
-
-// IF BIGGER THAN Y AND LOWER THAN -Y, THEN Y AND -Y:
-vector<double> LimittoY(vector<double> fx, double Y) { vector<double> gx = fx; for (int n = 0; n < gx.size(); ++n) { if (gx[n] > Y) { gx[n] = Y; } else if (gx[n] < -Y) { gx[n] = -Y; } } return(gx); }
-
-// IF BIGGER THAN Y1 AND LOWER THAN Y0, THEN Y1 AND Y0:
-vector<double> LimittoY1Y0(vector<double> fx, double Y1, double Y0)
-{
-	if (Y0 == Y1) { Y0 += 1.0e-9; } if (Y1 < Y0) { double T = Y1; Y1 = Y0; Y0 = T; }
-	vector<double> gx = fx; for (int n = 0; n < gx.size(); ++n) { if (gx[n] > Y1) { gx[n] = Y1; } else if (gx[n] < Y0) { gx[n] = Y0; } } return(gx);
-}
-
-// MAX (TOP OF VECTOR) IS DIVIDED BY MAX:
-vector<int> NormalizeTopto1(vector<int> fx) { vector<int> gx = fx; double Max = MaxVec(gx); if (Max == 0) { Max = 1.0e-9; } for (int n = 0; n < gx.size(); ++n) { gx[n] /= Max; } return(gx); }
-vector<double> NormalizeTopto1(vector<double> fx) { vector<double> gx = fx; double Max = MaxVec(gx); if (Max == 0) { Max = 1.0e-9; } for (int n = 0; n < gx.size(); ++n) { gx[n] /= Max; } return(gx); }
-
-// IF MAX AND MIN IS BIGGER THAN 1 AND LOWER THAN -1, DIVIDE BY THE BIGGER ABSOLUTE:
-vector<int> Normalize(vector<int> fx) { vector<int> gx = fx; int Max = MaxVecAbs(gx); if (Max == 0) { Max = 1.0e-9; } for (int n = 0; n < gx.size(); ++n) { gx[n] /= Max; } return(gx); }
-vector<double> Normalize(vector<double> fx) { vector<double> gx = fx; double Max = MaxVecAbs(gx); if (Max == 0) { Max = 1.0e-9; } for (int n = 0; n < gx.size(); ++n) { gx[n] /= Max; } return(gx); }
-
-// MOD NORMALIZE, (f(x) + 1) * 0.5:
-vector<int> NormalizeModTopto1(vector<int> fx)
-{ vector<int> gx = fx; double Max = MaxVec(gx); if (Max == 0) { Max = 1.0e-9; } for (int n = 0; n < gx.size(); ++n) { gx[n] /= Max; gx[n] += 1; gx[n] *= 0.5; } return(gx); }
-vector<double> NormalizeModTopto1(vector<double> fx)
-{ vector<double> gx = fx; double Max = MaxVec(gx); if (Max == 0) { Max = 1.0e-9; } for (int n = 0; n < gx.size(); ++n) { gx[n] /= Max; gx[n] += 1; gx[n] *= 0.5; } return(gx); }
-vector<int> NormalizeMod(vector<int> fx) { vector<int> gx = fx; int Max = MaxVecAbs(gx); if (Max == 0) { Max = 1.0e-9; } for (int n = 0; n < gx.size(); ++n) { gx[n] /= Max; gx[n] += 1; gx[n] *= 0.5; } return(gx); }
-vector<double> NormalizeMod(vector<double> fx)
-{ vector<double> gx = fx; double Max = MaxVecAbs(gx); if (Max == 0) { Max = 1.0e-9; } for (int n = 0; n < gx.size(); ++n) { gx[n] /= Max; gx[n] += 1; gx[n] *= 0.5; } return(gx); }
-
-// ############################
-
-// ############################
-
-
-// ############################
-
-
-
-
 // #####################################################################################################################################
-
-
 
 // ################################################# FIM ####################################################################################
 

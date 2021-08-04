@@ -26,11 +26,10 @@ using namespace cimg_library; // UNCOMMENT IF YOU ARE HAVING A PROBLEM
 // ############################################################################################################################################
 // ################################################# ANOTAÇÕES E ATENÇÕES #################################################
 // !!!!!!!	
-// !!!!!!!	FAZER TODOS POSSIVEIS PLOTTERS ESCREVEREM NUMA IMAGEM DE INPUT;
-// !!!!!!!	FAZER TODOS POSSIVEIS PLOTTERS ACEITAREM VECTORS COMO INPUT, E ASSIM ACABAR COM RDUNDANCIAS DE FUNÇÕES, TIPO "POLAR", "CIRCULO" E "TURN";
-// !!!!!!!	
 // !!!!!!!	CATALOGO DE MUDANÇAS (MANTENHA EM ORDEM):
-// !!!!!!!	FUNÇÕES COM NOMES TIPO 'SaveBmp' AGORA SÃO 'SaveBMP';
+// !!!!!!!	* Funções com nomes tipo 'SaveBmp' agora são 'SaveBMP';
+// !!!!!!!	* 'VerImg(...)' é agora 'CIMG(...)';
+// !!!!!!!	* 'AdcTexto' é agora 'AddText', e 'AdcBarras' eu acho que agora é 'DrawBars';
 // !!!!!!!	
 // ################################################# ANOTAÇÕES E ATENÇÕES #################################################
 // ############################################################################################################################################
@@ -38,18 +37,25 @@ using namespace cimg_library; // UNCOMMENT IF YOU ARE HAVING A PROBLEM
 // ############################################################################################################################################
 
 // ###################################
-// ############## DECLARAÇÕES:
+// ############## FORWARD DECLARATIONS:
 CImg<unsigned char> DrawImageIgnClr(CImg<unsigned char>, CImg<unsigned char>, int, int, unsigned char[3]);
 CImg<unsigned char> DrawImageIgnClrCout(CImg<unsigned char>, CImg<unsigned char>, int, int, unsigned char[3]);
 bool InImg(CImg<unsigned char>, int, int);
 void AdcVert(CImg<unsigned char>&, int, int, int, unsigned char[3]);
-void AdcTexto(CImg<unsigned char>&, int, int, string, int, int, int);
+void AddText(CImg<unsigned char>&, int, int, string, int, int, int);
 CImg<unsigned char> ValueBarAbs(int, double, double, int, int, bool);
 void Resize(CImg<unsigned char>&, int, int, int);
 void FillArea(CImg<unsigned char>&, int, int, int, int, int);
 void FillAll(CImg<unsigned char>&, int, int, int);
 CImg<unsigned char> ExpandImg(CImg<unsigned char>, int, char);
 CImg<unsigned char> JoinImg(CImg<unsigned char>, CImg<unsigned char>, bool);
+std::vector<char> Str2Char(string);
+double GetMag(PointFlt);
+double GetVecRad(PointFlt);
+double SumntoPowIniEnd(int, int, int);
+std::vector<std::string> BinaryWordsSeq(int);
+std::vector<long> BinaryWordSeqArean(int);
+double AOScore(double);
 // ###################################
 // ###################################
 // ############## TOOLS:
@@ -71,7 +77,7 @@ struct Pixel { unsigned int x; unsigned int y; unsigned char RGB[3]; };
 
 // ############################################################################################################################################
 // ############## TÉCNICOS:
-// ABRIR:
+// ABRIR (acho que apenas 'Open(FileName.data())' basta):
 CImg<unsigned char> OpenImg(string FileName) { CImg<unsigned char> Open(Str2Char(FileName).data()); return(Open); }
 
 // SALVAR (Com uso de 'string to char', minha função que cria um vetor de char com um string, acho que cimg aceita só um 'char array'):
@@ -91,25 +97,27 @@ bool InImg(CImg<unsigned char> Img, int y, int x)
 // VER IMAGEM SALVA:
 void CIMG(string Nome)
 {
-	CImg<unsigned char> ImagemAbrir(Str2Char(Nome).data()), Grafico(100, 100, 1, 3, 0);
-	const unsigned char red[] = { 255, 0, 0 }, green[] = { 0, 255, 0 }, blue[] = { 0, 0, 255 };
+	CImg<unsigned char> ImagemAbrir(Str2Char(Nome).data());// , Grafico(100, 100, 1, 3, 0);
+	CImgDisplay main_disp(ImagemAbrir, "Bela Arte:");// , draw_disp(Grafico, "Perfil de Intensidade");
 
-	CImgDisplay main_disp(ImagemAbrir, "Bela Arte:"), draw_disp(Grafico, "Perfil de Intensidade");
-	while (!main_disp.is_closed() && !draw_disp.is_closed()) {
+	//const unsigned char red[] = { 255, 0, 0 }, green[] = { 0, 255, 0 }, blue[] = { 0, 0, 255 };
+	while (!main_disp.is_closed())// && !draw_disp.is_closed())
+	{
 		main_disp.wait();
-		if (main_disp.button() && main_disp.mouse_y() >= 0) {
+		/*if (main_disp.button() && main_disp.mouse_y() >= 0)
+		{
 			int y = 0;
 			const int ycimg = main_disp.mouse_y();
 			Grafico.fill(0).draw_graph(ImagemAbrir.get_crop(0, ycimg, 0, 0, ImagemAbrir.width() - 1, y, 0, 0), red, 1, 1, 0, 255, 0);
 			Grafico.draw_graph(ImagemAbrir.get_crop(0, ycimg, 0, 1, ImagemAbrir.width() - 1, y, 0, 1), green, 1, 1, 0, 255, 0);
 			Grafico.draw_graph(ImagemAbrir.get_crop(0, ycimg, 0, 2, ImagemAbrir.width() - 1, y, 0, 2), blue, 1, 1, 0, 255, 0).display(draw_disp);
-		}
+		}*/
 	}
 }
 
 // VER IMAGEM MEMORIA:
-void VerImg(CImg<unsigned char> Img) { CImgDisplay Disp(Img, "Imagem"); while (!Disp.is_closed()) { Disp.wait(); } }
-void VerImg(CImg<unsigned char> Img, string Title) { CImgDisplay Disp(Img, Str2Char(Title).data()); while (!Disp.is_closed()) { Disp.wait(); } }
+void CIMG(CImg<unsigned char> Img) { CImgDisplay Disp(Img, "Image"); while (!Disp.is_closed()) { Disp.wait(); } }
+void CIMG(CImg<unsigned char> Img, string Title) { CImgDisplay Disp(Img, Str2Char(Title).data()); while (!Disp.is_closed()) { Disp.wait(); } }
 
 // POEM DADOS NO VETOR ATRAVEZ DE UM BITMAP (GRAYSCALE):
 vector<double> BitmapVector(CImg<unsigned char> BMP)
@@ -146,7 +154,7 @@ vector<double> BitmapVector(CImg<unsigned char> BMP, int R0orG1orB2)
 
 // ############## TEXTOS:
 // ADC TEXTO (PODE SE USAR A FUNÇÃO .DATA() DO STRING MESMO):
-void AdcTexto(CImg<unsigned char>& Img, int x, int y, string String, int R, int G, int B)
+void AddText(CImg<unsigned char>& Img, int x, int y, string String, int R, int G, int B)
 {
 	// www.cplusplus.com/reference/string/string/at/
 	int TxtLim = String.length() + 1;
@@ -161,10 +169,10 @@ void AdcTexto(CImg<unsigned char>& Img, int x, int y, string String, int R, int 
 	CImgList<unsigned char> font(const unsigned int font_height = 19, const bool variable_size = true);
 	Img.draw_text(x, y, Texto.data(), color);
 }
-void AdcTextoCirc(CImg<unsigned char>& Img, double r, int x, int y, vector<string> Strings, int R, int G, int B) // Adiciona em direções de um circulo, como raios, como numeros num relógio
+void AddTextCirc(CImg<unsigned char>& Img, double r, int x, int y, vector<string> Strings, int R, int G, int B) // Adiciona em direções de um circulo, como raios, como numeros num relógio
 {
-	double Div = Tau / Strings.size() * 1.0; int Count = 0;
-	for (double rad = 0; rad <= Tau; rad += Div) { AdcTexto(Img, x + round(cos(rad) * (r - 8)), y + round(sin(rad) * (r - 8)), Strings[Count], R, G, B); ++Count; }
+	double Div = TAU / Strings.size() * 1.0; int Count = 0;
+	for (double rad = 0; rad <= TAU; rad += Div) { AddText(Img, x + round(cos(rad) * (r - 8)), y + round(sin(rad) * (r - 8)), Strings[Count], R, G, B); ++Count; }
 }
 
 // ############################################################################################################################################
@@ -412,7 +420,7 @@ CImg<unsigned char> SieveEratosthenes(int n)
 		// Fill:
 		FillArea(Square, 15, 15, Color[0], Color[1], Color[2]);
 		// Texto:
-		AdcTexto(Square, 7, 15, to_string(m), 255 - Color[0], 255 - Color[1], 255 - Color[2]);
+		AddText(Square, 7, 15, to_string(m), 255 - Color[0], 255 - Color[1], 255 - Color[2]);
 		Squares.push_back(Square);
 	}
 	for (int m = 0; m < Lines; ++m) { for (int k = 0; k < 10; ++k) { if (k + (m * 10) < Squares.size()) { Ret.draw_image(k * 32, m * 32, Squares[k + (m * 10)]); } } }
@@ -437,11 +445,11 @@ CImg<unsigned char> RayInfo(double Degrees, int ImgSize)
 		Cot = "Cot: " + to_string(cot(Rad)), Sec = "Sec: " + to_string(sec(Rad)), Csc = "Csc: " + to_string(csc(Rad)),
 		Ver = "Versin: " + to_string(versin(Rad)), Exsec = "ExSec: " + to_string(exsec(Rad)), Excsc = "ExCsc: " + to_string(excsc(Rad)), Crd = "Cord: " + to_string(crd(Rad));
 	int Line = 8, Txtpx = r - 24;
-	AdcTexto(I, Txtpx, r + Line, Sin, 0, 255, 0); AdcTexto(I, Txtpx, r + Line * 2, Cos, 255, 0, 0);	AdcTexto(I, Txtpx, r + Line * 3, Tan, 0, 0, 255);
-	AdcTexto(I, Txtpx, r + Line * 4, Cot, 255, 255, 0);	AdcTexto(I, Txtpx, r + Line * 5, Sec, 0, 255, 255);	AdcTexto(I, Txtpx, r + Line * 6, Csc, 255, 0, 255);
-	AdcTexto(I, Txtpx, r + Line * 7, Ver, 127, 255, 127); AdcTexto(I, Txtpx, r + Line * 8, Exsec, 255, 127, 127); AdcTexto(I, Txtpx, r + Line * 9, Excsc, 127, 127, 255);
-	AdcTexto(I, Txtpx, r + Line * 10, Crd, 255, 255, 127);
-	AdcTexto(I, r + 24, r - Line * 2, "ANGLE: " + to_string(Degrees), 255, 255, 255);
+	AddText(I, Txtpx, r + Line, Sin, 0, 255, 0); AddText(I, Txtpx, r + Line * 2, Cos, 255, 0, 0);	AddText(I, Txtpx, r + Line * 3, Tan, 0, 0, 255);
+	AddText(I, Txtpx, r + Line * 4, Cot, 255, 255, 0);	AddText(I, Txtpx, r + Line * 5, Sec, 0, 255, 255);	AddText(I, Txtpx, r + Line * 6, Csc, 255, 0, 255);
+	AddText(I, Txtpx, r + Line * 7, Ver, 127, 255, 127); AddText(I, Txtpx, r + Line * 8, Exsec, 255, 127, 127); AddText(I, Txtpx, r + Line * 9, Excsc, 127, 127, 255);
+	AddText(I, Txtpx, r + Line * 10, Crd, 255, 255, 127);
+	AddText(I, r + 24, r - Line * 2, "ANGLE: " + to_string(Degrees), 255, 255, 255);
 	return(I);
 }
 

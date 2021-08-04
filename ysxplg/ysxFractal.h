@@ -119,9 +119,9 @@ vector<Point> MatrixFractalBinary(vector<string> Words)
 	for (int n = 0; n < Iter; ++n)
 	{
 		int Stages = pow(2, n + 1);
-		double ThetaDiv = Tau / Stages;
-		double ThetaOffset = Pi * 0.5;
-		for (int Tht = ThetaOffset + ThetaDiv; Tht <= Tau + ThetaOffset; Tht += ThetaDiv) // Qualquer coisa tira o ThetaDiv
+		double ThetaDiv = TAU / Stages;
+		double ThetaOffset = PI * 0.5;
+		for (int Tht = ThetaOffset + ThetaDiv; Tht <= TAU + ThetaOffset; Tht += ThetaDiv) // Qualquer coisa tira o ThetaDiv
 		{
 			double Bonus = 0;
 			// Bonus:
@@ -150,7 +150,7 @@ vector<Point> MatrixFractalBinary(vector<string> Words)
 		// Adiciona em Coordenada:
 		int x, y, r;
 		double ThetaDiv2 = ThetaDiv / n;
-		for (int Tht = ThetaOffset; Tht <= Tau + ThetaOffset; Tht += ThetaDiv2) // Qualquer coisa tira o ThetaDiv
+		for (int Tht = ThetaOffset; Tht <= TAU + ThetaOffset; Tht += ThetaDiv2) // Qualquer coisa tira o ThetaDiv
 		{
 			r = n;
 			Point GetCrd;
@@ -166,18 +166,18 @@ vector<LinePoint> SpiralFractalBinary(int Iter)
 {
 	// As primeiras 3 iterações devem ser feitas manualmente, pois um ciclo não se completa e seria chato fazer uma função só para isso
 	vector<LinePoint> Coord(2);
-	Coord[0].x0 = 0; Coord[0].y0 = 0; Coord[0].x1 = 0; Coord[0].y1 = 0;
-	Coord[1].x0 = 0; Coord[1].y0 = 1; Coord[1].x1 = 0; Coord[1].y1 = 1;
+	Coord[0].P0.x = 0; Coord[0].P0.y = 0; Coord[0].P1.x = 0; Coord[0].P1.y = 0;
+	Coord[1].P0.x = 0; Coord[1].P0.y = 1; Coord[1].P1.x = 0; Coord[1].P1.y = 1;
 	cout << "ITER1 DONE!\n\n";
 	if (Iter == 1) { return(Coord); }
 	LinePoint IniLines;
-	IniLines.x0 = 0; IniLines.y0 = 2; IniLines.x1 = 1; IniLines.y1 = 2;
+	IniLines.P0.x = 0; IniLines.P0.y = 2; IniLines.P1.x = 1; IniLines.P1.y = 2;
 	Coord.push_back(IniLines);
-	IniLines.x0 = 1; IniLines.y0 = 1; IniLines.x1 = 1; IniLines.y1 = 0;
+	IniLines.P0.x = 1; IniLines.P0.y = 1; IniLines.P1.x = 1; IniLines.P1.y = 0;
 	Coord.push_back(IniLines);
-	IniLines.x0 = 1; IniLines.y0 = -1; IniLines.x1 = 0; IniLines.y1 = -1;
+	IniLines.P0.x = 1; IniLines.P0.y = -1; IniLines.P1.x = 0; IniLines.P1.y = -1;
 	Coord.push_back(IniLines);
-	IniLines.x0 = -1; IniLines.y0 = -1; IniLines.x1 = -1; IniLines.y1 = 0;
+	IniLines.P0.x = -1; IniLines.P0.y = -1; IniLines.P1.x = -1; IniLines.P1.y = 0;
 	Coord.push_back(IniLines);
 	cout << "ITER2 DONE!\n\n";
 	if (Iter == 2) { return(Coord); }

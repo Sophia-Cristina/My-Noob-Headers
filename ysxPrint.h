@@ -396,9 +396,9 @@ void SampleRateInfo()
 	else
 	{
 		int Count = 0;
-		for (int n = 0; n < SampleRateList.size(); ++n) { int Rate = SampleRateList[n]; oPrint << "hz: " << Rate; ++Count; if (Count >= 5) { oPrint << endl; Count = 0; } }
-		for (int n = 0; n < SampleRateList.size(); ++n) { int Rate = SampleRateList[n]; oPrint << "ms per sample: " << 1000.0 / Rate; ++Count; if (Count >= 5) { oPrint << endl; Count = 0; } }
-		for (int n = 0; n < SampleRateList.size(); ++n) { int Rate = SampleRateList[n]; oPrint << "2 * Pi per sample: " << Tau / Rate; ++Count; if (Count >= 5) { oPrint << endl; Count = 0; } }
+		for (int n = 0; n < SampleRateList().size(); ++n) { int Rate = SampleRateList()[n]; oPrint << "hz: " << Rate; ++Count; if (Count >= 5) { oPrint << endl; Count = 0; } }
+		for (int n = 0; n < SampleRateList().size(); ++n) { int Rate = SampleRateList()[n]; oPrint << "ms per sample: " << 1000.0 / Rate; ++Count; if (Count >= 5) { oPrint << endl; Count = 0; } }
+		for (int n = 0; n < SampleRateList().size(); ++n) { int Rate = SampleRateList()[n]; oPrint << "2 * Pi per sample: " << TAU / Rate; ++Count; if (Count >= 5) { oPrint << endl; Count = 0; } }
 	}
 	oPrint.close();
 }

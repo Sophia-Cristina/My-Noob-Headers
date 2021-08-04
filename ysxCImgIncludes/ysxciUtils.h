@@ -87,31 +87,26 @@ CImg<unsigned char> ExpandImg(CImg<unsigned char> Img, int Size, char Side)
 
 // ############## GRAFICOS:
 
-// BARRAS (MODIFIQUE PELA LINE DO CIMG PARA FICAR MAIS RAPIDO):
-void AdcBarra(CImg<unsigned char>& Img, bool Eixox, int a, int b, int Espsr, int Eixo, int R, int G, int B) // bool Eixox, int a, int b, int Espessura, int Eixo, int Transparencia (%), int R, int G, int B (R)
+// BARS:
+// If xAxis, then 'a = x0', 'b = x1', and 'Axis = y'
+// If !xAxis, then 'a = y0', 'b = y1', and 'Axis = x'
+void DrawBar(CImg<unsigned char>& Img, bool xAxis, int a, int b, int Thickness, int Axis, int R, int G, int B) // bool Eixox, int a, int b, int Espessura, int Eixo, int Transparencia (%), int R, int G, int B (R)
 {
-	if (Espsr < 1) { Espsr = 1; }
-	int Espessura = Espsr, EspCount = 0;
-	if (Eixox == true)
+	if (Thickness < 1) { Thickness = 1; }
+	if (xAxis)
 	{
-		for (EspCount = 1; EspCount <= Espessura; ++EspCount)
+		for (short C = 0; C < Thickness; ++C)
 		{
-			for (int x = a; x < b + 1; ++x)
-			{
-				unsigned char color[] = { R, G, B };
-				Img.draw_point(x, Eixo + EspCount - 1, color);
-			}
+			unsigned char c[] = { R, G, B };
+			Img.draw_line(a, Axis + C, b, Axis + C, c);
 		}
 	}
 	else
 	{
-		for (EspCount = 1; EspCount <= Espessura; ++EspCount)
+		for (short C = 0; C < Thickness; ++C)
 		{
-			for (int y = a; y < b + 1; ++y)
-			{
-				unsigned char color[] = { R, G, B };
-				Img.draw_point(Eixo + EspCount - 1, y, color);
-			}
+			unsigned char c[] = { R, G, B };
+			Img.draw_line(Axis + C, a, Axis + C, b, c);
 		}
 	}
 }
@@ -123,20 +118,40 @@ CImg<unsigned char> AdcBorda(CImg<unsigned char> Img, int BordaX, int BordaY, in
 	int Sizex = GradeX + (BordaY * 2), Sizey = GradeY + (BordaX * 2);
 	CImg<unsigned char> ThisImg(Sizex, Sizey, 1, 3, 0);
 	ThisImg.draw_image(BordaX, BordaY, Img);
-	AdcBarra(ThisImg, false, 0, Sizey, BordaY, 0, R, G, B);
-	AdcBarra(ThisImg, false, 0, Sizey, BordaY, Sizex - BordaY, R, G, B);
-	AdcBarra(ThisImg, true, BordaY, Sizex - (BordaY + 1), BordaX, 0, R, G, B);
-	AdcBarra(ThisImg, true, BordaY, Sizex - (BordaY + 1), BordaX, Sizey - BordaX, R, G, B);
+	DrawBar(ThisImg, false, 0, Sizey, BordaY, 0, R, G, B);
+	DrawBar(ThisImg, false, 0, Sizey, BordaY, Sizex - BordaY, R, G, B);
+	DrawBar(ThisImg, true, BordaY, Sizex - (BordaY + 1), BordaX, 0, R, G, B);
+	DrawBar(ThisImg, true, BordaY, Sizex - (BordaY + 1), BordaX, Sizey - BordaX, R, G, B);
 	return (ThisImg);
 }
 
 // ENCAIXOTAR:
 void Box(CImg<unsigned char>& Img, int x1, int y1, int sizex, int sizey, int R, int G, int B)
 {
-	AdcBarra(Img, false, y1, y1 + sizey, 1, x1, R, G, B);
-	AdcBarra(Img, false, y1, y1 + sizey, 1, x1 + sizex, R, G, B);
-	AdcBarra(Img, true, x1, x1 + sizex, 1, y1, R, G, B);
-	AdcBarra(Img, true, x1, x1 + sizex, 1, y1 + sizey, R, G, B);
+	DrawBar(Img, false, y1, y1 + sizey, 1, x1, R, G, B);
+	DrawBar(Img, false, y1, y1 + sizey, 1, x1 + sizex, R, G, B);
+	DrawBar(Img, true, x1, x1 + sizex, 1, y1, R, G, B);
+	DrawBar(Img, true, x1, x1 + sizex, 1, y1 + sizey, R, G, B);
+}
+
+// BOX MATRIX:
+void BoxMatrix(CImg<unsigned char>& Img, int Border, int Divx, int Divy, int R, int G, int B)
+{
+	int Height = Img.height(), Width = Img.width();
+	DrawBar(Img, false, Border, Height - Border, Border, 0, R, G, B);
+	DrawBar(Img, false, Border, Height - Border, Border, Width - Border, R, G, B);
+	DrawBar(Img, true, 0, Width, Border, 0, R, G, B);
+	DrawBar(Img, true, 0, Width, Border, Height - Border, R, G, B);
+	if (Divx == 0) { Divx = 1; } if (Divy == 0) { Divy = 1; } // No division by zero!
+	double HD = (double)Height / Divy, WD = (double)Width / Divx;
+	for (int n = 1; n < Divx; ++n)
+	{
+		DrawBar(Img, false, Border, Height - Border, Border, n * WD - Border * 0.5, R, G, B);
+	}
+	for (int n = 1; n < Divy; ++n)
+	{
+		DrawBar(Img, true, Border, Width - Border, Border, n * HD - Border * 0.5, R, G, B);
+	}
 }
 
 // CRIA IMAGEM DE UM RETANGULO ENCAIXOTADO E COM TEXTO (OBS.: A DUAS BORDAS DEVEM SER MAIOR QUE ZERO PARA TER BORDAS, PREGUIÇA DE FAZER UM FUNÇÃO SÓ PARA DESENHAR ISSO):
@@ -146,7 +161,7 @@ CImg<unsigned char> RetCell(int Sizex, int Sizey, int Borderx, int Bordery, stri
 	CImg<unsigned char> Cell(Sizex - Bordery, Sizey - Borderx, 1, 3, 0);
 	if (Borderx > 0 && Bordery > 0) { Cell = AdcBorda(Cell, Borderx, Bordery, 255 - Color[0], 255 - Color[1], 255 - Color[2]); }
 	FillArea(Cell, Sizex * 0.5, Sizey * 0.5, Color[0], Color[1], Color[2]);
-	AdcTexto(Cell, Sizex * 0.25, Sizey * 0.25, Text, 255 - Color[0], 255 - Color[1], 255 - Color[2]);
+	AddText(Cell, Sizex * 0.25, Sizey * 0.25, Text, 255 - Color[0], 255 - Color[1], 255 - Color[2]);
 	return(Cell);
 }
 

@@ -218,36 +218,12 @@ Point3D LinearRGB(double n, double Lum, double Cont)
 	int R = 0, G = 0, B = 0;
 	double m;
 
-	if (n <= 1.0 / 6)
-	{
-		m = n * 6;
-		R = 255; G = round(255 * m); B = 0;
-	}
-	if (n <= 2.0 / 6 && n > 1.0 / 6)
-	{
-		m = (n - (1.0 / 6)) * 6;
-		R = round(255 - (255 * m)); G = 255; B = 0;
-	}
-	if (n <= 3.0 / 6 && n > 2.0 / 6)
-	{
-		m = (n - (2.0 / 6)) * 6;
-		R = 0; G = 255;	B = round(255 * m);
-	}
-	if (n <= 4.0 / 6 && n > 3.0 / 6)
-	{
-		m = (n - (3.0 / 6)) * 6;
-		R = 0; G = round(255 - (255 * m)); B = 255;
-	}
-	if (n <= 5.0 / 6 && n > 4.0 / 6)
-	{
-		m = (n - (4.0 / 6)) * 6;
-		R = round(255 * m); G = 0; B = 255;
-	}
-	if (n <= 6.0 / 6 && n > 5.0 / 6)
-	{
-		m = (n - (5.0 / 6)) * 6;
-		R = 255; G = 0; B = round(255 - (255 * m));
-	}
+	if (n <= 1.0 / 6) {	m = n * 6; R = 255; G = round(255 * m); B = 0; }
+	if (n <= 2.0 / 6 && n > 1.0 / 6) { m = (n - (1.0 / 6)) * 6; R = round(255 - (255 * m)); G = 255; B = 0;	}
+	if (n <= 3.0 / 6 && n > 2.0 / 6) { m = (n - (2.0 / 6)) * 6; R = 0; G = 255;	B = round(255 * m); }
+	if (n <= 4.0 / 6 && n > 3.0 / 6) { m = (n - (3.0 / 6)) * 6; R = 0; G = round(255 - (255 * m)); B = 255; }
+	if (n <= 5.0 / 6 && n > 4.0 / 6) { m = (n - (4.0 / 6)) * 6;	R = round(255 * m); G = 0; B = 255;	}
+	if (n <= 6.0 / 6 && n > 5.0 / 6) { m = (n - (5.0 / 6)) * 6; R = 255; G = 0; B = round(255 - (255 * m));	}
 
 	// Contraste:
 	if (R > 127) { R = R - ((R - 127) * (1 - Cont)); } if (R < 127) { R = R + ((127 - R) * (1 - Cont)); }
@@ -261,6 +237,37 @@ Point3D LinearRGB(double n, double Lum, double Cont)
 	// Limite:
 	if (R > 255) { R = 255; } if (G > 255) { G = 255; } if (B > 255) { B = 255; }
 	Point3D RGB; RGB.x = R; RGB.y = G; RGB.z = B;
+	return(RGB);
+}
+
+// Returns unsignec char[3]:
+unsigned char* LinearRGBuc(double n, double Lum, double Cont)
+{
+	if (n < 0.0) { n *= -1; } if (n > 1.0) { n = n - floor(n); }
+	if (Lum > 2.0) { Lum = 2.0; } if (Lum < 0.0) { Lum = 0.0; }
+	if (Cont > 1.0) { Cont = 1.0; } if (Cont < 0.0) { Cont = 0.0; }
+	int R = 0, G = 0, B = 0;
+	double m;
+
+	if (n <= 1.0 / 6) { m = n * 6; R = 255; G = round(255 * m); B = 0; }
+	if (n <= 2.0 / 6 && n > 1.0 / 6) { m = (n - (1.0 / 6)) * 6; R = round(255 - (255 * m)); G = 255; B = 0; }
+	if (n <= 3.0 / 6 && n > 2.0 / 6) { m = (n - (2.0 / 6)) * 6; R = 0; G = 255;	B = round(255 * m); }
+	if (n <= 4.0 / 6 && n > 3.0 / 6) { m = (n - (3.0 / 6)) * 6; R = 0; G = round(255 - (255 * m)); B = 255; }
+	if (n <= 5.0 / 6 && n > 4.0 / 6) { m = (n - (4.0 / 6)) * 6;	R = round(255 * m); G = 0; B = 255; }
+	if (n <= 6.0 / 6 && n > 5.0 / 6) { m = (n - (5.0 / 6)) * 6; R = 255; G = 0; B = round(255 - (255 * m)); }
+
+	// Contraste:
+	if (R > 127) { R = R - ((R - 127) * (1 - Cont)); } if (R < 127) { R = R + ((127 - R) * (1 - Cont)); }
+	if (G > 127) { G = G - ((G - 127) * (1 - Cont)); } if (G < 127) { G = G + ((127 - G) * (1 - Cont)); }
+	if (B > 127) { B = B - ((B - 127) * (1 - Cont)); } if (B < 127) { B = B + ((127 - B) * (1 - Cont)); }
+
+	// Luminosidade:
+	if (Lum <= 1.0) { R = round(R * Lum); G = round(G * Lum); B = round(B * Lum); }
+	if (Lum > 1.0) { if (R == 0) { R = 1; } if (G == 0) { G = 1; } if (B == 0) { B = 1; } double LumMath = 255 * (Lum - 1); R = R + LumMath; G = G + LumMath; B = B + LumMath; }
+
+	// Limite:
+	if (R > 255) { R = 255; } if (G > 255) { G = 255; } if (B > 255) { B = 255; }
+	unsigned char RGB[] = { R, G, B };
 	return(RGB);
 }
 

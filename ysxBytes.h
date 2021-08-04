@@ -6,7 +6,26 @@
 #include <vector>
 
 // #####################################################################################################################################
-// ####### CONSTANTES UNIVERSAIS #######
+
+#define LOOP8 for(char n = 0; n < 8; ++n)
+
+// #####################################################################################################################################
+// #####################################################################################################################################
+// #####################################################################################################################################
+
+std::string ANDstr(std::string A, std::string B) { std::string C; for (int n = 0; n < A.size(); ++n) { if (n < B.size()) { C.push_back(A[n] & B[n]); } } }
+std::string ORstr(std::string A, std::string B) { std::string C; for (int n = 0; n < A.size(); ++n) { if (n < B.size()) { C.push_back(A[n] | B[n]); } } }
+std::string XORstr(std::string A, std::string B) { std::string C; for (int n = 0; n < A.size(); ++n) { if (n < B.size()) { C.push_back(A[n] ^ B[n]); } } }
+std::string NOTstr(std::string A) { std::string B; for (int n = 0; n < A.size(); ++n) { B.push_back(~A[n]); } }
+std::string RSHFstr(std::string A, unsigned char i) { std::string B; for (int n = 0; n < A.size(); ++n) { B.push_back(A[n] >> i); } }
+std::string LSHFstr(std::string A, unsigned char i) { std::string B; for (int n = 0; n < A.size(); ++n) { B.push_back(A[n] << i); } }
+
+// #####################################################################################################################################
+// #####################################################################################################################################
+// #####################################################################################################################################
+
+// #####################################################################################################################################
+// ####### UNIVERSAL CONSTANTS #######
 
 // Numeric way to use Hexadecimals:
 const char HexChars[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
@@ -21,6 +40,18 @@ std::string Hex2ASCII(std::string hex) // Geeksforgeeks functions to convert Hex
 	{
 		std::string part = hex.substr(i, 2);
 		char ch = stoul(part, nullptr, 16);
+		ASCII += ch;
+	}
+	return ASCII;
+}
+
+std::string Bin2ASCII(std::string BIN) // Geeksforgeeks functions to convert Hex to ASCII
+{
+	std::string ASCII = "";
+	for (size_t i = 0; i < BIN.length(); i += 2)
+	{
+		std::string part = BIN.substr(i, 2);
+		char ch = stoul(part, nullptr, 2);
 		ASCII += ch;
 	}
 	return ASCII;
@@ -53,7 +84,42 @@ long long Hex2Dec(std::string Hex)
 	return(Sum);
 }
 
+// GET AN UCHAR ARRAY AND ADDS STRING BYTES ON IT, PLEASE, USE CORRECT ARRAY SIZE, IT USES POINTER:
+void str2uchar(std::string s, unsigned char* Array, unsigned int Size) { for (int n = 0; n < Size; ++n) { if (n < s.size()) { Array[n] = s[n]; } else { Array[n] = 0; } } }
+
+// GET AN UCHAR ARRAY AND ADD BYTES TO A NEW STRING, PLEASE, USE CORRECT ARRAY SIZE, IT USES POINTER:
+std::string uchar2str(unsigned char* Array, unsigned int Size) { std::string s; for (int n = 0; n < Size; ++n) { s.push_back(Array[n]); } return(s); }
+
 // #####################################################################################################################################
+
+// #####################################################################################################################################
+// ####### STRINGS #######
+
+// TURN STRING TO ARRAY OF DOUBLES (IGNORE LAST BYTES IF < SIZEOF(DOUBLE)):
+std::vector<double> str2vdouble(std::string s) // NOT TESTED YET
+{
+	char Size = sizeof(double);
+	std::vector<double> v(floor(s.size() / 8.0));
+	for (unsigned int n = 0; n < s.size() - Size; n += Size) { memcpy(&v[n], &s[n], Size); }
+}
+std::vector<float> str2vfloat(std::string s) // NOT TESTED YET
+{
+	char Size = sizeof(float);
+	std::vector<float> v(floor(s.size() / 8.0));
+	for (unsigned int n = 0; n < s.size() - Size; n += Size) { memcpy(&v[n], &s[n], Size); }
+}
+std::vector<int> str2vint(std::string s) // NOT TESTED YET
+{
+	char Size = sizeof(int);
+	std::vector<int> v(floor(s.size() / 8.0));
+	for (unsigned int n = 0; n < s.size() - Size; n += Size) { memcpy(&v[n], &s[n], Size); }
+}
+std::vector<short> str2vshort(std::string s) // NOT TESTED YET
+{
+	char Size = sizeof(short);
+	std::vector<short> v(floor(s.size() / 8.0));
+	for (unsigned int n = 0; n < s.size() - Size; n += Size) { memcpy(&v[n], &s[n], Size); }
+}
 
 // #####################################################################################################################################
 // ####### ARRAYS #######
@@ -63,7 +129,7 @@ void InvertArray(char c[], char* pt)
 {
 	const int Size = sizeof c; char t[Size];
 	for (int n = 0; n < Size; ++n) { t[Size - 1 - n] = c[n]; }
-	for (int n = 0; n < Size; ++n) { *(pt + n) = t[n]; }
+	memcpy(c, t, Size); //for (int n = 0; n < Size; ++n) { *(pt + n) = t[n]; }
 }
 
 // BUFFER TO DATA:

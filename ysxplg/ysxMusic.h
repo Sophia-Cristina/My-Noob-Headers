@@ -20,9 +20,9 @@ double BeatsinTime(int Min, int Sec, double BPM) { return(Time2ms(Min, Sec) / BP
 double samptoms(double samp, double samprate) { return((samp * 1000.0) / samprate); } // Dada quantia de samples que passaram, quanto isso significa em milissegundos
 double mstosamp(double ms, double samprate) { return((ms / samprate) / 1000.0); } // Dada quantia de milissegundos que passaram, quanto isso significa em numero de samples
 double SamplesinMS(double ms, int SampleRate) { return((ms * SampleRate) / 1000); } // How much samples have in x miliseconds
-double Tau2Samples(int SampleRate) { return(SampleRate / Tau); } // SamplesRate divided by tau | 44100 / 6.2831 = 7018.7329903525843074077739647279
-double Sample_n2Rad(int n, int SampleRate) { return(Tau * (n / SampleRate)); } // If the SampleRate was a table, 'n' would be the index, when 'n = TableSize', the function returns 2*PI
-double Rad2Sample_n(double x, int SampleRate) { return((x / Tau) * SampleRate); } // If the SampleRate was a table, the return would be the index, when 'x = 2*PI', the function returns SampleRate (ex.: 2*PI / 2*PI) * 44100)
+double TAU2Samples(int SampleRate) { return(SampleRate / TAU); } // SamplesRate divided by tau | 44100 / 6.2831 = 7018.7329903525843074077739647279
+double Sample_n2Rad(int n, int SampleRate) { return(TAU * (n / SampleRate)); } // If the SampleRate was a table, 'n' would be the index, when 'n = TableSize', the function returns 2*PI
+double Rad2Sample_n(double x, int SampleRate) { return((x / TAU) * SampleRate); } // If the SampleRate was a table, the return would be the index, when 'x = 2*PI', the function returns SampleRate (ex.: 2*PI / 2*PI) * 44100)
 
 // ############################
 // ####### Notas e Patterns:

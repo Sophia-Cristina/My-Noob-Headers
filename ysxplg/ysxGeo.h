@@ -72,11 +72,11 @@
 
 // ####### TÉCNICOS:
 // CONVERSORES:
-double Ang2Rad(double a) { return((a / 360) * Tau); }
-double Rad2Ang(double r) { return((r / Tau) * 360); }
+double Ang2Rad(double a) { return((a / 360) * TAU); }
+double Rad2Ang(double r) { return((r / TAU) * 360); }
 
 // PI E ANGULOS:
-double PiRatio(double Div) { return (Pi / Div); }
+double PiRatio(double Div) { return (PI / Div); }
 double AngRatio(double Div) { return (360.0 / Div); }
 
 // FUNÇÕES:
@@ -85,15 +85,15 @@ double sec(double x) { return(1.0 / cos(x)); }
 double cot(double x) { return(1.0 / tan(x)); }
 double versin(double x) { return(1.0 - cos(x)); }
 double exsec(double x) { return((1.0 / cos(x)) - 1.0); }
-double excsc(double x) { return(exsec((Pi * 0.5) - x)); }
+double excsc(double x) { return(exsec((PI * 0.5) - x)); }
 double crd(double x) { return(2.0 * sin(x * 0.5)); }
 double cos2(double x) { return(cos(x) * cos(x)); }
 double sin2(double x) { return(sin(x) * sin(x)); }
 //double rect(double x) { if (sin(x) > 0) { return(1); } else if (sin(x) < 0) { return(-1); } else { return(0); } }
-double rect(double x) { x /= Tau; x -= floor(x); return (x < 0.5 ? 1 : -1); }
-double saw(double x) { x /= Tau; x -= floor(x); x = (x * 2) - 1; return (x); }
-double phasor(double x) { x /= Tau; x -= floor(x); return (x); }
-double tri(double x) { int f = floor(((2 * x) / Tau) + 0.5); x = (4 / Tau) * (x - Pi * f) * pow(-1, f); return (x); }
+double rect(double x) { x /= TAU; x -= floor(x); return (x < 0.5 ? 1 : -1); }
+double saw(double x) { x /= TAU; x -= floor(x); x = (x * 2) - 1; return (x); }
+double phasor(double x) { x /= TAU; x -= floor(x); return (x); }
+double tri(double x) { int f = floor(((2 * x) / TAU) + 0.5); x = (4 / TAU) * (x - PI * f) * pow(-1, f); return (x); }
 
 
 // #####################################################################################################################################
@@ -217,7 +217,7 @@ double TriInradius(double a, double b, double c) { double s = (a + b + c) * 0.5;
 double TriIncenter(double a, double b, double Ang) // Lenght from 'I' to 'B'
 {
 	double Gamma = Ang2Rad(Ang), c = LawCos(a, b, Gamma), BisL = TriBisAct(a, b, Ang);
-	double Beta = LawSinAngle(a, b, Gamma); if (a < cos(Gamma) * b) { Beta = Pi - Beta; } double Alpha = Pi - (Gamma + Beta);
+	double Beta = LawSinAngle(a, b, Gamma); if (a < cos(Gamma) * b) { Beta = PI - Beta; } double Alpha = PI - (Gamma + Beta);
 	double Inc = TriBisAct(BisL, c, Rad2Ang(Alpha * 0.5)); return(Inc);
 }
 
@@ -265,12 +265,12 @@ double CuboidSpcDia(double a, double b, double c) { return(sqrt(a * a + b * b + 
 // #####################
 
 // ####### CIRCUNFERENCIA E AREA:
-double CircAr(double r) { return (Pi * r * r); } // Area
-double CircAr(double r, double Rad) { if (Rad > Tau) { Rad = Tau; } return((Rad * r * r) / 2.0); } //  return((Pi * r * r) * (Rad / Tau)); }
-double Circumf(double r) { return (Tau * r); } // Circumferencia
+double CircAr(double r) { return (PI * r * r); } // Area
+double CircAr(double r, double Rad) { if (Rad > TAU) { Rad = TAU; } return((Rad * r * r) / 2.0); } //  return((PI * r * r) * (Rad / TAU)); }
+double Circumf(double r) { return (TAU * r); } // Circumferencia
 
 // RAIO DO CIRCULO ATRAVEZ DA AREA:
-double CircAr2r(double AreaC) { return(sqrt(AreaC / Pi)); }
+double CircAr2r(double AreaC) { return(sqrt(AreaC / PI)); }
 
 // AREA DO QUADRADO ATRAVEZ DA AREA DO CIRCULO:
 double CircArSqrAr(double AreaC) { return(pow((CircAr2r(AreaC) * 2), 2)); }
@@ -278,7 +278,7 @@ double CircArSqrAr(double AreaC) { return(pow((CircAr2r(AreaC) * 2), 2)); }
 // AREA DO SETOR SOBREPOSTO DE DOIS CIRCULOS:
 double OverlapArea(double Distance, double r)
 {
-	if (Distance == 0) { return (Pi * r * r); }	if (Distance >= 2 * r) { return (0); }
+	if (Distance == 0) { return (PI * r * r); }	if (Distance >= 2 * r) { return (0); }
 	double HalfAngle = acos(Distance / (2 * r)); double b = TriSide(r, Distance * 0.5); double TriArea = b * Distance * 0.5;
 	double AreaSeg = HalfAngle * r * r; return ((AreaSeg - TriArea) * 2);
 }
@@ -291,10 +291,10 @@ double OverlapArea(double Distance, double r)
 // #####################
 
 // VOLUME E AREA:
-double SphereSurf(double r) { return (4 * Pi * pow(r, 2)); }
-double SphereVol(double r) { return ((4.0 / 3) * Pi * pow(r, 3)); }
-double SphericalSegV(double h, double r1, double r2) { return(((Pi * h) / 6) * (3 * r1 * r1 + 3 * r2 * r2 + h * h)); }
-double SphericalSegA(double R, double h) { return(2 * Pi * R * h); }
+double SphereSurf(double r) { return (4 * PI * pow(r, 2)); }
+double SphereVol(double r) { return ((4.0 / 3) * PI * pow(r, 3)); }
+double SphericalSegV(double h, double r1, double r2) { return(((PI * h) / 6) * (3 * r1 * r1 + 3 * r2 * r2 + h * h)); }
+double SphericalSegA(double R, double h) { return(2 * PI * R * h); }
 
 // #####################################################################################################################################
 // #####################################################################################################################################
@@ -304,9 +304,9 @@ double SphericalSegA(double R, double h) { return(2 * Pi * R * h); }
 // #####################
 
 // VOLUME E AREA:
-double CylinSurf(double r, double h) { return(Pi * r * r * h); }
-double CylinVol(double r, double h) { return(Pi * r * r * h); }
-double CylinLatArea(double r, double h) { return(2 * Pi * r * h); }
+double CylinSurf(double r, double h) { return(PI * r * r * h); }
+double CylinVol(double r, double h) { return(PI * r * r * h); }
+double CylinLatArea(double r, double h) { return(2 * PI * r * h); }
 
 // #####################################################################################################################################
 // #####################################################################################################################################
@@ -316,10 +316,10 @@ double CylinLatArea(double r, double h) { return(2 * Pi * r * h); }
 // #####################
 
 // VOLUME E AREA:
-double ConeSurf(double lenght, double r) { return(Pi * r * (lenght + r)); }
-double ConeVol(double r, double h) { return((Pi * r * r * h) / 3); }
-double FrustrumSurf(double r1, double r2, double s) { return(Pi * (r1 + r2) * s); }
-double FrustrumVol(double h, double r1, double r2) { return(((Pi * h) / 3) * (r1 * r1 + r1 * r2 + r2 * r2)); }
+double ConeSurf(double lenght, double r) { return(PI * r * (lenght + r)); }
+double ConeVol(double r, double h) { return((PI * r * r * h) / 3); }
+double FrustrumSurf(double r1, double r2, double s) { return(PI * (r1 + r2) * s); }
+double FrustrumVol(double h, double r1, double r2) { return(((PI * h) / 3) * (r1 * r1 + r1 * r2 + r2 * r2)); }
 
 // ####### ####### ####### ####### ####### #######
 // ####### ####### ####### ####### ####### #######

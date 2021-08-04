@@ -28,7 +28,7 @@ CImg<unsigned char> PaintHueRGBGapMod(CImg<unsigned char> I, double Phase, doubl
 	{
 		if (InsideRGBGap(VP[n].RGB, R0, R1, G0, G1, B0, B1))
 		{
-			double Hue = ModForm(((double)n / VP.size() * Tau) + Phase, Omega);
+			double Hue = ModForm(((double)n / VP.size() * TAU) + Phase, Omega);
 			Point3D C = LinearRGB(Hue, 1, 1);
 			unsigned char UC[] = { C.x, C.y, C.z };
 			I.draw_point(VP[n].x, VP[n].y, UC);

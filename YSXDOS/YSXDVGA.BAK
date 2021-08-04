@@ -91,14 +91,6 @@ AH = 00
 const unsigned char ModeSetVGA = 0x00; // Use this to change modes
 const unsigned char VideoIntVGA = 0x10; // Video Interruptor
 
-struct PixelVGA { unsigned short x, y; unsigned char I; }; // coordinates 'x' and 'y' and then the palette index (256 colors)
-
-// #################################################
-// ####### FORWARD DECLARATIONS #######
-void PlotPixelVGA(int, int, int, unsigned char);
-void PixelMode(int, int, unsigned char);
-// #################################################
-
 // #################################################
 // ####### FUNÇÕES #######
 // #################################################
@@ -106,7 +98,22 @@ void PixelMode(int, int, unsigned char);
 // SET VIDEO MODE:
 // https://stanislavs.org/helppc/int_10-0.html [3]
 
+// #################################################
+// ####### PIXELS:
 
+// PLOT PIXEL:
+void PlotPixelVGA(int x, int y, int ScreenWidth, unsigned char ColorIndex) { VGA[y * ScreenWidth + x] = ColorIndex; }
+
+void PixelMode(int x, int y, unsigned char ColorIndex)
+{
+	union REGS regs;
+
+	regs.h.ah = 0x0C; // BIOS function to plot pixel
+	regs.h.al = ColorIndex;
+	regs.x.cx = x;
+	regs.x.dx = y;
+	int86(0x10, &regs, &regs);
+}
 
 // #################################################
 // ####### CLASSES #######

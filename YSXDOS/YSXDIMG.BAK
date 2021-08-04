@@ -194,7 +194,7 @@ public:
 		if (fd != NULL)
 		{
 			fread((char *)&R, 1, 1, fd);
-			//cout << "READ CHAR: " << (char)R << " | INT: " << (int)R << endl;
+			cout << "READ CHAR: " << (char)R << " | INT: " << (int)R << endl;
 			if ((char)R == 'M')
 			{
 				fread((char *)&R, 1, 1, fd);
