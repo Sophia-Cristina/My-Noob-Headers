@@ -32,7 +32,7 @@
 // ############## PAL16L8 EPROM ##############
 
 // #################################################
-// ############## SN7400 ############## // [T1]
+// ############## SN7400 FOUR NAND ############## // [T1]
 // https://en.wikipedia.org/wiki/7400-series_integrated_circuits
 
 /*
@@ -59,7 +59,7 @@
 	|L|x||H|
 	|x|L||H|
 
-	// MY TEMPLATE, U8:
+	// MY TEMPLATE, U8 ADDRESS:
 	//  1   1   0   1 |  1   0   0   1 = 217
 	// 4B, 4A, 3B, 3A | 2B, 2A, 1B, 1A
 */
@@ -76,7 +76,7 @@ public:
 	TTL_SN7400_FourNAND_Chip(CompConfig& InConfig)
 	{
 		Config = &InConfig;
-		if (Config->Volts > 7) { Config->Volts = 7; } // !!! THIS IS THE SUPPLY VOLT, INPUT MAX IS 5.5v !!!
+		if (Config->Volts > 5.5) { Config->Volts = 5.5; } // !!! THIS IS THE INPUT VOLT, MAX IS 5.5v !!!
 		Signals = std::vector<std::vector<double>>::vector(9); // 8 Inputs + Vcc
 		std::vector<double> s(Config->Samples);
 		for (int n = 0; n < 9; ++n) { Signals[n] = s; }
@@ -89,24 +89,24 @@ public:
 		{
 			if (Sigs > 0)
 			{
-				//  		 nA						 nB																	 5.5v to 16mA
-				if ((Signals[A1][n] > 2) && (Signals[B1][n] > 2)) { Y->Signals[0][n] = (Signals[A1][n] + Signals[B1][n]) * 0.00290909; }
-				else { Y->Signals[0][n] = ((Signals[A1][n] + Signals[B1][n]) * 0.5); }
+				//  		 nA						 nB											    16mA
+				if ((Signals[A1][n] > 2) && (Signals[B1][n] > 2)) { Y->Signals[0][n] = NoiseSample(0.016, 0.006); }
+				else { Y->Signals[0][n] = NoiseSample(5.125, Config->NoiseGain); }
 			}
 			if (Sigs > 1)
 			{
-				if ((Signals[A2][n] > 2) && (Signals[B2][n] > 2)) { Y->Signals[1][n] = (Signals[A2][n] + Signals[B2][n]) * 0.00290909; }
-				else { Y->Signals[1][n] = ((Signals[A2][n] + Signals[B2][n]) * 0.5); }
+				if ((Signals[A2][n] > 2) && (Signals[B2][n] > 2)) { Y->Signals[1][n] = NoiseSample(0.016, 0.006); }
+				else { Y->Signals[1][n] = NoiseSample(5.125, Config->NoiseGain); }
 			}
 			if (Sigs > 2)
 			{
-				if ((Signals[A3][n] > 2) && (Signals[B3][n] > 2)) { Y->Signals[2][n] = (Signals[A3][n] + Signals[B3][n]) * 0.00290909; }
-				else { Y->Signals[2][n] = ((Signals[A3][n] + Signals[B3][n]) * 0.5); }
+				if ((Signals[A3][n] > 2) && (Signals[B3][n] > 2)) { Y->Signals[2][n] = NoiseSample(0.016, 0.006); }
+				else { Y->Signals[2][n] = NoiseSample(5.125, Config->NoiseGain); }
 			}
 			if (Sigs > 3)
 			{
-				if ((Signals[A4][n] > 2) && (Signals[B4][n] > 2)) { Y->Signals[3][n] = (Signals[A4][n] + Signals[B4][n]) * 0.00290909; }
-				else { Y->Signals[3][n] = ((Signals[A4][n] + Signals[B4][n]) * 0.5); }
+				if ((Signals[A4][n] > 2) && (Signals[B4][n] > 2)) { Y->Signals[3][n] = NoiseSample(0.016, 0.006); }
+				else { Y->Signals[3][n] = NoiseSample(5.125, Config->NoiseGain); }
 			}
 		}
 		Y->ProcessSignal();
@@ -138,12 +138,22 @@ public:
 	}
 
 	// DUMP ALL POSSIBLE COMBINATIONS:
-	void GetSequence()
+	void GetAllCombinations()
 	{
 		std::string s;
 		for (int n = 0; n < 256; ++n) { s.push_back(n); }
 		s = GetOuts(s);
 		ofstream O("!TTLSN7400.bin", ios::binary);
+		if (O.is_open()) { O.write((char*)&s[0], s.size()); }
+		else { std::cout << "\nCouldn't open file!\n"; }
+		O.close();
+	}
+
+	// DUMP A STRING RESULT (EACH CHAR BIT CORRESPONDS TO: B4A4B3A3B2A2B1A1):
+	void GetSequence(std::string s)
+	{
+		s = GetOuts(s);
+		ofstream O("!TTLSN7400.bin", ios::binary); // In fact, it could maybe be text-mode, since the string is in binary anyway
 		if (O.is_open()) { O.write((char*)&s[0], s.size()); }
 		else { std::cout << "\nCouldn't open file!\n"; }
 		O.close();
