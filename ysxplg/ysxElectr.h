@@ -209,6 +209,10 @@ void AddNoise(std::vector<double>& V, double NoiseGain)
         V[n] = V[n] - NoiseGain + Rand * NoiseGain;
     }
 }
+
+// NOISE SAMPLE:
+double NoiseSample(double Volts, double NoiseGain) { return(Volts - NoiseGain + NoiseGain * (((rand() % 20001) - 10000) / 10000.0)); }
+
 // ####################################################################################################################################################################################################
 // ####################################################################################################################################################################################################
 // ####################################################################################################################################################################################################
@@ -401,11 +405,11 @@ public:
     {
         if (OUTs.size() > 0)
         {
-            for (int n = 0; n < Signals.size(); ++n)
+            for (int n = 0; n < OUTs.size(); ++n)
             {
                 if (n < OUTs.size())
                 {
-                    *OUTs[n] = Signals[n]; // Load Signal
+                    *OUTs[n] = Signals[n % Signals.size()]; // Load Signal
                 }
                 else { break; }
             }
@@ -479,7 +483,7 @@ public:
 class Resistor : public Component
 {
 public:
-    double Ohms = 1; // Power supply will send this ammount of Volts to a wire
+    double Ohms = 1;
     Wire* Output;
 
     Resistor(double SetOhms)
@@ -523,7 +527,7 @@ public:
         double Val = Signals[SigIndex][SigSample % s];
         
         Red = round((Val / Volts) * 160);
-        unsigned char Whiteness = 0; if (Val > Volts * 0.75) { Whiteness = round((Val / Volts) * 0.25); }
+        unsigned char Whiteness = round(pow((Val / Volts), 7) * 63.0);
         unsigned char clr[] = { Red, Whiteness, Whiteness };
 
         I.draw_circle(LEDSize * 0.5, LEDSize * 0.5, LEDSize * 0.5, clr, 1, 1);
@@ -603,7 +607,7 @@ public:
         {
             std::vector<double> S = Signals[Signal];
             double Max = MaxVec(S); MultVecTerms(S, 1.0 / Max); MultVecTerms(S, 64);
-            if (Neg) { PrintVectorLineOnImg(Print, S, (Max / Volts) * 2, 47, 127, 47); }
+            if (Neg) { PrintVectorLineOnImg(Print, S, Max / Volts, 47, 127, 47); }
             else { PrintVectorLineOnImg(Print, S, Max / Volts, 47, 127, 47); }
         }
     }
@@ -654,8 +658,8 @@ public:
             for (char m = 0; m < Bits; ++m)
             {
                 double Val = Signals[SigIndex][(n * Bits + RowPage * Rows + m) % s];
-                Red = round((Val / Volts) * 160);
-                unsigned char Whiteness = 0; if (Val > Volts * 0.75) { Whiteness = round((Val / Volts) * 0.25); }
+                Red = round((Val / Volts) * 255);
+                unsigned char Whiteness = round(pow((Val / Volts), 7) * 63.0);
                 unsigned char clr[] = { Red, Whiteness, Whiteness };
                 int x = ((Bits - 1 - m) * LEDSize) + LEDSize * 0.5;
                 int y = n * LEDSize + LEDSize * 0.5;
@@ -687,7 +691,7 @@ public:
         {
             D.wait();
             if (D.is_keyARROWUP()) { ++Page; Page %= Signals[0].size(); Array = SeeArray(Signal, Page); D.display(Array); std::cout << "Signal: " << Signal << " | Page: " << Page << endl; }
-            if (D.is_keyARROWDOWN()) { ++Page; Page %= Signals[0].size(); Array = SeeArray(Signal, Page); D.display(Array); std::cout << "Signal: " << Signal << " | Page: " << Page << endl; }
+            if (D.is_keyARROWDOWN()) { --Page; Page %= Signals[0].size(); Array = SeeArray(Signal, Page); D.display(Array); std::cout << "Signal: " << Signal << " | Page: " << Page << endl; }
             if (D.is_keyARROWRIGHT()) { ++Signal; Signal %= Signals.size(); Array = SeeArray(Signal, Page); D.display(Array); std::cout << "Signal: " << Signal << " | Page: " << Page << endl; }
             if (D.is_keyARROWLEFT()) { --Signal; Signal %= Signals.size(); Array = SeeArray(Signal, Page); D.display(Array); std::cout << "Signal: " << Signal << " | Page: " << Page << endl; }
         }
