@@ -155,7 +155,7 @@ void BoxMatrix(CImg<unsigned char>& Img, int Border, int Divx, int Divy, int R, 
 }
 
 // CRIA IMAGEM DE UM RETANGULO ENCAIXOTADO E COM TEXTO (OBS.: A DUAS BORDAS DEVEM SER MAIOR QUE ZERO PARA TER BORDAS, PREGUIÇA DE FAZER UM FUNÇÃO SÓ PARA DESENHAR ISSO):
-CImg<unsigned char> RetCell(int Sizex, int Sizey, int Borderx, int Bordery, string Text, unsigned char Color[3])
+CImg<unsigned char> RetCell(int Sizex, int Sizey, int Borderx, int Bordery, std::string Text, unsigned char Color[3])
 {
 	if (Sizex <= Borderx) { Sizex = Borderx + 1; } if (Sizey <= Bordery) { Sizey = Bordery + 1; }
 	CImg<unsigned char> Cell(Sizex - Bordery, Sizey - Borderx, 1, 3, 0);
@@ -236,14 +236,14 @@ CImg<unsigned char> ValueBar(int Width, double Value, double Ratio, int Borderx,
 }
 
 // CRIA MATRIZ COM A FUNÇÃO DE CRIAR QUADRADOS:
-CImg<unsigned char> SqrMatrix(vector<CellBool> Matrix, int Sizex, int Sizey, bool Text, bool CleanFalse, unsigned char Color[3])
+CImg<unsigned char> SqrMatrix(std::vector<CellBool> Matrix, int Sizex, int Sizey, bool Text, bool CleanFalse, unsigned char Color[3])
 {
 	if (Sizex < 3) { Sizex = 3; } if (Sizey < 3) { Sizey = 3; }
 	int i, j; MaxSizeBoolMatrix(Matrix, i, j);
 	CImg<unsigned char> Squares((j + 1) * Sizex, (i + 1) * Sizey, 1, 3, 0);
 	for (int m = 0; m < Matrix.size(); ++m)
 	{
-		string Txt; if (Text) { Txt = to_string(m); } else { Txt = " "; }
+		std::string Txt; if (Text) { Txt = std::to_string(m); } else { Txt = " "; }
 		unsigned char Clr[] = { Color[0], Color[1], Color[2] };
 		if (!Matrix[m].b) { Clr[0] = 255 - Clr[0]; Clr[1] = 255 - Clr[1]; Clr[2] = 255 - Clr[2]; }
 		if (Matrix[m].b || (!Matrix[m].b && !CleanFalse))
@@ -256,7 +256,7 @@ CImg<unsigned char> SqrMatrix(vector<CellBool> Matrix, int Sizex, int Sizey, boo
 
 	return(Squares);
 }
-CImg<unsigned char> SqrMatrix(vector<double> Matrix, int Sizex, int Sizey, bool Text)
+CImg<unsigned char> SqrMatrix(std::vector<double> Matrix, int Sizex, int Sizey, bool Text)
 {
 	if (Sizex < 3) { Sizex = 3; } if (Sizey < 3) { Sizey = 3; }
 	double SqrtVec = sqrt(Matrix.size());
@@ -265,7 +265,7 @@ CImg<unsigned char> SqrMatrix(vector<double> Matrix, int Sizex, int Sizey, bool 
 	int cj = 0, ci = 0; // Count i or j
 	for (int m = 0; m < Matrix.size(); ++m)
 	{
-		string Txt; if (Text) { Txt = to_string(m) + ":\n" + to_string(Matrix[m]); } else { Txt = " "; }
+		std::string Txt; if (Text) { Txt = std::to_string(m) + ":\n" + std::to_string(Matrix[m]); } else { Txt = " "; }
 		Point3D RGB = LinearRGB((Matrix[m] * 1.0) / MaxVec(Matrix), 1, 1);
 		unsigned char Clr[] = { RGB.x, RGB.y, RGB.z };
 		CImg<unsigned char> Square = RetCell(Sizex, Sizey, 1, 1, Txt, Clr);
@@ -276,7 +276,7 @@ CImg<unsigned char> SqrMatrix(vector<double> Matrix, int Sizex, int Sizey, bool 
 	}
 	return(Squares);
 }
-CImg<unsigned char> SqrMatrix(vector<double> Matrix, int Sizex, int Sizey, int j, bool Text)
+CImg<unsigned char> SqrMatrix(std::vector<double> Matrix, int Sizex, int Sizey, int j, bool Text)
 {
 	if (Sizex < 3) { Sizex = 3; } if (Sizey < 3) { Sizey = 3; }
 	if (j > Matrix.size()) { j = Matrix.size(); }
@@ -286,7 +286,7 @@ CImg<unsigned char> SqrMatrix(vector<double> Matrix, int Sizex, int Sizey, int j
 	int cj = 0, ci = 0; // Count i or j
 	for (int m = 0; m < Matrix.size(); ++m)
 	{
-		string Txt; if (Text) { Txt = to_string(m) + ":\n" + to_string(Matrix[m]); }
+		std::string Txt; if (Text) { Txt = std::to_string(m) + ":\n" + std::to_string(Matrix[m]); }
 		else { Txt = " "; }
 
 		Point3D RGB = LinearRGB((Matrix[m] * 1.0) / MaxVec(Matrix), 1, 1);
@@ -309,7 +309,7 @@ CImg<unsigned char> SqrMatrix(CImg<unsigned char> Matrix, int Sizex, int Sizey, 
 		for (int n = 0; n < Matrix.height(); ++n)
 		{
 			Point3D RGB = BitmapRGB(Matrix, n, m);
-			string Txt; if (Text) { Txt = to_string(n + (j * m)) + ":\n" + to_string((RGB.x + RGB.y + RGB.z) / 3.0); }
+			std::string Txt; if (Text) { Txt = std::to_string(n + (j * m)) + ":\n" + std::to_string((RGB.x + RGB.y + RGB.z) / 3.0); }
 			else { Txt = " "; }
 			unsigned char Clr[] = { RGB.x, RGB.y, RGB.z };
 			CImg<unsigned char> Square = RetCell(Sizex, Sizey, 1, 1, Txt, Clr);

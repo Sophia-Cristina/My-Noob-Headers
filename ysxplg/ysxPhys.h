@@ -11,11 +11,11 @@ double DensityAir(double, double, double);
 // #####################
 // ####### FERRAMENTAS:
 struct Friction { double mus, muk, kg; }; // mus or muk * Fnormal = muk * (mass * gravity * cos(angle of inclination))
-void CoutFriction(Friction Fric) { cout << "mus: " << Fric.mus << " | muk: " << Fric.muk << " | kg: " << Fric.kg << endl; }
-void CoutFricVec(vector<Friction> Vec) { cout << endl; for (int n = 0; n < Vec.size(); ++n) { cout << n << ": "; CoutFriction(Vec[n]); } }
+void CoutFriction(Friction Fric) { std::cout << "mus: " << Fric.mus << " | muk: " << Fric.muk << " | kg: " << Fric.kg << std::endl; }
+void CoutFricVec(std::vector<Friction> Vec) { std::cout << std::endl; for (int n = 0; n < Vec.size(); ++n) { std::cout << n << ": "; CoutFriction(Vec[n]); } }
 struct Force { double Fx, Fy, N, Angle, kg, Accel; };
-void CoutFrc(Force Frc) { cout << "Fx: " << Frc.Fx << " | Fy: " << Frc.Fy << " | kg: " << Frc.kg << " | Angle: " << Frc.Angle << " | Accel.: " << Frc.Accel << endl; }
-void CoutFrcVec(vector<Force> Vec) { cout << endl; for (int n = 0; n < Vec.size(); ++n) { cout << n << ": "; CoutFrc(Vec[n]); } }
+void CoutFrc(Force Frc) { std::cout << "Fx: " << Frc.Fx << " | Fy: " << Frc.Fy << " | kg: " << Frc.kg << " | Angle: " << Frc.Angle << " | Accel.: " << Frc.Accel << std::endl; }
+void CoutFrcVec(std::vector<Force> Vec) { std::cout << std::endl; for (int n = 0; n < Vec.size(); ++n) { std::cout << n << ": "; CoutFrc(Vec[n]); } }
 struct Particle { double Force, Momentum, Velocity, Mass, Direction, /*Radians*/ x, y; /*Coordinates*/};
 
 // #####################
@@ -109,7 +109,7 @@ double ElecPowerRes(double V, double R) { return((V * V) / R); } // = R * I^2 = 
 // Total Energy (using miniform):
 double TotalSignalEnergy(double T, int n, double Omega) { if (n < 1) { n = 1; } double dt = T / n; double Sum = 0; for (int i = 1; i <= n; i++) Sum += MiniForm((-T) + (i - 0.5) * dt, Omega) * dt; return(Sum); }
 // Total Energy based on Discrete Time (depends on your vector):
-double TotalSignalEnergy(vector<double> V) { double Sum = 0; for (int n = 0; n < V.size(); ++n) { Sum += V[n] * V[n]; } return(Sum); }
+double TotalSignalEnergy(std::vector<double> V) { double Sum = 0; for (int n = 0; n < V.size(); ++n) { Sum += V[n] * V[n]; } return(Sum); }
 
 // Average Power (using miniform):
 double AveragePower(double T, int n, double Omega)
@@ -123,14 +123,14 @@ double AveragePower(double T, int n, double Omega)
 // Since the formula is based on signal and not c++ vectors, i will change it a little based on the principle that a vector begins at '0'.
 // Consequently the new formula is: P = Lim N -> inf (1 / N + 1) * SUM(x^2[n], 0, N)
 // Instead of: P = Lim N -> inf (1 / 2N + 1) * SUM(x^2[n], -N, N);
-double AveragePower(vector<double> V)
+double AveragePower(std::vector<double> V)
 {
 	double Sum = 0; int N = V.size();
 	for (int n = 0; n < N; ++n) { Sum += V[n] * V[n]; }
 	return((1.0 / (N + 1)) * Sum);
 }
 // LIVRO: 'caso de um sinal x[n] com período fundamental N':
-double AveragePowerFundPeriod(vector<double> V)
+double AveragePowerFundPeriod(std::vector<double> V)
 {
 	double Sum = 0; int N = V.size() - 1;
 	for (int n = 0; n < N; ++n) { Sum += V[n] * V[n]; }
@@ -139,9 +139,6 @@ double AveragePowerFundPeriod(vector<double> V)
 
 
 // VER PAGINA 14 DO LIVRO DE PROCESSAMENTO DE SINAIS PARA ROOT-MEAN-SQUARE BASEADO EM SINAL, PROVAVELMENTE sqrt(AveragePower());
-
-
-
 
 // #####################################################################################################################################
 // ######################################################## ACÚSTICA ########################################################
@@ -229,14 +226,14 @@ double SimpleHarmOsc(double Tht0, double T, double t, double phi) { return(Tht0 
 // #####################
 // ### MATRIZES:
 // CRIA MATRIZ DERIVADa DE OUTRA MATRIZ:
-vector<double> VecDeriv(vector<double> VecData, double dt)
-{ vector<double> Derivatives; for (int n = 1; n < VecData.size(); ++n) { Derivatives.push_back((VecData[n] - VecData[n - 1]) / dt); } return(Derivatives); }
+std::vector<double> VecDeriv(std::vector<double> VecData, double dt)
+{ std::vector<double> Derivatives; for (int n = 1; n < VecData.size(); ++n) { Derivatives.push_back((VecData[n] - VecData[n - 1]) / dt); } return(Derivatives); }
 
 // CRIA MATRIZ DE UMA ONDA SENO:
 // Distance in time, not space, how long it takes to end in 's'
-vector<double> NonStatWaveVec(int VectorSize, double SndSpeed, double Distance, double Watts, double Wrto, double Wavenumber, double Omega, double Phase)
+std::vector<double> NonStatWaveVec(int VectorSize, double SndSpeed, double Distance, double Watts, double Wrto, double Wavenumber, double Omega, double Phase)
 {
-	vector<double> ThisVector;
+	std::vector<double> ThisVector;
 	for (int tn = 0; tn < VectorSize; ++tn)
 	{
 		double tdiv = (1.0 * tn) / (VectorSize - 1);
@@ -249,11 +246,11 @@ vector<double> NonStatWaveVec(int VectorSize, double SndSpeed, double Distance, 
 }
 
 // CRIA MATRIZ DE INTENSIDADE DO SOM (ESFÉRA):
-vector<double> SndIntSphVec(int Size, double Watts, double r, double WRto)
+std::vector<double> SndIntSphVec(int Size, double Watts, double r, double WRto)
 {
 	double tWatts = Watts; // Ratio Watts, por enquanto não sei
 	double dr = r / Size;
-	vector<double> Ret;
+	std::vector<double> Ret;
 	for (int n = 0; n <= Size; ++n)
 	{
 		tWatts *= WRto;
@@ -279,7 +276,7 @@ class PartSys2D
 	bool WL, WR, WU, WD; // Wall left, right, up, down; Is there a wall?
 	double mus, muk; // Frictions
 
-	vector<Particle> Particles;
+	std::vector<Particle> Particles;
 };
 
 // ##################################################################################################
@@ -287,8 +284,8 @@ class PartSys2D
 class ForceNet
 {
 public:
-	vector<Force> Forces;
-	vector<Friction> Frictions;
+	std::vector<Force> Forces;
+	std::vector<Friction> Frictions;
 	Force FTotal; // Force that will be the sum of all Forces;
 	
 	void SumAll(int FrcIndx) // Sum all forces; Frictions[Friction Index], use '-1' to avoid friction;
@@ -331,7 +328,7 @@ public:
 	double VectorSize;
 	double Watts;
 
-	vector<double> WaveFunction;
+	std::vector<double> WaveFunction;
 
 	// ##################################################################################################
 	// Mudar Tamanho da Onda:
@@ -342,9 +339,9 @@ public:
 	}
 
 	// Fazer vetor com razões por tempo:
-	vector<double> MakeModVector(double Velr, double Freqr, double tPhase) // r = rate, if you leave as '1' it will not modulate, ex.: "tVel = Velocity * Velr".
+	std::vector<double> MakeModVector(double Velr, double Freqr, double tPhase) // r = rate, if you leave as '1' it will not modulate, ex.: "tVel = Velocity * Velr".
 	{
-		vector<double> ThisVector;
+		std::vector<double> ThisVector;
 		double tVel = Velocity, tWaven, tFreq = Frequency, tOmega;
 		for (int tn = 0; tn < VectorSize; ++tn)
 		{
@@ -352,7 +349,7 @@ public:
 			double t = (Distance * tdiv);
 			tPhase = (tPhase + tPhase) / 2.0; tVel *= Velr; tFreq *= Freqr;
 			tOmega = TAU * tFreq; tWaven =  TAU / (tVel / tFreq);
-			cout << tVel << " " << tFreq << " " << tOmega << " " << tWaven << endl;
+			//cout << tVel << " " << tFreq << " " << tOmega << " " << tWaven << std::endl;
 			double y = NonStatWaveFunc(SndInt2db(SoundIntSph(Watts, t * tVel)), Distance, t, tWaven, tOmega, tPhase);
 			ThisVector.push_back(y);
 		}
@@ -381,7 +378,7 @@ public:
 	FluteSynth(double Nwtn, double Ang, double Ang0, double Dist, double FlteSize, double Diamtr);
 	double Size, Diameter, N, Angle, Angle0, MaxAng, Distance; // Size of the flute, Diameter, Newtons (change to watts, maybe?), Angles of blow, Distance of the mouth
 	struct Hole { double Pos; bool Open; };
-	vector<Hole> Holes;
+	std::vector<Hole> Holes;
 	
 };
 
@@ -397,9 +394,9 @@ class VelAclNtnMntJlWt
 public:
 
 	VelAclNtnMntJlWt(double ms2, double kg, double OpForce, double Seconds, double CellSize);
-	vector<double> Acell, Vel, Newton, Moment, Joule, Watt;
-	vector<bool> SecMap;
-	void ClearVectors()	{ vector<double> New; Acell = New; Vel = New; Newton = New; Moment = New; Joule = New; Watt = New; }
+	std::vector<double> Acell, Vel, Newton, Moment, Joule, Watt;
+	std::vector<bool> SecMap;
+	void ClearVectors()	{ std::vector<double> New; Acell = New; Vel = New; Newton = New; Moment = New; Joule = New; Watt = New; }
 };
 
 VelAclNtnMntJlWt::VelAclNtnMntJlWt(double ms2, double kg, double OpForce, double Seconds, double CellSize)
@@ -424,92 +421,11 @@ VelAclNtnMntJlWt::VelAclNtnMntJlWt(double ms2, double kg, double OpForce, double
 		Newton.push_back(Acell[Cnt - 1] * kg);
 		Joule.push_back(Newton[Cnt - 1] * (Vel[Cnt - 1] * CellSize));
 		Watt.push_back(Joule[Cnt - 1] / CellSize);
-		cout << "Vel: " << Vel[Cnt] << " | Acell: " << Acell[Cnt] << " | N: " << Newton[Cnt] << endl;
+		//std::cout << "Vel: " << Vel[Cnt] << " | Acell: " << Acell[Cnt] << " | N: " << Newton[Cnt] << std::endl;
 		++Cnt;
 	}
 }
 // ##################################################################################################
-
-// #####################
-// ### FIM | CLASSES ###
-// #####################
-// #####################################################################################################################################
-
-class TestPhis
-{
-public:
-	void Test()
-	{
-		cout << "Digite qual função:\n";
-		cout << "| 1 = Velocidade, Aceleração e Jerk |\n";
-		cout << "| 2 = SoundIntSph | 3 = SoundIntPA | 4 = SoundIntPv |\n";
-		cout << "| 4 = Kinetic Energy | 5 = Kinetic En. Momentum | 6 = Momentum |\n";
-		cout << "| 7 = Density | 8 = Pressure  | 9 e 10 = NormForce |\n";
-		cout << "| 11 = Stiffness | 12 = Bulk Modulus | 13 = Speed of Sound\n";
-		cout << "| 14 = SpeedSndAir | 15 = Density Air | 16 = WaveEq |\n";
-		cout << "| 17 = WaveLenght | 18 = Aco. Wave Eq.\n";
-		int Op; cin >> Op;
-
-		if (Op == 1)
-		{
-			cout << "f(x1, x2, t1, t2);\n"; double Opx1, Opx2, Opt1, Opt2; cout << "x1: "; cin >> Opx1; cout << "x2: "; cin >> Opx2;
-			cout << "t1: "; cin >> Opt1; cout << "t2: "; cin >> Opt2; cout << "RETORNO: " << Derivative(Opx1, Opx2, Opt1, Opt2) << endl;
-		}
-		if (Op == 2)
-		{
-			cout << "SoundIntSph(Watts, r);\n"; double OpW, Opr; cout << "Watts: "; cin >> OpW; cout << "Radius: "; cin >> Opr;
-			cout << "RETORNO: " << SoundIntSph(OpW, Opr) << " | DBs: " << SndInt2db(SoundIntSph(OpW, Opr)) << endl;
-		}
-		if (Op == 4)
-		{ cout << "KineticEnrg(kg, ms);\n"; double Opm, Opv; cout << "kg: "; cin >> Opm; cout << "m/s: "; cin >> Opv; cout << "RETORNO: " << KineticEnrg(Opm, Opv) << endl;	}
-		if (Op == 5)
-		{ cout << "KineticEnMom(p, kg);\n"; double Opp, Opkg; cout << "p: "; cin >> Opp; cout << "kg: "; cin >> Opkg; cout << "RETORNO: " << KineticEnMom(Opp, Opkg) << endl; }
-		if (Op == 6)
-		{ cout << "Momentum(kg, ms);\n"; double Opkg, Opms; cout << "kg: "; cin >> Opkg; cout << "m/s: "; cin >> Opms; cout << "RETORNO: " << Momentum(Opkg, Opms) << endl; }
-		if (Op == 7)
-		{ cout << "Density(kg, Vol);\n"; double Opkg, OpVol; cout << "kg: "; cin >> Opkg; cout << "Vol: "; cin >> OpVol; cout << "RETORNO: " << Density(Opkg, OpVol) << endl; }
-		if (Op == 8)
-		{ cout << "Pressure(Force, Area);\n"; double OpF, OpA; cout << "F: "; cin >> OpF; cout << "Area: "; cin >> OpA; cout << "RETORNO: " << Pressure(OpF, OpA) << endl; }
-		if (Op == 9) { cout << "NormForce(kg);\n"; double Opkg; cout << "kg: "; cin >> Opkg; cout << "RETORNO: " << NormForce(Opkg) << endl; }
-		if (Op == 10)
-		{ cout << "NormForce(p, kg);\n"; double Opp, Opkg; cout << "p: "; cin >> Opp; cout << "kg: "; cin >> Opkg; cout << "RETORNO: " << NormForce(Opp, Opkg) << endl;	}
-		if (Op == 11)
-		{ cout << "Stiffness(F, d);\n"; double OpF, Opd; cout << "F: "; cin >> OpF; cout << "Displacement: "; cin >> Opd; cout << "RETORNO: " << Stiffness(OpF, Opd) << endl;	}
-		if (Op == 12)
-		{
-			cout << "BulkMod(P1, P2, p1, p2);\n"; double OpP1, OpP2, Opp1, Opp2; cout << "P1: "; cin >> OpP1; cout << "P2: "; cin >> OpP2;
-			cout << "p1: "; cin >> Opp1; cout << "p2: "; cin >> Opp2; cout << "RETORNO: " << BulkMod(OpP1, OpP2, Opp1, Opp2) << endl;
-		}
-		if (Op == 13)
-		{ cout << "SpeedSound(Bulk, p);\n"; double OpB, Opp; cout << "Bulk: "; cin >> OpB; cout << "p: "; cin >> Opp;	cout << "RETORNO: " << SpeedSound(OpB, Opp) << endl; }
-		if (Op == 14)
-		{
-			cout << "SpeedSndAir(Bulk, Pa, GasConst, T);\n"; double OpB, OpPa, OpG, OpT; cout << "Bulk: "; cin >> OpB; cout << "Pa: "; cin >> OpPa;
-			cout << "GasConst: "; cin >> OpG; cout << "Temp.: "; cin >> OpT; cout << "RETORNO: " << SpeedSndAir(OpB, OpPa, OpG, OpT) << endl;
-		}
-		if (Op == 15)
-		{
-			cout << "DensityAir(Pa, GasConst, K);\n"; double OpPa, OpG, OpK; cout << "Pa: "; cin >> OpPa; cout << "GasConst: "; cin >> OpG; cout << "Kelvins: "; cin >> OpK;
-			cout << "RETORNO: " << DensityAir(OpPa, OpG, OpK) << endl;
-		}
-		if (Op == 16)
-		{
-			cout << "WaveEq(x, Omega);\n"; double Opx, OpF; cout << "x: "; cin >> Opx; cout << "Omega.: "; cin >> OpF;
-			cout << "RETORNO: " << WaveEq(Opx, OpF) << endl;
-		}
-		if (Op == 17)
-		{
-			cout << "WaveLgh(v, f);\n"; double Opv, Opf; cout << "Phase Vel.: "; cin >> Opv; cout << "Freq.: "; cin >> Opf; cout << "RETORNO: " << WaveLgh(Opv, Opf) << endl;
-		}
-		if (Op == 18)
-		{
-			cout << "AcoWavEq(d2p, dx2, Bulk, Pa, K, GasConst, dt2);\n"; double Opd2p, Opdx2, OpB, OpPa, OpK, OpG, Opdt2;
-			cout << "d^2p: "; cin >> Opd2p; cout << "dx^2.: "; cin >> Opdx2; cout << "Bulk: "; cin >> OpB; cout << "Pa: "; cin >> OpPa; cout << "Kelvins: "; cin >> OpK;
-			cout << "Gas Const.: "; cin >> OpG; cout << "dt^2: "; cin >> Opdt2;
-			cout << "RETORNO: " << AcoWavEq(Opd2p, Opdx2, OpB, OpPa, OpK, OpG, Opdt2) << endl;
-		}
-	}
-};
 
 // ################################################# FIM ####################################################################################
 

@@ -44,7 +44,7 @@ std::vector<TradeData> LoadTradeData(std::string Path)
     std::string In;
     TradeData Data;
     std::ifstream D = std::ifstream(Path);
-    int beg = D.tellg(); D.seekg(0, ios::end); int end = D.tellg(); D.seekg(0, ios::beg);
+    int beg = D.tellg(); D.seekg(0, std::ios::end); int end = D.tellg(); D.seekg(0, std::ios::beg);
     if (D.is_open())
     {
         while (!D.eof())
@@ -94,8 +94,8 @@ std::string GetCalcText(std::vector<TradeData> Datas)
                     if (m == Coins.size() - 1 && None)
                     {
                         Coins.push_back({ Datas[n].Coin1, -Datas[n].Paid });
-                        cout << "COIN1 = " << Datas[n].Coin1 << " | Name: " << Coins[m].Name << "!\n";
-                        cout << "Compare: " << Datas[n].Coin1.compare(Coins[m].Name) << endl;
+                        std::cout << "COIN1 = " << Datas[n].Coin1 << " | Name: " << Coins[m].Name << "!\n";
+                        std::cout << "Compare: " << Datas[n].Coin1.compare(Coins[m].Name) << std::endl;
                     }
                 }
                 else
@@ -108,8 +108,8 @@ std::string GetCalcText(std::vector<TradeData> Datas)
                     if (m == Coins.size() - 1 && None)
                     {
                         Coins.push_back({ Datas[n].Coin2, Datas[n].Received });
-                        cout << "COIN2 = " << Datas[n].Coin2 << " | Name: " << Coins[m].Name << "!\n";
-                        cout << "Compare: " << Datas[n].Coin2.compare(Coins[m].Name) << endl;
+                        std::cout << "COIN2 = " << Datas[n].Coin2 << " | Name: " << Coins[m].Name << "!\n";
+                        std::cout << "Compare: " << Datas[n].Coin2.compare(Coins[m].Name) << std::endl;
                     }
                 }
                 else
@@ -117,7 +117,7 @@ std::string GetCalcText(std::vector<TradeData> Datas)
                     None = false;
                     Coins[m].Value += Datas[n].Received;
                 }
-                cout << "OK " << m << "!\n";
+                std::cout << "OK " << m << "!\n";
             }
         }
         
@@ -127,7 +127,7 @@ std::string GetCalcText(std::vector<TradeData> Datas)
         }
         //DoMathOrSomething() <- add it later...
     }
-    cout << "RETURNING!\n";
+    std::cout << "RETURNING!\n";
     return(S);
 }
 
@@ -239,7 +239,7 @@ std::vector<NameValue> JoinCoins(std::vector<NameValue> Coins)
 * Multiply the prices for each period by their respective weights, then get the sum total.
 * Divide the above by the sum of all the weights.
 */
-double LWMA(vector<double> Prices, double HighWeight, double LowWeight, double CurvePower)
+double LWMA(std::vector<double> Prices, double HighWeight, double LowWeight, double CurvePower)
 {
     double Size = Prices.size();
     double Sum = 0, SumW = 0; // Sum the prices and then get the sum of the Weights

@@ -28,7 +28,7 @@ std::string LSHFstr(std::string A, unsigned char i) { std::string B; for (int n 
 // ####### UNIVERSAL CONSTANTS #######
 
 // Numeric way to use Hexadecimals:
-const char HexChars[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+#define HEXCHARS const char HexChars[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' }
 
 // ####### CONVERSORES #######
 
@@ -62,11 +62,24 @@ std::string ASCII2Hex(char c[])
 {
 	int Size = sizeof(c);
 	std::string Hex;
-	
+	HEXCHARS;
+
 	for (int n = 0; n < Size; ++n)
 	{
 		float d = c[n] / 16.0; int h2 = floor(d); int h1 = round((d - h2) * 16);
 		Hex.push_back(HexChars[h2]); Hex.push_back(HexChars[h1]);
+	}
+	return(Hex);
+}
+std::string ASCII2Hex(std::string s)
+{
+	std::string Hex;
+	HEXCHARS;
+
+	for (int n = 0; n < s.size(); ++n)
+	{
+		float d = s[n] / 16.0; int h2 = floor(d); int h1 = round((d - h2) * 16);
+		Hex.push_back(HexChars[h2]); Hex.push_back(HexChars[h1]); // Remember that it is always double the size
 	}
 	return(Hex);
 }
@@ -84,11 +97,20 @@ long long Hex2Dec(std::string Hex)
 	return(Sum);
 }
 
-// GET AN UCHAR ARRAY AND ADDS STRING BYTES ON IT, PLEASE, USE CORRECT ARRAY SIZE, IT USES POINTER:
-void str2uchar(std::string s, unsigned char* Array, unsigned int Size) { for (int n = 0; n < Size; ++n) { if (n < s.size()) { Array[n] = s[n]; } else { Array[n] = 0; } } }
+// GET AN UCHAR ARRAY AND ADDS STRING BYTES ON IT:
+// USE CORRECT ARRAY SIZE, IT USES POINTER AND MODULO,
+// BIGGER VALUES OVERFLOW AND OVERWRITE THE FIRST AND MORE INDEXES.
+//		Array[n % Size]
+void StrInUChar(std::string s, unsigned char* Array, unsigned int Size) { for (int n = 0; n < s.size(); ++n) { Array[n % Size] = s[n]; } }
+void StrInChar(std::string s, char* Array, unsigned int Size) { for (int n = 0; n < s.size(); ++n) { Array[n % Size] = s[n]; } }
+void StrInwChar(std::string s, wchar_t* Array, unsigned int Size) { for (int n = 0; n < s.size(); ++n) { Array[n % Size] = s[n]; } }  // Never tested
+unsigned char* Str2ucPt(std::string Str) { return((unsigned char*)&Str[0]); }
+char* Str2cPt(std::string Str) { return((char*)&Str[0]); }
+wchar_t* Str2wcPt(std::string Str) { return((wchar_t*)&Str[0]); } // Never tested
 
 // GET AN UCHAR ARRAY AND ADD BYTES TO A NEW STRING, PLEASE, USE CORRECT ARRAY SIZE, IT USES POINTER:
 std::string uchar2str(unsigned char* Array, unsigned int Size) { std::string s; for (int n = 0; n < Size; ++n) { s.push_back(Array[n]); } return(s); }
+std::string char2str(char* Array, unsigned int Size) { std::string s; for (int n = 0; n < Size; ++n) { s.push_back(Array[n]); } return(s); }
 
 // #####################################################################################################################################
 

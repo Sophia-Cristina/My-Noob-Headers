@@ -23,7 +23,7 @@ using namespace cimg_library;
 
 CImg<unsigned char> PaintHueRGBGapMod(CImg<unsigned char> I, double Phase, double Omega, int R0, int R1, int G0, int G1, int B0, int B1)
 {
-	vector<Pixel> VP = BitmapPixelMatrix(I);
+	std::vector<Pixel> VP = BitmapPixelMatrix(I);
 	for (int n = 0; n < VP.size(); ++n)
 	{
 		if (InsideRGBGap(VP[n].RGB, R0, R1, G0, G1, B0, B1))

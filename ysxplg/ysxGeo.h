@@ -343,9 +343,9 @@ public:
 	char GetBigger(double a, double b, double c)
 	{ char Ret = 'n'; if (c > b && c > a) { Ret = 'c'; } else if (b > c && b > a) { Ret = 'b'; } else if (a > b && a > c) { Ret = 'a'; } return (Ret); }
 	// ############################
-	vector<double> GetRatios(double a, double b, double c)
+	std::vector<double> GetRatios(double a, double b, double c)
 	{
-		vector<double> TRatios(3);
+		std::vector<double> TRatios(3);
 		char Big = GetBigger(a, b, c);
 		
 		if (Big == 'c') { TRatios[0] = a / c; TRatios[1] = b / c; TRatios[2] = 1; }
@@ -382,26 +382,26 @@ public:
 	// ############################
 	void CoutInfo()
 	{
-		cout << "\n############## TRIANGLE ##############\n\n";
-		string LType, AType;
+		std::cout << "\n############## TRIANGLE ##############\n\n";
+		std::string LType, AType;
 		if (LnghtType == 1) { LType = "Equilateral"; } else if (LnghtType == 2) { LType = "Isoceles"; } else if (LnghtType == 3) { LType = "Scalene"; }
 		if (AngType == 1) { AType = "Right"; } else if (AngType == 2) { AType = "Acute"; } else if (AngType == 3) { AType = "Obtuse"; }
-		cout << "Tipo triangulo = " << LType << " & " << AType << " | Bigger: " << Bigger << endl;
-		cout << "*** a: " << a << " | Alpha: " << Alpha << " | BisA: " << BisA << " ***\n";
-		cout << "*** b: " << b << " | Beta: " << Beta << " | BisB: " << BisB << " ***\n";
-		cout << "*** c: " << c << " | Gamma: " << Gamma << " | BisC: " << BisC << " ***\n";
-		cout << "# Alt: " << Alt << " | Base: " << Base << " | Base0: " << Base0 << " #\n";
-		cout << "# Area: " << Area << " | Perimetro: " << Perimetro << " #\n";
-		cout << "Incenter: IB: " << IB << " | IA: " << IA << " | IC: " << IC << " | Inradius: " << Inradius << endl;
-		cout << "Circumcentro: x: " << Circumcenter.x << " | y: " << Circumcenter.y << endl;
-		cout << "\n#####################\n\n";
-		cout << "Coordinates x: 0: " << Coord[0].x << " | 1: " << Coord[1].x << " | 2: " << Coord[2].x << endl;
-		cout << "Coordinates y: 0: " << Coord[0].y << " | 1: " << Coord[1].y << " | 2: " << Coord[2].y << endl;
-		cout << "Midpoints x: 0: " << Midpoints[0].x << " | 1: " << Midpoints[1].x << " | 2: " << Midpoints[2].x << endl;
-		cout << "Midpoints y: 0: " << Midpoints[0].y << " | 1: " << Midpoints[1].y << " | 2: " << Midpoints[2].y << endl;	
-		cout << "\n#####################\n\n";
-		cout << "Ratios: a: " << Ratios[0] << " | b: " << Ratios[1] << " | c: " << Ratios[2] << endl;
-		cout << "\n############## END TRI ##############\n\n";
+		std::cout << "Tipo triangulo = " << LType << " & " << AType << " | Bigger: " << Bigger << std::endl;
+		std::cout << "*** a: " << a << " | Alpha: " << Alpha << " | BisA: " << BisA << " ***\n";
+		std::cout << "*** b: " << b << " | Beta: " << Beta << " | BisB: " << BisB << " ***\n";
+		std::cout << "*** c: " << c << " | Gamma: " << Gamma << " | BisC: " << BisC << " ***\n";
+		std::cout << "# Alt: " << Alt << " | Base: " << Base << " | Base0: " << Base0 << " #\n";
+		std::cout << "# Area: " << Area << " | Perimetro: " << Perimetro << " #\n";
+		std::cout << "Incenter: IB: " << IB << " | IA: " << IA << " | IC: " << IC << " | Inradius: " << Inradius << std::endl;
+		std::cout << "Circumcentro: x: " << Circumcenter.x << " | y: " << Circumcenter.y << std::endl;
+		std::cout << "\n#####################\n\n";
+		std::cout << "Coordinates x: 0: " << Coord[0].x << " | 1: " << Coord[1].x << " | 2: " << Coord[2].x << std::endl;
+		std::cout << "Coordinates y: 0: " << Coord[0].y << " | 1: " << Coord[1].y << " | 2: " << Coord[2].y << std::endl;
+		std::cout << "Midpoints x: 0: " << Midpoints[0].x << " | 1: " << Midpoints[1].x << " | 2: " << Midpoints[2].x << std::endl;
+		std::cout << "Midpoints y: 0: " << Midpoints[0].y << " | 1: " << Midpoints[1].y << " | 2: " << Midpoints[2].y << std::endl;	
+		std::cout << "\n#####################\n\n";
+		std::cout << "Ratios: a: " << Ratios[0] << " | b: " << Ratios[1] << " | c: " << Ratios[2] << std::endl;
+		std::cout << "\n############## END TRI ##############\n\n";
 	}
 	// ############################
 };
@@ -497,164 +497,6 @@ public:
 	double Area, Perimeter;
 	double Ratios[4]; // Razão baseada no maior valor de um comprimeto de lado
 
-};
-
-// ####### ####### ####### ####### ####### #######
-
-
-// ####### ####### ####### ####### ####### #######
-
-// ####### ####### ####### ####### ####### #######
-
-class TestGeo
-{
-	public: 
-		void Test()
-		{
-			cout << "Digite qual função:\n";
-			cout << "| 1 = Hipotenusa | 2 = Angulos Tri. | 3 = Lado Tri. | 4 = Altura Tri. |\n";
-			cout << "| 5 = Area Circ., 6 = Area -> Raio, 7 = Area_Circ -> Diam -> Qdr |\n";
-			cout << "| 8 = Volume Cilindro Regular | 9 = Volume esfera |\n";
-			cout << "| 10 = Superficie Esfera | 11 = Circumferencia Circulo |\n";
-			cout << "| 12 = Alt. Tri. Sen | 13 = Law of sines |\n";
-			cout << "| 14 = Law of cosines. | 15 = Perim. Tri. | 16 = Ang2Rad | 17 = Rad2Ang |\n";
-			cout << "| 18 e 19 = Tamanho da linha de um angulo bisetor num triangulo reto |\n";
-			cout << "| 20 = LghtBis | 21, 22 e 13 = Perpendicular Bis. a, b ou c |\n";
-			cout << "| 24 = LawTan | 25 = LawTanAng | 26 = LawTanb |\n";
-			cout << "| 27 = LawCota | 28 = LawCotb | 29 = LawCotc |\n";
-			cout << "| 30 = Mollweidepos | 31 = Mollweideneg |\n";
-			cout << "| 32 = MollweideposAng | 33 = MollweidenegAng |\n";
-			cout << "| 34 = Circumcenter | 35 = Inradius | 36 = Adjacent Tri. |\n";
-			cout << "| 37, 38 = Intrn Ang. Polygn or Polygrm |\n";
-
-			int Op; cin >> Op;
-	
-			if (Op == 1) { cout << "hipo(a, b);\n"; double Opa, Opb; cout << "a: "; cin >> Opa; cout << "b: "; cin >> Opb; cout << "RETORNO: " << hipo(Opa, Opb) << endl; }
-			if (Op == 2) { cout << "TriAng(a, b);\n"; double Opa, Opb; cout << "a: "; cin >> Opa; cout << "b: "; cin >> Opb; cout << "RETORNO: " << TriAng(Opa, Opb) << endl; }
-			if (Op == 3) { cout << "TriSide(Hip, b);\n"; double Opa, Opb; cout << "Hip: "; cin >> Opa; cout << "b: "; cin >> Opb; cout << "RETORNO: " << TriSide(Opa, Opb) << endl; }
-			if (Op == 4) { cout << "TriAlt(Area, a);\n"; double Opa, Opb; cout << "Area: "; cin >> Opa; cout << "a: "; cin >> Opb; cout << "RETORNO: " << TriAlt(Opa, Opb) << endl; }
-			if (Op == 5) { cout << "CircAr(Raio);\n"; double Opa; cout << "Raio: "; cin >> Opa; cout << "RETORNO: " << CircAr(Opa) << endl; }
-			if (Op == 6) { cout << "CircAr2r(AreaCirculo);\n"; double Opa; cout << "Area: "; cin >> Opa; cout << "RETORNO: " << CircAr2r(Opa) << endl; }
-			if (Op == 7) { cout << "CircArSqrAr(AreaCirculo);\n"; double Opa; cout << "Area: "; cin >> Opa; cout << "RETORNO: " << CircArSqrAr(Opa) << endl; }
-			if (Op == 8) { cout << "CylinVol(r, h);\n"; double Opr, Oph; cout << "r: "; cin >> Opr; cout << "h: "; cin >> Oph; cout << "RETORNO: " << CylinVol(Opr, Oph) << endl; }
-			if (Op == 9) { cout << "SphereVol(Raio);\n"; double Opa; cout << "Raio: "; cin >> Opa; cout << "RETORNO: " << SphereVol(Opa) << endl; }
-			if (Op == 10) { cout << "SphereSurf(Raio);\n"; double Opa; cout << "Raio: "; cin >> Opa; cout << "RETORNO: " << SphereSurf(Opa) << endl; }
-			if (Op == 11) { cout << "Circumf(Raio);\n"; double Opa; cout << "Raio: "; cin >> Opa; cout << "RETORNO: " << Circumf(Opa) << endl; }
-			if (Op == 12)
-			{ 
-				cout << "HghtTrisS(a, Rad);\n"; double Opa, Opan; cout << "a: "; cin >> Opa; cout << "Angulo: "; cin >> Opan;
-				cout << "RETORNO: " << TriHghtsS(Opa, Opan) << endl;
-			}
-			if (Op == 13)
-			{
-				cout << "LawSin(h, Rad);\n"; double Opa, Opan; cout << "heigth: "; cin >> Opa; cout << "Angulo: "; cin >> Opan;
-				cout << "RETORNO: " << LawSin(Opa, Opan) << endl;
-			}
-			if (Op == 14)
-			{
-				cout << "LawCos(a, b, Rad);\n"; double Opa, Opb, Opan;	cout << "a: "; cin >> Opa; cout << "b: "; cin >> Opb; cout << "Angulo: "; cin >> Opan;
-				cout << "RETORNO: " << LawCos(Opa, Opb, Opan) << endl;
-			}
-			if (Op == 15)
-			{
-				cout << "PerimTri(a, b, c);\n"; double Opa, Opb, Opc;	cout << "a: "; cin >> Opa; cout << "b: "; cin >> Opb; cout << "c: "; cin >> Opc;
-				cout << "RETORNO: " << PerimTri(Opa, Opb, Opc) << endl;
-			}
-			if (Op == 16) { cout << "Ang2Rad(n);\n"; double Opa; cout << "n: "; cin >> Opa; cout << "RETORNO: " << Ang2Rad(Opa) << endl; }
-			if (Op == 17) { cout << "Rad2Ang(n);\n"; double Opa; cout << "n: "; cin >> Opa; cout << "RETORNO: " << Rad2Ang(Opa) << endl; }
-			if (Op == 18)
-			{
-				cout << "TriBisAC(Alt, AngBC);\n"; double Opa, Opabc; cout << "Altura: "; cin >> Opa; cout << "Angulo: "; cin >> Opabc;
-				cout << "RETORNO: " << TriBisAC(Opa, Opabc) << endl;
-			}
-			if (Op == 19)
-			{
-				cout << "TriBisBC(Base, AngAC);\n"; double Opb, Opaac; cout << "Base: "; cin >> Opb; cout << "Angulo: "; cin >> Opaac;
-				cout << "RETORNO: " << TriBisBC(Opb, Opaac) << endl;
-			}
-			if (Op == 20)
-			{
-				cout << "LghtBisAct(a, b, Rad);\n"; double Opa, Opb, Opc;	cout << "a: "; cin >> Opa; cout << "b: "; cin >> Opb; cout << "Rad: "; cin >> Opc;
-				cout << "RETORNO: " << TriBisAct(Opa, Opb, Opc) << endl;
-			}
-			if (Op == 21)
-			{
-				//cout << "PerpBisa(a, b, c, Area);\n"; double Opa, Opb, Opc, Opar;	cout << "a: "; cin >> Opa; cout << "b: "; cin >> Opb; cout << "c: "; cin >> Opc;
-				//cout << "Area: "; cin >> Opar; cout << "RETORNO: " << PerpBisa(Opa, Opb, Opc, Opar) << endl;
-			}
-			if (Op == 22)
-			{
-				//cout << "PerpBisb(a, b, c, Area);\n"; double Opa, Opb, Opc, Opar;	cout << "a: "; cin >> Opa; cout << "b: "; cin >> Opb; cout << "c: "; cin >> Opc;
-				//cout << "Area: "; cin >> Opar; cout << "RETORNO: " << PerpBisb(Opa, Opb, Opc, Opar) << endl;
-			}
-			if (Op == 23)
-			{
-				//cout << "PerpBisc(a, b, c, Area);\n"; double Opa, Opb, Opc, Opar;	cout << "a: "; cin >> Opa; cout << "b: "; cin >> Opb; cout << "c: "; cin >> Opc;
-				//cout << "Area: "; cin >> Opar; cout << "RETORNO: " << PerpBisc(Opa, Opb, Opc, Opar) << endl;
-			}
-			if (Op == 24) { cout << "LawTan(a, b);\n"; double Opa, Opb; cout << "a: "; cin >> Opa; cout << "b: "; cin >> Opb; cout << "RETORNO: " << LawTan(Opa, Opb) << endl; }
-			if (Op == 25)
-			{
-				cout << "LawTanAng(Alpha, Beta);\n"; double Opa, Opb; cout << "Alpha: "; cin >> Opa; cout << "Beta: "; cin >> Opb; cout << "RETORNO: " << LawTanAng(Opa, Opb) << endl;
-			}
-			if (Op == 26)
-			{
-				cout << "LawTanb(a, Alpha, Beta);\n"; double Opal, Opa, Opb; cout << "a: "; cin >> Opa; cout << "Alpha: "; cin >> Opal; cout << "Beta: "; cin >> Opb;
-				cout << "RETORNO: " << LawTanb(Opa, Opal, Opb) << endl;
-			}
-			if (Op == 27)
-			{
-				cout << "LawCota(a, b, c, Alpha);\n"; double Opal, Opa, Opb, Opc; cout << "a: "; cin >> Opa; cout << "b: "; cin >> Opb; cout << "c: "; cin >> Opc;
-				cout << "Alpha: "; cin >> Opal;	cout << "RETORNO: " << LawCota(Opa, Opb, Opc, Opal) << endl;
-			}
-			if (Op == 28)
-			{
-				cout << "LawCotb(a, b, c, Beta);\n"; double Opbt, Opa, Opb, Opc; cout << "a: "; cin >> Opa; cout << "b: "; cin >> Opb; cout << "c: "; cin >> Opc;
-				cout << "Alpha: "; cin >> Opbt;	cout << "RETORNO: " << LawCotb(Opa, Opb, Opc, Opbt) << endl;
-			}
-			if (Op == 29)
-			{
-				cout << "LawCotc(a, b, c, Beta);\n"; double Opgm, Opa, Opb, Opc; cout << "a: "; cin >> Opa; cout << "b: "; cin >> Opb; cout << "c: "; cin >> Opc;
-				cout << "Gama: "; cin >> Opgm;	cout << "RETORNO: " << LawCotc(Opa, Opb, Opc, Opgm) << endl;
-			}
-			if (Op == 30)
-			{
-				cout << "Mollweidepos(a, b, c);\n"; double Opa, Opb, Opc;	cout << "a: "; cin >> Opa; cout << "b: "; cin >> Opb; cout << "c: "; cin >> Opc;
-				cout << "RETORNO: " << Mollweidepos(Opa, Opb, Opc) << endl;
-			}
-			if (Op == 31)
-			{
-				cout << "Mollweideneg(a, b, c);\n"; double Opa, Opb, Opc;	cout << "a: "; cin >> Opa; cout << "b: "; cin >> Opb; cout << "c: "; cin >> Opc;
-				cout << "RETORNO: " << Mollweideneg(Opa, Opb, Opc) << endl;
-			}
-			if (Op == 32)
-			{
-				cout << "MollweideposAng(Alpha, Beta, Gama);\n"; double Opa, Opb, Opg;	cout << "Alpha: "; cin >> Opa; cout << "Beta: "; cin >> Opb; cout << "Gama: "; cin >> Opg;
-				cout << "RETORNO: " << MollweideposAng(Opa, Opb, Opg) << endl;
-			}
-			if (Op == 33)
-			{
-				cout << "MollweidenegAng(Alpha, Beta, Gama);\n"; double Opa, Opb, Opg;	cout << "Alpha: "; cin >> Opa; cout << "Beta: "; cin >> Opb; cout << "Gama: "; cin >> Opg;
-				cout << "RETORNO: " << MollweidenegAng(Opa, Opb, Opg) << endl;
-			}
-			if (Op == 34)
-			{
-				cout << "TriCircumR(a, b, c);\n"; double Opa, Opb, Opc;	cout << "a: "; cin >> Opa; cout << "b: "; cin >> Opb; cout << "c: "; cin >> Opc;
-				cout << "RETORNO: " << TriCircumR(Opa, Opb, Opc) << endl;
-			}
-			if (Op == 35)
-			{
-				cout << "TriInradius(a, b, c);\n"; double Opa, Opb, Opc;	cout << "a: "; cin >> Opa; cout << "b: "; cin >> Opb; cout << "c: "; cin >> Opc;
-				cout << "RETORNO: " << TriInradius(Opa, Opb, Opc) << endl;
-			}
-			if (Op == 36)
-			{
-				cout << "AdjTri(a, b, c, d);\n"; double Opa, Opb, Opc, Opd;	cout << "a: "; cin >> Opa; cout << "b: "; cin >> Opb; cout << "c: "; cin >> Opc;
-				cout << "d: "; cin >> Opd; cout << "RETORNO: " << TriAdj(Opa, Opb, Opc, Opd) << endl;
-			}
-			if (Op == 37) { cout << "AngPolygn(Sides);\n"; double s; cout << "Sides: "; cin >> s; cout << "RETORNO: " << PolygnAng(s) << endl; }
-			if (Op == 38) { cout << "AngPolygrm(Sides);\n"; double s; cout << "Sides: "; cin >> s; cout << "RETORNO: " << PolygrmAng(s) << endl; }
-		}
 };
 
 // ################################################# FIM ####################################################################################

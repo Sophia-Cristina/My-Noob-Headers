@@ -15,8 +15,6 @@
 #include <string.h>
 #include <cassert>
 
-using namespace std;
-
 // #################################################
 
 vector<unsigned> Tplg; // Tplg = Topology

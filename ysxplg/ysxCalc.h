@@ -268,7 +268,7 @@ double FourierSeries(double x, int Harmonics, double P, double Omega, double Int
 
 // ### SEQUENCIAS:
 // Aritimética:
-vector<double> ArithSequence(double a, double d, int n) { vector<double> S{ a }; for (int k = 1; k < n; ++k) { S.push_back(S[0] + (d * k)); } return (S); }
+std::vector<double> ArithSequence(double a, double d, int n) { std::vector<double> S{ a }; for (int k = 1; k < n; ++k) { S.push_back(S[0] + (d * k)); } return (S); }
 double ArithSeqnth(double a, double d, int n) { return(a + d * (n - 1.0)); }
 double ArithSeqSum(double a, double d, int n) { return(n * 0.5 * (2.0 * a + d * (n - 1.0))); }
 // Get the difference from an arithmetic sequence which results as "1" at "n":
@@ -277,7 +277,7 @@ double ArithSeqDiffAtb(double a, double b, int n) { return((b - a) / (n - 1.0));
 //double ArithSeqProduct() {}
 
 // Geométrica:
-vector<double> GeoSequence(double a, double r, int n) { vector<double> S{ a }; for (int k = 1; k < n; ++k) { S.push_back(S[0] * pow(r, k)); } return (S); }
+std::vector<double> GeoSequence(double a, double r, int n) { std::vector<double> S{ a }; for (int k = 1; k < n; ++k) { S.push_back(S[0] * pow(r, k)); } return (S); }
 double GeoSeqnth(double a, double r, int n) { return(a * pow(r, n - 1.0)); }
 double GeoSeqSum(double a, double r, int n) { return(a * ((1.0 - pow(r, n)) / (1.0 - r))); }
 double GeoSeqProduct(double a, double r, int n) { return(pow(sqrt(a * a * pow(r, n)), n + 1.0)); } // https://en.wikipedia.org/wiki/Geometric_progression#Product
@@ -310,71 +310,6 @@ double ReLU(double x) { if (x < 0) { return(0); } else return(x); }
 // #################################################
 
 double ElipticCurve(double x, double a, double b) { return(sqrt(x * x * x + a * x + b)); }
-
-// ####################################################################################################################################################################################################
-// ####################################################################################################################################################################################################
-// ####################################################################################################################################################################################################
-
-
-class TestCalc
-{
-public:
-	void Test()
-	{
-		cout << "Digite qual função:\n";
-		cout << "| 1 = Formula | 2 = ModForm | 3 = MiniForm | 4 = Somação |\n";
-		cout << "| 5 = Integral M-L-RRAM | 6 = IntegralAbs| 7 = Derivativos |\n";
-		cout << "| 8 = Diff. Eq. 2nd Order |\n";
-
-		int Op; cin >> Op;
-
-		if (Op == 1)
-		{
-			cout << "Formula(a, Frequencia, x, b, c, d);\n";
-			double Opa, Opf, Opx, Opb, Opc, Opd;
-			cout << "a: "; cin >> Opa; cout << "Omega: "; cin >> Opf;
-			cout << "x: "; cin >> Opx; cout << "b: "; cin >> Opb; cout << "c: "; cin >> Opc; cout << "d: "; cin >> Opd;
-			cout << "RETORNO: " << Formula(Opa, Opf, Opx, Opb, Opc, Opd) << endl;
-		}
-		if (Op == 2)
-		{
-			cout << "ModForm(n, Omega);\n"; float Opn, Opf; cout << "n: "; cin >> Opn; cout << "Omega: "; cin >> Opf; cout << "RETORNO: " << ModForm(Opn, Opf) << endl;
-		}
-		if (Op == 3)
-		{
-			cout << "MiniForm(n, Omega);\n"; float Opn, Opf; cout << "n: "; cin >> Opn; cout << "Omega: "; cin >> Opf; cout << "RETORNO: " << MiniForm(Opn, Opf) << endl;
-		}
-		if (Op == 4)
-		{
-			cout << "Sum(n, x, a, Inicio, Fim);\n"; double Opn, Opx, Opa; int Opi, Opf;
-			cout << "n: "; cin >> Opn; cout << "x: "; cin >> Opx; cout << "a: "; cin >> Opa; cout << "Inicio: "; cin >> Opi; cout << "Fim: "; cin >> Opf;
-			cout << "RETORNO: " << Sum(Opn, Opx, Opa, Opi, Opf);
-		}
-		if (Op == 5)
-		{
-			cout << "IntgrlRAM(a, b, Iteracao, 1-2-3 OpRet);\n";
-			double Opa, Opb; int Opi, Opo; cout << "a: "; cin >> Opa; cout << "b: "; cin >> Opb; cout << "Iterações: "; cin >> Opi; cout << "Omega: "; cin >> Opo;
-			cout << "RETORNO: " << Integral(Opa, Opb, Opi, Opo) << endl;
-		}
-		if (Op == 6)
-		{
-			cout << "IntgrlAbs(a, b, Iteracao);\n";
-			double Opa, Opb; int Opi; cout << "a: "; cin >> Opa; cout << "b: "; cin >> Opb; cout << "Iterações: "; cin >> Opi;
-			cout << "RETORNO: " << IntgrlAbs(Opa, Opb, 0, Opi) << endl;
-		}
-		if (Op == 7)
-		{
-			cout << "double Derivative(x);\n"; double Opx, Opf; cout << "x: "; cin >> Opx; cout << "Omega.: "; cin >> Opf;
-			cout << "RETORNO: " << Derivative(Opx, Opf) << endl;
-		}
-		if (Op == 8)
-		{
-			cout << "d2tdt2(x, Omega);\n"; double Opx, OpF; cout << "x: "; cin >> Opx; cout << "Omega.: "; cin >> OpF;
-			cout << "RETORNO: " << d2xdt2(Opx, OpF) << endl;
-		}
-		
-	}
-};
 
 // ################################################# FIM ####################################################################################
 

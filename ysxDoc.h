@@ -5,13 +5,11 @@
 
 #include <vector>
 
-using namespace std;
-
 // #####################################################################################################################################
 // ####### STRUCTS #######
 // INDEX:
-struct NameValue { string Name; double Value; };
-struct NameValueInfo { string Name, Info; double Value; };
+struct NameValue { std::string Name; double Value; };
+struct NameValueInfo { std::string Name, Info; double Value; };
 
 // #####################################################################################################################################
 // ####### SORTING FUNCTIONS #######

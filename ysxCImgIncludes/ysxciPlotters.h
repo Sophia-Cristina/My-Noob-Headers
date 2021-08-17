@@ -141,7 +141,7 @@ void MetricLines(CImg<unsigned char>& I, double a1, double a2, double Div, bool 
 					unsigned char RGB[] = { R, G, B };
 					I.draw_point(x, y, RGB);
 				}
-				if (Text) { AddText(I, x, Mid, to_string(a), (255 - R) * 0.5, (255 - G) * 0.5, (255 - B) * 0.5); }
+				if (Text) { AddText(I, x, Mid, std::to_string(a), (255 - R) * 0.5, (255 - G) * 0.5, (255 - B) * 0.5); }
 			}
 			else
 			{
@@ -151,7 +151,7 @@ void MetricLines(CImg<unsigned char>& I, double a1, double a2, double Div, bool 
 					unsigned char RGB[] = { R, G, B };
 					I.draw_point(x, y, RGB);
 				}
-				if (Text) { AddText(I, Mid, y, to_string(a), (255 - R) * 0.5, (255 - G) * 0.5, (255 - B) * 0.5); }
+				if (Text) { AddText(I, Mid, y, std::to_string(a), (255 - R) * 0.5, (255 - G) * 0.5, (255 - B) * 0.5); }
 			}
 		}
 	}
@@ -330,7 +330,7 @@ void RaioPoligono(CImg<unsigned char>& Img, double r, int x, int y, double OffSe
 	double Div = TAU / Divisions;
 	for (double n = OffSet; n < TAU + OffSet; n += Div)
 	{
-		//cout << "n / TAU: " << n / (TAU + OffSet) << "!\n";
+		//std::cout << "n / TAU: " << n / (TAU + OffSet) << "!\n";
 		Raio(Img, r, x, y, n, Triangle, Borda, R, G, B);
 	}
 }
@@ -339,7 +339,7 @@ void RaioPoligonoQuick(CImg<unsigned char>& Img, double r, int x, int y, double 
 	double Div = TAU / Divisions;
 	for (double n = OffSet; n < TAU + OffSet; n += Div)
 	{
-		//cout << "n / TAU: " << n / (TAU + OffSet) << "!\n";
+		//std::cout << "n / TAU: " << n / (TAU + OffSet) << "!\n";
 		RaioQuick(Img, r, x, y, n, Triangle, Borda, R, G, B);
 	}
 }
@@ -433,7 +433,7 @@ void Poligono(CImg<unsigned char>& Img, int Lados, double r, int Imgx, int Imgy,
 {
 	double x, y;
 	if (Lados < 3) { Lados = 3; }
-	vector<Point> Coord(Lados);
+	std::vector<Point> Coord(Lados);
 	double Div = TAU / Lados;
 	int Count = 0;
 
@@ -441,7 +441,7 @@ void Poligono(CImg<unsigned char>& Img, int Lados, double r, int Imgx, int Imgy,
 	{
 		x = round(cos(n) * r);
 		y = round(sin(n) * r);
-		//cout << "cosine: " << cos(n) << " | sine: " << sin(n) << " | Angle radians: " << n << " | Degress: " << (n / TAU) * 360 << endl;
+		//std::cout << "cosine: " << cos(n) << " | sine: " << sin(n) << " | Angle radians: " << n << " | Degress: " << (n / TAU) * 360 << std::endl;
 		if (Count < Lados) { Coord[Count].x = x + Imgx; Coord[Count].y = y + Imgy; }
 		double Progresso = (n / TAU) * 100;
 		++Count;
@@ -465,7 +465,7 @@ void Poligono(CImg<unsigned char>& Img, int Lados, double r, int Imgx, int Imgy,
 	double x, y;
 	Point3D RGB = { 255, 0, 127 };
 	if (Lados < 3) { Lados = 3; }
-	vector<Point> Coord(Lados);
+	std::vector<Point> Coord(Lados);
 	double Div = TAU / Lados;
 	int Count = 0;
 
@@ -473,7 +473,7 @@ void Poligono(CImg<unsigned char>& Img, int Lados, double r, int Imgx, int Imgy,
 	{
 		x = round(cos(n) * r);
 		y = round(sin(n) * r);
-		//cout << "cosine: " << cos(n) << " | sine: " << sin(n) << " | Angle radians: " << n << " | Degress: " << (n / TAU) * 360 << endl;
+		//std::cout << "cosine: " << cos(n) << " | sine: " << sin(n) << " | Angle radians: " << n << " | Degress: " << (n / TAU) * 360 << std::endl;
 		if (Count < Lados) { Coord[Count].x = x + Imgx; Coord[Count].y = y + Imgy; }
 		double Progresso = n / TAU;
 		++Count;
@@ -517,7 +517,7 @@ void PrintEucVec(CImg<unsigned char>& Img, PointFlt Vector, int x, int y, double
 	if (DrawAngle) { Turn(Img, GetMag(Vector) * 0.2, x, y, 0, GetVecRad(Vector), RGB.x, RGB.y, RGB.z); }
 	if (Text)
 	{
-		string Txt = "[" + to_string(Vector.x) + ", " + to_string(Vector.y) + "]";
+		std::string Txt = "[" + std::to_string(Vector.x) + ", " + std::to_string(Vector.y) + "]";
 		int Size = Txt.size() * 6;
 		int xtxt = xend - Size * 0.5, ytxt = yend - 10;
 		if (xtxt + Txt.size() * 3.75 > Img.width()) { xtxt = xend - Size * 0.5 - Txt.size() * 3.75; } if (xtxt < 0) { xtxt = xend + Size * 0.5; }
@@ -528,20 +528,21 @@ void PrintEucVec(CImg<unsigned char>& Img, PointFlt Vector, int x, int y, double
 
 // Print vector line joining tail to tail:
 
-void PrintEucVecTail(CImg<unsigned char>& Img, vector<PointFlt> Vectors, int x, int y, double Scale, bool Arrow, bool DrawAngle, bool CartesianLines, bool Text, bool LRGB, Point3D RGB)
+void PrintEucVecTail(CImg<unsigned char>& Img, std::vector<PointFlt> Vectors, int x, int y, double Scale, bool Arrow, bool DrawAngle, bool CartesianLines, bool Text, bool LRGB, Point3D RGB)
 {
 	if (LRGB) { RGB = { 255, 0, 0 }; }
 	PrintEucVec(Img, Vectors[0], x, y, Scale, Arrow, DrawAngle, CartesianLines, Text, RGB);
 	double sumx = Vectors[0].x, sumy = Vectors[0].y;
 	for (int n = 1; n < Vectors.size(); ++n)
 	{
-		cout << "sumx: " << sumx << " | sumy: " << sumy << " | V.x: " << Vectors[n].x << " | V.y: " << Vectors[n].y << endl;
+		std::cout << "sumx: " << sumx << " | sumy: " << sumy << " | V.x: " << Vectors[n].x << " | V.y: " << Vectors[n].y << std::endl;
 		if (LRGB) { RGB = LinearRGB(1.0 * n / Vectors.size(), 1, 1); }
 		int xend = x + sumx, yend = y + sumy;
 		if (xend < 0) { xend = 0; } if (Img.height() - yend < 0) { yend = Img.height(); } if (xend > Img.width()) { xend = Img.width(); } if (Img.height() - yend > Img.height()) { yend = 0; }
 		PrintEucVec(Img, Vectors[n], xend, Img.height() - yend, Scale, Arrow, DrawAngle, true, Text, RGB); // depis muda para false
 		//PrintEucVec(Img, Vectors[n], xend, yend, Scale, Arrow, DrawAngle, true, Text, RGB); // depis muda para false
-		cout << "xend: " << xend << " | Img.height() - yend: " << Img.height() - yend << "\nV.x + xend: " << Vectors[n].x + xend << " | Img.height() - (yend + V.y): " << Img.height() - (yend + Vectors[n].y) << endl;
+		std::cout << "xend: " << xend << " | Img.height() - yend: " << Img.height() - yend << "\nV.x + xend: " << Vectors[n].x + xend
+				  << " | Img.height() - (yend + V.y): " << Img.height() - (yend + Vectors[n].y) << std::endl;
 		sumx += Vectors[n].x; sumy += Vectors[n].y;
 	}
 }
@@ -552,9 +553,9 @@ void PrintEucVecTail(CImg<unsigned char>& Img, vector<PointFlt> Vectors, int x, 
 
 // ############## VETORES:
 // THREE VECTORS TO RGB:
-vector<Point3DFlt> Vectors2RGB(vector<double> VecR, vector<double> VecG, vector<double> VecB)
+std::vector<Point3DFlt> Vectors2RGB(std::vector<double> VecR, std::vector<double> VecG, std::vector<double> VecB)
 {
-	vector<Point3DFlt> RGBs;
+	std::vector<Point3DFlt> RGBs;
 	if (VecR.size() == VecG.size() && VecG.size() == VecB.size())
 	{
 		int Size = VecR.size(); for (int n = 0; n < Size; ++n) { Point3DFlt RGB; RGB.x = VecR[n]; RGB.y = VecG[n]; RGB.z = VecB[n]; RGBs.push_back(RGB); }
@@ -564,7 +565,7 @@ vector<Point3DFlt> Vectors2RGB(vector<double> VecR, vector<double> VecG, vector<
 
 // PLOTAR VETOR (LINHA):
 // Esses fazem uma linha de um ponto ao outro, o tamanho do segmento é multiplicado por cada célula do vetor:
-CImg<unsigned char> PrintVectorLine(vector<double> Vec, int SegmentSize, int BackGround, int R, int G, int B)
+CImg<unsigned char> PrintVectorLine(std::vector<double> Vec, int SegmentSize, int BackGround, int R, int G, int B)
 {
 	double Max, Min;
 	MaxMinVec(Vec, Max, Min);
@@ -580,7 +581,7 @@ CImg<unsigned char> PrintVectorLine(vector<double> Vec, int SegmentSize, int Bac
 
 	return(Print);
 }
-CImg<unsigned char> PrintVectorPoint(vector<double> Vec, int BackGround, int R, int G, int B)
+CImg<unsigned char> PrintVectorPoint(std::vector<double> Vec, int BackGround, int R, int G, int B)
 {
 	double Max, Min;
 	MaxMinVec(Vec, Max, Min);
@@ -601,11 +602,11 @@ CImg<unsigned char> PrintVectorPoint(vector<double> Vec, int BackGround, int R, 
 }
 
 // Esse assume que o valor do vetor é a amplitude, então, faz uma linha em cada divisão de um circulo pelo size() de acordo com a amplitude:
-CImg<unsigned char> PrintVectorPolygn(vector<double> Vec, int BackGround, int R, int G, int B, bool LRGB, bool Vertex)
+CImg<unsigned char> PrintVectorPolygn(std::vector<double> Vec, int BackGround, int R, int G, int B, bool LRGB, bool Vertex)
 {
 	double x, y;
 	int Lados = Vec.size();
-	vector<Point> xy(Lados); // Coordinates for image
+	std::vector<Point> xy(Lados); // Coordinates for image
 	double Div = TAU / Lados;
 	int m = 0; // Counter
 
@@ -644,7 +645,7 @@ CImg<unsigned char> PrintVectorPolygn(vector<double> Vec, int BackGround, int R,
 
 // IMPRIME DADOS DE UM VETOR POR COLUNA:
 // Esse assume que cada pixel de uma imagem corresponde a um dx (PROVAVELMENTE IGUAL O SEM "Norm"):
-CImg<unsigned char> PrintVectorPointNorm(vector<double> V)
+CImg<unsigned char> PrintVectorPointNorm(std::vector<double> V)
 {
 	double Min = 0, Max = 0, Total;
 	for (int n = 0; n < V.size(); ++n)
@@ -663,7 +664,7 @@ CImg<unsigned char> PrintVectorPointNorm(vector<double> V)
 	}
 	return (WavePrint);
 }
-/*CImg<unsigned char> PrintVectorComplex(vector<complex<double>> V) // POR ENQUANTO É COPIA DO PRINT VECTOR NORM
+/*CImg<unsigned char> PrintVectorComplex(std::vector<complex<double>> V) // POR ENQUANTO É COPIA DO PRINT VECTOR NORM
 {
 	double Min = 0, Max = 0, Total;
 	for (int n = 0; n < V.size(); ++n)
@@ -684,7 +685,7 @@ CImg<unsigned char> PrintVectorPointNorm(vector<double> V)
 }*/
 
 // Nesse, o "sy" (Size y) é o tamanho "y" da imagem, "syrto" vai ser multiplicado pelo valor do vetor:
-CImg<unsigned char> PrintVectorPointNorm(vector<double> V, int sy, double syrto)
+CImg<unsigned char> PrintVectorPointNorm(std::vector<double> V, int sy, double syrto)
 {
 	syrto *= 2;
 	CImg<unsigned char> WavePrint(V.size(), sy, 1, 3, 0);
@@ -698,7 +699,7 @@ CImg<unsigned char> PrintVectorPointNorm(vector<double> V, int sy, double syrto)
 	}
 	return (WavePrint);
 }
-CImg<unsigned char> PrintVectorPointNorm(vector<double> V, int sy, double syrto, int R, int G, int B)
+CImg<unsigned char> PrintVectorPointNorm(std::vector<double> V, int sy, double syrto, int R, int G, int B)
 {
 	syrto *= 2;
 	CImg<unsigned char> WavePrint(V.size(), sy, 1, 3, 0);
@@ -711,7 +712,7 @@ CImg<unsigned char> PrintVectorPointNorm(vector<double> V, int sy, double syrto,
 	return (WavePrint);
 }
 
-void PrintVectorLineOnImg(CImg<unsigned char>& Img, vector<double> V, double syrto)
+void PrintVectorLineOnImg(CImg<unsigned char>& Img, std::vector<double> V, double syrto)
 {
 	int sy = Img.height(), sx = Img.width();
 	double Max, Min; MaxMinVecAbs(V, Max, Min);
@@ -735,7 +736,7 @@ void PrintVectorLineOnImg(CImg<unsigned char>& Img, vector<double> V, double syr
 	}
 }
 
-void PrintVectorLineOnImg(CImg<unsigned char>& Img, vector<double> V, double syrto, unsigned char R, unsigned char G, unsigned char B)
+void PrintVectorLineOnImg(CImg<unsigned char>& Img, std::vector<double> V, double syrto, unsigned char R, unsigned char G, unsigned char B)
 {
 	int sy = Img.height(), sx = Img.width();
 	double Max, Min; MaxMinVecAbs(V, Max, Min);
@@ -760,7 +761,7 @@ void PrintVectorLineOnImg(CImg<unsigned char>& Img, vector<double> V, double syr
 	}
 }
 
-void PrintVectorPointOnImg(CImg<unsigned char>& Img, vector<double> V, double syrto)
+void PrintVectorPointOnImg(CImg<unsigned char>& Img, std::vector<double> V, double syrto)
 {
 	int sy = Img.height(), sx = Img.width();
 	double Max, Min; MaxMinVecAbs(V, Max, Min);
@@ -778,7 +779,7 @@ void PrintVectorPointOnImg(CImg<unsigned char>& Img, vector<double> V, double sy
 		Img.draw_point(xi, yi, Color); // Read comment from function above
 	}
 }
-void PrintVectorPointOnImg(CImg<unsigned char>& Img, vector<double> V, double syrto, unsigned char R, unsigned char G, unsigned char B)
+void PrintVectorPointOnImg(CImg<unsigned char>& Img, std::vector<double> V, double syrto, unsigned char R, unsigned char G, unsigned char B)
 {
 	int sy = Img.height(), sx = Img.width();
 	double Max, Min; MaxMinVecAbs(V, Max, Min);
@@ -795,7 +796,7 @@ void PrintVectorPointOnImg(CImg<unsigned char>& Img, vector<double> V, double sy
 		Img.draw_point(xi, yi, Color); // Read comment from function above
 	}
 }
-void PrintVectorPtOnImgPolar(CImg<unsigned char>& Img, vector<double> V, double Ratio)
+void PrintVectorPtOnImgPolar(CImg<unsigned char>& Img, std::vector<double> V, double Ratio)
 {
 	int sy = Img.height(), sx = Img.width();
 	double Max, Min; MaxMinVecAbs(V, Max, Min);
@@ -812,7 +813,7 @@ void PrintVectorPtOnImgPolar(CImg<unsigned char>& Img, vector<double> V, double 
 		Img.draw_point(xi, yi, Color); // Read comment from function above
 	}
 }
-void PrintVectorPtOnImgPolar(CImg<unsigned char>& Img, vector<double> V, double Ratio, unsigned char R, unsigned char G, unsigned char B)
+void PrintVectorPtOnImgPolar(CImg<unsigned char>& Img, std::vector<double> V, double Ratio, unsigned char R, unsigned char G, unsigned char B)
 {
 	int sy = Img.height(), sx = Img.width();
 	double Max, Min; MaxMinVecAbs(V, Max, Min);
@@ -830,7 +831,7 @@ void PrintVectorPtOnImgPolar(CImg<unsigned char>& Img, vector<double> V, double 
 	}
 }
  // VEJA SOBRE TIRAR SYRTO *= 2 OU RATIO *= 2 DE TODOS (ABAIXO E ACIMA, SE ACHAR):
-CImg<unsigned char> PrintVectorPointNormFill(vector<double> V, int sy, double syrto)
+CImg<unsigned char> PrintVectorPointNormFill(std::vector<double> V, int sy, double syrto)
 {
 	syrto *= 2;
 	CImg<unsigned char> WavePrint(V.size(), sy, 1, 3, 0);
@@ -863,10 +864,10 @@ CImg<unsigned char> PrintVectorPointNormFill(vector<double> V, int sy, double sy
 }
 // Imprime vetor como barras, tipo grafico estastistico: (LEMBRAR DE FAZER COM QUE SE NÃO TIVER VALOR NEGATIVO, USAR METADE DA IMAGEM!)
 // Largura é 'N * (Width + 2 * Border)'
-CImg<unsigned char> PrintVectorBars(vector<double> V, int Width, double Ratio, int Borderx, int Bordery, bool xAxis)
+CImg<unsigned char> PrintVectorBars(std::vector<double> V, int Width, double Ratio, int Borderx, int Bordery, bool xAxis)
 {
 	double Max, Min; bool Neg = false; MaxMinVec(V, Max, Min); if (Min < 0) { Neg = true; } MaxMinVecAbs(V, Max, Min); Max *= Ratio; Min *= Ratio;
-	CImg<unsigned char> VecPrint; //vector<CImg<unsigned char>> Prints;
+	CImg<unsigned char> VecPrint; //std::vector<CImg<unsigned char>> Prints;
 	if (Neg)
 	{
 		if (xAxis) { CImg<unsigned char> I(Max + Min + 2 + Borderx * 2, (Width + Bordery) * V.size(), 1, 3, 0); VecPrint = I; }
@@ -898,17 +899,17 @@ CImg<unsigned char> PrintVectorBars(vector<double> V, int Width, double Ratio, i
 	}
 	return (VecPrint);
 }
-CImg<unsigned char> PrintVectorBars(vector<double> V, int Width, double Ratio, int Borderx, int Bordery, bool xAxis, unsigned char Color[3])
+CImg<unsigned char> PrintVectorBars(std::vector<double> V, int Width, double Ratio, int Borderx, int Bordery, bool xAxis, unsigned char Color[3])
 {
 	CImg<unsigned char> VecPrint;
 	return (VecPrint);
 }
-CImg<unsigned char> PrintVectorBarsAbs(vector<double> V, int Width, double Ratio, int Borderx, int Bordery, bool xAxis)
+CImg<unsigned char> PrintVectorBarsAbs(std::vector<double> V, int Width, double Ratio, int Borderx, int Bordery, bool xAxis)
 {
 	CImg<unsigned char> VecPrint;
 	return (VecPrint);
 }
-CImg<unsigned char> PrintVectorBarsAbs(vector<double> V, int Width, double Ratio, int Borderx, int Bordery, bool xAxis, unsigned char Color[3])
+CImg<unsigned char> PrintVectorBarsAbs(std::vector<double> V, int Width, double Ratio, int Borderx, int Bordery, bool xAxis, unsigned char Color[3])
 {
 	CImg<unsigned char> VecPrint;
 	return (VecPrint);
@@ -918,17 +919,17 @@ CImg<unsigned char> PrintVectorBarsAbs(vector<double> V, int Width, double Ratio
 CImg<unsigned char> PrintVelAclNtnMntJlWt(VelAclNtnMntJlWt Class, double Scale)
 {
 	CImg<unsigned char> ImgVel = PrintVectorLine(Class.Vel, Scale, 127, 255, 0, 0); // GRÁFICOS:
-	AddText(ImgVel, round(ImgVel.width() * 0.5), round(ImgVel.height() * 0.5), to_string(Class.Vel.back()), 255, 0, 0);
+	AddText(ImgVel, round(ImgVel.width() * 0.5), round(ImgVel.height() * 0.5), std::to_string(Class.Vel.back()), 255, 0, 0);
 	CImg<unsigned char> ImgAcl = PrintVectorLine(Class.Acell, Scale, 64, 0, 255, 0);
-	AddText(ImgAcl, round(ImgAcl.width() * 0.5), round(ImgAcl.height() * 0.5), to_string(Class.Acell.back()), 0, 255, 0);
+	AddText(ImgAcl, round(ImgAcl.width() * 0.5), round(ImgAcl.height() * 0.5), std::to_string(Class.Acell.back()), 0, 255, 0);
 	CImg<unsigned char> ImgNew = PrintVectorLine(Class.Newton, Scale, 0, 0, 0, 255);
-	AddText(ImgNew, round(ImgNew.width() * 0.5), round(ImgNew.height() * 0.5), to_string(Class.Newton.back()), 0, 0, 255);
+	AddText(ImgNew, round(ImgNew.width() * 0.5), round(ImgNew.height() * 0.5), std::to_string(Class.Newton.back()), 0, 0, 255);
 	CImg<unsigned char> ImgMnt = PrintVectorLine(Class.Moment, Scale, 0, 255, 255, 0);
-	AddText(ImgMnt, round(ImgMnt.width() * 0.5), round(ImgMnt.height() * 0.5), to_string(Class.Moment.back()), 255, 255, 0);
+	AddText(ImgMnt, round(ImgMnt.width() * 0.5), round(ImgMnt.height() * 0.5), std::to_string(Class.Moment.back()), 255, 255, 0);
 	CImg<unsigned char> ImgJl = PrintVectorLine(Class.Joule, Scale, 127, 0, 255, 255);
-	AddText(ImgJl, round(ImgJl.width() * 0.5), round(ImgJl.height() * 0.5), to_string(Class.Joule.back()), 0, 255, 255);
+	AddText(ImgJl, round(ImgJl.width() * 0.5), round(ImgJl.height() * 0.5), std::to_string(Class.Joule.back()), 0, 255, 255);
 	CImg<unsigned char> ImgWt = PrintVectorLine(Class.Watt, Scale, 64, 255, 0, 255);
-	AddText(ImgWt, round(ImgWt.width() * 0.5), round(ImgWt.height() * 0.5), to_string(Class.Watt.back()), 255, 0, 255);
+	AddText(ImgWt, round(ImgWt.width() * 0.5), round(ImgWt.height() * 0.5), std::to_string(Class.Watt.back()), 255, 0, 255);
 	int h1 = ImgVel.height() + ImgAcl.height() + ImgNew.height(); // MEDIDAS
 	int h2 = ImgMnt.height() + ImgJl.height() + ImgWt.height();
 	int Heights = 0;
@@ -949,7 +950,7 @@ CImg<unsigned char> PrintVelAclNtnMntJlWt(VelAclNtnMntJlWt Class, double Scale)
 
 // IMAGENS DA MATRIZ DOS VETORES:
 // Salva uma imagem 'x' por 'y' usando um vetor com o RGB em double '0 a 1.0':
-CImg<unsigned char> PrintVectorImg(vector<Point3DFlt> V, int x, int y, double Rsize)
+CImg<unsigned char> PrintVectorImg(std::vector<Point3DFlt> V, int x, int y, double Rsize)
 {
 	CImg<unsigned char> Ret(x, y, 1, 3, 0);
 	int C = 0;
@@ -966,7 +967,7 @@ CImg<unsigned char> PrintVectorImg(vector<Point3DFlt> V, int x, int y, double Rs
 	if (Rsize != 1.0) { Resize(Ret, round(x * Rsize), round(y * Rsize), 6); }
 	return(Ret);
 }
-CImg<unsigned char> PrintVectorImg(vector<Point3DFlt> V, double Rsize)
+CImg<unsigned char> PrintVectorImg(std::vector<Point3DFlt> V, double Rsize)
 {
 	double SqrtVec = sqrt(V.size());
 	int x = round(SqrtVec);
@@ -989,7 +990,7 @@ CImg<unsigned char> PrintVectorImg(vector<Point3DFlt> V, double Rsize)
 }
 
 // Salva uma Imagem com a cor sendo função de 'x' e 'y':
-CImg<unsigned char> PrintVectorInfoLRGB(vector<double> V, double Rsize)
+CImg<unsigned char> PrintVectorInfoLRGB(std::vector<double> V, double Rsize)
 {
 	double SqrtVec = sqrt(V.size());
 	int x = round(SqrtVec), y;
@@ -1007,7 +1008,7 @@ CImg<unsigned char> PrintVectorInfoLRGB(vector<double> V, double Rsize)
 	if (Rsize != 1.0) { Resize(R, round(x * Rsize), round(y * Rsize), 6); }
 	return(R);
 }
-CImg<unsigned char> PrintVectorInfoLRGB(vector<double> V, int x, double Rsize)
+CImg<unsigned char> PrintVectorInfoLRGB(std::vector<double> V, int x, double Rsize)
 {
 	double SqrtVec = sqrt(V.size());
 	if (x > V.size()) { x = V.size(); } if (x < 1) { x = 1; }
@@ -1027,7 +1028,7 @@ CImg<unsigned char> PrintVectorInfoLRGB(vector<double> V, int x, double Rsize)
 	return(R);
 }
 
-CImg<unsigned char> PrintVectorInfoLRGB(vector<unsigned short> V, double Rsize)
+CImg<unsigned char> PrintVectorInfoLRGB(std::vector<unsigned short> V, double Rsize)
 {
 	double SqrtVec = sqrt(V.size());
 	int x = round(SqrtVec), y;
@@ -1048,7 +1049,7 @@ CImg<unsigned char> PrintVectorInfoLRGB(vector<unsigned short> V, double Rsize)
 }
 
 
-CImg<unsigned char> PrintVectorInfoLRGB(vector<char> V, double Rsize)
+CImg<unsigned char> PrintVectorInfoLRGB(std::vector<char> V, double Rsize)
 {
 	double SqrtVec = sqrt(V.size());
 	int x = round(SqrtVec);
@@ -1068,7 +1069,7 @@ CImg<unsigned char> PrintVectorInfoLRGB(vector<char> V, double Rsize)
 	if (Rsize != 1.0) { Resize(R, round(x * Rsize), round(y * Rsize), 6); }
 	return(R);
 }
-CImg<unsigned char> PrintVectorInfoLRGB(vector<char> V, int x, double Rsize)
+CImg<unsigned char> PrintVectorInfoLRGB(std::vector<char> V, int x, double Rsize)
 {
 	double SqrtVec = sqrt(V.size());
 	if (x > V.size()) { x = V.size(); } if (x < 1) { x = 1; }
@@ -1087,7 +1088,7 @@ CImg<unsigned char> PrintVectorInfoLRGB(vector<char> V, int x, double Rsize)
 	if (Rsize != 1.0) { Resize(R, round(x * Rsize), round(y * Rsize), 6); }
 	return(R);
 }
-CImg<unsigned char> PrintVectorInfoLRGB(string String, double Rsize)
+CImg<unsigned char> PrintVectorInfoLRGB(std::string String, double Rsize)
 {
 	double SqrtVec = sqrt(String.size());
 	int x = round(SqrtVec);
@@ -1108,7 +1109,7 @@ CImg<unsigned char> PrintVectorInfoLRGB(string String, double Rsize)
 	if (Rsize != 1.0) { Resize(R, round(x * Rsize), round(y * Rsize), 6); }
 	return(R);
 }
-CImg<unsigned char> PrintVectorInfoLRGB(string String, int x, double Rsize)
+CImg<unsigned char> PrintVectorInfoLRGB(std::string String, int x, double Rsize)
 {
 	double SqrtVec = sqrt(String.size());
 	if (x > String.size()) { x = String.size(); } if (x < 1) { x = 1; }
@@ -1129,7 +1130,7 @@ CImg<unsigned char> PrintVectorInfoLRGB(string String, int x, double Rsize)
 }
 
 // Salva uma Imagem com a cor sendo grayscale de '0' a '127':
-CImg<unsigned char> PrintVectorInfo(vector<double> V, double Rsize)
+CImg<unsigned char> PrintVectorInfo(std::vector<double> V, double Rsize)
 {
 	double SqrtVec = sqrt(V.size());
 	int x = round(SqrtVec);
@@ -1151,7 +1152,7 @@ CImg<unsigned char> PrintVectorInfo(vector<double> V, double Rsize)
 	if (Rsize != 1.0) { Resize(R, round(x * Rsize), round(y * Rsize), 6); }
 	return(R);
 }
-CImg<unsigned char> PrintVectorInfo(vector<double> V, int x, double Rsize)
+CImg<unsigned char> PrintVectorInfo(std::vector<double> V, int x, double Rsize)
 {
 	double SqrtVec = sqrt(V.size());
 	if (x > V.size()) { x = V.size(); }
@@ -1174,7 +1175,7 @@ CImg<unsigned char> PrintVectorInfo(vector<double> V, int x, double Rsize)
 }
 
 // Salva uma Imagem com a cor sendo função de 'y' dividido em 3 partes, de vermelho a azul:
-CImg<unsigned char> PrintVectorInfoTriClr(vector<double> V, double Rsize)
+CImg<unsigned char> PrintVectorInfoTriClr(std::vector<double> V, double Rsize)
 {
 	double SqrtVec = sqrt(V.size());
 	int x = round(SqrtVec);
@@ -1201,11 +1202,11 @@ CImg<unsigned char> PrintVectorInfoTriClr(vector<double> V, double Rsize)
 // Salva uma Imagem com a cor sendo função de 'x' e 'y', Rsize = Resize:
 CImg<unsigned char> PrintFileAsBMP(std::string Path, double Multiplier, double Rsize)
 {
-	ifstream I(Path, ios::binary); // FILE
-	I.seekg(0, ios::end); int End = I.tellg(); I.seekg(0, ios::beg);
+	std::ifstream I(Path, std::ios::binary); // FILE
+	I.seekg(0, std::ios::end); int End = I.tellg(); I.seekg(0, std::ios::beg);
 	std::vector<char> V(End);
 	if (I.is_open()) { I.read((char*)&V[0], End); } else { std::cout << "COULDN'T OPEN FILE!\n"; }
-	//while (!I.eof()) { char c; I.read(&c, 1); V.push_back(c); cout << "CHAR: " << (int)c << " |\n"; } // Add this inside 'if' if you want to get char by char
+	//while (!I.eof()) { char c; I.read(&c, 1); V.push_back(c); std::cout << "CHAR: " << (int)c << " |\n"; } // Add this inside 'if' if you want to get char by char
 	I.close();
 
 	double SqrtVec = sqrt(V.size()); // IMAGE
@@ -1235,7 +1236,7 @@ CImg<unsigned char> PrintFileAsBMP(std::string Path, double Multiplier, double R
 // ############## FRACTAIS:
 
 // PLOTAR PONTOS (STRUCT):
-CImg<unsigned char> PrintPoints(vector<Point> Coord, int SegmentSize, int BackGround, bool Abs)
+CImg<unsigned char> PrintPoints(std::vector<Point> Coord, int SegmentSize, int BackGround, bool Abs)
 {
 	Point max, min;
 	MaxMinVecPoint(Coord, max, min, Abs);
@@ -1249,7 +1250,7 @@ CImg<unsigned char> PrintPoints(vector<Point> Coord, int SegmentSize, int BackGr
 
 	return(Print);
 }
-CImg<unsigned char> PrintLinePoints(vector<LinePoint> Coord, int SegmentSize, int BackGround, bool Abs) // Testar para ver se esta tudo certo
+CImg<unsigned char> PrintLinePoints(std::vector<LinePoint> Coord, int SegmentSize, int BackGround, bool Abs) // Testar para ver se esta tudo certo
 {
 	LinePoint max, min;
 	MaxMinVecLinePoint(Coord, max, min, Abs);
@@ -1275,7 +1276,7 @@ CImg<unsigned char> PrintBinaryWordCircle(int Size, int r, int Iter, bool GeoAri
 {
 	CImg<unsigned char> MainImg(Size, Size, 1, 3, 0);
 	double rRatio = 1.0 * r / Size;	int Mid = floor(Size * 0.5);
-	vector<string> BinWords = BinaryWordsSeq(Iter);	vector<long> BinArea = BinaryWordSeqArean(Iter);
+	std::vector<std::string> BinWords = BinaryWordsSeq(Iter);	std::vector<long> BinArea = BinaryWordSeqArean(Iter);
 	for (int c = Iter; c > 0; --c)
 	{
 		int Invc = (Iter - c) + 1;
@@ -1283,7 +1284,7 @@ CImg<unsigned char> PrintBinaryWordCircle(int Size, int r, int Iter, bool GeoAri
 		int MidS = cSize * 0.5;	int cr = rRatio * cSize; int s = BinArea[c - 1]; int s2 = pow(2, c);
 		CImg<unsigned char> CircleImg(cSize, cSize, 1, 3, 127);	unsigned char cclr[] = { 255, 0, 0 }; CircleImg.draw_circle(MidS, MidS, cr, cclr, 1, 1);
 		if (c > 1) { RaioPoligonoQuick(CircleImg, cr, MidS, MidS, 0, s, 255, 255, 0, 0, 0); } RaioPoligonoQuick(CircleImg, cr, MidS, MidS, 0, s2, 255, 0, 127, 0, 0);
-		double Div = TAU / s2; int Count = 0; vector<PointFlt> Scores; for (double rad =  0; Count < s2; ++Count) { Scores.push_back({ rad, AOScore(rad) }); rad += Div; } QuickSortPty(Scores, 0, Scores.size() - 1);
+		double Div = TAU / s2; int Count = 0; std::vector<PointFlt> Scores; for (double rad =  0; Count < s2; ++Count) { Scores.push_back({ rad, AOScore(rad) }); rad += Div; } QuickSortPty(Scores, 0, Scores.size() - 1);
 		int Wordset = SumntoPowIniEnd(2, 1, c - 1);
 		for (int Word = Wordset; Word < Wordset + s2; ++Word)
 		{
@@ -1296,7 +1297,7 @@ CImg<unsigned char> PrintBinaryWordCircle(int Size, int r, int Iter, bool GeoAri
 				double SubDiv = Div / WordSize; double Rad = Scores[Word - Wordset].x - (SubDiv * (WordSize - 1)) + (SubDiv * Char); Rad -= (TAU / s) * 0.5; Rad = TAU - Rad;
 				if (c > 1) { FillArea(CircleImg, MidS + cos(Rad) * cr * 0.85, MidS + sin(Rad) * cr * 0.85, NewRGB.x, NewRGB.y, NewRGB.z); }
 				else { FillArea(CircleImg, MidS, MidS + sin(Rad + TAU * 0.5) * cr * 0.75, NewRGB.x, NewRGB.y, NewRGB.z); }
-				//AddText(CircleImg, MidS + cos(Rad) * cr * 0.90, MidS + sin(Rad) * cr * 0.90, to_string(BinWords[Word][Char]) + "\n" + BinWords[Word], 255, 0, 0);
+				//AddText(CircleImg, MidS + cos(Rad) * cr * 0.90, MidS + sin(Rad) * cr * 0.90, std::to_string(BinWords[Word][Char]) + "\n" + BinWords[Word], 255, 0, 0);
 			}
 		}
 		unsigned char IgnoreColor[] = { 127, 127, 127 };
@@ -1429,14 +1430,14 @@ public:
 		int R = Clr[0], G = Clr[1], B = Clr[1];
 		if (Text)
 		{
-			AddText(TriOut, 16, y[0] - 8, "a: " + to_string(a), R, G, B); // A
-			AddText(TriOut, 16, y[0], "Gamma: " + to_string(gamma), (255 - R) * 0.75, (255 - G) * 0.75, (255 - B) * 0.75); // GAMMA
-			AddText(TriOut, round(Largura * 0.75), y[1] - 8, "c: " + to_string(c), R, G, B); // C, Algo misteriosamente deu errado
-			AddText(TriOut, round(Largura * 0.75), y[1], "Beta: " + to_string(beta), (255 - R) * 0.75, (255 - G) * 0.75, (255 - B) * 0.75); // BETA
-			AddText(TriOut, round(Largura * 0.5), Offy - ((SclCrd[2].y) - 8), "b: " + to_string(b), R, G, B); // B
-			AddText(TriOut, round(Largura * 0.5), Offy - ((SclCrd[2].y) - 16), "Alpha: " + to_string(alpha), (255 - R) * 0.75, (255 - G) * 0.75, (255 - B) * 0.75); // ALPHA
-			AddText(TriOut, round(Largura * 0.5), Altura * 0.5, "Area: " + to_string(area), 255, 127, 127); // AREA
-			AddText(TriOut, round(Largura * 0.5), (Altura * 0.5) + 8, "Peri.: " + to_string(perimetro), 127, 255, 127); // PERIMETRO
+			AddText(TriOut, 16, y[0] - 8, "a: " + std::to_string(a), R, G, B); // A
+			AddText(TriOut, 16, y[0], "Gamma: " + std::to_string(gamma), (255 - R) * 0.75, (255 - G) * 0.75, (255 - B) * 0.75); // GAMMA
+			AddText(TriOut, round(Largura * 0.75), y[1] - 8, "c: " + std::to_string(c), R, G, B); // C, Algo misteriosamente deu errado
+			AddText(TriOut, round(Largura * 0.75), y[1], "Beta: " + std::to_string(beta), (255 - R) * 0.75, (255 - G) * 0.75, (255 - B) * 0.75); // BETA
+			AddText(TriOut, round(Largura * 0.5), Offy - ((SclCrd[2].y) - 8), "b: " + std::to_string(b), R, G, B); // B
+			AddText(TriOut, round(Largura * 0.5), Offy - ((SclCrd[2].y) - 16), "Alpha: " + std::to_string(alpha), (255 - R) * 0.75, (255 - G) * 0.75, (255 - B) * 0.75); // ALPHA
+			AddText(TriOut, round(Largura * 0.5), Altura * 0.5, "Area: " + std::to_string(area), 255, 127, 127); // AREA
+			AddText(TriOut, round(Largura * 0.5), (Altura * 0.5) + 8, "Peri.: " + std::to_string(perimetro), 127, 255, 127); // PERIMETRO
 		}
 		if (AddVert)
 		{
@@ -1452,7 +1453,7 @@ public:
 		{
 			Linhaxy(TriOut, (SclCrd[2].x) + Borda, Offy, (SclCrd[2].x) + Borda, Offy - round(Scale * h), ClrhLine[0], ClrhLine[1], ClrhLine[2], false);
 			if (Text)
-			{ int px = x[2] - 64; if (px < Largura * 0.33) { px += 80; } AddText(TriOut, px, Offy - round(Scale * h * 0.5) - 8, "Height: " + to_string(h), ClrhLine[0], ClrhLine[1], ClrhLine[2]); }
+			{ int px = x[2] - 64; if (px < Largura * 0.33) { px += 80; } AddText(TriOut, px, Offy - round(Scale * h * 0.5) - 8, "Height: " + std::to_string(h), ClrhLine[0], ClrhLine[1], ClrhLine[2]); }
 			if (AddVert) { unsigned char Color[] = { 127, 127, 127 }; AdcVert(TriOut, (SclCrd[2].x) + Borda, Offy, 3, Color); }
 		}
 	}
@@ -1470,9 +1471,9 @@ public:
 		Linha(TriOut, bisc * Scale, Angle, x[0], y[0], false, ClrBiLine[0], ClrBiLine[1], ClrBiLine[2], false);
 		if (Text)
 		{
-			AddText(TriOut, round(Largura * 0.5), Offy - ((SclCrd[2].y) - 24), "BisA: " + to_string(bisa), ClrBiLine[0], ClrBiLine[1], ClrBiLine[2]);
-			AddText(TriOut, round(Largura * 0.75), y[1] - 16, "BisB: " + to_string(bisb), ClrBiLine[0], ClrBiLine[1], ClrBiLine[2]);
-			AddText(TriOut, 16, y[0] - 16, "BisC: " + to_string(bisc), ClrBiLine[0], ClrBiLine[1], ClrBiLine[2]);
+			AddText(TriOut, round(Largura * 0.5), Offy - ((SclCrd[2].y) - 24), "BisA: " + std::to_string(bisa), ClrBiLine[0], ClrBiLine[1], ClrBiLine[2]);
+			AddText(TriOut, round(Largura * 0.75), y[1] - 16, "BisB: " + std::to_string(bisb), ClrBiLine[0], ClrBiLine[1], ClrBiLine[2]);
+			AddText(TriOut, 16, y[0] - 16, "BisC: " + std::to_string(bisc), ClrBiLine[0], ClrBiLine[1], ClrBiLine[2]);
 		}
 	}
 
@@ -1497,9 +1498,9 @@ public:
 	{
 		double ralpha = Ang2Rad(alpha), rbeta = Ang2Rad(beta), rgamma = Ang2Rad(gamma);
 		CImg<unsigned char> StringComp(Largura, (8 * 3) + 4, 1, 3, 255);
-		string S0 = "# sin abc: " + to_string(sin(ralpha)) + " | " + to_string(sin(rbeta)) + " | " + to_string(sin(rgamma));
-		string S1 = "# cos abc: " + to_string(cos(ralpha)) + " | " + to_string(cos(rbeta)) + " | " + to_string(cos(rgamma));
-		string S2 = "# tan abc: " + to_string(tan(ralpha)) + " | " + to_string(tan(rbeta)) + " | " + to_string(tan(rgamma));
+		std::string S0 = "# sin abc: " + std::to_string(sin(ralpha)) + " | " + std::to_string(sin(rbeta)) + " | " + std::to_string(sin(rgamma));
+		std::string S1 = "# cos abc: " + std::to_string(cos(ralpha)) + " | " + std::to_string(cos(rbeta)) + " | " + std::to_string(cos(rgamma));
+		std::string S2 = "# tan abc: " + std::to_string(tan(ralpha)) + " | " + std::to_string(tan(rbeta)) + " | " + std::to_string(tan(rgamma));
 		AddText(StringComp, 4, 1, S0, 0, 0, 0);
 		AddText(StringComp, 4, 9, S1, 0, 0, 0);
 		AddText(StringComp, 4, 17, S2, 0, 0, 0);

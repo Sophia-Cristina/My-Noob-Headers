@@ -13,7 +13,7 @@ Point3D BitmapRGB(CImg<unsigned char>, int, int);
 Point3D LinearRGB(double, double, double);
 // ###################################
 // ############## TYPEDEFS:
-typedef vector<vector<Point3DFlt>> IMGDataSet; // !!!!!!! !!!!!!! !!!!!!! PAY ATTENTION TO THIS TYPEDEF !!!!!!! !!!!!!! !!!!!!!
+//typedef std::vector<std::vector<Point3DFlt>> IMGDataSet; // !!!!!!! !!!!!!! !!!!!!! PAY ATTENTION TO THIS TYPEDEF !!!!!!! !!!!!!! !!!!!!!
 // ###################################
 
 // ############################################################################################################################################
@@ -35,7 +35,7 @@ bool InsideRGBGapOR(Point3D RGB, int R0, int R1, int G0, int G1, int B0, int B1)
 
 
 // MAX / MIN OF PIXEL X AND Y:
-Point MaxxMinxPixel(vector<Pixel> VP)
+Point MaxxMinxPixel(std::vector<Pixel> VP)
 {
 	Point MM;
 	int Maxx = VP[0].x, Minx = VP[0].x;
@@ -51,7 +51,7 @@ Point MaxxMinxPixel(vector<Pixel> VP)
 	MM.x = Maxx; MM.y = Minx;
 	return(MM);
 }
-Point MaxyMinyPixel(vector<Pixel> VP)
+Point MaxyMinyPixel(std::vector<Pixel> VP)
 {
 	Point MM;
 	int Maxy = VP[0].x, Miny = VP[0].x;
@@ -67,7 +67,7 @@ Point MaxyMinyPixel(vector<Pixel> VP)
 	MM.x = Maxy; MM.y = Miny;
 	return(MM);
 }
-void MaxMinPixel(vector<Pixel> VP, Point& MaxxMinx, Point& MaxyMiny)
+void MaxMinPixel(std::vector<Pixel> VP, Point& MaxxMinx, Point& MaxyMiny)
 {
 	int Maxx = VP[0].x, Minx = VP[0].x;
 	int Maxy = VP[0].y, Miny = VP[0].y;
@@ -117,9 +117,9 @@ Pixel BitmapPixel(CImg<unsigned char> BMP, int x, int y)
 }
 
 // ALL RGBS FROM BITMAP:
-vector<Point3D> BitmapRGBMatrix(CImg<unsigned char> BMP)
+std::vector<Point3D> BitmapRGBMatrix(CImg<unsigned char> BMP)
 {
-	vector<Point3D> Ret;
+	std::vector<Point3D> Ret;
 	for (int m = 0; m < BMP.height(); ++m)
 	{
 		for (int n = 0; n < BMP.width(); ++n)
@@ -128,9 +128,9 @@ vector<Point3D> BitmapRGBMatrix(CImg<unsigned char> BMP)
 	return(Ret);
 }
 // ALL PIXELS FROM BITMAP:
-vector<Pixel> BitmapPixelMatrix(CImg<unsigned char> BMP)
+std::vector<Pixel> BitmapPixelMatrix(CImg<unsigned char> BMP)
 {
-	vector<Pixel> Ret;
+	std::vector<Pixel> Ret;
 	for (int y = 0; y < BMP.height(); ++y)
 	{
 		for (int x = 0; x < BMP.width(); ++x)
@@ -142,9 +142,9 @@ vector<Pixel> BitmapPixelMatrix(CImg<unsigned char> BMP)
 }
 
 // ALL RGBS FROM BITMAP (in float), IT GOES LIKE R, THEN G, THEN B, THEN NEXT PIXEL, SO THE VECTOR HAVE 3X THE SIZE OF THE IMAGE:
-vector<double> BitmapRGBVector(CImg<unsigned char> BMP)
+std::vector<double> BitmapRGBVector(CImg<unsigned char> BMP)
 {
-	vector<double> Ret;
+	std::vector<double> Ret;
 	for (int m = 0; m < BMP.height(); ++m)
 	{
 		for (int n = 0; n < BMP.width(); ++n)
@@ -156,9 +156,9 @@ vector<double> BitmapRGBVector(CImg<unsigned char> BMP)
 }
 
 // LIMITED PIXEL MATRIX:
-vector<Pixel> BitmapPixelLimMatrix(CImg<unsigned char> BMP, int R0, int R1, int G0, int G1, int B0, int B1)
+std::vector<Pixel> BitmapPixelLimMatrix(CImg<unsigned char> BMP, int R0, int R1, int G0, int G1, int B0, int B1)
 {
-	vector<Pixel> Ret;
+	std::vector<Pixel> Ret;
 	for (int m = 0; m < BMP.height(); ++m)
 	{
 		for (int n = 0; n < BMP.width(); ++n)
@@ -181,7 +181,7 @@ vector<Pixel> BitmapPixelLimMatrix(CImg<unsigned char> BMP, int R0, int R1, int 
 	for (int Index = 0; Index < Last; ++Index)
 	{
 		CImg<unsigned char> BMP;
-		vector<Point3DFlt> Frame;
+		std::vector<Point3DFlt> Frame;
 		for (int m = 0; m < BMP.height(); ++m)
 		{
 			for (int n = 0; n < BMP.width(); ++n)

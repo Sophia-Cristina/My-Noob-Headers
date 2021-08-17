@@ -229,7 +229,7 @@ std::vector<double> AttackDecay(std::vector<double> Input, double A, double D, d
     double Sum = A + D, RatioA = A / Sum, RatioD = D / Sum;
     int Size = Input.size(); int SizeA = floor(Size * RatioA), SizeD = Size - SizeA;
     double DeltaA = 1.0 / SizeA, DeltaD = 1.0 / SizeD;
-    //cout << " Size: " << Size << " | SA: " << SizeA << " | SD: " << SizeD << " | DeltaA: " << DeltaA << " | DeltaD: " << DeltaD << endl;
+    //cout << " Size: " << Size << " | SA: " << SizeA << " | SD: " << SizeD << " | DeltaA: " << DeltaA << " | DeltaD: " << DeltaD << std::endl;
     for (int n = 0; n < SizeA; ++n) { double x = DeltaA * n; R.push_back(x * Input[n] * Gain); }
     for (int n = SizeA; n < Size; ++n) { double x = DeltaD * (n - SizeA); R.push_back((1 - x) * Input[n] * Gain); }
     return(R);
@@ -391,7 +391,7 @@ public:
     // You can transfer an int number to char[4] using a pointer.
     unsigned char ID[4] = { 'N', 'O', 'N', 'E' };
     
-    Wire(string SetID4chars)
+    Wire(std::string SetID4chars)
     {
         for (int n = 0; n < 4; ++n) { if (n < SetID4chars.size()) { ID[n] = SetID4chars[n]; } else { ID[n] = ' '; } }
     }
@@ -532,7 +532,7 @@ public:
 
         I.draw_circle(LEDSize * 0.5, LEDSize * 0.5, LEDSize * 0.5, clr, 1, 1);
         FillArea(I, LEDSize * 0.5, LEDSize * 0.5, Red, Whiteness, Whiteness);
-        std::string str = "LED " + to_string(Volts) + "v\nSig.: " + to_string(Val) + "v\nSample: " + to_string(SigSample);
+        std::string str = "LED " + std::to_string(Volts) + "v\nSig.: " + std::to_string(Val) + "v\nSample: " + std::to_string(SigSample);
         AddText(I, LEDSize * 0.25, LEDSize * 0.25, str, 255 - Red, 255 - Whiteness, 255 - Whiteness);
         Red = 31;
         return(I);
@@ -560,16 +560,20 @@ public:
         unsigned int Sample = 0, Signal = 0;
         // #####################
         std::cout << "DOWN / UP = Last / Next Signal Sample | LEFT / RIGHT = Last / Next Signal\n\nTYPE SOMETHING TO CONTINUE: ";
-        char NADA; cin >> NADA;
+        char NADA; std::cin >> NADA;
         CImg<unsigned char> Array = SeeLED(0, 0);
         CImgDisplay D(Array, "LED");
         while (!D.is_closed())
         {
             D.wait();
-            if (D.is_keyARROWUP()) { ++Sample; Sample %= Signals[0].size(); Array = SeeLED(Signal, Sample); D.display(Array); std::cout << "Signal: " << Signal << " | Sample: " << Sample << endl; }
-            if (D.is_keyARROWDOWN()) { ++Sample; Sample %= Signals[0].size(); Array = SeeLED(Signal, Sample); D.display(Array); std::cout << "Signal: " << Signal << " | Sample: " << Sample << endl; }
-            if (D.is_keyARROWRIGHT()) { ++Signal; Signal %= Signals.size(); Array = SeeLED(Signal, Sample); D.display(Array); std::cout << "Signal: " << Signal << " | Sample: " << Sample << endl; }
-            if (D.is_keyARROWLEFT()) { --Signal; Signal %= Signals.size(); Array = SeeLED(Signal, Sample); D.display(Array); std::cout << "Signal: " << Signal << " | Sample: " << Sample << endl; }
+            if (D.is_keyARROWUP())
+            { ++Sample; Sample %= Signals[0].size(); Array = SeeLED(Signal, Sample); D.display(Array); std::cout << "Signal: " << Signal << " | Sample: " << Sample << std::endl; }
+            if (D.is_keyARROWDOWN())
+            { ++Sample; Sample %= Signals[0].size(); Array = SeeLED(Signal, Sample); D.display(Array); std::cout << "Signal: " << Signal << " | Sample: " << Sample << std::endl; }
+            if (D.is_keyARROWRIGHT())
+            { ++Signal; Signal %= Signals.size(); Array = SeeLED(Signal, Sample); D.display(Array); std::cout << "Signal: " << Signal << " | Sample: " << Sample << std::endl; }
+            if (D.is_keyARROWLEFT())
+            { --Signal; Signal %= Signals.size(); Array = SeeLED(Signal, Sample); D.display(Array); std::cout << "Signal: " << Signal << " | Sample: " << Sample << std::endl; }
         }
         // #####################
         JoinSigs();
@@ -671,7 +675,7 @@ public:
         CImg<unsigned char> Append(I.width(), 16, 1, 3, 64); // APPEND INFORMATION
         for (int n = 0; n < Bits; ++n)
         {
-            AddText(Append, 4 + (Bits - 1 - n) * LEDSize, 2, to_string((int)pow(2, n)), 127, 127, 255);
+            AddText(Append, 4 + (Bits - 1 - n) * LEDSize, 2, std::to_string((int)pow(2, n)), 127, 127, 255);
         }
         I = JoinImg(Append, I, 1);
         return(I);
@@ -684,16 +688,16 @@ public:
         unsigned int Page = 0, Signal = 0;
         // #####################
         std::cout << "UP / DOWN = Rows Page\n\nTYPE SOMETHING TO CONTINUE: ";
-        char NADA; cin >> NADA;
+        char NADA; std::cin >> NADA;
         CImg<unsigned char> Array = SeeArray(0, 0);
         CImgDisplay D(Array, "LEDS");
         while (!D.is_closed())
         {
             D.wait();
-            if (D.is_keyARROWUP()) { ++Page; Page %= Signals[0].size(); Array = SeeArray(Signal, Page); D.display(Array); std::cout << "Signal: " << Signal << " | Page: " << Page << endl; }
-            if (D.is_keyARROWDOWN()) { --Page; Page %= Signals[0].size(); Array = SeeArray(Signal, Page); D.display(Array); std::cout << "Signal: " << Signal << " | Page: " << Page << endl; }
-            if (D.is_keyARROWRIGHT()) { ++Signal; Signal %= Signals.size(); Array = SeeArray(Signal, Page); D.display(Array); std::cout << "Signal: " << Signal << " | Page: " << Page << endl; }
-            if (D.is_keyARROWLEFT()) { --Signal; Signal %= Signals.size(); Array = SeeArray(Signal, Page); D.display(Array); std::cout << "Signal: " << Signal << " | Page: " << Page << endl; }
+            if (D.is_keyARROWUP()) { ++Page; Page %= Signals[0].size(); Array = SeeArray(Signal, Page); D.display(Array); std::cout << "Signal: " << Signal << " | Page: " << Page << std::endl; }
+            if (D.is_keyARROWDOWN()) { --Page; Page %= Signals[0].size(); Array = SeeArray(Signal, Page); D.display(Array); std::cout << "Signal: " << Signal << " | Page: " << Page << std::endl; }
+            if (D.is_keyARROWRIGHT()) { ++Signal; Signal %= Signals.size(); Array = SeeArray(Signal, Page); D.display(Array); std::cout << "Signal: " << Signal << " | Page: " << Page << std::endl; }
+            if (D.is_keyARROWLEFT()) { --Signal; Signal %= Signals.size(); Array = SeeArray(Signal, Page); D.display(Array); std::cout << "Signal: " << Signal << " | Page: " << Page << std::endl; }
         }
         // #####################
     }
@@ -752,28 +756,6 @@ public:
 // ####### ESPECIAL:
 
 // #####################################################################################################################################
-
-// ####### ####### ####### ####### ####### #######
-
-
-class TestElectr
-{
-public:
-	void Test()
-	{
-		cout << "Digite qual função:\n";
-		cout << "| 1 = | 2 =\n";
-		int Op; cin >> Op;
-
-		if (Op == 1)
-		{
-		}
-		if (Op == 2)
-		{
-		}
-		
-	}
-};
 
 // ################################################# FIM ####################################################################################
 

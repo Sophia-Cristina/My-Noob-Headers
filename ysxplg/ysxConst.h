@@ -80,10 +80,10 @@ long double PlasticNumFx() { return(pow((9 + sqrt(69)) / 18.0, 1.0 / 3) + pow((9
 // #####################
 // FRICTION:
 
-vector<NameValue> FrictionList()
+std::vector<NameValue> FrictionList()
 {
-	//vector<NameValue> List{ {"a", 1}, {"b", 3} };
-	vector<NameValue> List;
+	//std::vector<NameValue> List{ {"a", 1}, {"b", 3} };
+	std::vector<NameValue> List;
 	// https://en.wikipedia.org/wiki/Friction#Approximate_coefficients_of_friction
 	NameValue L;
 	L.Name = "Aluminum (Static)"; L.Value = 1.2; List.push_back(L);

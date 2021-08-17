@@ -140,25 +140,7 @@ double SndInt2db(double I) { double Result = 10 * log10(I / 1.0e-12); if (Result
 double SndInt2db(double I, double I0) { double Result = 10 * log10(I / I0); if (Result < 0) { Result = 0; } return(Result); }
 double SndInt2db(double I, double p, double Watts, double m2) { double Result = 10 * log10(I / ((p * Watts) / m2)); if (Result < 0) { Result = 0; } return(Result); }
 
-
 // #####################################################################################################################################
-
-class TestConv
-{
-public:
-	void Test()
-	{
-		cout << "Digite qual função:\n";
-		cout << "| 1 =  |\n";
-
-		int Op; cin >> Op;
-
-		if (Op == 1)
-		{
-
-		}
-	}
-};
 
 // ################################################# FIM ####################################################################################
 
