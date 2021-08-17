@@ -20,13 +20,12 @@
 // #####################
 
 // #################################################
-// #####################
-// #######
 // REFERENCES:
 // EPROM DESIGN:
 //  [E1] https://pdf1.alldatasheet.com/datasheet-pdf/view/27266/TI/PAL16L8.html
 // 7400-SERIES:
 //  [T1] https://www.ti.com/lit/ds/symlink/sn74ls00.pdf?ts=1627944918289
+// #################################################
 
 // #################################################
 // ############## PAL16L8 EPROM ##############
@@ -143,7 +142,7 @@ public:
 		std::string s;
 		for (int n = 0; n < 256; ++n) { s.push_back(n); }
 		s = GetOuts(s);
-		ofstream O("!TTLSN7400.bin", ios::binary);
+		std::ofstream O("!TTLSN7400.bin", std::ios::binary);
 		if (O.is_open()) { O.write((char*)&s[0], s.size()); }
 		else { std::cout << "\nCouldn't open file!\n"; }
 		O.close();
@@ -153,7 +152,7 @@ public:
 	void GetSequence(std::string s)
 	{
 		s = GetOuts(s);
-		ofstream O("!TTLSN7400.bin", ios::binary); // In fact, it could maybe be text-mode, since the string is in binary anyway
+		std::ofstream O("!TTLSN7400.bin", std::ios::binary); // In fact, it could maybe be text-mode, since the string is in binary anyway
 		if (O.is_open()) { O.write((char*)&s[0], s.size()); }
 		else { std::cout << "\nCouldn't open file!\n"; }
 		O.close();
