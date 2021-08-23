@@ -328,14 +328,6 @@ public:
 	// #################################################
 	// #################################################
 
-	typedef std::vector<int> DATAINT;
-	typedef std::vector<short int> DATASHINT;
-	typedef std::vector<long long> DATALONG; // 8 bytes, it is in fact long long
-
-	// #################################################
-	// #################################################
-	// #################################################
-
 	// GET NUMBER OF BYTES:
 	void RefreshFileSize()
 	{
@@ -488,7 +480,7 @@ public:
 
 	// #################################################
 
-	DATASHINT GetAllDataSINT()
+	std::vector<short int> GetAllDataSINT()
 	{
 		wavFile.seekg(0, std::ios::end);
 		int End = wavFile.tellg();
@@ -496,7 +488,7 @@ public:
 		int pos = FileSize - DATAChnk.Size;
 		wavFile.seekg(pos);
 
-		DATASHINT GETDATA;
+		std::vector<short int> GETDATA;
 		for (int n = pos; n < End; )
 		{
 			wavFile.read((char*)&ReadSample, sizeof(ReadSample));
@@ -510,7 +502,7 @@ public:
 	// #################################################
 
 	// GET INT DATA, THIS IS THE DOUBLE (4 BYTES) OF THE STANDARD SIZE OF DATA (2 BYTES, 16 BITSPERSAMPLE):
-	DATAINT GetDataINT(int Index, int Size)
+	std::vector<int> GetDataINT(int Index, int Size)
 	{
 		int Bytes = sizeof(int);
 		Index *= Bytes; Size *= Bytes;
@@ -523,7 +515,7 @@ public:
 		int ReadSample;
 
 		wavFile.seekg(Begin);
-		DATAINT GETDATA;
+		std::vector<int> GETDATA;
 		for (int n = Begin; n < End; )
 		{
 			wavFile.read((char*)&ReadSample, Bytes);
@@ -535,7 +527,7 @@ public:
 	}
 
 	// GET SHORT INT DATA, THIS IS THE STANDARD SIZE OF DATA (2 BYTES):
-	DATASHINT GetDataSHINT(int Index, int Size)
+	std::vector<short int> GetDataSHINT(int Index, int Size)
 	{
 		int Bytes = sizeof(short int);
 		Index *= Bytes; Size *= Bytes;
@@ -549,7 +541,7 @@ public:
 		short int ReadSample;
 
 		wavFile.seekg(Begin);
-		DATASHINT GETDATA;
+		std::vector<short int> GETDATA;
 		for (int n = Begin; n < End; )
 		{
 			wavFile.read((char*)&ReadSample, Bytes);
@@ -561,7 +553,7 @@ public:
 	}
 
 	// GET SHORT INT DATA FROM EITHER LEFT OR RIGHT CHANNEL:
-	DATASHINT GetDataSHINTChannel(int Index, int Size, bool LeftRight)
+	std::vector<short int> GetDataSHINTChannel(int Index, int Size, bool LeftRight)
 	{
 		int Bytes = sizeof(short int);
 		Index *= Bytes; Size *= Bytes;
@@ -577,7 +569,7 @@ public:
 		short int ReadSample;
 
 		wavFile.seekg(Begin);
-		DATASHINT GETDATA;
+		std::vector<short int> GETDATA;
 		for (int n = Begin; n < End; )
 		{
 			wavFile.read((char*)&ReadSample, Bytes);
@@ -635,24 +627,32 @@ public:
 	// #################################################
 		
 	// PREPARE DATA TO OUTPUT: (!!! ATTENTION: This function Multiplies the data by 32767 !!!)
-	DATASHINT PrepareData(std::vector<double> In)
-	{ DATASHINT Buffer; for (int n = 0; n < In.size(); ++n) { if (In[n] > 0) { Buffer.push_back(round(In[n] * 32767)); } else { Buffer.push_back(round(In[n] * 32768)); } } return(Buffer);	}
-	DATASHINT PrepareData(std::vector<float> In)
-	{ DATASHINT Buffer; for (int n = 0; n < In.size(); ++n) { if (In[n] > 0) { Buffer.push_back(round(In[n] * 32767)); } else { Buffer.push_back(round(In[n] * 32768)); } } return(Buffer);	}
+	std::vector<short int> PrepareData(std::vector<double> In)
+	{
+		std::vector<short int> Buffer;
+		for (int n = 0; n < In.size(); ++n)	{ if (In[n] > 0) { Buffer.push_back(round(In[n] * 32767)); } else { Buffer.push_back(round(In[n] * 32768)); } }
+		return(Buffer);
+	}
+	std::vector<short int> PrepareData(std::vector<float> In)
+	{
+		std::vector<short int> Buffer;
+		for (int n = 0; n < In.size(); ++n) { if (In[n] > 0) { Buffer.push_back(round(In[n] * 32767)); } else { Buffer.push_back(round(In[n] * 32768)); } }
+		return(Buffer);
+	}
 
 	// #################################################
 
 	// SAVE DATA FULL:
 	void SaveDataSInt(std::vector<double> In)
 	{
-		DATASHINT Buffer = PrepareData(In); wavFile.seekp(44);
+		std::vector<short int> Buffer = PrepareData(In); wavFile.seekp(44);
 		for (int n = 0; n < Buffer.size(); ++n) { for (int Channel = 0; Channel < FMTChnk.NumChannels; ++Channel) { wavFile.write((char*)&Buffer[n], sizeof(short int)); } }
 		ReWriteSizes();
 		ReOpenFile();
 	}
 	void SaveDataSInt(std::vector<double> In, bool LeftRight)
 	{
-		DATASHINT Buffer = PrepareData(In); wavFile.seekp(44); short int Bytes = sizeof(short int);
+		std::vector<short int> Buffer = PrepareData(In); wavFile.seekp(44); short int Bytes = sizeof(short int);
 		for (int n = 0; n < Buffer.size(); ++n)
 		{
 			//for (int Channel = 0; Channel < FMTChnk.NumChannels; ++Channel)
@@ -667,12 +667,12 @@ public:
 	}
 	void SaveDataSInt(std::vector<float> In)
 	{
-		DATASHINT Buffer = PrepareData(In); wavFile.seekp(44);
+		std::vector<short int> Buffer = PrepareData(In); wavFile.seekp(44);
 		for (int n = 0; n < Buffer.size(); ++n) { wavFile.write((char*)&Buffer[n], sizeof(short int)); }
 		ReWriteSizes();
 		ReOpenFile();
 	}
-	void SaveDataSInt(DATASHINT In)
+	void SaveDataSInt(std::vector<short int> In)
 	{
 		wavFile.seekp(44);
 		for (int n = 0; n < In.size(); ++n) { wavFile.write((char*)&In[n], sizeof(short int)); }
@@ -685,19 +685,19 @@ public:
 	// SAVE DATA INDEX:
 	void SaveDataSInt(std::vector<double> In, int Index)
 	{
-		DATASHINT Buffer = PrepareData(In);
+		std::vector<short int> Buffer = PrepareData(In);
 		int Begin = (Index * sizeof(short int)) + 44; wavFile.seekp(Begin); for (int n = 0; n < Buffer.size(); ++n) { wavFile.write((char*)&Buffer[n], sizeof(short int)); }
 		ReWriteSizes();
 		ReOpenFile();
 	}
 	void SaveDataSInt(std::vector<float> In, int Index)
 	{
-		DATASHINT Buffer = PrepareData(In);
+		std::vector<short int> Buffer = PrepareData(In);
 		int Begin = (Index * sizeof(short int)) + 44; wavFile.seekp(Begin); for (int n = 0; n < In.size(); ++n) { wavFile.write((char*)&In[n], sizeof(short int)); }
 		ReWriteSizes();
 		ReOpenFile();
 	}
-	void SaveDataSInt(DATASHINT In, int Index)
+	void SaveDataSInt(std::vector<short int> In, int Index)
 	{
 		int Begin = (Index * sizeof(short int)) + 44; wavFile.seekp(Begin); for (int n = 0; n < In.size(); ++n) { wavFile.write((char*)&In[n], sizeof(short int)); }
 		ReWriteSizes();
