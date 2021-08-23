@@ -132,6 +132,11 @@ Ex.: MIDI to Frequency.
 ysxPhys.h:
   
 Header related to physics... And I suck at physics, so, don't joke me for being noob at it.
+
+  
+ysxSignal.h:
+
+Related to discrete time representation of signals.
   
 
 ysxVector.h:
@@ -363,13 +368,23 @@ ysxSDLAudio.h:
 I really really just made this file (in the moment i'm writting this). I want to learn how to mess with DSP and audio without any tools and etc.
   
 !!! Here comes a little rant from me. Whenever i search for tutorials to mess up with audio and etc, THERE IS NO FUCKING INFORMATION! Wtf, i hate this in the programming community! Lot of things that should be simple have absolutely no information. Windows API for audio? YEAH! GOOD FUCKING LUCKY finding simple tutorials online, you are going to have to read 3000000000000 lines of useless information in the microsoft documentation website to learn (not complaining about the ammount of lines, because it is pretty clear about every function and etc, but if you want a simple approach, it is a pain in the ass that you have to read lot of things you don't need 'for now' jsut to make some noise). Asking for help? Stackoverflow? "gEt JUCE dUdE", ok, and how JUCE programmers programmed JUCE? I bet lot people have doubts about audio-programming and they learn NOWHERE!
-  
 
-ysxSynth.h:
-  
-Empty header, it is going to be a header to synthesize sound by DSP without framework or whatever BS.
-  
 
+ysxSDLAudioData.h
+
+For everything related to how SDL handles samples and other kind of data.
+
+
+ysxSDLPattern.h
+
+Same as 'ysxPattern.h', but focused on how SDL Lib works.  
+
+
+ysxSDLSynth.h:
+  
+Header to synthesize sound by DSP with SDL Library.
+  
+  
 ####### ysxWinplg #######
 
   
