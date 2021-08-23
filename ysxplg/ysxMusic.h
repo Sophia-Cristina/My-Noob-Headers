@@ -29,6 +29,14 @@ double TAU2Samples(int SampleRate) { return(SampleRate / TAU); } // SamplesRate 
 double Sample_n2Rad(int n, int SampleRate) { return(TAU * (n / SampleRate)); } // If the SampleRate was a table, 'n' would be the index, when 'n = TableSize', the function returns 2*PI
 double Rad2Sample_n(double x, int SampleRate) { return((x / TAU) * SampleRate); } // If the SampleRate was a table, the return would be the index, when 'x = 2*PI', the function returns SampleRate (ex.: 2*PI / 2*PI) * 44100)
 
+// TIME IN SECONDS MEASURES EITHER BY CONVERTING UCHAR SAMPLES OR BY SAMPLES COUNT:
+double Samples2Sec(unsigned int nSamplesbyUCHAR, unsigned int SampRate, unsigned char BitsPerSamp) { return((double)nSamplesbyUCHAR / ((long long)SampRate * (0.125 * BitsPerSamp))); }
+double Samples2Sec(unsigned int nSamplesbyUCHAR, unsigned int SampRate, unsigned char BitsPerSamp, unsigned char Channels)
+{
+	return((double)nSamplesbyUCHAR / ((long long)(SampRate * (0.125 * BitsPerSamp) * Channels)));
+}
+double Samples2Sec(unsigned int Samples, unsigned int SampRate) { return((double)Samples / SampRate); }
+
 // ############################
 // ####### NOTES AND PATTERNS:
 // # FREQUENCIES:

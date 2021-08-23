@@ -306,7 +306,6 @@ void QuickSortPty(std::vector<PointFlt>& V, int l, int r)
 }
 
 // BUBBLE SORT:
-
 void BubbleSort(std::vector<int>& V)
 {
 	unsigned int N = V.size();
@@ -360,19 +359,6 @@ void MaxMinVec(std::vector<int> Vec, int& Max, int& Min)
 	}
 	Max = max; Min = min;
 }
-void MaxMinVecAbs(std::vector<int> Vec, int& Max, int& Min) // Soma com ABS, não ABS de apenas ABS.
-{
-	int max = Vec[0], min = Vec[0];
-	for (int n = 1; n < Vec.size(); ++n)
-	{
-		if (Vec[n] > max) max = Vec[n];
-		if (Vec[n] < min) min = Vec[n];
-	}
-	int Absmx = 0, Absmn = 0;
-	if (max < 0) { Absmx = abs(max); max += Absmx; min += Absmx; }
-	if (min < 0) { Absmn = abs(min); max += Absmn; min += Absmn; }
-	Max = max; Min = min;
-}
 void MaxMinVec(std::vector<double> Vec, double& Max, double& Min)
 {
 	double max = Vec[0], min = Vec[0];
@@ -382,19 +368,6 @@ void MaxMinVec(std::vector<double> Vec, double& Max, double& Min)
 		if (Vec[n] < min) min = Vec[n];
 	}
 
-	Max = max; Min = min;
-}
-void MaxMinVecAbs(std::vector<double> Vec, double& Max, double& Min) // Soma com ABS, não ABS de apenas ABS.
-{
-	double max = Vec[0], min = Vec[0];
-	for (int n = 1; n < Vec.size(); ++n)
-	{
-		if (Vec[n] > max) max = Vec[n];
-		if (Vec[n] < min) min = Vec[n];
-	}
-	double Absmx = 0, Absmn = 0;
-	if (max < 0) { Absmx = abs(max); max += Absmx; min += Absmx; }
-	if (min < 0) { Absmn = abs(min); max += Absmn; min += Absmn; }
 	Max = max; Min = min;
 }
 void MaxMinVec(std::vector<float> Vec, float& Max, float& Min)
@@ -408,6 +381,38 @@ void MaxMinVec(std::vector<float> Vec, float& Max, float& Min)
 
 	Max = max; Min = min;
 }
+
+// MAX AND MIN CAN'T BE LOWER THAN '0':
+// * Abs is not only about abs(), it is a sum to the negative value
+// ** Ex 1: sin(x) results in 'min = -1', but 'min' is '< 0', so:
+//		    min += abs(min); max += abs(min) -> Result: min = 0; max = 2;
+// ** Ex 2: f(x) results in 'min = 0.0001' and 'max = 1'. 'min > 0', so:
+//			Result: min = 0.0001; max = 1;
+// * If a number goes '< 0', you can normalize to '1' if you divide any index of input vector by 'max'
+void MaxMinVecAbs(std::vector<int> Vec, int& Max, int& Min)
+{
+	int max = Vec[0], min = Vec[0];
+	for (int n = 1; n < Vec.size(); ++n)
+	{
+		if (Vec[n] > max) max = Vec[n];
+		if (Vec[n] < min) min = Vec[n];
+	}
+	if (max < 0) { max += abs(max); min += abs(max); }
+	if (min < 0) { max += abs(min); min += abs(min); }
+	Max = max; Min = min;
+}
+void MaxMinVecAbs(std::vector<double> Vec, double& Max, double& Min)
+{
+	double max = Vec[0], min = Vec[0];
+	for (int n = 1; n < Vec.size(); ++n)
+	{
+		if (Vec[n] > max) max = Vec[n];
+		if (Vec[n] < min) min = Vec[n];
+	}
+	if (max < 0) { max += fabs(max); min += fabs(max); }
+	if (min < 0) { max += fabs(min); min += fabs(min); }
+	Max = max; Min = min;
+}
 void MaxMinVecAbs(std::vector<float> Vec, float& Max, float& Min) // Soma com ABS, não ABS de apenas ABS.
 {
 	float max = Vec[0], min = Vec[0];
@@ -416,9 +421,8 @@ void MaxMinVecAbs(std::vector<float> Vec, float& Max, float& Min) // Soma com AB
 		if (Vec[n] > max) max = Vec[n];
 		if (Vec[n] < min) min = Vec[n];
 	}
-	float Absmx = 0, Absmn = 0;
-	if (max < 0) { Absmx = abs(max); max += Absmx; min += Absmx; }
-	if (min < 0) { Absmn = abs(min); max += Absmn; min += Absmn; }
+	if (max < 0) { max += fabs(max); min += fabs(max); }
+	if (min < 0) { max += fabs(min); min += fabs(min); }
 	Max = max; Min = min;
 }
 

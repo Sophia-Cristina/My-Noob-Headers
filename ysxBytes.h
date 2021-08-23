@@ -30,7 +30,7 @@ std::string LSHFstr(std::string A, unsigned char i) { std::string B; for (int n 
 // Numeric way to use Hexadecimals:
 #define HEXCHARS const char HexChars[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' }
 
-// ####### CONVERSORES #######
+// ####### CONVERTERS #######
 
 // HEX NUMBERS (AS std::string) TO A STRING OF ASCII (char, byte):
 std::string Hex2ASCII(std::string hex) // Geeksforgeeks functions to convert Hex to ASCII
@@ -112,7 +112,21 @@ wchar_t* Str2wcPt(std::string Str) { return((wchar_t*)&Str[0]); } // Never teste
 std::string uchar2str(unsigned char* Array, unsigned int Size) { std::string s; for (int n = 0; n < Size; ++n) { s.push_back(Array[n]); } return(s); }
 std::string char2str(char* Array, unsigned int Size) { std::string s; for (int n = 0; n < Size; ++n) { s.push_back(Array[n]); } return(s); }
 
-// #####################################################################################################################################
+// ####### VECTOR CONVERTERS #######
+
+// NORMALIZE FLOAT VALUE FROM '-1' TO '1' TO '0' TO '65535':
+std::vector<unsigned short> ScaleFloat2UI16(std::vector<float> V)
+{
+	std::vector<unsigned short> ui16(V.size());
+	for (int n = 0; n < V.size(); ++n) { ui16[n] = round((V[n] + 1) * 32767.5); }
+	return(ui16);
+}
+std::vector<unsigned char> ScaleFloat2UI8(std::vector<float> V)
+{
+	std::vector<unsigned char> ui8(V.size());
+	for (int n = 0; n < V.size(); ++n) { ui8[n] = round((V[n] + 1) * 127.5); }
+	return(ui8);
+}
 
 // #####################################################################################################################################
 // ####### STRINGS #######
@@ -120,27 +134,46 @@ std::string char2str(char* Array, unsigned int Size) { std::string s; for (int n
 // TURN STRING TO ARRAY OF DOUBLES (IGNORE LAST BYTES IF < SIZEOF(DOUBLE)):
 std::vector<double> str2vdouble(std::string s) // NOT TESTED YET
 {
-	char Size = sizeof(double);
-	std::vector<double> v(floor(s.size() / 8.0));
-	for (unsigned int n = 0; n < s.size() - Size; n += Size) { memcpy(&v[n], &s[n], Size); }
+	unsigned char Size = sizeof(double), sSize = s.size();
+	std::vector<double> v(ceil(sSize / (double)Size));
+	for (unsigned int n = 0; n < s.size() - Size; n += Size) { memcpy(&v[n], &s[n], sSize); }
 }
 std::vector<float> str2vfloat(std::string s) // NOT TESTED YET
 {
-	char Size = sizeof(float);
-	std::vector<float> v(floor(s.size() / 8.0));
-	for (unsigned int n = 0; n < s.size() - Size; n += Size) { memcpy(&v[n], &s[n], Size); }
+	unsigned char Size = sizeof(float), sSize = s.size();
+	std::vector<float> v(ceil(s.size() / (double)Size));
+	for (unsigned int n = 0; n < sSize - Size; n += Size) { memcpy(&v[n], &s[n], sSize); }
 }
 std::vector<int> str2vint(std::string s) // NOT TESTED YET
 {
-	char Size = sizeof(int);
-	std::vector<int> v(floor(s.size() / 8.0));
-	for (unsigned int n = 0; n < s.size() - Size; n += Size) { memcpy(&v[n], &s[n], Size); }
+	unsigned char Size = sizeof(int), sSize = s.size();
+	std::vector<int> v(ceil(s.size() / (double)Size));
+	for (unsigned int n = 0; n < sSize - Size; n += Size) { memcpy(&v[n], &s[n], sSize); }
 }
 std::vector<short> str2vshort(std::string s) // NOT TESTED YET
 {
-	char Size = sizeof(short);
-	std::vector<short> v(floor(s.size() / 8.0));
-	for (unsigned int n = 0; n < s.size() - Size; n += Size) { memcpy(&v[n], &s[n], Size); }
+	unsigned char Size = sizeof(short), sSize = s.size();
+	std::vector<short> v(ceil(s.size() / (double)Size));
+	for (unsigned int n = 0; n < sSize - Size; n += Size) { memcpy(&v[n], &s[n], sSize); }
+}
+std::vector<unsigned int> str2vuint(std::string s) // NOT TESTED YET
+{
+	unsigned char Size = sizeof(unsigned int), sSize = s.size();
+	std::vector<int> v(ceil(s.size() / (double)Size));
+	for (unsigned int n = 0; n < sSize - Size; n += Size) { memcpy(&v[n], &s[n], sSize); }
+}
+std::vector<unsigned short> str2vushort(std::string s) // NOT TESTED YET
+{
+	unsigned char Size = sizeof(unsigned short), sSize = s.size();
+	std::vector<short> v(ceil(s.size() / (double)Size));
+	for (unsigned int n = 0; n < sSize - Size; n += Size) { memcpy(&v[n], &s[n], sSize); }
+}
+
+std::string ScaleFloat2String(std::vector<float> V)
+{
+	std::string ui8;
+	for (int n = 0; n < V.size(); ++n) { ui8.push_back(round((V[n] + 1) * 127.5)); }
+	return(ui8);
 }
 
 // #####################################################################################################################################

@@ -72,25 +72,6 @@ struct CellFlt3D { int i, j; float x; }; // Matriz de float
 struct LinePoint { Point P0, P1; }; // Para fazer linhas
 struct LinePoint3D { Point3D P0, P1; }; // Para fazer linhas
 
-// ####### ABREVIATIONS:
-/*
-typedef vector<vector<char>>		   Matrix2Dc; // char
-typedef vector<vector<int>>			   Matrix2Di; // int
-typedef vector<vector<double>>		   Matrix2Df; // float
-typedef vector<vector<double>>		   Matrix2Dd; // double
-typedef vector<vector<vector<char>>>   Matrix3Dc; // char
-typedef vector<vector<vector<int>>>	   Matrix3Di; // int
-typedef vector<vector<vector<double>>> Matrix3Df; // float
-typedef vector<vector<vector<double>>> Matrix3Dd; // double
-
-unsigned char* Matrix2Dtochar(Matrix2Dc M)
-{
-	//int Sizex = M.size();
-	//int Sizey = M[0].size();
-	//unsigned char* m 
-}
-*/
-
 // #####################################################################################################################################
 
 #include "ysxplg\\ysxConst.h";
@@ -99,7 +80,7 @@ unsigned char* Matrix2Dtochar(Matrix2Dc M)
 #include "ysxplg\\ysxPhys.h";
 #include "ysxplg\\ysxGeo.h";
 #include "ysxplg\\ysxCalc.h";
-#include "ysxplg\\ysxElectr.h" // There is signals too, but there is trigonomotry in 'ysxGeo.h'. Also #include 'ysxBytes.h'.
+#include "ysxplg\\ysxElectr.h" // Some trigonomotry in 'ysxGeo.h'. Also #include 'ysxBytes.h' and 'ysxSignal.h'.
 #include "ysxplg\\ysxMusic.h"
 #include "ysxplg\\ysxMoney.h"; // Things about money and related to economy and etc...
 #include "ysxplg\\ysxFractal.h";
@@ -328,30 +309,17 @@ double DotProd(PointFlt A, PointFlt B) { return((A.x * B.x) + (A.y * B.y)); }
 // ############## TECHNICALS  ##############
 
 // ####### CONVERTERS:
-// STRING TO CHAR (should use std::string.data() instead):
-std::vector<char> Str2Char(std::string Str)
-{
-	// char * C; // Oldschool
-	int TxtLim = Str.length() + 1;
-	// C = new char[TxtLim];
-	std::vector<char> C(TxtLim);
-	for (int chr = 0; chr < Str.length(); ++chr)
-	{
-		C[chr] = Str.at(chr);
-		if (chr == Str.length() - 1) { C[chr + 1] = '\0'; }
-	}
-	return(C);
-}
 
-std::vector<wchar_t> Str2wChart(std::string Str)
+// POINT3DB TO UNSIGNED CHAR[3]:
+void Point3D2uchar3(Point3DB P, unsigned char* c) { memcpy(c, &P, 3); } // Only reading 1 byte, fix it later
+
+// STRING TO WCHAR_T
+wchar_t* Str2wChart(std::string Str)
 {
-	int TxtLim = Str.length() + 1;
-	std::vector<wchar_t> C(TxtLim);
-	for (int chr = 0; chr < Str.length(); ++chr)
-	{
-		C[chr] = Str.at(chr);
-		if (chr == Str.length() - 1) { C[chr + 1] = '\0'; }
-	}
+	Str += '\0';
+	int TxtLim = Str.length();
+	wchar_t* C = new wchar_t[TxtLim];
+	memcpy(C, &Str[0], TxtLim);
 	return(C);
 }
 
@@ -359,14 +327,16 @@ std::vector<wchar_t> Str2wChart(std::string Str)
 // * Now on 'ysxBytes.h'
 
 // CHAR VECTOR TO A STRING:
-std::string Char2Str(std::vector<char> C) { std::string Str; for (int n = 0; n < C.size(); ++n) { Str.push_back(C[n]); } return (Str); }
+std::string Char2Str(std::vector<unsigned char> C) { std::string Str; for (int n = 0; n < C.size(); ++n) { Str.push_back(C[n]); } return (Str); }
+// CHAR TO STRING:
+std::string Char2Str(unsigned char* C, int Size) { std::string Str; for (int n = 0; n < Size; ++n) { Str.push_back(C[n]); } return (Str); }
 
-// GET A CHAR AS TEXT AND READ AS INTEGER:
+// GET A CHAR AS TEXT AND RETURN INTEGER:
 int Chr2Int(char C)
 {
-	int a;
-	if (C == '1') { return(1); } if (C == '2') { return(2); } if (C == '3') { return(3); } if (C == '4') { return(4); } if (C == '5') { return(5); }
-	if (C == '6') { return(6); } if (C == '7') { return(7); } if (C == '8') { return(8); } if (C == '9') { return(9); } if (C == '0') { return(0); }
+	if (C == '1') { return(1); } else if (C == '2') { return(2); } else if (C == '3') { return(3); } else if (C == '4') { return(4); }
+	else if (C == '5') { return(5); } else if (C == '6') { return(6); } else if (C == '7') { return(7); } else if (C == '8') { return(8); }
+	else if (C == '9') { return(9); } else if (C == '0') { return(0); }
 }
 
 // GET STRING AS TEXT AND READ AS AN INTEGER:
@@ -382,15 +352,16 @@ int Str2Int(std::string S)
 			Oktogo = true;
 		} // se não for ok antes, e for depois, retornara true
 	}
-	if (Oktogo == true)
+	if (Oktogo)
 	{
 		for (int n = 0; n < S.length(); ++n)
 		{
 			if (S[0] == '-') { Neg = true; }
-			if (S[n] == '1') { Array.push_back(1); ++Count; } if (S[n] == '2') { Array.push_back(2); ++Count; } if (S[n] == '3') { Array.push_back(3); ++Count; }
-			if (S[n] == '4') { Array.push_back(4); ++Count; } if (S[n] == '5') { Array.push_back(5); ++Count; } if (S[n] == '6') { Array.push_back(6); ++Count; }
-			if (S[n] == '7') { Array.push_back(7); ++Count; } if (S[n] == '8') { Array.push_back(8); ++Count; } if (S[n] == '9') { Array.push_back(9); ++Count; }
-			if (S[n] == '0' && n != 0) { Array.push_back(0); ++Count; }
+			if (S[n] == '1') { Array.push_back(1); ++Count; } else if (S[n] == '2') { Array.push_back(2); ++Count; }
+			else if (S[n] == '3') { Array.push_back(3); ++Count; } else if (S[n] == '4') { Array.push_back(4); ++Count; }
+			else if (S[n] == '5') { Array.push_back(5); ++Count; } else if (S[n] == '6') { Array.push_back(6); ++Count; }
+			else if (S[n] == '7') { Array.push_back(7); ++Count; } else if (S[n] == '8') { Array.push_back(8); ++Count; }
+			else if (S[n] == '9') { Array.push_back(9); ++Count; } else if (S[n] == '0' && n != 0) { Array.push_back(0); ++Count; }
 		}
 		for (int n = 0; n < Count; ++n)
 		{

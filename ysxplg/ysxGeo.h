@@ -91,6 +91,7 @@ double cos2(double x) { return(cos(x) * cos(x)); }
 double sin2(double x) { return(sin(x) * sin(x)); }
 //double rect(double x) { if (sin(x) > 0) { return(1); } else if (sin(x) < 0) { return(-1); } else { return(0); } }
 double rect(double x) { x /= TAU; x -= floor(x); return (x < 0.5 ? 1 : -1); }
+double rect(double x, double PW) { x /= TAU; x -= floor(x); if (PW < 0)	{ PW *= -1;	} if (PW > 0.98) { PW -= floor(PW); } return (x < PW ? 1 : -1); } // Rectangle wave with Pulse Width (0 to 0.98)
 double saw(double x) { x /= TAU; x -= floor(x); x = (x * 2) - 1; return (x); }
 double phasor(double x) { x /= TAU; x -= floor(x); return (x); }
 double tri(double x) { int f = floor(((2 * x) / TAU) + 0.5); x = (4 / TAU) * (x - PI * f) * pow(-1, f); return (x); }
