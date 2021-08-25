@@ -119,13 +119,12 @@ void SignalCall(void* UserData, Uint8* Stream, int StreamSamples)
 {
 	SignalData* Audio = (SignalData*)UserData;
 	unsigned int SamplesLeft = Audio->Samples - Audio->Count;
-	Uint32 Samples = (Uint32)StreamSamples; // Buffer Size
-	// If stream size is bigger than the space left. For now we operate with only what is left:
-	Samples = Samples > SamplesLeft ? SamplesLeft : Samples;
-	SDL_memcpy(Stream, &Audio->Pos[Audio->Count], Samples);
-	// Now, we get back to position '0' and add what is left to add in it (B.S - SamplesLeft):
-	if (Samples < (Uint32)StreamSamples) { SDL_memcpy(Stream, &Audio->Pos[0], (Uint32)StreamSamples - Samples);	}
-	Audio->Count %= Audio->Samples;
+	unsigned short BS = (Uint32)StreamSamples;
+	Uint32 Samples = BS > SamplesLeft ? SamplesLeft : BS;					// If 'Block Size' is bigger than the space left...
+	SDL_memcpy(Stream, &Audio->Pos[Audio->Count], Samples);					// ... For now we add every sample possible.
+	if (Samples < BS) { SDL_memcpy(Stream, &Audio->Pos[0], BS - Samples); } // And now we add the rest.
+	Audio->Count += BS; Audio->Count %= Audio->Samples;						// Loop if needed! Pos. should be seem as a constant, however, you can change.
+	//std::cout << "C: " << Audio->Count << std::endl;
 }
 
 // CALLBACK FOR WAV FILES:
@@ -140,32 +139,9 @@ void WavCall(void* UserData, Uint8* Stream, int StreamSamples)
 	Audio->Pos += length; Audio->Samples -= length;
 }
 // ###############################################################################################################################################################################
-// ####### FUNCTIONS #######
-// FORMAT VIEWER:
-void FormatViewer(unsigned short Format)
-{
-	std::cout << "# Format #\n";
-	std::cout << "Value: " << Format << std::endl;
-	if (Format & 0x8000) { std::cout << "* Signed\n"; }
-	else { std::cout << "* Unsigned\n"; }
-	if (Format & 0x1000) { std::cout << "* Big Endian\n"; }
-	else { std::cout << "* Little Endian\n"; }
-	Format = Format & 255;
-	std::cout << "* Bits: " << Format << std::endl;
-}
+// ####### OBJECTS #######
 
-// COUT SPECT:
-void CoutSpec(SDL_AudioSpec Spec)
-{
-	std::cout << "Sample Rate: " << Spec.freq << std::endl;
-	std::cout << "Channels: " << (int)Spec.channels << std::endl;
-	std::cout << "Samples: " << Spec.samples << std::endl;
-	std::cout << "Size: " << Spec.size << std::endl;
-	FormatViewer(Spec.format);
-
-}
-
-// SDL_AudioFormat::format = GetSpecFormat(...);
+// SDL_AudioFormat::format = NewSpecFormat(...);
 unsigned short NewSpecFormat(unsigned char Bytes, bool Signed, bool BigEndian)
 {
 	if (Bytes > 31) { Bytes = 31; } unsigned short f = Bytes * 8;
@@ -185,40 +161,79 @@ SDL_AudioSpec NewAudioSpec(unsigned int SampleRate, unsigned short BlockSize, un
 // INTERLACE BUFFERS:
 // asdasdasdasd
 
+// ####### INFOS #######
+
+// COUT SPEC FORMAT:
+void CoutFormat(unsigned short Format)
+{
+	std::cout << "# Format #\n";
+	std::cout << "Value: " << Format << std::endl;
+	if (Format & 0x8000) { std::cout << "* Signed\n"; }
+	else { std::cout << "* Unsigned\n"; }
+	if (Format & 0x1000) { std::cout << "* Big Endian\n"; }
+	else { std::cout << "* Little Endian\n"; }
+	Format = Format & 255;
+	std::cout << "* Bits: " << Format << std::endl;
+}
+
+// COUT SPECT:
+void CoutSpec(SDL_AudioSpec Spec)
+{
+	std::cout << "Sample Rate: " << Spec.freq << std::endl;
+	std::cout << "Channels: " << (int)Spec.channels << std::endl;
+	std::cout << "Samples: " << Spec.samples << std::endl;
+	std::cout << "Size: " << Spec.size << std::endl;
+	CoutFormat(Spec.format);
+
+}
+
+// COUT DATA:
+void CoutData(AudioData D) { std::cout << "Pos.: " << (unsigned int)D.Pos << " | Samples: " << D.Samples << std::endl; }
+void CoutData(LoopData D) { std::cout << "Pos.: " << (unsigned int)D.Pos << " | Smp. Left: " << D.SamplesLeft << " | Loop Samples: " << D.SamplesStart << std::endl; }
+void CoutData(SignalData D) { std::cout << "Ini. Pos.: " << (unsigned int)D.Pos << " | Total Samples: " << D.Samples << " | Current pos.: " << D.Count << std::endl; }
+
 // ###############################################################################################################################################################################
 
 // #################################################
 // ####### CLASSES #######
 
-/*
-	This is the class to output sounds!
+/* [5]
+	THIS IS THE CLASS TO OUTPUT SOUNDS!
 
-	* You may load a '.wav' file using the macro below:
-				File	 , Spec    , Buffer   , Buf. Size
-	SDL_LoadWAV(FILE_PATH, &wavSpec, &wavStart, &wavSamples);
-
-	* You can also load any file:
+	* To load any file:
 	SDL_LoadFile(File, DataSize);
 	
 	* Also, any 'Uint8' buffer can be used to play a sound:
+	Data.Pos = &vector<Uint8> AnyBuffer[0];
+
+	* 'Signal' vector is aimed to be used with 'SignalData' and 'SignalCall'.
+	  Advised to not touch this buffer if using 'SignalData'! But you may use
+	  it as the main buffer if using other kind of data structure.
+
+	* 'Block' vector is to be used to inject values in the position being read
+	  in 'Signal' vector. This is also to be used with 'SignalData'.
 */
-class SDLAudioDevice // [5]
+class SDLAudioDevice
 {
 public:
 	SDL_AudioSpec* InSpec;
 	//SDL_AudioSpec OutSpec; // [6][7]
-	std::vector<std::vector<Uint8>> Buffers;
-	unsigned char Bytes = 2; // Bytes per sample. Spec.format
-	Uint8 BufTest[262144];
-	bool IsOpen = false;
+	std::vector<std::vector<Uint8>> Buffers; // Add your audios here
+	std::vector<Uint8> Signal; // !!! FOR CALLBACK LOOP, CAUTION WHEN TOUCHING IT !!!
+	std::vector<Uint8> Block; // You may modify this to be read by the signal block
+	unsigned char Bytes = 2; // Bytes per sample. (Spec.format & 255) / 8
+	bool IsOpen = false; // To make sure that the audio is closed when this class is destroyed
 	SDL_AudioDeviceID Device;
 	// #################################################
-	// CALLBACK IS ALWAYS EQUAL TO TE FUNCTION 'AudioCall' INSIDE THIS HEADER!
-	SDLAudioDevice(SDL_AudioSpec& Spec)
+	SDLAudioDevice(SDL_AudioSpec& Spec, unsigned int SignalSize)
 	{
 		Spec.callback = AudioCall;
 		Bytes = (Spec.format & 255) / 8;
+		if (SignalSize < Spec.samples) { Signal = std::vector<Uint8>::vector(Spec.samples); }
+		else { Signal = std::vector<Uint8>::vector(SignalSize); }
+		Block = std::vector<Uint8>::vector(Spec.samples);
 		InSpec = &Spec;
+		for (unsigned int n = 0; n < Signal.size(); ++n) { Signal[n] = 127; } // Need to change based on bits later
 	}
 	~SDLAudioDevice()
 	{
@@ -227,6 +242,13 @@ public:
 	}
 	// #################################################
 	
+	// CONFIG SIGNAL DATA:
+	void ConfigSigData(SignalData& SigD)
+	{
+		SigD.Pos = &Signal[0]; SigD.Samples = Signal.size();
+		SigD.Count = 0; InSpec->userdata = &SigD;
+	}
+	
 	// MAKE SURE THE BUFFER IS NOT EMPTY!
 	void PlayBuffer(unsigned int nBuffer, bool COut)
 	{
@@ -234,19 +256,16 @@ public:
 		{
 			AudioData Audio; Audio.Pos = &Buffers[nBuffer][0]; Audio.Samples = Buffers[nBuffer].size();
 			InSpec->userdata = &Audio; InSpec->callback = AudioCall;
-			unsigned int Time = round((double)InSpec->samples / (InSpec->freq / 1000.0)); // Time to end a playback
-			time_t t = time(&t);
-			long long Ts = t;
-			long long Te = (Time / 1000) + t;
+			unsigned int Time = round((double)Audio.Samples / (InSpec->freq / 1000.0)); // Time to end a playback
 			if (SDL_OpenAudio(InSpec, NULL) < 0) { std::cout << "!!! FAILED TO OPEN AUDIO: " << SDL_GetError() << " !!!\n"; }
 			else
 			{
 				SDL_PauseAudio(0);
 				while (Audio.Samples > 0)
 				{
-					while (time(&t) < Te) { /* Do nothing!*/ }
 					if (COut)
-					{ std::cout << "(Synth) Seconds: " << Samples2Sec(Audio.Samples, InSpec->freq, InSpec->format & 255, InSpec->channels) << " | Time: " << time(&t) << std::endl; }
+					{ std::cout << "(Synth) Seconds: " << Samples2Sec(Audio.Samples, InSpec->freq, InSpec->format & 255, InSpec->channels) << std::endl; }
+					SDL_Delay(Time);
 				}
 				SDL_CloseAudio();
 			}

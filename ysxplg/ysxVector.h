@@ -271,6 +271,24 @@ std::vector<double> InsertRandomCopies(std::vector<double> Vector, int Copies)
 	return (V);
 }
 
+// SUBSTITUTE VALUE (IF BIGGER THAN SIZE, THEN MODULO):
+// Dest[(Index + n) % DSize] = In[n];
+void SubstituteVals(std::vector<double>& Dest, std::vector<double> In, unsigned int Index)
+{
+	unsigned int Size = Dest.size();
+	for (int n = 0; n < In.size(); ++n) { Dest[(Index + n) % Size] = In[n];	}
+}
+void SubstituteVals(std::vector<float>& Dest, std::vector<float> In, unsigned int Index)
+{
+	unsigned int Size = Dest.size();
+	for (int n = 0; n < In.size(); ++n) { Dest[(Index + n) % Size] = In[n]; }
+}
+void SubstituteVals(std::vector<unsigned char>& Dest, std::vector<unsigned char> In, unsigned int Index)
+{
+	unsigned int Size = Dest.size();
+	for (int n = 0; n < In.size(); ++n) { Dest[(Index + n) % Size] = In[n]; }
+}
+
 // #####################################################################################################################################
 // #####################################################################################################################################
 // #####################################################################################################################################

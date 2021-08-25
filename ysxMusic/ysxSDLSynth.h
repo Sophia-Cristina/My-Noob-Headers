@@ -27,7 +27,7 @@
 // ####### DRUM KIT #######
 
 // GENERATE A KICK BUFFER, USE BYTES 1, 2 OR 4:
-std::vector<unsigned char> KickBuf(unsigned int Size, unsigned char Bytes, float Omega, float PowFreq, float PowAmp, float Attack)
+std::vector<unsigned char> KickSimpleBuf(unsigned int Size, unsigned char Bytes, float Omega, float PowFreq, float PowAmp, float Attack)
 {
 	if (Attack > 1) { Attack = 1; } if (Attack < 0) { Attack = 0; }
 	std::vector<unsigned char> B(Size * Bytes);
@@ -82,7 +82,7 @@ public:
 	// New buffer is going to have the size in bytes as equal to 'Buffer.size() * Bytes_per_sample'.
 	// Each float in the 'Buffer' in this class will be converted to specified format set in 'Spec'.
 	// This means, even if float is four bytes, buffers with the format specified as UINT16 are going
-	// to receive a value of a float normalized from '0' to '65536'. This logic applies to other formats.
+	// to receive a value of a float normalized from '0' to '65535'. This logic applies to other formats.
 	// Ex.: 128 values in 'Buffer' (from this class) is also 128 values in an 'UINT16 buffer',
 	// but it renders to 'vector<Uint8> V(256)' or 'V(128 * (16 / 8))'.
 	virtual std::vector<unsigned char> PrepareBuf()

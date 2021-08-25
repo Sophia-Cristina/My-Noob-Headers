@@ -19,15 +19,14 @@ double BPM2ms(double BPM) { return(60000.0 / BPM); } // Quantos 'ms' tem em cada
 double ms2BPM(double ms) { return(60000.0 / ms); } // Qual seria o 'BPM' se o beat tivesse tantos 'ms'
 double ms2Freq(double ms) { return(1.0 / (ms / 1000.0)); } // dado 'ms', retorna a frequencia que oscilaria no mesmo periodo
 double Ptrn2ms(int PtrnSize, int Ptrnn, double BPM) { return((PtrnSize * Ptrnn) * BPM2ms(BPM)); } // no "Renoise" com "64" linhas seria "PtrnSize = 16", é em beats;
-double Beatsinms(double ms, double BPM) { return(ms / BPM2ms(BPM)); } // Quantos 'beats' tem em tantos 'ms'
-double msinBeats(double Beats, double BPM) { return( BPM2ms(BPM) * Beats); } // Quantos 'ms' tem em tantos beats
-double BeatsinTime(int Min, int Sec, double BPM) { return(Time2ms(Min, Sec) / BPM2ms(BPM)); } // Dado minutos e segundos, retorna a quantia de 'beats' que caberiam nesse tempo
-double samptoms(double samp, double samprate) { return((samp * 1000.0) / samprate); } // Dada quantia de samples que passaram, quanto isso significa em milissegundos
-double mstosamp(double ms, double samprate) { return((ms / samprate) / 1000.0); } // Dada quantia de milissegundos que passaram, quanto isso significa em numero de samples
-double SamplesinMS(double ms, int SampleRate) { return((ms * SampleRate) / 1000); } // How much samples have in x miliseconds
+double ms2beat(double ms, double BPM) { return(ms / (60000.0 / BPM)); } // Beats per ms | f(1000ms, 120bpm) = 2 beats
+double beat2ms(double Beats, double BPM) { return((60000.0 / BPM) * Beats); } // ms per beats | f(2Beats, 120bpm) = 500ms
+double BeatsinTime(int Min, int Sec, double BPM) { return((Min * 60 + Sec) / (60.0 / BPM)); } // Minutes and seconds to Beats (ms) | '6m30s' / (60s / 120bpm) = 390s / 0.5s = 780 beats
+double samptoms(double samp, double SampleRate) { return((samp * 1000.0) / SampleRate); } // samples to ms by sample rate | (22050n * 1000) / 44100hz = 500ms
+double mstosamp(double ms, double SampleRate) { return((ms / 1000.0) * SampleRate); } // ms to samples by sample rate | (500ms / 1000.0) * 44100hz = 22050 samples
 double TAU2Samples(int SampleRate) { return(SampleRate / TAU); } // SamplesRate divided by tau | 44100 / 6.2831 = 7018.7329903525843074077739647279
-double Sample_n2Rad(int n, int SampleRate) { return(TAU * (n / SampleRate)); } // If the SampleRate was a table, 'n' would be the index, when 'n = TableSize', the function returns 2*PI
-double Rad2Sample_n(double x, int SampleRate) { return((x / TAU) * SampleRate); } // If the SampleRate was a table, the return would be the index, when 'x = 2*PI', the function returns SampleRate (ex.: 2*PI / 2*PI) * 44100)
+double Samplen2Rad(int n, int SampleRate) { return(TAU * (n / SampleRate)); } // Sample 'n' in '44100hz' to '2 * PI' | TAU * (22050 / 44100)  = TAU * 0.5 = PI radians
+double Rad2Samplen(double theta, int SampleRate) { return((theta / TAU) * SampleRate); } // Sample position based on a sine wave of 1hz | (PI / TAU) * 44100 = 0.5 * 44100 = 22050 samples
 
 // TIME IN SECONDS MEASURES EITHER BY CONVERTING UCHAR SAMPLES OR BY SAMPLES COUNT:
 double Samples2Sec(unsigned int nSamplesbyUCHAR, unsigned int SampRate, unsigned char BitsPerSamp) { return((double)nSamplesbyUCHAR / ((long long)SampRate * (0.125 * BitsPerSamp))); }
