@@ -11,11 +11,11 @@ I love to do music and I began to learn programming because music. Since "music 
 
 
 
-- I took the "using namespace std" from it, it now works correctly and won't have conflicts with other codes.
+! I took the "using namespace std" from it, it now works correctly and won't have conflicts with other codes.
 
-- I translated some of my header (which were in Brazilian Portuguese), and soon i'm going to make it all in english.
+! I translated some of my header (which were in Brazilian Portuguese), and soon i'm going to make it all in english.
 
-- Now i'm using templates. Hope i have not missed anything.
+! Now i'm using templates. Hope i have not missed anything.
 
 
 
