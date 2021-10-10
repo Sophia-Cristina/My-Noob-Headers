@@ -9,9 +9,14 @@
 #include "ysxmath.h"
 #include "ysxBytes.h"
 
-// #####################################################################################################################################
-// ####### STRUCTS #######
-// INDEX:
+// ############################################################################################################################################
+// ################################################# ANOTATIONS AND ALTERATIONS #################################################
+//
+// CHANGES (KEEP ORDER):
+// * Now using templates;
+//
+// ################################################# ANOTATIONS AND ALTERATIONS #################################################
+// ############################################################################################################################################
 
 
 // #####################################################################################################################################
@@ -26,92 +31,49 @@ void ofsVectorOut(std::vector<double> V, std::string Path)
 { std::ofstream F(Path, std::ios::binary); if (F.is_open()) { char Bytes = sizeof(double); for (int n = 0; n < V.size(); ++n) { F.write((char*)&V[n], Bytes); } } F.close(); }
 
 // GET A VECTOR FROM OF A BINARY (WHICH CONSIST ENTIRELY OF THE SAME TYPE OBJECT):
-std::vector<double> ifsVectorDblIn(std::string Path)
+template <class T_> std::vector<T_> ifsVectorIn(std::string Path)
 {
-	std::vector<double> Buffer; char Bytes = sizeof(double); std::ifstream F(Path, std::ios::binary);
+	std::vector<T_> Buffer; char Bytes = sizeof(T_); std::ifstream F(Path, std::ios::binary);
 	if (F.is_open()) { F.seekg(0, std::ios::end); int Size = F.tellg(); F.seekg(0, std::ios::beg);
-	while (F.tellg() < Size) { double Compile; char* p = (char*)&Compile; F.read(p, Bytes); Buffer.push_back(Compile); } }
+	while (F.tellg() < Size) { T_ Compile; F.read((char*)&Compile, Bytes); Buffer.push_back(Compile); }}
 	else { std::cout << "Something went wrong while loading file.\n"; }
 	F.close(); return(Buffer);
 }
-std::vector<double> ifsVectorDblIn(std::string Path, int Index)
+template <class T_> std::vector<T_> ifsVectorIn(std::string Path, int Index)
 {
-	std::vector<double> Buffer; char Bytes = sizeof(double); std::ifstream F(Path, std::ios::binary);
-	if (F.is_open()) { F.seekg(0, std::ios::end); int Size = F.tellg(); F.seekg(0, std::ios::beg);
-	while (F.tellg() < Size) { double Compile; char* p = (char*)&Compile; F.read(p, Bytes); Buffer.push_back(Compile); } }
+	std::vector<T_> Buffer; char Bytes = sizeof(T_); std::ifstream F(Path, std::ios::binary);
+	if (F.is_open()) { F.seekg(0, std::ios::end); int Size = F.tellg(); F.seekg(Index);
+	while (F.tellg() < Size) { T_ Compile; F.read((char*)&Compile, Bytes); Buffer.push_back(Compile); }}
 	else { std::cout << "Something went wrong while loading file.\n"; }
 	F.close(); return(Buffer);
 }
-std::vector<double> ifsVectorDblIn(std::string Path, int Index, int End)
+template <class T_> std::vector<double> ifsVectorIn(std::string Path, int Index, int End)
 {
-	std::vector<double> Buffer; char Bytes = sizeof(double); std::ifstream F(Path, std::ios::binary);
-	if (F.is_open()) { F.seekg(0, std::ios::end); int Size = F.tellg(); F.seekg(0, std::ios::beg);
-	while (F.tellg() < Size) { double Compile; char* p = (char*)&Compile; F.read(p, Bytes); Buffer.push_back(Compile); } }
-	else { std::cout << "Something went wrong while loading file.\n"; }
-	F.close(); return(Buffer);
-}
-std::vector<int> ifsVectorIntIn(std::string Path)
-{
-	std::vector<int> Buffer; char Bytes = sizeof(int); std::ifstream F(Path, std::ios::binary);
-	if (F.is_open()) { F.seekg(0, std::ios::end); int Size = F.tellg(); F.seekg(0, std::ios::beg);
-	while (F.tellg() < Size) { int Compile; char* p = (char*)&Compile; F.read(p, Bytes); Buffer.push_back(Compile); } }
-	else { std::cout << "Something went wrong while loading file.\n"; }
-	F.close(); return(Buffer);
-}
-std::vector<int> ifsVectorIntIn(std::string Path, int Index)
-{
-	std::vector<int> Buffer; char Bytes = sizeof(int); std::ifstream F(Path, std::ios::binary);
-	if (F.is_open()) { F.seekg(0, std::ios::end); int Size = F.tellg(); F.seekg(0, std::ios::beg);
-	while (F.tellg() < Size) { int Compile; char* p = (char*)&Compile; F.read(p, Bytes); Buffer.push_back(Compile); } }
-	else { std::cout << "Something went wrong while loading file.\n"; }
-	F.close(); return(Buffer);
-}
-std::vector<int> ifsVectorIntIn(std::string Path, int Index, int End)
-{
-	std::vector<int> Buffer; char Bytes = sizeof(int); std::ifstream F(Path, std::ios::binary);
-	if (F.is_open()) { F.seekg(0, std::ios::end); int Size = F.tellg(); F.seekg(0, std::ios::beg);
-	while (F.tellg() < Size) { int Compile; char* p = (char*)&Compile; F.read(p, Bytes); Buffer.push_back(Compile); } }
+	std::vector<T_> Buffer; char Bytes = sizeof(T_); std::ifstream F(Path, std::ios::binary);
+	if (F.is_open()) { F.seekg(End); int Size = F.tellg(); F.seekg(Index);
+	while (F.tellg() < Size) { T_ Compile; F.read((char*)&Compile, Bytes); Buffer.push_back(Compile); }}
 	else { std::cout << "Something went wrong while loading file.\n"; }
 	F.close(); return(Buffer);
 }
 
 // APPEND TO THE END OF A BINARY FILE:
-void fsVectorOutApp(std::vector<double> V, std::string Path)
+template <class T_> void fsVectorOutApp(std::vector<T_> V, std::string Path)
 {
 	std::fstream F(Path, std::ios::binary);
-	if (F.is_open()) { F.seekp(0, std::ios::end); char Bytes = sizeof(double); for (int n = 0; n < V.size(); ++n) { F.write((char*)&V[n], Bytes); } }
+	if (F.is_open()) { F.seekp(0, std::ios::end); char Bytes = sizeof(T_); for (int n = 0; n < V.size(); ++n) { F.write((char*)&V[n], Bytes); } }
 	else { std::cout << "Something went wrong while loading file.\n"; }
 	F.close();
 }
 
-// !!!!!!! FAZER UMA FUNÇÃO AQUI QUE COPIA O FIM DE UM ARQUIVO DESFE UM INDEX E APPEND UM VECTOR ALI E COLA O INDEX NO FIM DO VECTOR = A, B, C | A, [D, E] | A, D, E, B, C !!!!!!!
+// !!!!!!! FAZER UMA FUNÇÃO AQUI QUE COPIA O FIM DE UM ARQUIVO DESDE UM INDEX E APPEND UM VECTOR ALI E COLA O INDEX NO FIM DO VECTOR = A, B, C | A, [D, E] | A, D, E, B, C !!!!!!!
+
 // #######  REST:
 
 // GET FROM OF A BINARY (you should know if index on input is possible):
-char ifsInChar(std::string Path, int Index)
+template <class T_> T_ ifsIn(std::string Path, int Index)
 {
-	std::ifstream F(Path, std::ios::binary); char c;
-	if (F.is_open()) { F.seekg(Index); F.read(&c, sizeof(char)); } else { std::cout << "Something went wrong while loading file.\n"; } F.close(); return(c);
-}
-short int ifsInSInt(std::string Path, int Index)
-{
-	std::ifstream F(Path, std::ios::binary); short int Compile;
-	if (F.is_open()) { F.seekg(Index); F.read((char*)&Compile, sizeof(short int)); } else { std::cout << "Something went wrong while loading file.\n"; } F.close(); return(Compile);
-}
-int ifsInInt(std::string Path, int Index)
-{
-	std::ifstream F(Path, std::ios::binary); int Compile;
-	if (F.is_open()) { F.seekg(Index); F.read((char*)&Compile, sizeof(int)); } else { std::cout << "Something went wrong while loading file.\n"; } F.close(); return(Compile);
-}
-float ifsInFlt(std::string Path, int Index)
-{
-	std::ifstream F(Path, std::ios::binary); float Compile;
-	if (F.is_open()) { F.seekg(Index); F.read((char*)&Compile, sizeof(float)); } else { std::cout << "Something went wrong while loading file.\n"; } F.close(); return(Compile);
-}
-double ifsInDbl(std::string Path, int Index)
-{
-	std::ifstream F(Path, std::ios::binary); double Compile;
-	if (F.is_open()) { F.seekg(Index); F.read((char*)&Compile, sizeof(double)); } else { std::cout << "Something went wrong while loading file.\n"; } F.close(); return(Compile);
+	std::ifstream F(Path, std::ios::binary); T_ B;
+	if (F.is_open()) { F.seekg(Index); F.read(&B, sizeof(T_)); } else { std::cout << "Something went wrong while loading file.\n"; } F.close(); return(B);
 }
 
 /*// GET FROM OF A BINARY (you should know if index on input is possible), FROM ONE INDEX TO ANOTHER:
@@ -147,30 +109,10 @@ std::vector<double> ifsInDbl(std::string Path, int Index, int LastIndex)
 }*/
 
 // APPEND TO THE END OF A BINARY FILE:
-void fsOutApp(char C, std::string Path)
+template <class T_> void fsOutApp(T_ B, std::string Path)
 {
 	std::fstream F(Path, std::ios::binary);
-	if (F.is_open()) { F.seekp(0, std::ios::end); F.write(&C, sizeof(char)); } else { std::cout << "Something went wrong while loading file.\n"; } F.close();
-}
-void fsOutApp(short int si, std::string Path)
-{
-	std::fstream F(Path, std::ios::binary);
-	if (F.is_open()) { F.seekp(0, std::ios::end); F.write((char*)&si, sizeof(short int)); } else { std::cout << "Something went wrong while loading file.\n"; } F.close();
-}
-void fsOutApp(int i, std::string Path)
-{
-	std::fstream F(Path, std::ios::binary);
-	if (F.is_open()) { F.seekp(0, std::ios::end); F.write((char*)i, sizeof(int)); } else { std::cout << "Something went wrong while loading file.\n"; } F.close();
-}
-void fsOutApp(float f, std::string Path)
-{
-	std::fstream F(Path, std::ios::binary);
-	if (F.is_open()) { F.seekp(0, std::ios::end); F.write((char*)&f, sizeof(float)); } else { std::cout << "Something went wrong while loading file.\n"; } F.close();
-}
-void fsOutApp(double d, std::string Path)
-{
-	std::fstream F(Path, std::ios::binary);
-	if (F.is_open()) { F.seekp(0, std::ios::end); F.write((char*)&d, sizeof(double)); } else { std::cout << "Something went wrong while loading file.\n"; } F.close();
+	if (F.is_open()) { F.seekp(0, std::ios::end); F.write(&B, sizeof(T_)); } else { std::cout << "Something went wrong while loading file.\n"; } F.close();
 }
 
 // #####################################################################################################################################
