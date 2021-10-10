@@ -15,7 +15,8 @@ I love to do music and I began to learn programming because music. Since "music 
 
 * I translated some of my header (which were in Brazilian Portuguese), and soon i'm going to make it all in english.
 
-* Now i'm using templates. Hoep i have not missed anything.
+* Now i'm using templates. Hope i have not missed anything.
+
 
 
 * ysxBytes.h:
