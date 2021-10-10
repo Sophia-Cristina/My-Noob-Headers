@@ -28,10 +28,48 @@
 // ####################################################################################################################################################################################################
 
 // ############################
+// ####### ELECTRICITY #######
+// ############################
+
+double ElectricPower(double V, double Q, double t) { return((V * Q) / t); } // = V * I // Q = Coulombs / t = seconds / I = Amperes / V = Volts
+double ElecPowerRes(double V, double R) { return((V * V) / R); } // = R * I^2 = I * V // Instant power
+
+// TOTAL ENERGY (using miniform):
+double TotalSignalEnergy(double T, int n, double Omega) { if (n < 1) { n = 1; } double dt = T / n; double Sum = 0; for (int i = 1; i <= n; i++) Sum += MiniForm((-T) + (i - 0.5) * dt, Omega) * dt; return(Sum); }
+// TOTAl ENERGY BASED ON DISCRETE TIME (DEPENDS ON YOUR VECTOR):
+double TotalSignalEnergy(std::vector<double> V) { double Sum = 0; for (int n = 0; n < V.size(); ++n) { Sum += V[n] * V[n]; } return(Sum); }
+
+// AVERAGE POWER (USING MINIFORM):
+double AveragePower(double T, int n, double Omega)
+{
+    if (n < 1) { n = 1; }
+    double dt = T / n; double Sum = 0;
+    for (int i = 1; i <= n; i++) Sum += MiniForm((-T) + (i - 0.5) * dt, Omega) * dt;
+    return((1.0 / T) * Sum);
+}
+// AVERAGE POWER BASED OM DISCRETE TIME (DEPENDS ON YOUR VECTOR):
+// Since the formula is based on signal and not c++ vectors, i'm going to change it a little based on the principle that a vector begins at '0'.
+// Consequently the new formula is: P = Limit N : inf -> (1 / N + 1) * SUM(x^2[n], 0, N)
+// Instead of: P = Lim N : inf -> (1 / 2N + 1) * SUM(x^2[n], -N, N);
+double AveragePower(std::vector<double> V)
+{
+    double Sum = 0; int N = V.size();
+    for (int n = 0; n < N; ++n) { Sum += V[n] * V[n]; }
+    return((1.0 / (N + 1)) * Sum);
+}
+// BOOK: 'caso de um sinal x[n] com período fundamental N':
+double AveragePowerFundPeriod(std::vector<double> V)
+{
+    double Sum = 0; int N = V.size() - 1;
+    for (int n = 0; n < N; ++n) { Sum += V[n] * V[n]; }
+    return((1.0 / N) * Sum);
+}
+
+// ############################
 // ####### SIGNAL VECTORS #######
 // ############################
 
-// Signal:
+// ####### SIGNAL:
 std::vector<double> SignalVec(unsigned int Size, double Volts) { std::vector<double> s(Size); for (unsigned int n = 0; n < Size; ++n) { s[n] = Volts; } return(s); }
 std::vector<double> SignalVec(unsigned int Size, double Volts, double NoiseGain)
 {
@@ -43,7 +81,9 @@ std::vector<double> SignalVec(unsigned int Size, double Volts, double NoiseGain)
 // Step signal:
 //double StepSig(int n) { if (n >= 0) { return(1); } return(0); }
 
-// Seno (phase in radians):
+// ####### TRIGONOMETRIC:
+
+// Sine (phase in radians):
 std::vector<double> SineWaveVec(unsigned int Size, double x0, double x1, double Amp, double Freq, double Phase)
 {
     std::vector<double> R(Size);
@@ -59,7 +99,7 @@ std::vector<float> SineWaveVecF(unsigned int Size, float x0, float x1, float Amp
     return(R);
 }
 
-// Coseno (phase in radians):
+// Cosine (phase in radians):
 std::vector<double> CosineWaveVec(unsigned int Size, double x0, double x1, double Amp, double Freq, double Phase)
 {
     std::vector<double> R(Size);
@@ -75,7 +115,7 @@ std::vector<float> CosineWaveVecF(unsigned int Size, float x0, float x1, float A
     return(R);
 }
 
-// Tangente (phase in radians):
+// Tangent (phase in radians):
 std::vector<double> TangentWaveVec(unsigned int Size, double x0, double x1, double Amp, double Freq, double Phase)
 {
     std::vector<double> R(Size);
@@ -91,7 +131,7 @@ std::vector<float> TangentWaveVecF(unsigned int Size, float x0, float x1, float 
     return(R);
 }
 
-// Cotangente (phase in radians):
+// Cotangent (phase in radians):
 std::vector<double> CotangentWaveVec(unsigned int Size, double x0, double x1, double Amp, double Freq, double Phase)
 {
     std::vector<double> R(Size);
@@ -107,6 +147,7 @@ std::vector<float> CotangentWaveVecF(unsigned int Size, float x0, float x1, floa
     return(R);
 }
 
+// // ####### RECT AND TRI:
 // SquareWave (phase in radians):
 std::vector<double> SquareWaveVec(unsigned int Size, double x0, double x1, double Amp, double Freq, double Phase)
 {
@@ -155,6 +196,8 @@ std::vector<float> TriWaveVecF(unsigned int Size, float x0, float x1, float Amp,
     return(R);
 }
 
+// ####### FORMULA:
+
 // Miniform vector (phase in radians):
 std::vector<double> MiniFormVec(unsigned int Size, double x0, double x1, double Amp, double Freq, double Phase)
 {
@@ -171,7 +214,7 @@ std::vector<float> MiniFormVecF(unsigned int Size, float x0, float x1, float Amp
     return(R);
 }
 
-// Linha:
+// ####### LINES AND CURVES:
 std::vector<double> LineVec(unsigned int Size, double x0, double x1, double Sum, double Mult)
 {
     std::vector<double> R(Size);
@@ -225,7 +268,7 @@ std::vector<float> ExponentVecF(unsigned int Size, float x0, float x1, float a) 
 std::vector<double> ExponentVec(unsigned int Size, double x0, double x1, double B, double r) { std::vector<double> V; for (unsigned int n = 0; n < Size; ++n) { V[n] = B * pow(r, n); } return(V); }
 std::vector<float> ExponentVecF(unsigned int Size, float x0, float x1, float B, float r) { std::vector<float> V; for (unsigned int n = 0; n < Size; ++n) { V[n] = B * pow(r, n); } return(V); }
 
-// ### TIME BASED:
+// ####### TIME BASED:
 
 // Seno com mudança de frequencia por tempo:
 std::vector<double> SineWaveVecTimeFreq(unsigned int Size, double x0, double x1, double TimeRatio, double Gain, double Freq, double Phase)
@@ -291,7 +334,8 @@ std::vector<float> SineWaveVecFMF(unsigned int Size, float x0, float x1, float G
     }
     return(R);
 }
-// ### NOISE:
+
+// ####### NOISES:
 
 // Noise ((-1 to +1) * Gain):
 std::vector<double> Noise(unsigned int Size, double Gain)
@@ -328,6 +372,24 @@ void AddNoise(std::vector<double>& V, double NoiseGain)
 // NOISE SAMPLE:
 double NoiseSample(double Volts, double NoiseGain) { return(Volts - NoiseGain + NoiseGain * (((rand() % 20001) - 10000) / 10000.0)); }
 
+// ####### PHYSICS:
+
+// HARMONIC OSCILLATOR:
+std::vector<double> HarmOsc(unsigned int Size, double x0, double x1, double Amp, double Freq, double Phase)
+{
+    std::vector<double> R(Size);
+    if (x0 > x1) { double t = x0; x0 = x1; x1 = t; } double Delta = (x1 - x0) / Size;
+    for (unsigned int n = 0; n < Size; ++n) { R[n] = Amp * cos(Phase + (x0 + (Delta * n * Freq))); }
+    return(R);
+}
+std::vector<float> HarmOscF(unsigned int Size, float x0, float x1, float Amp, float Freq, float Phase)
+{
+    std::vector<float> R(Size);
+    if (x0 > x1) { float t = x0; x0 = x1; x1 = t; } float Delta = (x1 - x0) / Size;
+    for (unsigned int n = 0; n < Size; ++n) { R[n] = Amp * cos(Phase + (x0 + (Delta * n * Freq))); }
+    return(R);
+}
+
 // ####################################################################################################################################################################################################
 // ####################################################################################################################################################################################################
 // ####################################################################################################################################################################################################
@@ -335,6 +397,10 @@ double NoiseSample(double Volts, double NoiseGain) { return(Volts - NoiseGain + 
 // ############################
 // ####### ENVELOPES
 // ############################
+
+// ENVELOPE:
+double Envelope(double Attack, double Decay, double x) { if (x < Attack) { return(x / Attack); } else { return(1.0 - ((x - Attack) / Decay)); } } // There is probably an optimal function
+float EnvelopeF(float Attack, float Decay, float x) { if (x < Attack) { return(x / Attack); } else { return(1.0 - ((x - Attack) / Decay)); } } // There is probably an optimal function
 
 // ATTACK AND DECAY, TAKING IN ACCOUNT THE NUMBER OF ITEMS IN A 'vector':
 // SO 'A' AND 'D' ARE RATIOS

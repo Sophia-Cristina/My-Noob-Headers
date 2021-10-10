@@ -90,7 +90,7 @@ std::vector<int> BinaryWordValue(std::vector<std::string> Words)
 }
 
 // MATRIZ DE COORDENADAS DE UM FRACTAL COM TAIS SEQUENCIAS !!! ERRO:
-std::vector<Point> MatrixFractalBinary(std::vector<std::string> Words)
+std::vector<Point<int>> MatrixFractalBinary(std::vector<std::string> Words)
 {
 	// Descobre numero de iterações:
 	int Iter, Size = Words.size();
@@ -115,7 +115,7 @@ std::vector<Point> MatrixFractalBinary(std::vector<std::string> Words)
 
 	// Verifica pontuação de cada coordenada:
 	std::vector<double> CrdTargs;
-	std::vector<Point> Coord;
+	std::vector<Point<int>> Coord;
 	for (int n = 0; n < Iter; ++n)
 	{
 		int Stages = pow(2, n + 1);
@@ -153,7 +153,7 @@ std::vector<Point> MatrixFractalBinary(std::vector<std::string> Words)
 		for (int Tht = ThetaOffset; Tht <= TAU + ThetaOffset; Tht += ThetaDiv2) // Qualquer coisa tira o ThetaDiv
 		{
 			r = n;
-			Point GetCrd;
+			Point<int> GetCrd;
 			Coord.push_back(GetCrd);
 		}
 	}
@@ -162,15 +162,15 @@ std::vector<Point> MatrixFractalBinary(std::vector<std::string> Words)
 }
 
 // ESPIRAL COM COMBINAÇÕES DA SEQUENCIA BINARIA !!! ERRO:
-std::vector<LinePoint> SpiralFractalBinary(int Iter)
+std::vector<LinePoint<int>> SpiralFractalBinary(int Iter)
 {
 	// As primeiras 3 iterações devem ser feitas manualmente, pois um ciclo não se completa e seria chato fazer uma função só para isso
-	std::vector<LinePoint> Coord(2);
+	std::vector<LinePoint<int>> Coord(2);
 	Coord[0].P0.x = 0; Coord[0].P0.y = 0; Coord[0].P1.x = 0; Coord[0].P1.y = 0;
 	Coord[1].P0.x = 0; Coord[1].P0.y = 1; Coord[1].P1.x = 0; Coord[1].P1.y = 1;
 	std::cout << "ITER1 DONE!\n\n";
 	if (Iter == 1) { return(Coord); }
-	LinePoint IniLines;
+	LinePoint<int> IniLines;
 	IniLines.P0.x = 0; IniLines.P0.y = 2; IniLines.P1.x = 1; IniLines.P1.y = 2;
 	Coord.push_back(IniLines);
 	IniLines.P0.x = 1; IniLines.P0.y = 1; IniLines.P1.x = 1; IniLines.P1.y = 0;
@@ -195,7 +195,7 @@ std::vector<LinePoint> SpiralFractalBinary(int Iter)
 		for (int m = 0; m < pow(2, n); ++m)
 		{
 			//if (m == 0) {  }
-			//LinePoint Map;
+			//LinePoint<int> Map;
 			
 		}
 	}
@@ -216,10 +216,10 @@ std::vector<int> SeqQuadrado(int Iter)
 	return(Ret);
 }
 
-std::vector<Point> SeqQdrdCoord(int Iter)
+std::vector<Point<int>> SeqQdrdCoord(int Iter)
 {
-	std::vector<Point> Points;
-	Point Push;
+	std::vector<Point<int>> Points;
+	Point<int> Push;
 	Push.x = 0; Push.y = 0;
 	Points.push_back(Push);
 	enum Dir { Up, Left, Down, Right};
@@ -251,12 +251,12 @@ std::string FiboWord(int iters)
 }
 
 // FIBONACCI WORD FRACTAL COORDINATES:
-std::vector<Point> FiboWordFrac(std::string Word)
+std::vector<Point<int>> FiboWordFrac(std::string Word)
 {
 	// https://en.wikipedia.org/wiki/Fibonacci_word_fractal // https://en.wikipedia.org/wiki/Fibonacci_word
 	enum { Up, Down, Left, Right }; // https://en.cppreference.com/w/cpp/language/enum // Nesse caso, Up = 0, Down = 1, Left = 2, Right = 3;
 	static int nextDir[2][4] = { { Left,  Right, Down,  Up }, { Right, Left,  Up, Down } };
-	std::vector<Point> Coord{ {0, 0} };
+	std::vector<Point<int>> Coord{ {0, 0} };
 	int x = 0, y = 0;
 	int dir = Up;
 
@@ -275,12 +275,12 @@ std::vector<Point> FiboWordFrac(std::string Word)
 	return Coord;
 }
 
-std::vector<Point> BentFiboWordFrac(std::string Word)
+std::vector<Point<int>> BentFiboWordFrac(std::string Word)
 {
 	// https://en.wikipedia.org/wiki/Fibonacci_word_fractal // https://en.wikipedia.org/wiki/Fibonacci_word
 	enum { Up, Down, Left, Right }; // https://en.cppreference.com/w/cpp/language/enum // Nesse caso, Up = 0, Down = 1, Left = 2, Right = 3;
 	static int nextDir[2][4] = { { Left,  Right, Down,  Up }, { Right, Left,  Up, Down } };
-	std::vector<Point> Coord{ {0, 0} };
+	std::vector<Point<int>> Coord{ {0, 0} };
 	int x = 0, y = 0;
 	int dir = Up;
 

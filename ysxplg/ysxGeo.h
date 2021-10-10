@@ -125,7 +125,7 @@ double SumIntAngPolygn(double Sides) { return(180 * (Sides - 2)); } // Sum of th
 double PolygnAng(double Sides) { return((180 * (Sides - 2)) / Sides); } // Internal angles of a Polygon
 double PolygrmAng(double Sides) { return(((360 * (Sides - 2)) / Sides) - 180); } // 180 - (360 - (((180 * (Sides - 2)) / Sides) * 2)) Before Wolfam Alpha
  // Paralel over Transversal:
-Point3DFlt ParaTrans(double Ang) { if (Ang > 360) { Ang = 360; } if (Ang > 180) { Ang = 360 - Ang; } Point3DFlt R = {Ang, 180 - Ang, 180 + Ang }; return(R); }
+Point3D<double> ParaTrans(double Ang) { if (Ang > 360) { Ang = 360; } if (Ang > 180) { Ang = 360 - Ang; } Point3D<double> R = {Ang, 180 - Ang, 180 + Ang }; return(R); }
 
 // #####################################################################################################################################
 // #####################################################################################################################################
@@ -367,7 +367,7 @@ public:
 	char LnghtType = NoTypeLgt, AngType = NoTypeAng;
 	Triangulo(double asize, double bsize, double Angle); //  ####### CONTRUCTOR #######
 	// ############################
-	Point Coord[3], Midpoints[3], Circumcenter;
+	Point<int> Coord[3], Midpoints[3], Circumcenter;
 	// ############################
 	double BisA, BisB, BisC; // Bisetores
 	double IA, IB, IC; // Incenter to 'A' or 'B' or 'C'

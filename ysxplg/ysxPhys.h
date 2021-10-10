@@ -42,9 +42,9 @@ double Watts(double N, double m, double s) { return((N * m) / s); } // (Newton *
 double Newtons(double m) { return(m * 9.80665); } // Newton = mass * acceleration | Force
 double Newtons(double m, double a) { return(m * a); } // Newton = mass * acceleration | Force
 double Newtons(double kg, double meter, double s) { return((kg * meter) / (s * s)); } // Newton = (kg * meter) / s^2 | Force
-double Tension(double kg, double Angle) { double Fd = kg * 9.80665; return(Fd / sin(Angle)); } // x = kg | y = Angle (radians)
-double Momentum(double kg, double ms) { return(kg * ms); } // Momentum
-double Pressure(double Force, double Area) { return(Force / Area); } // Pressão
+double Tension(double kg, double rad) { return((kg * 9.80665) / sin(rad)); } // (kg * 9.80665) / sin(rad)
+double Momentum(double kg, double ms) { return(kg * ms); }
+double Pressure(double Force, double Area) { return(Force / Area); }
 double NormForce(double kg) { return(kg * GRAVITY); } // Normal force
 double NormForce(double kg, double Ang) { return(kg * GRAVITY * cos(Ang)); } // Normal force
 
@@ -97,45 +97,12 @@ double DensityAir(double Pa, double GasConst, double T) { return((Pa / (GasConst
 double Stiffness(double F, double d) { return(F / d); } // Force / Displacement (menor distancia entre x1 e x2)| https://en.wikipedia.org/wiki/Displacement_(vector)
 
 // ####### ELASTICIDADE E ETC:
-double BulkMod(double P1, double P2, double p1, double p2) { return((P2 - P1)/ (- (p2 - p1) / p1)); } // P = pressure | p = density | change p (elasticity) to v if needed
+double BulkMod(double P1, double P2, double p1, double p2) { return((P2 - P1) / (- (p2 - p1) / p1)); } // P = pressure | p = density | change p (elasticity) to v if needed
 
 // #####################################################################################################################################
 // ######################################################## ELETRONICA E SINAIS ########################################################
 // #####################################################################################################################################
 // ####### ELETRONICA / SINAIS:
-double ElectricPower(double V, double Q, double t) { return((V * Q) / t); } // = V * I // Q = Coulombs / t = seconds / I = Amperes / V = Volts
-double ElecPowerRes(double V, double R) { return((V * V) / R); } // = R * I^2 = I * V// Potencia instantanea
-
-// Total Energy (using miniform):
-double TotalSignalEnergy(double T, int n, double Omega) { if (n < 1) { n = 1; } double dt = T / n; double Sum = 0; for (int i = 1; i <= n; i++) Sum += MiniForm((-T) + (i - 0.5) * dt, Omega) * dt; return(Sum); }
-// Total Energy based on Discrete Time (depends on your vector):
-double TotalSignalEnergy(std::vector<double> V) { double Sum = 0; for (int n = 0; n < V.size(); ++n) { Sum += V[n] * V[n]; } return(Sum); }
-
-// Average Power (using miniform):
-double AveragePower(double T, int n, double Omega)
-{
-	if (n < 1) { n = 1; }
-	double dt = T / n; double Sum = 0;
-	for (int i = 1; i <= n; i++) Sum += MiniForm((-T) + (i - 0.5) * dt, Omega) * dt;
-	return((1.0 / T) * Sum);
-}
-// Average Power based on Discrete Time (depends on your vector):
-// Since the formula is based on signal and not c++ vectors, i will change it a little based on the principle that a vector begins at '0'.
-// Consequently the new formula is: P = Lim N -> inf (1 / N + 1) * SUM(x^2[n], 0, N)
-// Instead of: P = Lim N -> inf (1 / 2N + 1) * SUM(x^2[n], -N, N);
-double AveragePower(std::vector<double> V)
-{
-	double Sum = 0; int N = V.size();
-	for (int n = 0; n < N; ++n) { Sum += V[n] * V[n]; }
-	return((1.0 / (N + 1)) * Sum);
-}
-// LIVRO: 'caso de um sinal x[n] com período fundamental N':
-double AveragePowerFundPeriod(std::vector<double> V)
-{
-	double Sum = 0; int N = V.size() - 1;
-	for (int n = 0; n < N; ++n) { Sum += V[n] * V[n]; }
-	return((1.0 / N) * Sum);
-}
 
 
 // VER PAGINA 14 DO LIVRO DE PROCESSAMENTO DE SINAIS PARA ROOT-MEAN-SQUARE BASEADO EM SINAL, PROVAVELMENTE sqrt(AveragePower());
@@ -144,10 +111,6 @@ double AveragePowerFundPeriod(std::vector<double> V)
 // ######################################################## ACÚSTICA ########################################################
 // #####################################################################################################################################
 // https://en.wikipedia.org/wiki/List_of_equations_in_wave_theory
-
-// #####################################################################################################################################
-// ENVELOPES:
-double Envelope(double Attack, double Decay, double t) { if (t < Attack) { return(t / Attack); } else { return(1.0 - ((t - Attack) / Decay)); } } // Mudar se achar algo melhor
 
 // #####################################################################################################################################
 // SOUND SPEED:
