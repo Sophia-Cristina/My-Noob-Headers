@@ -52,8 +52,8 @@ void FillArea(CImg<unsigned char>&, int, int, unsigned char[3]);
 void FillAll(CImg<unsigned char>&, unsigned char[3]);
 CImg<unsigned char> ExpandImg(CImg<unsigned char>, int, char);
 CImg<unsigned char> JoinImg(CImg<unsigned char>, CImg<unsigned char>, bool);
-double GetMag(PointFlt);
-double GetVecRad(PointFlt);
+double GetMag(Point<double>);
+double GetVecRad(Point<double>);
 double SumntoPowIniEnd(int, int, int);
 std::vector<std::string> BinaryWordsSeq(int);
 std::vector<long> BinaryWordSeqArean(int);
@@ -125,7 +125,7 @@ void CIMG(CImg<unsigned char> Img, std::string Title) { CImgDisplay Disp(Img, Ti
 std::vector<double> BitmapVector(CImg<unsigned char> BMP)
 {
 	std::vector<double> V;
-	Point3DB RGB;
+	Point3D<unsigned char> RGB;
 	for (int ny = 0; ny < BMP.height(); ++ny)
 	{
 		for (int nx = 0; nx < BMP.width(); ++nx) { RGB = BitmapRGB(BMP, nx, ny); double Valor = ((RGB.x + RGB.y + RGB.z) / 765.0); V.push_back(Valor); }
@@ -136,7 +136,7 @@ std::vector<double> BitmapVector(CImg<unsigned char> BMP)
 std::vector<double> BitmapVector(CImg<unsigned char> BMP, int R0orG1orB2)
 {
 	std::vector<double> V;
-	Point3DB RGB;
+	Point3D<unsigned char> RGB;
 	for (int ny = 0; ny < BMP.height(); ++ny)
 	{
 		for (int nx = 0; nx < BMP.width(); ++nx)
@@ -217,7 +217,7 @@ CImg<unsigned char> MixRGB(CImg<unsigned char> Img0, CImg<unsigned char> Img1)
 	if (Img0.height() > Img1.height()) { Height = Img1.height(); }
 	else { Height = Img0.height(); }
 	CImg<unsigned char> Ret(Width, Height, 1, 3, 0);
-	Point3DB RGB0, RGB1;
+	Point3D<unsigned char> RGB0, RGB1;
 	unsigned char Clr[3];
 	for (int n = 0; n < Height; ++n)
 	{
@@ -241,7 +241,7 @@ CImg<unsigned char> MixRGB(CImg<unsigned char> Img0, CImg<unsigned char> Img1, b
 	if (Img0.height() > Img1.height()) { Height = Img1.height(); }
 	else { Height = Img0.height(); }
 	CImg<unsigned char> Ret(Width, Height, 1, 3, 0);
-	Point3DB RGB0, RGB1;
+	Point3D<unsigned char> RGB0, RGB1;
 	unsigned char Clr[3];
 	for (int n = 0; n < Height; ++n)
 	{
@@ -295,7 +295,7 @@ CImg<unsigned char> MixRGB(CImg<unsigned char> Img0, CImg<unsigned char> Img1, u
 	if (Img0.height() > Img1.height()) { Height = Img1.height(); }
 	else { Height = Img0.height(); }
 	CImg<unsigned char> Ret(Width, Height, 1, 3, 0);
-	Point3DB RGB0, RGB1;
+	Point3D<unsigned char> RGB0, RGB1;
 	unsigned char Clr[3];
 	for (int n = 0; n < Height; ++n)
 	{
@@ -325,7 +325,7 @@ CImg<unsigned char> MixRGB(CImg<unsigned char> Img0, CImg<unsigned char> Img1, i
 	if (Img0.height() > Img1.height()) { Height = Img1.height(); }
 	else { Height = Img0.height(); }
 	CImg<unsigned char> Ret(Width, Height, 1, 3, 0);
-	Point3DB RGB0, RGB1;
+	Point3D<unsigned char> RGB0, RGB1;
 	unsigned char Clr[3];
 	for (int n = 0; n < Height; ++n)
 	{
@@ -357,7 +357,7 @@ CImg<unsigned char> DrawImageIgnClr(CImg<unsigned char> Img0, CImg<unsigned char
 	if (x < 0) { x = 0; } if (y < 0) { y = 0; }
 	int Width = Img1.width(), Height = Img1.height();
 	CImg<unsigned char> Ret = Img0;
-	Point3DB RGB;
+	Point3D<unsigned char> RGB;
 	unsigned char Clr[3];
 	for (int i = 0; i < Height; ++i)
 	{
@@ -376,6 +376,26 @@ CImg<unsigned char> DrawImageIgnClr(CImg<unsigned char> Img0, CImg<unsigned char
 	return (Ret);
 }
 
+/*
+#define cimg_use_png
+#include "CImg.h"
+using namespace cimg_library;
+
+int main(int argc, char **argv) {
+
+  const CImg<> bg("background.png"); // RGB image
+  const CImg<> fg("foreground.png"); // RGBA image.
+
+  const CImg<> fg_rgb = fg.get_shared_channels(0,2); // Only RGB part of the foreground.
+  const CImg<> fg_a = fg.get_shared_channel(3); // Only Alpha part of the foreground.
+
+  CImg<> result(bg);
+  result.draw_image(30,30,fg_rgb,fg_a,1,255);
+
+  (bg,fg,result).display();
+}
+*/
+
 // ############################################################################################################################################
 // ############################################################################################################################################
 // ############################################################################################################################################
@@ -386,10 +406,10 @@ CImg<unsigned char> SieveEratosthenes(int n)
 {
 	if (n < 10) { n = 10; }
 	std::vector<CImg<unsigned char>> Squares(n);
-	std::vector<Point3DB> RGBs(4);
+	std::vector<Point3D<unsigned char>> RGBs(4);
 	int Lines = ceil(n / 10.0);
 	CImg<unsigned char> Ret(10 * 32, Lines * 32, 1, 3, 0);
-	Point3DB RGB;
+	Point3D<unsigned char> RGB;
 	for (int m = 0; m < 4; ++m)
 	{
 		RGB = LinearRGB(m / 4.0, 1, 1);
@@ -497,7 +517,7 @@ CImg<unsigned char> RayInfo(double Degrees, int ImgSize)
 			if (PlotDrv > 0) { zgdrv = BordaX + ((GradeY - 2) - ((((zdrv + a) * 0.5) / a) * (GradeY - 3))); } // GRADEY
 			// ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### #######
 			// Plotagem:
-			Point3DB RGB = LinearRGB((z + 1) * 0.5, 1.0, 1.0); TR = RGB.x; TG = RGB.y; TB = RGB.z;
+			Point3D<unsigned char> RGB = LinearRGB((z + 1) * 0.5, 1.0, 1.0); TR = RGB.x; TG = RGB.y; TB = RGB.z;
 			unsigned char Clr[] = { TR, TG, TB };
 			Imagem.draw_point(xn, yn, Clr);
 			// ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### ####### #######

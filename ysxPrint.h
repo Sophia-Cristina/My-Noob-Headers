@@ -131,25 +131,25 @@ void PrintPowerandRoot(double n, int From, int To)
 	std::ofstream oPrint("PowerRoot.txt"); if (!oPrint.is_open()) { std::cout << "!!! Arquivo não foi aberto. !!!" << std::endl; }
 	else
 	{
-		std::vector<long> pn = PowerOfn(n, From, To);
+		std::vector<long> pn = PowerOfn<long>(n, From, To);
 		oPrint << "#####################\n";
 		for (int m = 0; m < pn.size(); ++m)
 		{
 			oPrint << n << "^" << From + m << " = " << pn[m] << std::endl;
 		}
-		pn = PowerByn(n, From, To);
+		pn = PowerByn<long>(n, From, To);
 		oPrint << "#####################\n";
 		for (int m = 0; m < pn.size(); ++m)
 		{
 			oPrint << From + m << "^" << n << " = " << pn[m] << std::endl;
 		}
-		std::vector<double> rn = nRootOfm(n, From, To);
+		std::vector<double> rn = nRootOfm<double>(n, From, To);
 		oPrint << "#####################\n";
 		for (int m = 0; m < pn.size(); ++m)
 		{
 			oPrint << n << "root(" << From + m << ") = " << rn[m] << std::endl;
 		}
-		rn = mRootOfn(n, From, To);
+		rn = mRootOfn<double>(n, From, To);
 		oPrint << "#####################\n";
 		for (int m = 0; m < pn.size(); ++m)
 		{
@@ -535,7 +535,7 @@ void FiboWordFracCoord2Coll(int Iter, bool CollMsn, int Line, float Dist, bool x
 	std::ofstream oPrint(Name); if (!oPrint.is_open()) { std::cout << "!!! Arquivo não foi aberto. !!!" << std::endl; }
 	else
 	{
-		std::vector<Point> Pt = FiboWordFrac(FiboWord(Iter));
+		std::vector<Point<int>> Pt = FiboWordFrac(FiboWord(Iter));
 		if (!CollMsn) { oPrint << Line << ","; }
 		for (size_t n = 0; n < Pt.size(); ++n)
 		{

@@ -5,9 +5,17 @@
 
 #include <vector>
 
+// ############################################################################################################################################
+// ################################################# ANOTATIONS AND ALTERATIONS #################################################
+//
+// CHANGES (KEEP ORDER):
+//
+// ################################################# ANOTATIONS AND ALTERATIONS #################################################
+// ############################################################################################################################################
+
 // #####################################################################################################################################
 
-#define LOOP8 for(char n = 0; n < 8; ++n)
+#define LOOP8 for(unsigned char n = 0; n < 8; ++n)
 
 // #####################################################################################################################################
 // #####################################################################################################################################
@@ -45,12 +53,12 @@ std::string Hex2ASCII(std::string hex) // Geeksforgeeks functions to convert Hex
 	return ASCII;
 }
 
-std::string Bin2ASCII(std::string BIN) // Geeksforgeeks functions to convert Hex to ASCII
+std::string Bin2ASCII(std::string Bin)
 {
 	std::string ASCII = "";
-	for (size_t i = 0; i < BIN.length(); i += 2)
+	for (size_t i = 0; i < Bin.length(); i += 2)
 	{
-		std::string part = BIN.substr(i, 2);
+		std::string part = Bin.substr(i, 2);
 		char ch = stoul(part, nullptr, 2);
 		ASCII += ch;
 	}
@@ -114,7 +122,7 @@ std::string char2str(char* Array, unsigned int Size) { std::string s; for (int n
 
 // ####### VECTOR CONVERTERS #######
 
-// NORMALIZE FLOAT VALUE FROM '-1' TO '1' TO '0' TO '65535':
+// NORMALIZE FLOAT VALUE FROM '-1' TO '1' TO '0' TO 'MAX':
 std::vector<unsigned short> ScaleFloat2UI16(std::vector<float> V)
 {
 	std::vector<unsigned short> ui16(V.size());
@@ -132,43 +140,15 @@ std::vector<unsigned char> ScaleFloat2UI8(std::vector<float> V)
 // ####### STRINGS #######
 
 // TURN STRING TO ARRAY OF DOUBLES (IGNORE LAST BYTES IF < SIZEOF(DOUBLE)):
-std::vector<double> str2vdouble(std::string s) // NOT TESTED YET
+template <class T_> std::vector<T_> str2Vec(std::string s) // NOT TESTED YET
 {
-	unsigned char Size = sizeof(double), sSize = s.size();
-	std::vector<double> v(ceil(sSize / (double)Size));
-	for (unsigned int n = 0; n < s.size() - Size; n += Size) { memcpy(&v[n], &s[n], sSize); }
-}
-std::vector<float> str2vfloat(std::string s) // NOT TESTED YET
-{
-	unsigned char Size = sizeof(float), sSize = s.size();
-	std::vector<float> v(ceil(s.size() / (double)Size));
-	for (unsigned int n = 0; n < sSize - Size; n += Size) { memcpy(&v[n], &s[n], sSize); }
-}
-std::vector<int> str2vint(std::string s) // NOT TESTED YET
-{
-	unsigned char Size = sizeof(int), sSize = s.size();
-	std::vector<int> v(ceil(s.size() / (double)Size));
-	for (unsigned int n = 0; n < sSize - Size; n += Size) { memcpy(&v[n], &s[n], sSize); }
-}
-std::vector<short> str2vshort(std::string s) // NOT TESTED YET
-{
-	unsigned char Size = sizeof(short), sSize = s.size();
-	std::vector<short> v(ceil(s.size() / (double)Size));
-	for (unsigned int n = 0; n < sSize - Size; n += Size) { memcpy(&v[n], &s[n], sSize); }
-}
-std::vector<unsigned int> str2vuint(std::string s) // NOT TESTED YET
-{
-	unsigned char Size = sizeof(unsigned int), sSize = s.size();
-	std::vector<int> v(ceil(s.size() / (double)Size));
-	for (unsigned int n = 0; n < sSize - Size; n += Size) { memcpy(&v[n], &s[n], sSize); }
-}
-std::vector<unsigned short> str2vushort(std::string s) // NOT TESTED YET
-{
-	unsigned char Size = sizeof(unsigned short), sSize = s.size();
-	std::vector<short> v(ceil(s.size() / (double)Size));
-	for (unsigned int n = 0; n < sSize - Size; n += Size) { memcpy(&v[n], &s[n], sSize); }
+	unsigned char Size = sizeof(T_), sSize = s.size();
+	std::vector<T_> v(ceil(sSize / (double)Size));
+	for (size_t n = 0; n < sSize - Size; n += Size) { memcpy(&v[n], &s[n], sSize); }
 }
 
+// SCALES FLOAT VALUES TO STRING, PLEASE, USE VALUES BETWEEN '-1' AND '1':
+// Also check the function 'ScaleFloat2UI8':
 std::string ScaleFloat2String(std::vector<float> V)
 {
 	std::string ui8;
