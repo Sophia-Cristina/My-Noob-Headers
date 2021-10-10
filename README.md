@@ -3,7 +3,7 @@ Those are headers i made since i began to use c++.
 
 My philosophy for those headers are to maintain those pretty simple, that any noob can read and understand. I have been using this since i was super noob in c++ and i think it is pretty useful to use it in such way.
 
-This repository if to share with friends, but feel free to enjoy whatever you can with it.
+This repository is made to share with friends, but feel free to enjoy whatever you can with it.
 
 There is nothing advanced and since I use those codes since the beginning of my programming journey, it have lot of rubbish that I'm lazy to fix.
 
@@ -13,8 +13,9 @@ I love to do music and I began to learn programming because music. Since "music 
 
 * I took the "using namespace std" from it, it now works correctly and won't have conflicts with other codes.
 
-* I translated some of my header (which were in Brasilian Portuguese), and soon i'm going to make it all in english.
+* I translated some of my header (which were in Brazilian Portuguese), and soon i'm going to make it all in english.
 
+* Now i'm using templates. Hoep i have not missed anything.
 
 
 * ysxBytes.h:
