@@ -20,7 +20,6 @@ using namespace cimg_library;
 
 // ############################################################################################################################################
 // ############## MODULAÇÕES COM HUE:
-
 CImg<unsigned char> PaintHueRGBGapMod(CImg<unsigned char> I, double Phase, double Omega, int R0, int R1, int G0, int G1, int B0, int B1)
 {
 	std::vector<Pixel> VP = BitmapPixelMatrix(I);
@@ -29,7 +28,7 @@ CImg<unsigned char> PaintHueRGBGapMod(CImg<unsigned char> I, double Phase, doubl
 		if (InsideRGBGap(VP[n].RGB, R0, R1, G0, G1, B0, B1))
 		{
 			double Hue = ModForm(((double)n / VP.size() * TAU) + Phase, Omega);
-			Point3D C = LinearRGB(Hue, 1, 1);
+			Point3D<unsigned char> C = LinearRGB(Hue, 1, 1);
 			unsigned char UC[] = { C.x, C.y, C.z };
 			I.draw_point(VP[n].x, VP[n].y, UC);
 		}
