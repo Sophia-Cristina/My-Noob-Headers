@@ -86,7 +86,7 @@ juce::Colour jLinearRGB(double n, double Lum, double Cont)
 // #####################           #####################
 
 // 'juce::String' to 'std::string':
-std::string jStr2cstr(juce::String s) { string t; for (int n = 0; n < s.length(); ++n) { t.push_back(s[n]); } return(t); }
+std::string jStr2str(juce::String s) {	string t; for (int n = 0; n < s.length(); ++n) { t.push_back(s[n]); } return(t); }
 
 // #####################
 // #####################
@@ -128,7 +128,7 @@ void Circuloxy(juce::Image& Img, double r, int Imgx, int Imgy, int R, int G, int
 	int xzero = Imgx, yzero = Imgy;
 	double Step = 1.0 / r;
 
-	for (double Rad = 0; Rad <= Tau; Rad += Step) // MUDAR SE NESCESSARIO
+	for (double Rad = 0; Rad <= TAU; Rad += Step) // MUDAR SE NESCESSARIO
 	{
 		y = round(sin(Rad) * r);
 		x = round(cos(Rad) * r);
@@ -146,15 +146,15 @@ void Circuloxy(juce::Image& Img, double r, int Imgx, int Imgy)
 	int xzero = Imgx, yzero = Imgy;
 	double Step = 1.0 / r;
 
-	for (double Rad = 0; Rad <= Tau; Rad = Rad + Step)
+	for (double Rad = 0; Rad <= TAU; Rad = Rad + Step)
 	{
 		y = round(sin(Rad) * r);
 		x = round(cos(Rad) * r);
-		double Progresso = Rad / Tau;
+		double Progresso = Rad / TAU;
 
 		if (y + yzero < Img.getHeight() && y + yzero >= 0 && x + xzero < Img.getWidth() && x + xzero >= 0) // if 'InImg' from my header
 		{
-			Point3D RGB = LinearRGB(Progresso, 1, 1);
+			Point3DB RGB = LinearRGB(Progresso, 1, 1);
 			unsigned char color[] = { RGB.x, RGB.y, RGB.z };
 			Img.setPixelAt(x + xzero, y + yzero, { color[0], color[1], color[2] });
 		}
