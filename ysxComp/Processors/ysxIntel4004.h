@@ -11,19 +11,13 @@
 // #####################
 
 // #################################################
-// REFERENCES:
-// #################################################
-
-/*
+/* REFERENCES:
 [1] http://e4004.szyc.org/emu/varia/4004cpu.js
  [1.1] https://jsfiddle.net/SophiaCristina/91omxuew
+ [1.2] https://www.onlinegdb.com/J496vXa5U
 [2] https://codeabbey.github.io/heavy-data-1/msc-4-asm-manual-1973.pdf
 */
-
-
-// ###############################################################################################################################################################################
-// ###############################################################################################################################################################################
-// ###############################################################################################################################################################################
+// #################################################
 
 // #################################################
 // ############## MAIN CLASS ##############
@@ -61,7 +55,7 @@ public:
     Think that it is a debugger, there are 5 bits free
            testFlag
            | ePRG
-     00000 1 10
+     00000 1 11
            4 21*/
     unsigned char PROG = 0;
     unsigned char sp = 0; // Stack
@@ -71,7 +65,7 @@ public:
     00 00 0000
     00 nn reg.
     ACC & 48 = OP | ACC & 15 = Registers*/
-    unsigned char ACC;
+    unsigned char ACC = 0;
     
     //unsigned char ROM[4096];
     unsigned char ROMcm, ROMport;
@@ -97,7 +91,7 @@ public:
     // ### SYSTEM:
     void incPC() { PCs[0]++; PCs[0] &= 0xfff; if (PROG & testFlag) PCs[0] &= 255; }
     unsigned char nextCode() { incPC(); if (PCs[0] < 4096) { return(ROM[PCs[0]] & 255); } return(0); }
-    unsigned char activeCode() { if (PCs[0] < 4096) { std::cout << "H: " << (short)(ROM[PCs[0]] & 255) << std::endl; return(ROM[PCs[0]] & 255); } return(0); }
+    unsigned char activeCode() { if (PCs[0] < 4096) { return(ROM[PCs[0]] & 255); } return(0); }
     void setRpar(unsigned char rpar, unsigned char pset) { if (rpar < 8) { Regs[rpar] = pset & 255; } } // Set Register Pair
     unsigned char getRpar(unsigned char rpar) { return(((Regs[rpar] << 4) & 0xf0) | ((Regs[rpar] >> 4) & 0xf)); } // Get Register Pair
 
@@ -132,10 +126,6 @@ public:
 
     // #################################################
     // ####### 4004 FUNCTIONS:
-    //void CLB() { Accum = 0; PROG ^= 4; } // Clear Accum and Carry bit, don't use xor, i don't know what to do
-    //void opCLB() {	//CLB Clear Both
-    //    ACC = 0; CT[0] = 0; incPC();
-    //}
 
     // No operation:
     void NOP() { incPC(); }
@@ -159,7 +149,6 @@ public:
     void SRC(unsigned char rpar) { RAMaddr = getRpar(rpar); incPC(); }
     
     // FIN Fetch Indirect
-    // Test it, may be different than JS or other endians
     void FIN(unsigned char rpar) { setRpar(rpar, ROM[(PCs[0] & 0xf00) | getRpar(0)]); incPC(); }
 
     // JIN Jump Indirect
@@ -186,7 +175,6 @@ public:
     }
 
     // ### REG 4-BIT FUNCTIONS:
-    // !!! FIX ALL 'reg' TO 4-BIT !!!
     // TEMPLATE:
     // if (reg % 2) { reg >>= 1; }
     // else { reg >>= 1; }
@@ -195,7 +183,6 @@ public:
     //INC Increment:
     void INC(unsigned char reg)
     {
-        //Regs[reg]++; if (Regs[reg] & 0xf0) Regs[reg] = 0; incPC();
         // 'Regs' are pairs: Regs[0] = R1R2;
         // reg = 13 -> reg % 2 = 1 -> Regs[6] | reg = 1 -> reg % 2 = 1 -> Regs[0]
         // Regs[reg] = AC -> 0C == 0xf -> R = D; AF -> 0F == 0xf -> R = 0
@@ -324,7 +311,7 @@ public:
     void CLC() { CT[0] = 0; incPC(); }
 
     // IAC Increment Accumulator
-    void IAC() { ACC++; CT[0] = 0; if (ACC & 0xf0) { ACC &= 0xf; CT[0] = 1; } incPC(); }
+    void IAC() { ++ACC; CT[0] = 0; if (ACC & 0xf0) { ACC &= 0xf; CT[0] = 1; } incPC(); }
 
     // CMC Complement Carry
     void CMC() { CT[0] = (CT[0] == 1) ? 0 : 1; incPC(); }
@@ -415,14 +402,14 @@ public:
     // BYTE TO MACHINE INSTRUCTIONS:
     void Instrc(unsigned char H)
     {
-        std::cout << "H: " << (short)H << std::endl;
+        if (bLOG) { LOG += "Instr.: " + std::to_string((short)H) + '\n'; }
         unsigned char n = H & 0xf, m = H & 0xf0;
         if (H == 0) { NOP(); }
         else if (m == 0x10) { JCN(n); }
-        else if ((H & 0xf1) == 0x20) { FIM(n >> 1); }
-        else if ((H & 0xf1) == 0x21) { SRC(n >> 1); }
-        else if ((H & 0xf1) == 0x30) { FIN(n >> 1); }
-        else if ((H & 0xf1) == 0x31) { JIN(n >> 1); }
+        else if (((H & 0xf1) ^ 0x21) == 1) { FIM(n >> 1); }
+        else if (((H & 0xf1) ^ 0x21) == 0) { SRC(n >> 1); }
+        else if (((H & 0xf1) ^ 0x31) == 1) { FIN(n >> 1); }
+        else if (((H & 0xf1) ^ 0x31) == 0) { JIN(n >> 1); }
         else if (m == 0x40) { JUN(n); }
         else if (m == 0x50) { JMS(n); }
         else if (m == 0x60) { INC(n); }
@@ -436,26 +423,26 @@ public:
         else if (H == 0xE0) { WRM(); }
         else if (H == 0xE1) { WMP(); }
         else if (H == 0xE2) { WRR(); }
-        else if (H & 0xE4) { WR(n - 4); }
+        else if ((H & 0xFC) == 0xE4) { WR(n - 4); }
+        else if ((H & 0xFC) == 0xEC) { RD(n - 4); }
         else if (H == 0xE8) { SBM(); }
         else if (H == 0xE9) { RDM(); }
         else if (H == 0xEA) { RDR(); }
         else if (H == 0xEB) { ADM(); }
-        else if (H & 0xEC) { RD(n - 4); }
-        else if (m == 0xF0) { CLB(); }
-        else if (m == 0xF1) { CLC(); }
-        else if (m == 0xF2) { IAC(); }
-        else if (m == 0xF3) { CMC(); }
-        else if (m == 0xF4) { CMA(); }
-        else if (m == 0xF5) { RAL(); }
-        else if (m == 0xF6) { RAR(); }
-        else if (m == 0xF7) { TCC(); }
-        else if (m == 0xF8) { DAC(); }
-        else if (m == 0xF9) { TCS(); }
-        else if (m == 0xFA) { STC(); }
-        else if (m == 0xFB) { DAA(); }
-        else if (m == 0xFC) { KBP(); }
-        else if (m == 0xFD) { DCL(); }
+        else if (H == 0xF0) { CLB(); }
+        else if (H == 0xF1) { CLC(); }
+        else if (H == 0xF2) { IAC(); }
+        else if (H == 0xF3) { CMC(); }
+        else if (H == 0xF4) { CMA(); }
+        else if (H == 0xF5) { RAL(); }
+        else if (H == 0xF6) { RAR(); }
+        else if (H == 0xF7) { TCC(); }
+        else if (H == 0xF8) { DAC(); }
+        else if (H == 0xF9) { TCS(); }
+        else if (H == 0xFA) { STC(); }
+        else if (H == 0xFB) { DAA(); }
+        else if (H == 0xFC) { KBP(); }
+        else if (H == 0xFD) { DCL(); }
         if (bLOG) { LOG += LogState(); }
     }
 
@@ -502,6 +489,7 @@ public:
         L += "ph: " + std::to_string((short)ph) + " | pm: " + std::to_string((short)pm) + " | pl: " + std::to_string((short)pl);
         L += " | RAM: " + std::to_string((short)RAM[ph][pm][pl]) + '\n';
         L += "PCs: " + std::to_string((short)PCs[0]) + " " + std::to_string((short)PCs[1]) + " " + std::to_string((short)PCs[2]) + " " + std::to_string((short)PCs[3]) + '\n';
+        return(L);
     }
 
 };
