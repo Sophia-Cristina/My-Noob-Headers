@@ -5,19 +5,31 @@
 
 using namespace cimg_library;
 
-// ###################################
-// ############## FUNÇÕES #######
-// ###################################
-// ############## DECLARAÇÕES:
-
-// ###################################
+// #####################
+// ####### By Sophia Cristina
+// ####### CImg for utils, like GUI, interfaces, human-readable stuffs..
+// #####################
 
 // ############################################################################################################################################
+// ################################################# NOTES AND ATTENTIONS #################################################
+// !!!!!!!	
+// !!!!!!!	CATALOGUE ANY CHANGE THAT CAN AFFECT CODE VERSIONS:
+// !!!!!!!	
+// ################################################# NOTES AND ATTENTIONS #################################################
+// ############################################################################################################################################
+
+// #################################################
+// ##################### FORWARD DECLARATIONS:
+// #################################################
+
+// #################################################
+
+// ############################################################################################################################################
 // ############################################################################################################################################
 // ############################################################################################################################################
 
 // ############################################################################################################################################
-// ############## TRANSFORMADORES / MODIFICADORES:
+// ############## TRANSFORMERS / MODIFICATORS:
 
 // JOIN IMAGES (APPEND):
 CImg<unsigned char> JoinImg(CImg<unsigned char> I1, CImg<unsigned char> I2, bool RightOrDown)
@@ -41,18 +53,23 @@ void Resize(CImg<unsigned char>& Img, int xrs, int yrs, int Interpolation)
 // INVERT:
 void Invert(CImg<unsigned char>& Img)
 {
-	for (int n = 0; n < Img.height(); ++n)
+	unsigned short H = Img.height(), W = Img.width();
+	for (unsigned short n = 0; n < H; ++n)
 	{
-		for (int m = 0; m < Img.width(); ++m) { Point3D<unsigned char> RGB = BitmapRGB(Img, m, n); unsigned char Color[] = { 255 - RGB.x, 255 - RGB.y, 255 - RGB.z }; Img.draw_point(m, n, Color); }
+		for (unsigned short m = 0; m < W; ++m)
+		{
+			Point3D<unsigned char> RGB = BitmapRGB(Img, m, n);
+			unsigned char C[] = { 255 - RGB.x, 255 - RGB.y, 255 - RGB.z }; Img.draw_point(m, n, C);
+		}
 	}
 }
 
 // FILL SOME PLACE:
-void FillArea(CImg<unsigned char>& Img, int x, int y, unsigned char Color[3]) { Img.draw_fill(x, y, Color, 1, 1, false); }
+void FillArea(CImg<unsigned char>& Img, int x, int y, unsigned char* Color) { Img.draw_fill(x, y, Color, 1, 1, false); }
 
 // EXPAND IMAGE BORDERS:
 // (char as byte, '0' to '8', '0 = center', imagine an octagon, '1 = top side', clock-wise, '2 = top-right side', and that is how it goes)
-CImg<unsigned char> ExpandImg(CImg<unsigned char> Img, int Size, char Side)
+CImg<unsigned char> ExpandImg(CImg<unsigned char> Img, unsigned short Size, char Side)
 {
 	// W = Width | H = height | e = Ex | i = Img | m = mid
 	int Wi = Img.width(), Hi = Img.height(), Wim = Wi * 0.5, Him = Hi * 0.5;
@@ -73,91 +90,72 @@ CImg<unsigned char> ExpandImg(CImg<unsigned char> Img, int Size, char Side)
 }
 
 // ############################################################################################################################################
-// ############################################################################################################################################
-// ############################################################################################################################################
-
 // ############## TEXTOS:
 
 // ############################################################################################################################################
-// ############################################################################################################################################
-// ############################################################################################################################################
-
 // ############## GRAFICOS:
 
 // BARS:
 // If xAxis, then 'a = x0', 'b = x1', and 'Axis = y'
 // If !xAxis, then 'a = y0', 'b = y1', and 'Axis = x'
-void DrawBar(CImg<unsigned char>& Img, bool xAxis, unsigned int a, unsigned int b, unsigned int Thickness, unsigned int Axis, unsigned char Color[3])
+void DrawBar(CImg<unsigned char>& Img, bool xAxis, unsigned short a, unsigned short b, unsigned short Thickness, unsigned short Axis, unsigned char* Color)
 {
 	if (Thickness < 1) { Thickness = 1; }
-	if (xAxis)
-	{
-		for (short C = 0; C < Thickness; ++C) { Img.draw_line(a, Axis + C, b, Axis + C, Color); }
-	}
-	else
-	{
-		for (short C = 0; C < Thickness; ++C) { Img.draw_line(Axis + C, a, Axis + C, b, Color); }
-	}
+	if (xAxis) { for (short C = 0; C < Thickness; ++C) { Img.draw_line(a, Axis + C, b, Axis + C, Color); } }
+	else { for (short C = 0; C < Thickness; ++C) { Img.draw_line(Axis + C, a, Axis + C, b, Color); } }
 }
 
-// ADICIONAR BORDAS:
-CImg<unsigned char> AddBorder(CImg<unsigned char> Img, int BordaX, int BordaY, unsigned char Color[3])
+// ADD BORDERS (TALVEZ FILL ARRUMARIA TUDO ISSO BEM FÁCIL):
+CImg<unsigned char> AddBorder(CImg<unsigned char> Img, unsigned short BorderX, unsigned short BorderY, unsigned char* Color)
 {
-	int GradeX = Img.width(), GradeY = Img.height();
-	int Sizex = GradeX + (BordaY * 2), Sizey = GradeY + (BordaX * 2);
-	CImg<unsigned char> ThisImg(Sizex, Sizey, 1, 3, 0);
-	ThisImg.draw_image(BordaX, BordaY, Img);
-	DrawBar(ThisImg, false, 0, Sizey, BordaY, 0, Color);
-	DrawBar(ThisImg, false, 0, Sizey, BordaY, Sizex - BordaY, Color);
-	DrawBar(ThisImg, true, BordaY, Sizex - (BordaY + 1), BordaX, 0, Color);
-	DrawBar(ThisImg, true, BordaY, Sizex - (BordaY + 1), BordaX, Sizey - BordaX, Color);
-	return (ThisImg);
+	unsigned short x = Img.width() + (BorderY * 2), y = Img.height() + (BorderX * 2);
+	CImg<unsigned char> R(x, y, 1, 3, 0);
+	R.draw_image(BorderX, BorderY, Img);
+	DrawBar(R, false, 0, y, BorderY, 0, Color);
+	DrawBar(R, false, 0, y, BorderY, x - BorderY, Color);
+	DrawBar(R, true, BorderY, x - (BorderY + 1), BorderX, 0, Color);
+	DrawBar(R, true, BorderY, x - (BorderY + 1), BorderX, y - BorderX, Color);
+	return (R);
 }
 
 // ENCAIXOTAR:
-void Box(CImg<unsigned char>& Img, int x1, int y1, int sizex, int sizey, unsigned char Color[3])
+void Box(CImg<unsigned char>& Img, unsigned short x, unsigned short y, unsigned short sizex, unsigned short sizey, unsigned char* Color)
 {
-	DrawBar(Img, false, y1, y1 + sizey, 1, x1, Color);
-	DrawBar(Img, false, y1, y1 + sizey, 1, x1 + sizex, Color);
-	DrawBar(Img, true, x1, x1 + sizex, 1, y1, Color);
-	DrawBar(Img, true, x1, x1 + sizex, 1, y1 + sizey, Color);
+	DrawBar(Img, false, y, y + sizey, 1, x, Color);
+	DrawBar(Img, false, y, y + sizey, 1, x + sizex, Color);
+	DrawBar(Img, true, x, x + sizex, 1, y, Color);
+	DrawBar(Img, true, x, x + sizex, 1, y + sizey, Color);
 }
 
 // BOX MATRIX:
-void BoxMatrix(CImg<unsigned char>& Img, int Border, int Divx, int Divy, unsigned char Color[3])
+void BoxMatrix(CImg<unsigned char>& Img, unsigned short Border, unsigned short Divx, unsigned short Divy, unsigned char* Color)
 {
-	int Height = Img.height(), Width = Img.width();
+	unsigned short Height = Img.height(), Width = Img.width();
 	DrawBar(Img, false, Border, Height - Border, Border, 0, Color);
 	DrawBar(Img, false, Border, Height - Border, Border, Width - Border, Color);
 	DrawBar(Img, true, 0, Width, Border, 0, Color);
 	DrawBar(Img, true, 0, Width, Border, Height - Border, Color);
 	if (Divx == 0) { Divx = 1; } if (Divy == 0) { Divy = 1; } // No division by zero!
 	double HD = (double)Height / Divy, WD = (double)Width / Divx;
-	for (int n = 1; n < Divx; ++n)
-	{
-		DrawBar(Img, false, Border, Height - Border, Border, n * WD - Border * 0.5, Color);
-	}
-	for (int n = 1; n < Divy; ++n)
-	{
-		DrawBar(Img, true, Border, Width - Border, Border, n * HD - Border * 0.5, Color);
-	}
+	for (int n = 1; n < Divx; ++n) { DrawBar(Img, false, Border, Height - Border, Border, n * WD - Border * 0.5, Color); }
+	for (int n = 1; n < Divy; ++n) { DrawBar(Img, true, Border, Width - Border, Border, n * HD - Border * 0.5, Color); }
 }
 
 // CRIA IMAGEM DE UM RETANGULO ENCAIXOTADO E COM TEXTO (OBS.: A DUAS BORDAS DEVEM SER MAIOR QUE ZERO PARA TER BORDAS, PREGUIÇA DE FAZER UM FUNÇÃO SÓ PARA DESENHAR ISSO):
-CImg<unsigned char> RetCell(int Sizex, int Sizey, int Borderx, int Bordery, std::string Text, unsigned char Color[3])
+CImg<unsigned char> RetCell(unsigned short x, unsigned short y, unsigned short Borderx, unsigned short Bordery, std::string Text, unsigned char* Color)
 {
-	if (Sizex <= Borderx) { Sizex = Borderx + 1; } if (Sizey <= Bordery) { Sizey = Bordery + 1; }
-	CImg<unsigned char> Cell(Sizex - Bordery, Sizey - Borderx, 1, 3, 0);
-	FillArea(Cell, Sizex * 0.5, Sizey * 0.5, Color);
+	if (x <= Borderx) { x = Borderx + 1; } if (y <= Bordery) { y = Bordery + 1; }
+	CImg<unsigned char> Cell(x - Bordery, y - Borderx, 1, 3, 0);
+	FillArea(Cell, x * 0.5, y * 0.5, Color);
 	Color[0] = 255 - Color[0]; Color[1] = 255 - Color[1]; Color[2] = 255 - Color[2];
 	if (Borderx > 0 && Bordery > 0) { Cell = AddBorder(Cell, Borderx, Bordery, Color); }
 	Color[0] = 255 - Color[0];
-	AddText(Cell, Sizex * 0.25, Sizey * 0.25, Text, Color);
+	AddText(Cell, x * 0.25, y * 0.25, Text, Color);
 	return(Cell);
 }
 
 // CRIA IMAGEM DE UMA BARRA BASEADO NUM VALOR (ABOSLUTO):
-CImg<unsigned char> ValueBarAbs(int Width, double Value, double Ratio, int Borderx, int Bordery, bool xAxis, unsigned char Color[3])
+CImg<unsigned char> ValueBarAbs(int Width, double Value, double Ratio, int Borderx, int Bordery, bool xAxis, unsigned char* Color)
 {
 	CImg<unsigned char> Bar;
 	Value = fabs(Value * Ratio);
@@ -183,10 +181,10 @@ CImg<unsigned char> ValueBarAbs(int Width, double Value, double Ratio, int Borde
 		if (Width <= Borderx) { Width = Borderx + 1; } if (Value <= Bordery) { Value = Bordery + 1; }
 		if (xAxis) { CImg<unsigned char> XIMG(Value - Bordery, Width - Borderx, 1, 3, 0); Bar = XIMG; }
 		else { CImg<unsigned char> YIMG(Width - Bordery, Value - Borderx, 1, 3, 0); Bar = YIMG; }
-		Point3D<unsigned char> RGB = LinearRGB(Value / Ratio, 1, 1); unsigned char Color[] = { RGB.x, RGB.y, RGB.z };
-		FillArea(Bar, Bar.width() * 0.5, Bar.height() * 0.5, Color);
-		Color[0] = 255 - Color[0]; Color[1] = 255 - Color[1]; Color[2] = 255 - Color[2];
-		if (Borderx > 0 && Bordery > 0) { Bar = AddBorder(Bar, Borderx, Bordery, Color); }		
+		 unsigned char C[3]; LinearRGBuc(Value / Ratio, 1, 1, C);
+		FillArea(Bar, Bar.width() * 0.5, Bar.height() * 0.5, C);
+		C[0] = 255 - C[0]; C[1] = 255 - C[1]; C[2] = 255 - C[2];
+		if (Borderx > 0 && Bordery > 0) { Bar = AddBorder(Bar, Borderx, Bordery, C); }		
 	}
 	return(Bar);
 }
@@ -200,17 +198,17 @@ CImg<unsigned char> ValueBar(int Width, double Value, double Ratio, int Borderx,
 		if (Width <= Borderx) { Width = Borderx + 1; } if (Value <= Bordery) { Value = Bordery + 1; }
 		if (xAxis) { CImg<unsigned char> XIMG(Value - Bordery, Width - Borderx, 1, 3, 0); Bar = XIMG; }
 		else { CImg<unsigned char> YIMG(Width - Bordery, Value - Borderx, 1, 3, 0); Bar = YIMG; }
-		Point3D<unsigned char> RGB = LinearRGB(Value / Ratio, 1, 1); unsigned char Color[] = { RGB.x, RGB.y, RGB.z };
+		unsigned char C[3]; LinearRGBuc(Value / Ratio, 1, 1, C);
 		CImg<unsigned char> BarFill = Bar;
-		FillArea(BarFill, Bar.width() * 0.5, Bar.height() * 0.5, Color);
-		Color[0] = 255 - Color[0]; Color[1] = 255 - Color[1]; Color[2] = 255 - Color[2];
-		if (Borderx > 0 && Bordery > 0) { BarFill = AddBorder(Bar, Borderx, Bordery, Color); }
+		FillArea(BarFill, Bar.width() * 0.5, Bar.height() * 0.5, C);
+		C[0] = 255 - C[0]; C[1] = 255 - C[1]; C[2] = 255 - C[2];
+		if (Borderx > 0 && Bordery > 0) { BarFill = AddBorder(Bar, Borderx, Bordery, C); }
 		if (xAxis) { if (Value < 0) { JoinImg(Bar, BarFill, 0); } if (Value >= 0) { JoinImg(BarFill, Bar, 0); } }
 		else { if (Value < 0) { JoinImg(Bar, BarFill, 1); } if (Value >= 0) { JoinImg(BarFill, Bar, 1); } }
 	}
 	return(Bar);
 }
-CImg<unsigned char> ValueBar(int Width, double Value, double Ratio, int Borderx, int Bordery, bool xAxis, unsigned char Color[3])
+CImg<unsigned char> ValueBar(int Width, double Value, double Ratio, int Borderx, int Bordery, bool xAxis, unsigned char* Color)
 {
 	CImg<unsigned char> Bar;
 	Value = Value * Ratio;
@@ -231,92 +229,145 @@ CImg<unsigned char> ValueBar(int Width, double Value, double Ratio, int Borderx,
 }
 
 // CRIA MATRIZ COM A FUNÇÃO DE CRIAR QUADRADOS:
-CImg<unsigned char> SqrMatrix(std::vector<CellBool> Matrix, int Sizex, int Sizey, bool Text, bool CleanFalse, unsigned char Color[3])
+CImg<unsigned char> SqrMatrix(std::vector<double> V, unsigned short x, unsigned short y, bool Text = 0)
 {
-	if (Sizex < 3) { Sizex = 3; } if (Sizey < 3) { Sizey = 3; }
-	int i, j; MaxSizeBoolMatrix(Matrix, i, j);
-	CImg<unsigned char> Squares((j + 1) * Sizex, (i + 1) * Sizey, 1, 3, 0);
-	for (int m = 0; m < Matrix.size(); ++m)
+	if (x < 3) { x = 3; } if (y < 3) { y = 3; }
+	unsigned int S = V.size();
+	double Sqrt = sqrt(S);
+	unsigned short j = round(Sqrt), i;
+	(Sqrt / j) == 1 ? i = j : i = ceil(sqrt(S)); // SQUARE SIDE SIZE
+	CImg<unsigned char> Squares(j * x, i * y, 1, 3, 0);
+	unsigned short cj = 0, ci = 0; // Count i or j
+	for (int m = 0; m < S; ++m)
 	{
-		std::string Txt; if (Text) { Txt = std::to_string(m); } else { Txt = " "; }
-		unsigned char Clr[] = { Color[0], Color[1], Color[2] };
-		if (!Matrix[m].b) { Clr[0] = 255 - Clr[0]; Clr[1] = 255 - Clr[1]; Clr[2] = 255 - Clr[2]; }
-		if (Matrix[m].b || (!Matrix[m].b && !CleanFalse))
-		{
-			CImg<unsigned char> Square = RetCell(Sizex, Sizey, 1, 1, Txt, Clr);
-			int Cellj = Matrix[m].j * Sizex, Celli = Matrix[m].i * Sizey;
-			Squares.draw_image(Cellj, Celli, Square);
-		}
-	}
-
-	return(Squares);
-}
-CImg<unsigned char> SqrMatrix(std::vector<double> Matrix, int Sizex, int Sizey, bool Text)
-{
-	if (Sizex < 3) { Sizex = 3; } if (Sizey < 3) { Sizey = 3; }
-	double SqrtVec = sqrt(Matrix.size());
-	int j = round(SqrtVec);	int i; if (SqrtVec / round(SqrtVec) == 1) { i = round(SqrtVec); } else { i = ceil(sqrt(Matrix.size())); } // SQUARE SIDE SIZE
-	CImg<unsigned char> Squares(j * Sizex, i * Sizey, 1, 3, 0);
-	int cj = 0, ci = 0; // Count i or j
-	for (int m = 0; m < Matrix.size(); ++m)
-	{
-		std::string Txt; if (Text) { Txt = std::to_string(m) + ":\n" + std::to_string(Matrix[m]); } else { Txt = " "; }
-		Point3D<unsigned char> RGB = LinearRGB((Matrix[m] * 1.0) / MaxVec(Matrix), 1, 1);
-		unsigned char Clr[] = { RGB.x, RGB.y, RGB.z };
-		CImg<unsigned char> Square = RetCell(Sizex, Sizey, 1, 1, Txt, Clr);
-		int Cellj = cj * Sizex, Celli = ci * Sizey;
-		Squares.draw_image(Cellj, Celli, Square);
+		std::string Txt; if (Text) { Txt = std::to_string(m) + ":\n" + std::to_string(V[m]); } else { Txt = " "; }
+		unsigned char C[3]; LinearRGBuc((V[m] * 1.0) / MaxVec(V), 1, 1, C);
+		int Cellj = cj * x, Celli = ci * y;
+		Squares.draw_image(Cellj, Celli, RetCell(x, y, 1, 1, Txt, C));
 		++cj;
 		if (cj == j) { cj = 0; ++ci; }
 	}
 	return(Squares);
 }
-CImg<unsigned char> SqrMatrix(std::vector<double> Matrix, int Sizex, int Sizey, int j, bool Text)
+CImg<unsigned char> SqrMatrix(std::vector<double> V, unsigned short x, unsigned short y, unsigned short j, bool Text = 0)
 {
-	if (Sizex < 3) { Sizex = 3; } if (Sizey < 3) { Sizey = 3; }
-	if (j > Matrix.size()) { j = Matrix.size(); }
-	if (j < 1) { j = 1; }
-	int i = ceil(Matrix.size() / (j * 1.0));
-	CImg<unsigned char> Squares(j * Sizex, i * Sizey, 1, 3, 0); // VER SE O (+1) NÃO DA ERRO!
-	int cj = 0, ci = 0; // Count i or j
-	for (int m = 0; m < Matrix.size(); ++m)
+	if (x < 3) { x = 3; } if (y < 3) { y = 3; }
+	unsigned int S = V.size();
+	if (j > S) { j = S; } if (j < 1) { j = 1; }
+	int i = ceil(S / (j * 1.0));
+	CImg<unsigned char> Squares(j * x, i * y, 1, 3, 0); // VER SE O (+1) NÃO DA ERRO!
+	int cj = 0, ci = 0;
+	for (int m = 0; m < S; ++m)
 	{
-		std::string Txt; if (Text) { Txt = std::to_string(m) + ":\n" + std::to_string(Matrix[m]); }
+		std::string Txt; if (Text) { Txt = std::to_string(m) + ":\n" + std::to_string(V[m]); }
 		else { Txt = " "; }
-
-		Point3D<unsigned char> RGB = LinearRGB((Matrix[m] * 1.0) / MaxVec(Matrix), 1, 1);
-		unsigned char Clr[] = { RGB.x, RGB.y, RGB.z };
-		CImg<unsigned char> Square = RetCell(Sizex, Sizey, 1, 1, Txt, Clr);
-		int Cellj = cj * Sizex, Celli = ci * Sizey;
-		Squares.draw_image(Cellj, Celli, Square);
+		unsigned char C[3]; LinearRGBuc((V[m] * 1.0) / MaxVec(V), 1, 1, C);
+		int Cellj = cj * x, Celli = ci * y;
+		Squares.draw_image(Cellj, Celli, RetCell(x, y, 1, 1, Txt, C));
 		++cj;
 		if (cj == j) { cj = 0; ++ci; }
 	}
 	return(Squares);
 }
-CImg<unsigned char> SqrMatrix(CImg<unsigned char> Matrix, int Sizex, int Sizey, bool Text)
+CImg<unsigned char> SqrMatrix(std::vector<unsigned char> V, unsigned short x, unsigned short y, bool Text = 0)
 {
-	if (Sizex < 3) { Sizex = 3; } if (Sizey < 3) { Sizey = 3; }
-	int j = Matrix.width(), i = Matrix.height();
-	CImg<unsigned char> Squares(j * Sizex, i * Sizey, 1, 3, 0); // VER SE O (+1) NÃO DA ERRO!
-	for (int m = 0; m < Matrix.width(); ++m)
+	if (x < 3) { x = 3; } if (y < 3) { y = 3; }
+	unsigned int S = V.size();
+	double Sqrt = sqrt(S);
+	unsigned short j = round(Sqrt), i;
+	(Sqrt / j) == 1 ? i = j : i = ceil(sqrt(S));
+	CImg<unsigned char> Squares(j * x, i * y, 1, 3, 0);
+	unsigned short cj = 0, ci = 0;
+	for (int m = 0; m < S; ++m)
 	{
-		for (int n = 0; n < Matrix.height(); ++n)
+		std::string Txt; if (Text) { Txt = std::to_string(m) + ":\n" + std::to_string(V[m]); }
+		else { Txt = " "; }
+		unsigned char C[3]; LinearRGBuc(V[m] / 255.0, 1, 1, C);
+		int Cellj = cj * x, Celli = ci * y;
+		Squares.draw_image(Cellj, Celli, RetCell(x, y, 1, 1, Txt, C));
+		++cj; if (cj == j) { cj = 0; ++ci; }
+	}
+	return(Squares);
+}
+CImg<unsigned char> SqrMatrix(std::vector<unsigned char> V, unsigned short x, unsigned short y, unsigned short j, bool Text = 0)
+{
+	if (x < 3) { x = 3; } if (y < 3) { y = 3; }
+	unsigned int S = V.size();
+	if (j > S) { j = S; } if (j < 1) { j = 1; }
+	unsigned short i = ceil(S / (j * 1.0));
+	CImg<unsigned char> Squares(j * x, i * y, 1, 3, 0);
+	int cj = 0, ci = 0;
+	for (int m = 0; m < S; ++m)
+	{
+		std::string Txt; if (Text) { Txt = std::to_string(m) + ":\n" + std::to_string(V[m]); }
+		else { Txt = " "; }
+		unsigned char C[3]; LinearRGBuc(V[m] / 255.0, 1, 1, C);
+		int Cellj = cj * x, Celli = ci * y;
+		Squares.draw_image(Cellj, Celli, RetCell(x, y, 1, 1, Txt, C));
+		++cj; if (cj == j) { cj = 0; ++ci; }
+	}
+	return(Squares);
+}
+CImg<unsigned char> SqrMatrixGray(std::vector<unsigned char> V, unsigned short x, unsigned short y, bool Text = 0)
+{
+	if (x < 3) { x = 3; } if (y < 3) { y = 3; }
+	unsigned int S = V.size();
+	double Sqrt = sqrt(S);
+	unsigned short j = round(Sqrt), i;
+	(Sqrt / j) == 1 ? i = j : i = ceil(sqrt(S));
+	CImg<unsigned char> Squares(j * x, i * y, 1, 3, 0);
+	unsigned short cj = 0, ci = 0;
+	for (int m = 0; m < S; ++m)
+	{
+		std::string Txt; if (Text) { Txt = std::to_string(m) + ":\n" + std::to_string(V[m]); }
+		else { Txt = " "; }
+		unsigned char C[] = { V[m], V[m], V[m] };
+		int Cellj = cj * x, Celli = ci * y;
+		Squares.draw_image(Cellj, Celli, RetCell(x, y, 1, 1, Txt, C));
+		++cj; if (cj == j) { cj = 0; ++ci; }
+	}
+	return(Squares);
+}
+CImg<unsigned char> SqrMatrixGray(std::vector<unsigned char> V, unsigned short x, unsigned short y, unsigned short j, bool Text = 0)
+{
+	if (x < 3) { x = 3; } if (y < 3) { y = 3; }
+	unsigned int S = V.size();
+	if (j > S) { j = S; } if (j < 1) { j = 1; }
+	unsigned short i = ceil(S / (j * 1.0));
+	CImg<unsigned char> Squares(j * x, i * y, 1, 3, 0);
+	int cj = 0, ci = 0;
+	for (int m = 0; m < S; ++m)
+	{
+		std::string Txt; if (Text) { Txt = std::to_string(m) + ":\n" + std::to_string(V[m]); }
+		else { Txt = " "; }
+		unsigned char C[] = { V[m], V[m], V[m] };
+		int Cellj = cj * x, Celli = ci * y;
+		Squares.draw_image(Cellj, Celli, RetCell(x, y, 1, 1, Txt, C));
+		++cj; if (cj == j) { cj = 0; ++ci; }
+	}
+	return(Squares);
+}
+CImg<unsigned char> SqrMatrix(CImg<unsigned char> V, unsigned short x, unsigned short y, bool Text = 0)
+{
+	if (x < 3) { x = 3; } if (y < 3) { y = 3; }
+	unsigned short j = V.width(), i = V.height();
+	CImg<unsigned char> Squares(j * x, i * y, 1, 3, 0);
+	for (int m = 0; m < j; ++m)
+	{
+		for (int n = 0; n < i; ++n)
 		{
-			Point3D<unsigned char> RGB = BitmapRGB(Matrix, n, m);
-			std::string Txt; if (Text) { Txt = std::to_string(n + (j * m)) + ":\n" + std::to_string((RGB.x + RGB.y + RGB.z) / 3.0); }
+			unsigned char C[3]; BitmapRGBuc(V, n, m, C);
+			std::string Txt; if (Text) { Txt = std::to_string(n + (j * m)) + ":\n" + std::to_string((C[0] + C[1] + C[2]) / 3.0); }
 			else { Txt = " "; }
-			unsigned char Clr[] = { RGB.x, RGB.y, RGB.z };
-			CImg<unsigned char> Square = RetCell(Sizex, Sizey, 1, 1, Txt, Clr);
-			int Cellj = n * Sizex, Celli = m * Sizey;
-			Squares.draw_image(Cellj, Celli, Square);
+			int cj = n * x, ci = m * y;
+			Squares.draw_image(cj, ci, RetCell(x, y, 1, 1, Txt, C));
 		}
 	}
 	return(Squares);
 }
 
 // ADD VERTICE:
-void AddVert(CImg<unsigned char>& Img, int x, int y, int Size, unsigned char Color[3])
+void AddVert(CImg<unsigned char>& Img, unsigned short x, unsigned short y, unsigned short Size, unsigned char* Color)
 {
 	for (int DrawLine = 0; DrawLine <= Size; ++DrawLine)
 	{

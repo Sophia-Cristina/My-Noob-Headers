@@ -104,6 +104,11 @@ Point3D<unsigned char> BitmapRGB(CImg<unsigned char> BMP, unsigned int x, unsign
 	Ret.x = BMP(x, y, 0, 0); Ret.y = BMP(x, y, 0, 1); Ret.z = BMP(x, y, 0, 2);
 	return(Ret);
 }
+void BitmapRGBuc(CImg<unsigned char> BMP, unsigned int x, unsigned int y, unsigned char* Clr)
+{
+	if (x > BMP.width() - 1) { x = BMP.width() - 1; } if (y > BMP.height() - 1) { y = BMP.height() - 1; }
+	Clr[0] = BMP(x, y, 0, 0); Clr[1] = BMP(x, y, 0, 1); Clr[2] = BMP(x, y, 0, 2);
+}
 // BITMAP PIXEL:
 Pixel BitmapPixel(CImg<unsigned char> BMP, unsigned int x, unsigned int y)
 {
@@ -209,20 +214,21 @@ std::vector<Pixel> BitmapPixelLimMatrix(CImg<unsigned char> BMP, int R0, int R1,
 
 // LINEAR RGB:
 // Preferable range for 'Lum' is '0 to 2', and for 'Cont' is '0 to 1'.
-Point3D<unsigned char> LinearRGB(double n, double Lum, double Cont)
+// You can use on 'CImg' colors with '(unsigned char*)&Some3DPoint<unsigned char>'.
+Point3D<unsigned char> LinearRGB(double x, double Lum, double Cont)
 {
-	if (n < 0.0) { n *= -1; } if (n > 1.0) { n = n - floor(n); }
+	if (x < 0.0) { x *= -1; } if (x > 1.0) { x = x - floor(x); }
 	if (Lum > 2.0) { Lum = 2.0; } if (Lum < 0.0) { Lum = 0.0; }
 	if (Cont > 1.0) { Cont = 1.0; } if (Cont < 0.0) { Cont = 0.0; }
 	unsigned short R = 0, G = 0, B = 0; // 'short' in case of overflow
 	double m;
 
-	if (n > 5.0 / 6) { m = (n - (5.0 / 6)) * 6; R = 255; G = 0; B = round(255 - (255 * m)); }
-	else if (n <= 5.0 / 6 && n > 4.0 / 6) { m = (n - (4.0 / 6)) * 6;	R = round(255 * m); G = 0; B = 255; }
-	else if (n <= 4.0 / 6 && n > 3.0 / 6) { m = (n - (3.0 / 6)) * 6; R = 0; G = round(255 - (255 * m)); B = 255; }
-	else if (n <= 3.0 / 6 && n > 2.0 / 6) { m = (n - (2.0 / 6)) * 6; R = 0; G = 255;	B = round(255 * m); }
-	else if (n <= 2.0 / 6 && n > 1.0 / 6) { m = (n - (1.0 / 6)) * 6; R = round(255 - (255 * m)); G = 255; B = 0; }
-	else {	m = n * 6; R = 255; G = round(255 * m); B = 0; }	
+	if (x > 5.0 / 6) { m = (x - (5.0 / 6)) * 6; R = 255; G = 0; B = round(255 - (255 * m)); }
+	else if (x <= 5.0 / 6 && x > 4.0 / 6) { m = (x - (4.0 / 6)) * 6;	R = round(255 * m); G = 0; B = 255; }
+	else if (x <= 4.0 / 6 && x > 3.0 / 6) { m = (x - (3.0 / 6)) * 6; R = 0; G = round(255 - (255 * m)); B = 255; }
+	else if (x <= 3.0 / 6 && x > 2.0 / 6) { m = (x - (2.0 / 6)) * 6; R = 0; G = 255;	B = round(255 * m); }
+	else if (x <= 2.0 / 6 && x > 1.0 / 6) { m = (x - (1.0 / 6)) * 6; R = round(255 - (255 * m)); G = 255; B = 0; }
+	else {	m = x * 6; R = 255; G = round(255 * m); B = 0; }	
 
 	// Contrast:
 	if (R > 127) { R = R - ((R - 127) * (1 - Cont)); } if (R < 127) { R = R + ((127 - R) * (1 - Cont)); }
@@ -231,7 +237,7 @@ Point3D<unsigned char> LinearRGB(double n, double Lum, double Cont)
 
 	// Luminosity:
 	if (Lum <= 1.0) { R = round(R * Lum); G = round(G * Lum); B = round(B * Lum); }
-	if (Lum > 1.0)
+	else
 	{
 		if (R == 0) { R = 1; } if (G == 0) { G = 1; } if (B == 0) { B = 1; }
 		double LumMath = 255 * (Lum - 1); R = R + LumMath; G = G + LumMath; B = B + LumMath;
@@ -243,36 +249,35 @@ Point3D<unsigned char> LinearRGB(double n, double Lum, double Cont)
 	return(RGB);
 }
 
-// Returns unsigned char[3]:
-unsigned char* LinearRGBuc(double n, double Lum, double Cont)
+// OVERWRITE POINTED 'unsigned char[3]':
+void LinearRGBuc(double x, double Lum, double Cont, unsigned char* Color)
 {
-	if (n < 0.0) { n *= -1; } if (n > 1.0) { n = n - floor(n); }
+	if (x < 0.0) { x *= -1; } if (x > 1.0) { x = x - floor(x); }
 	if (Lum > 2.0) { Lum = 2.0; } if (Lum < 0.0) { Lum = 0.0; }
 	if (Cont > 1.0) { Cont = 1.0; } if (Cont < 0.0) { Cont = 0.0; }
 	unsigned short R = 0, G = 0, B = 0;
 	double m;
 
-	if (n <= 6.0 / 6 && n > 5.0 / 6) { m = (n - (5.0 / 6)) * 6; R = 255; G = 0; B = round(255 - (255 * m)); }
-	else if (n <= 5.0 / 6 && n > 4.0 / 6) { m = (n - (4.0 / 6)) * 6;	R = round(255 * m); G = 0; B = 255; }
-	else if (n <= 4.0 / 6 && n > 3.0 / 6) { m = (n - (3.0 / 6)) * 6; R = 0; G = round(255 - (255 * m)); B = 255; }
-	else if (n <= 3.0 / 6 && n > 2.0 / 6) { m = (n - (2.0 / 6)) * 6; R = 0; G = 255;	B = round(255 * m); }
-	else if (n <= 2.0 / 6 && n > 1.0 / 6) { m = (n - (1.0 / 6)) * 6; R = round(255 - (255 * m)); G = 255; B = 0; }
-	else { m = n * 6; R = 255; G = round(255 * m); B = 0; }
+	if (x <= 6.0 / 6 && x > 5.0 / 6) { m = (x - (5.0 / 6)) * 6; R = 255; G = 0; B = round(255 - (255 * m)); }
+	else if (x <= 5.0 / 6 && x > 4.0 / 6) { m = (x - (4.0 / 6)) * 6;	R = round(255 * m); G = 0; B = 255; }
+	else if (x <= 4.0 / 6 && x > 3.0 / 6) { m = (x - (3.0 / 6)) * 6; R = 0; G = round(255 - (255 * m)); B = 255; }
+	else if (x <= 3.0 / 6 && x > 2.0 / 6) { m = (x - (2.0 / 6)) * 6; R = 0; G = 255;	B = round(255 * m); }
+	else if (x <= 2.0 / 6 && x > 1.0 / 6) { m = (x - (1.0 / 6)) * 6; R = round(255 - (255 * m)); G = 255; B = 0; }
+	else { m = x * 6; R = 255; G = round(255 * m); B = 0; }
 
 	if (R > 127) { R = R - ((R - 127) * (1 - Cont)); } if (R < 127) { R = R + ((127 - R) * (1 - Cont)); }
 	if (G > 127) { G = G - ((G - 127) * (1 - Cont)); } if (G < 127) { G = G + ((127 - G) * (1 - Cont)); }
 	if (B > 127) { B = B - ((B - 127) * (1 - Cont)); } if (B < 127) { B = B + ((127 - B) * (1 - Cont)); }
 
 	if (Lum <= 1.0) { R = round(R * Lum); G = round(G * Lum); B = round(B * Lum); }
-	if (Lum > 1.0)
+	else
 	{
 		if (R == 0) { R = 1; } if (G == 0) { G = 1; } if (B == 0) { B = 1; }
 		double LumMath = 255 * (Lum - 1); R = R + LumMath; G = G + LumMath; B = B + LumMath;
 	}
 
 	if (R > 255) { R = 255; } if (G > 255) { G = 255; } if (B > 255) { B = 255; }
-	unsigned char RGB[] = { R, G, B };
-	return(RGB);
+	Color[0] = R; Color[1] = G; Color[2] = B;
 }
 
 // ################################################# FIM ####################################################################################
