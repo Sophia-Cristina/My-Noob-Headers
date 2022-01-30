@@ -30,7 +30,36 @@
 void ofsVectorOut(std::vector<double> V, std::string Path)
 { std::ofstream F(Path, std::ios::binary); if (F.is_open()) { char Bytes = sizeof(double); for (int n = 0; n < V.size(); ++n) { F.write((char*)&V[n], Bytes); } } F.close(); }
 
+// GET ROM:
+std::vector<unsigned char> GetROM(std::string Path)
+{
+	std::vector<unsigned char> B;
+	std::ifstream F(Path, std::ios::binary);
+	if (F.is_open())
+	{
+		F.seekg(0, std::ios::end); unsigned int Size = F.tellg(); F.seekg(0, std::ios::beg);
+		B = std::vector<unsigned char>::vector(Size); F.read((char*)&B[0], Size);
+	}
+	else { std::cout << "Something went wrong while loading file.\n"; }
+	F.close(); return(B);
+}
+
+// GET ROM:
+std::vector<unsigned char> GetROMendian(std::string Path)
+{
+	std::vector<unsigned char> B;
+	std::ifstream F(Path, std::ios::binary);
+	if (F.is_open())
+	{
+		F.seekg(0, std::ios::end); unsigned int Size = F.tellg(), n = 0; F.seekg(0, std::ios::beg);
+		B = std::vector<unsigned char>::vector(Size); while (F.tellg() < Size) { F.read((char*)&B[n], 1); ++n; }
+	}
+	else { std::cout << "Something went wrong while loading file.\n"; }
+	F.close(); return(B);
+}
+
 // GET A VECTOR FROM OF A BINARY (WHICH CONSIST ENTIRELY OF THE SAME TYPE OBJECT):
+// * Remover 
 template <class T_> std::vector<T_> ifsVectorIn(std::string Path)
 {
 	std::vector<T_> Buffer; char Bytes = sizeof(T_); std::ifstream F(Path, std::ios::binary);
@@ -69,44 +98,12 @@ template <class T_> void fsVectorOutApp(std::vector<T_> V, std::string Path)
 
 // #######  REST:
 
-// GET FROM OF A BINARY (you should know if index on input is possible):
+// GET FROM OF A BINARY (you should know if index in input is possible):
 template <class T_> T_ ifsIn(std::string Path, int Index)
 {
 	std::ifstream F(Path, std::ios::binary); T_ B;
 	if (F.is_open()) { F.seekg(Index); F.read(&B, sizeof(T_)); } else { std::cout << "Something went wrong while loading file.\n"; } F.close(); return(B);
 }
-
-/*// GET FROM OF A BINARY (you should know if index on input is possible), FROM ONE INDEX TO ANOTHER:
-std::string ifsInChar(std::string Path, int Index, int LastIndex)
-{
-	std::string Buffer;
-	std::ifstream F(Path, std::ios::binary); char c; if (F.is_open()) { F.seekg(Index); while (F.tellg() < LastIndex) { F.read(&c, sizeof(char)); Buffer.push_back(c); } }
-	else { std::cout << "Couldn't open file.\n"; } F.close(); return(Buffer);
-}
-std::vector<short int> ifsInSInt(std::string Path, int Index, int LastIndex)
-{
-	std::vector<short int> Buffer;
-	std::ifstream F(Path, std::ios::binary); short int Compile; if (F.is_open()) { F.seekg(Index); while (F.tellg() < LastIndex) { F.read((char*)&Compile, sizeof(short int)); Buffer.push_back(Compile); } }
-	else { std::cout << "Couldn't open file.\n"; } F.close(); return(Buffer);
-}
-std::vector<int> ifsInInt(std::string Path, int Index, int LastIndex)
-{
-	std::vector<int> Buffer;
-	std::ifstream F(Path, std::ios::binary); int Compile; if (F.is_open()) { F.seekg(Index); while (F.tellg() < LastIndex) { F.read((char*)&Compile, sizeof(int)); Buffer.push_back(Compile); } }
-	else { std::cout << "Couldn't open file.\n"; } F.close(); return(Buffer);
-}
-std::vector<float> ifsInFlt(std::string Path, int Index, int LastIndex)
-{
-	std::vector<float> Buffer;
-	std::ifstream F(Path, std::ios::binary); float Compile; if (F.is_open()) { F.seekg(Index); while (F.tellg() < LastIndex) { F.read((char*)&Compile, sizeof(float)); Buffer.push_back(Compile); } }
-	else { std::cout << "Couldn't open file.\n"; } F.close(); return(Buffer);
-}
-std::vector<double> ifsInDbl(std::string Path, int Index, int LastIndex)
-{
-	std::vector<double> Buffer;
-	std::ifstream F(Path, std::ios::binary); double Compile; if (F.is_open()) { F.seekg(Index); while (F.tellg() < LastIndex) { F.read((char*)&Compile, sizeof(double)); Buffer.push_back(Compile); } }
-	else { std::cout << "Couldn't open file.\n"; } F.close(); return(Buffer);
-}*/
 
 // APPEND TO THE END OF A BINARY FILE:
 template <class T_> void fsOutApp(T_ B, std::string Path)
@@ -131,7 +128,7 @@ public:
 	{
 		FileIn.open(InputPath, std::ios::binary);
 		Path = InputPath;
-		FileSize = NumberOfBytes();
+		FileSize = GetSize();
 	}
 
 	~GetFileInfo() { FileIn.close(); }
@@ -139,7 +136,7 @@ public:
 	// #####################
 	// NUMBERS:
 
-	int NumberOfBytes()
+	int GetSize()
 	{
 		FileIn.seekg(0, std::ios::end);
 		int Return = FileIn.tellg();
@@ -149,6 +146,7 @@ public:
 
 	// #####################
 	// BUFFERS:
+	// !!! Going to fix this entire section, probably everything is going to be remade !!!
 
 	// CHAR CHUNK:
 	std::vector<char> GetBufferChar(int Size, int Index)
@@ -160,19 +158,19 @@ public:
 		{
 			FileIn.seekg(0, std::ios::end);
 			SizeTotal = FileIn.tellg(); if (End > SizeTotal) { Size -= End - SizeTotal; }
-			Buffer = std::vector<char>::vector(Size); char* BufferPointer = &Buffer.at(0);
-			FileIn.seekg(Begin); FileIn.read(BufferPointer, Size); FileIn.seekg(0, std::ios::beg);
+			Buffer = std::vector<char>::vector(Size); char* p = &Buffer[0];
+			FileIn.seekg(Begin); FileIn.read(p, Size); FileIn.seekg(0, std::ios::beg);
 		}
 		else { std::cout << "Unable to open file"; }
 		
 		return (Buffer);
 	}
 
-	// INT CHUNK:
+	// INT CHUNK (do template out of it, later):
 	std::vector<int> GetBufferInt(int Size, int Index, bool LittleBig)
 	{
 		int SizeTotal;
-		const int IntSize = sizeof (int);
+		const int IntSize = sizeof(int);
 		//Size *= IntSize;
 		int SizeinBytes = Size * IntSize;
 		int Begin = Index * SizeinBytes; int End = Begin + SizeinBytes;
@@ -191,7 +189,7 @@ public:
 				{
 					FileIn.seekg(Begin + (n * SizeinBytes)); FileIn.read(Byte, IntSize);
 					int CompileInt = 0;
-					if (LittleBig) { InvertArray(Bytes, Byte); }
+					if (LittleBig) { InvertArray((unsigned char*)Bytes, IntSize); }
 					memcpy(&CompileInt, Bytes, IntSize);
 					Buffer.push_back(CompileInt);
 				}
@@ -307,7 +305,7 @@ public:
 	// #################################################
 	// #################################################
 
-	void CoutInfo() { std::cout << NumberOfBytes() / 1000.0 << "KB" << std::endl; }
+	void CoutInfo() { std::cout << GetSize() / 1000.0 << "KB" << std::endl; }
 };
 
 // #####################################################################################################################################
