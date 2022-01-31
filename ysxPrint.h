@@ -395,10 +395,11 @@ void SampleRateInfo()
 	std::ofstream oPrint("SampleRateInfo.txt"); if (!oPrint.is_open()) { std::cout << "!!! Arquivo não foi aberto. !!!" << std::endl; }
 	else
 	{
+		unsigned int List[21] = SAMPLERATES;
 		int Count = 0;
-		for (int n = 0; n < SampleRateList().size(); ++n) { int Rate = SampleRateList()[n]; oPrint << "hz: " << Rate; ++Count; if (Count >= 5) { oPrint << std::endl; Count = 0; } }
-		for (int n = 0; n < SampleRateList().size(); ++n) { int Rate = SampleRateList()[n]; oPrint << "ms per sample: " << 1000.0 / Rate; ++Count; if (Count >= 5) { oPrint << std::endl; Count = 0; } }
-		for (int n = 0; n < SampleRateList().size(); ++n) { int Rate = SampleRateList()[n]; oPrint << "2 * Pi per sample: " << TAU / Rate; ++Count; if (Count >= 5) { oPrint << std::endl; Count = 0; } }
+		for (int n = 0; n < 21; ++n) { int Rate = List[n]; oPrint << "hz: " << Rate; ++Count; if (Count >= 5) { oPrint << std::endl; Count = 0; } }
+		for (int n = 0; n < 21; ++n) { int Rate = List[n]; oPrint << "ms per sample: " << 1000.0 / Rate; ++Count; if (Count >= 5) { oPrint << std::endl; Count = 0; } }
+		for (int n = 0; n < 21; ++n) { int Rate = List[n]; oPrint << "2 * Pi per sample: " << TAU / Rate; ++Count; if (Count >= 5) { oPrint << std::endl; Count = 0; } }
 	}
 	oPrint.close();
 }

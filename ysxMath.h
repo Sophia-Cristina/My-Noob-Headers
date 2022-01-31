@@ -55,14 +55,8 @@ double Average(std::vector<double>);
 // DECLARE OBJECTOS QUE SERÃO USADOS EM TODOS OS HEADERS AQUI!
 
 // ####### STRUCTS:
-template <class T_> struct Point { T_ x, y; }; // Coordinates in int
-template <class T_> struct Point3D { T_ x, y, z; }; // Coordinates in int 3D
-struct CellBool { int i, j; bool b; }; // Matriz de Bool
-struct CellBool3D { int i, j, k; bool b; }; // Matriz de Bool 3D
-struct CellInt { int i, j; int n; }; // Matriz de integer
-struct CellInt3D { int i, j, k; int n; }; // Matriz de integer
-struct CellFlt { int i, j; float x; }; // Matriz de float
-struct CellFlt3D { int i, j; float x; }; // Matriz de float
+template <class T_> struct Point { T_ x, y; }; // Coordinates 2D
+template <class T_> struct Point3D { T_ x, y, z; }; // Coordinates 3D
 template <class T_> struct LinePoint { Point<T_> P0, P1; }; // In my opinion, easier to make lines
 template <class T_> struct LinePoint3D { Point3D<T_> P0, P1; }; // In my opinion, easier to make lines
 
@@ -72,9 +66,10 @@ template <class T_> struct LinePoint3D { Point3D<T_> P0, P1; }; // In my opinion
 #include "ysxplg\\ysxConv.h"
 #include "ysxplg\\ysxVector.h";
 #include "ysxplg\\ysxPhys.h";
-#include "ysxplg\\ysxGeo.h";
+#include "ysxGeo\\ysxGeo.h";
 #include "ysxplg\\ysxCalc.h";
-#include "ysxplg\\ysxElectr.h" // Some trigonomotry in 'ysxGeo.h'. Also #include 'ysxBytes.h' and 'ysxSignal.h'.
+#include "ysxplg\\ysxField.h";
+#include "ysxElec\\ysxElectr.h" // Some trigonomotry in 'ysxGeo.h'. Also #include 'ysxBytes.h' and 'ysxSignal.h'.
 #include "ysxplg\\ysxMusic.h"
 #include "ysxplg\\ysxMoney.h"; // Things about money and related to economy and etc...
 #include "ysxplg\\ysxFractal.h";
@@ -94,8 +89,8 @@ int GCD(int a, int b)
 {
 	a = abs(a); b = abs(b);
 	if (b == a) { return (a); } if (b > a) { int tmp = a; a = b; b = tmp; }
-	int Mod = a % b, ModDiv = b, ActualMod;
-	if (b == 0) { return (a); } else { while (Mod != 0) { ActualMod = ModDiv % Mod; ModDiv = Mod; Mod = ActualMod; } return (ModDiv); }
+	int Mod = a % b, Div = b, Actual;
+	if (!b) { return (a); } else { while (Mod != 0) { Actual = Div % Mod; Div = Mod; Mod = Actual; } return (Div); }
 }
 
 // LCM (LEAST COMMON MULTIPLE):
@@ -164,7 +159,7 @@ Point<double> QuadraticEq(double a, double b, double c)
 {
 	Point<double> Root;
 	double Delta = b * b - 4 * a * c;
-	if (Delta == 0) { Root.x = -b / (2 * a); Root.y = -b / (2 * a);	return(Root); }
+	if (!Delta) { Root.x = -b / (2 * a); Root.y = Root.x; return(Root); }
 	Root.x = (-b + sqrt(Delta)) / (2 * a); Root.y = (-b - sqrt(Delta)) / (2 * a);
 	return(Root);
 }
@@ -190,67 +185,60 @@ std::vector<int> CollatzConj(int n)
 // ############################
 // ####### NUMEROS:
 // IS IT PRIME?:
-bool IsPrime(long n) { n = abs(n); for (size_t m = 2; m < n - 1; ++m) { if (0 == n % m) { return(false); } } return(true); }
+bool IsPrime(long long n) { n = abs(n); for (size_t m = 2; m < n - 1; ++m) { if (0 == n % m) { return(false); } } return(true); }
 
 // TRIANGULAR NUMBER:
-int TriNmbr(int n) { return ((n * (n + 1)) / 2); }
+unsigned int TriNmbr(unsigned int n) { return ((n * (n + 1)) / 2); }
 
 // FIBO NUMBER:
-int GetaFiboNmbr(int Fn)
+unsigned int GetaFiboNmbr(unsigned int Fn)
 {
-	if (Fn < 1) { return(1); }
-	if (Fn == 2) { return(1); }
-	int One = 1, Two = 1;
-	int Actual;
-	for (size_t n = 3; n <= Fn; ++n)
+	if (Fn < 1) { return(1); } if (Fn == 2) { return(1); }
+	unsigned int One = 1, Two = 1, Actual;
+	for (size_t n = 2; n < Fn; ++n)
 	{
 		Actual = One + Two;
-		One = Two;
-		Two = Actual;
+		One = Two; Two = Actual;
 	}
 	return(Actual);
 }
-std::vector<int> GetaFiboVec(size_t Fn) // VEJA SE TA CERTO, VEJA SE n NÃO DEVERIA SER 2
+std::vector<unsigned int> GetaFiboVec(size_t Fn) // VEJA SE TA CERTO, VEJA SE n NÃO DEVERIA SER 2
 {
-	if (Fn < 1) { std::vector<int> A; A.push_back(1); return(A); }
-	if (Fn == 2) { std::vector<int> A; A.push_back(1); A.push_back(1); return(A); }
-	int One = 1, Two = 1;
-	std::vector<int> Actual{1, 1};
-	for (size_t n = 3; n <= Fn; ++n)
+	if (Fn < 1) { std::vector<unsigned int> A; A.push_back(1); return(A); }
+	if (Fn == 2) { std::vector<unsigned int> A; A.push_back(1); A.push_back(1); return(A); }
+	unsigned int One = 1, Two = 1;
+	std::vector<unsigned int> Actual = { 1, 1 };
+	for (size_t n = 2; n < Fn; ++n)
 	{
 		Actual.push_back(One + Two);
-		One = Two;
-		Two = Actual[n - 1];
+		One = Two; Two = Actual[n];
 	}
 	return(Actual);
 }
 
 // LUCAS NUMBER:
-int GetaLucasNmbr(size_t Ln)
+size_t GetaLucasNmbr(size_t Ln)
 {
 	if (Ln < 1) { return(2); }
 	if (Ln == 2) { return(1); }
-	int One = 2, Two = 1;
-	int Actual;
-	for (size_t n = 3; n <= Ln; ++n)
+	unsigned int One = 2, Two = 1, Actual;
+	for (size_t n = 2; n < Ln; ++n)
 	{
 		Actual = One + Two;
-		One = Two;
-		Two = Actual;
+		One = Two; Two = Actual;
 	}
 	return(Actual);
 }
-std::vector<int> GetaLucasVec(size_t Ln) // VEJA SE TA CERTO, VEJA SE n NÃO DEVERIA SER 2
+std::vector<unsigned int> GetaLucasVec(size_t Ln) // VEJA SE TA CERTO, VEJA SE n NÃO DEVERIA SER 2
 {
-	if (Ln < 1) { std::vector<int> A; A.push_back(2); return(A); }
-	if (Ln == 2) { std::vector<int> A; A.push_back(2); A.push_back(1); return(A); }
-	int One = 2, Two = 1;
-	std::vector<int> Actual{ 2, 1 };
-	for (size_t n = 3; n <= Ln; ++n)
+	if (Ln < 1) { std::vector<unsigned int> A; A.push_back(2); return(A); }
+	if (Ln == 2) { std::vector<unsigned int> A; A.push_back(2); A.push_back(1); return(A); }
+	unsigned int One = 2, Two = 1;
+	std::vector<unsigned int> Actual = { 2, 1 };
+	for (size_t n = 2; n < Ln; ++n)
 	{
 		Actual.push_back(One + Two);
-		One = Two;
-		Two = Actual[n - 1];
+		One = Two; Two = Actual[n];
 	}
 	return(Actual);
 }
@@ -258,7 +246,7 @@ std::vector<int> GetaLucasVec(size_t Ln) // VEJA SE TA CERTO, VEJA SE n NÃO DEVE
 // ############################
 // ####### COMBINATORICS:
 // PERMUTATIONS WITHOUT REPETITION:
-long long BinomialCoff(int n, int k) { n = abs(n); k = abs(k); long Fct = (n - k) + 1; for (int a = Fct + 1; a <= n; ++a) { Fct *= a; } return(Fct / Fact(k)); }
+long long BinomialCoff(int n, int k) { n = abs(n); k = abs(k); long Fct = (n - k) + 1; for (long long a = Fct + 1; a <= n; ++a) { Fct *= a; } return(Fct / Fact(k)); }
 
 // COMBINATION:
 
@@ -269,6 +257,7 @@ long long BinomialCoff(int n, int k) { n = abs(n); k = abs(k); long Fct = (n - k
 // ############################
 // ####### EUCLIDEAN VECTOR:
 // GET MAGNITUDE:
+//template <class T_> T_ GetMag(Point<T_> Vector) { return(hipo(fabs(Vector.x), fabs(Vector.y))); }
 double GetMag(Point<double> Vector) { return(hipo(fabs(Vector.x), fabs(Vector.y))); }
 
 // GET RADIAN:
@@ -282,16 +271,17 @@ double GetVecRad(Point<double> Vector)
 }
 
 // GET RADIAN BETWEEN TWO VECTORS:
-double GetRadBetween(Point<double> A, Point<double> B) { double RadA = GetVecRad(A), RadB = GetVecRad(B); if (RadA > RadB) { return(RadA - RadB); } return(RadB - RadA); }
+template <class T_> double GetRadBetween(Point<T_> A, Point<T_> B)
+{ double RadA = GetVecRad(A), RadB = GetVecRad(B); if (RadA > RadB) { return(RadA - RadB); } return(RadB - RadA); }
 
 // SUBTRACT, ADD OR MULTIPLY EUC. VECTOR:
-Point<double> SubEucVector(Point<double> A, Point<double> B) { Point<double> C = { A.x - B.x, A.y - B.y }; return(C); }
-Point<double> AddEucVector(Point<double> A, Point<double> B) { Point<double> C = { A.x + B.x, A.y + B.y }; return(C); }
-Point<double> SclrMultEucVec(Point<double> A, double ScalarMultiplier) { Point<double> B = { A.x * ScalarMultiplier, A.y * ScalarMultiplier }; return(B); }
+template <class T_> Point<T_> SubEucVector(Point<T_> A, Point<T_> B) { Point<T_> C = { A.x - B.x, A.y - B.y }; return(C); }
+template <class T_> Point<T_> AddEucVector(Point<T_> A, Point<T_> B) { Point<T_> C = { A.x + B.x, A.y + B.y }; return(C); }
+template <class T_> Point<T_> SclrMultEucVec(Point<T_> A, double ScalarMultiplier) { Point<T_> B = { A.x * ScalarMultiplier, A.y * ScalarMultiplier }; return(B); }
 
 // DOT PRODUCT:
-double DotProd(double AMag, double BMag, double Rad) { return(AMag * BMag * cos(Rad)); }
-double DotProd(Point<double> A, Point<double> B) { return((A.x * B.x) + (A.y * B.y)); }
+template <class T_> T_ DotProd(double AMag, double BMag, double Rad) { return(AMag * BMag * cos(Rad)); }
+template <class T_> T_ DotProd(Point<T_> A, Point<T_> B) { return((A.x * B.x) + (A.y * B.y)); }
 
 // ################################################# FIM ####################################################################################
 
@@ -305,7 +295,7 @@ double DotProd(Point<double> A, Point<double> B) { return((A.x * B.x) + (A.y * B
 // ####### CONVERTERS:
 
 // POINT3DB TO UNSIGNED CHAR[3]:
-void Point3D2uchar3(Point3D<unsigned char> P, unsigned char* c) { memcpy(c, &P, 3); } // Only reading 1 byte, fix it later
+void Point3D2uchar3(Point3D<uint8_t> P, uint8_t* c) { memcpy(c, &P, 3); } // Only reading 1 byte, fix it later
 
 // STRING TO WCHAR_T
 wchar_t* Str2wChart(std::string Str)
@@ -321,50 +311,31 @@ wchar_t* Str2wChart(std::string Str)
 // * Now on 'ysxBytes.h'
 
 // CHAR VECTOR TO A STRING:
-std::string Char2Str(std::vector<unsigned char> C) { std::string Str; for (size_t n = 0; n < C.size(); ++n) { Str.push_back(C[n]); } return (Str); }
+std::string Char2Str(std::vector<uint8_t> C) { std::string Str; for (size_t n = 0; n < C.size(); ++n) { Str.push_back(C[n]); } return (Str); }
 // CHAR TO STRING:
-std::string Char2Str(unsigned char* C, int Size) { std::string Str; for (size_t n = 0; n < Size; ++n) { Str.push_back(C[n]); } return (Str); }
+std::string Char2Str(uint8_t* C, int Size) { std::string Str; for (size_t n = 0; n < Size; ++n) { Str.push_back(C[n]); } return (Str); }
 
 // GET A CHAR AS TEXT AND RETURN INTEGER:
-int Chr2Int(char C)
-{
-	if (C == '1') { return(1); } else if (C == '2') { return(2); } else if (C == '3') { return(3); } else if (C == '4') { return(4); }
-	else if (C == '5') { return(5); } else if (C == '6') { return(6); } else if (C == '7') { return(7); } else if (C == '8') { return(8); }
-	else if (C == '9') { return(9); } else if (C == '0') { return(0); }
-}
+uint8_t Chr2Int(uint8_t C) { if (C > 47 && C < 58) { return(C - 48); } return(0); }
 
 // GET STRING AS TEXT AND READ AS AN INTEGER:
 int Str2Int(std::string S)
 {
 	int a = 0, Count = 0;
 	char C; bool Oktogo = false, Neg = false;
-	std::vector<int> Array;
-	for (size_t n = 0; n < S.length(); ++n)
-	{
-		if (S[n] == '1' || S[n] == '2' || S[n] == '3' || S[n] == '4' || S[n] == '5' || S[n] == '6' || S[n] == '7' || S[n] == '8' || S[n] == '9' || S[n] == '-')
-		{
-			Oktogo = true;
-		} // se não for ok antes, e for depois, retornara true
-	}
+	std::vector<uint8_t> Array;
+	for (size_t n = 0; n < S.length(); ++n) { if (S[n] > 47 && S[n] < 58) { Oktogo = true; break; } }
 	if (Oktogo)
 	{
 		for (size_t n = 0; n < S.length(); ++n)
 		{
 			if (S[0] == '-') { Neg = true; }
-			if (S[n] == '1') { Array.push_back(1); ++Count; } else if (S[n] == '2') { Array.push_back(2); ++Count; }
-			else if (S[n] == '3') { Array.push_back(3); ++Count; } else if (S[n] == '4') { Array.push_back(4); ++Count; }
-			else if (S[n] == '5') { Array.push_back(5); ++Count; } else if (S[n] == '6') { Array.push_back(6); ++Count; }
-			else if (S[n] == '7') { Array.push_back(7); ++Count; } else if (S[n] == '8') { Array.push_back(8); ++Count; }
-			else if (S[n] == '9') { Array.push_back(9); ++Count; } else if (S[n] == '0' && n != 0) { Array.push_back(0); ++Count; }
+			if (S[n] > 48 && S[n] < 58) { Array.push_back(S[n] - 48); ++Count; }
+			else if (S[n] == '0' && n != 0) { Array.push_back(0); ++Count; }
 		}
-		for (size_t n = 0; n < Count; ++n)
-		{
-			if (Array[n] != 0) { a = a + (Array[n] * (pow(10, (Count - n - 1)))); }
-			else { for (size_t m = 1; m <= Count - n; m = m * 10) { a = a * 1; } }
-		}
+		for (size_t n = 0; n < Count; ++n) { if (Array[n] != 0) { a += Array[n] * (pow(10, (Count - n - 1))); } else { a *= 10; } }
 	}
-	else { a = 0; }
-	if (Neg) { a *= -1; }
+	else { return(0); } if (Neg) { a *= -1; }
 	return(a);
 }
 
@@ -373,18 +344,19 @@ double Str2Double(std::string S)
 {
 	int n = 0;
 	std::string Str, Str0;
-	while (S[n] != '.' && n < S.length()) { Str.push_back(S[n]); ++n; }
-	if (n + 1 < S.length()) { for (size_t m = n + 1; m < S.length(); ++m) { Str0.push_back(S[m]); } }
+	while (S[n] != '.' && n < S.size()) { Str.push_back(S[n]); ++n; }
+	if (n + 1 < S.size()) { for (size_t m = n + 1; m < S.size(); ++m) { Str0.push_back(S[m]); } }
 	else { Str0 = "0"; }
 	int Int = Str2Int(Str), Int2 = Str2Int(Str0);
-	return (Int + (Int2 * (1.0 / pow(10, Str0.length()))));
+	return (Int + (Int2 * (1.0 / pow(10, Str0.size()))));
 }
 
 // IS DECIMAL?:
 bool IsDec(std::string S) { double x = Str2Double(S); if (1.0 == x / round(x)) { return (false); } else { return (true); } }
+bool IsDec(double x) { if (1.0 == x / round(x)) { return (false); } else { return (true); } }
 
 // DEC2FRAC:
-Point<int> Dec2Frac(double n)
+/*Point<int> Dec2Frac(double n)
 {
 	Point<int> ab;
 	int m = 0;
@@ -395,7 +367,7 @@ Point<int> Dec2Frac(double n)
 		if (m > 999999999) { break; }
 	}
 	return(ab);
-}
+}*/
 
 // #####################
 // ####### PROPRIEDADES DOS NUMEROS:
@@ -404,43 +376,20 @@ Point<int> Dec2Frac(double n)
 bool IsNumber(char C) { if (C > 47 && C < 58) { return(true); } return (false); }
 
 // IS LETTER?:
-bool IsLetter(char C) { if (C > 64 && C < 91) { std::cout << "C = " << (int)C << std::endl; return(true); } else if (C > 96 && C < 123) { std::cout << "C = " << (int)C << std::endl; return(true); }  return (false); }
+bool IsLetter(char C) { if ((C > 64 && C < 91) || (C > 96 && C < 123)) { return(true); } return (false); }
 
 // LETTER INDEX:
-int LetterIndex(char C)
+uint8_t LetterIndex(uint8_t C)
 {
-	if (IsNumber(C)) { return(Chr2Int(C)); }	if (C == 'a' || C == 'A') { return(1); }
-	else if (C == 'b' || C == 'B') { return(2); } else if (C == 'c' || C == 'C') { return(3); }
-	else if (C == 'd' || C == 'D') { return(4); } else if (C == 'e' || C == 'E') { return(5); }
-	else if (C == 'f' || C == 'F') { return(6); } else if (C == 'g' || C == 'G') { return(7); }
-	else if (C == 'h' || C == 'H') { return(8); } else if (C == 'i' || C == 'I') { return(9); }
-	else if (C == 'j' || C == 'J') { return(10); } else if (C == 'k' || C == 'K') { return(11); }
-	else if (C == 'l' || C == 'L') { return(12); } else if (C == 'm' || C == 'M') { return(13); }
-	else if (C == 'n' || C == 'N') { return(14); } else if (C == 'o' || C == 'O') { return(15); }
-	else if (C == 'p' || C == 'P') { return(16); } else if (C == 'q' || C == 'Q') { return(17); }
-	else if (C == 'r' || C == 'R') { return(18); } else if (C == 's' || C == 'S') { return(19); }
-	else if (C == 't' || C == 'T') { return(20); } else if (C == 'u' || C == 'U') { return(21); }
-	else if (C == 'v' || C == 'V') { return(22); } else if (C == 'w' || C == 'W') { return(23); }
-	else if (C == 'x' || C == 'X') { return(24); } else if (C == 'y' || C == 'Y') { return(25); }
-	else if (C == 'z' || C == 'Z') { return(26); }
+	if (IsNumber(C)) { return(Chr2Int(C)); }
+	if (C > 96 && C < 123) { return(C - 96); } else if (C > 64 && C < 91) { return(C - 64); }
+	return(0);
 }
-char LetterIndex(int Index, bool Capital)
+uint8_t LetterIndex(uint8_t Index, bool Capital)
 {
-	if (Index > 26) { return('Z'); } if (Index < 1) { return('A'); }
-	if (Index == 1) { if (!Capital) { return('a'); } else { return('A'); } }
-	else if (Index == 2) { if (!Capital) { return('b'); } else { return('B'); } } else if (Index == 3) { if (!Capital) { return('c'); } else { return('C'); } }
-	else if (Index == 4) { if (!Capital) { return('d'); } else { return('D'); } } else if (Index == 5) { if (!Capital) { return('e'); } else { return('E'); } }
-	else if (Index == 6) { if (!Capital) { return('f'); } else { return('F'); } } else if (Index == 7) { if (!Capital) { return('g'); } else { return('G'); } }
-	else if (Index == 8) { if (!Capital) { return('h'); } else { return('H'); } } else if (Index == 9) { if (!Capital) { return('i'); } else { return('I'); } }
-	else if (Index == 10) { if (!Capital) { return('j'); } else { return('J'); } } else if (Index == 11) { if (!Capital) { return('k'); } else { return('K'); } }
-	else if (Index == 12) { if (!Capital) { return('l'); } else { return('L'); } } else if (Index == 13) { if (!Capital) { return('m'); } else { return('M'); } }
-	else if (Index == 14) { if (!Capital) { return('n'); } else { return('N'); } } else if (Index == 15) { if (!Capital) { return('o'); } else { return('O'); } }
-	else if (Index == 16) { if (!Capital) { return('p'); } else { return('P'); } } else if (Index == 17) { if (!Capital) { return('q'); } else { return('Q'); } }
-	else if (Index == 18) { if (!Capital) { return('r'); } else { return('R'); } } else if (Index == 19) { if (!Capital) { return('s'); } else { return('S'); } }
-	else if (Index == 20) { if (!Capital) { return('t'); } else { return('T'); } } else if (Index == 21) { if (!Capital) { return('u'); } else { return('U'); } }
-	else if (Index == 22) { if (!Capital) { return('v'); } else { return('V'); } } else if (Index == 23) { if (!Capital) { return('w'); } else { return('W'); } }
-	else if (Index == 24) { if (!Capital) { return('x'); } else { return('X'); } } else if (Index == 25) { if (!Capital) { return('y'); } else { return('Y'); } }
-	else if (Index == 26) { if (!Capital) { return('z'); } else { return('Z'); } }
+	uint8_t c;
+	if (Index > 26 || Index < 1) { return(0); }
+	else { if (Capital) { return(Index + 64); } else { return(Index + 96); } }
 }
 
 // It means 'String to Int / Double Clean Char', get a string with chars and number,
@@ -465,7 +414,7 @@ double Str2DblClnChr(std::string s)
 	return(Str2Double(t));
 }
 
-// GET DECIMALS:
+// GET DECIMALS (x - floor(x)):
 double GetDec(double x) { return(x - floor(x)); }
 
 // #####################################################################################################################################
@@ -475,6 +424,8 @@ double GetDec(double x) { return(x - floor(x)); }
 // ############################
 
 // ############## DATAS  ##############
+// !!!!!!! RETIRAR DAQUI !!!!!!!
+
 // GET LINES FROM A .TXT AND RETURN AS VECTOR:
 std::vector<double> DataTextLine(std::string File)
 {
@@ -502,8 +453,11 @@ void CoutText(std::string Filename)
 }
 
 // COUT VECTOR:
-template <class T_> void CoutVector(std::vector<T_> Vec) { for (size_t n = 0; n < Vec.size(); ++n) { std::cout << n << ": " << Vec[n] << std::endl; } }
-template <class T_> void CoutVector(std::vector<Point<T_>> Vec) { for (size_t n = 0; n < Vec.size(); ++n) { std::cout << n << ".x: " << Vec[n].x << " | .y: " << Vec[n].y << std::endl; } }
+template <class T_> void CoutArray(T_* Ini, unsigned long Size) { for (size_t n = 0; n < Size; ++n) { std::cout << n << ": " << Ini[n] << std::endl; } }
+template <class T_> void CoutVector(std::vector<T_> Vec)
+{ for (size_t n = 0; n < Vec.size(); ++n) { std::cout << n << ": " << Vec[n] << std::endl; } }
+template <class T_> void CoutVector(std::vector<Point<T_>> Vec)
+{ for (size_t n = 0; n < Vec.size(); ++n) { std::cout << n << ".x: " << Vec[n].x << " | .y: " << Vec[n].y << std::endl; } }
 template <class T_> void CoutVector(std::vector<Point3D<T_>> Vec)
 { for (size_t n = 0; n < Vec.size(); ++n) { std::cout << n << ".x: " << Vec[n].x << " | .y: " << Vec[n].y << " | .z: " << Vec[n].z << std::endl; } }
 
@@ -701,44 +655,16 @@ public:
 
 // ############## MISC. ##############
 // GEMATRIA:
-int Char2Gematria(char C)
+uint8_t Char2Gematria(uint8_t C)
 {
-	if (IsNumber(C)) { return(Chr2Int(C)); }	if (C == 'a' || C == 'A') { return(1); } else if (C == 'b' || C == 'B') { return(2); }
-	else if (C == 'c' || C == 'C') { return(3); } else if (C == 'd' || C == 'D') { return(4); } else if (C == 'e' || C == 'E') { return(5); }
-	else if (C == 'f' || C == 'F') { return(6); } else if (C == 'g' || C == 'G') { return(7); } else if (C == 'h' || C == 'H') { return(8); }
-	else if (C == 'i' || C == 'I') { return(9); } else if (C == 'j' || C == 'J') { return(1); } else if (C == 'k' || C == 'K') { return(2); }
-	else if (C == 'l' || C == 'L') { return(3); } else if (C == 'm' || C == 'M') { return(4); } else if (C == 'n' || C == 'N') { return(5); }
-	else if (C == 'o' || C == 'O') { return(6); } else if (C == 'p' || C == 'P') { return(7); } else if (C == 'q' || C == 'Q') { return(8); }
-	else if (C == 'r' || C == 'R') { return(9); } else if (C == 's' || C == 'S') { return(1); } else if (C == 't' || C == 'T') { return(2); }
-	else if (C == 'u' || C == 'U') { return(3); } else if (C == 'v' || C == 'V') { return(4); } else if (C == 'w' || C == 'W') { return(5); }
-	else if (C == 'x' || C == 'X') { return(6); } else if (C == 'y' || C == 'Y') { return(7); } else if (C == 'z' || C == 'Z') { return(8); }
-	else { return(0); }
-}
-double Char2GemaPerCent(char C)
-{
-	if (IsNumber(C)) { return(Chr2Int(C) / 10.0); } if (C == 'a') { return(1 / 56.0); } else if (C == 'b') { return(2 / 56.0); }
-	else if (C == 'c') { return(3 / 56.0); } else if (C == 'A') { return(0.5 + (1 / 56.0)); } else if (C == 'B') { return(0.5 + (2 / 56.0)); }
-	else if (C == 'C') { return(0.5 + (3 / 56.0)); } if (C == 'd') { return(4 / 56.0); } else if (C == 'e') { return(5 / 56.0); }
-	else if (C == 'f') { return(6 / 56.0); } else if (C == 'D') { return(0.5 + (4 / 56.0)); } else if (C == 'E') { return(0.5 + (5 / 56.0)); }
-	else if (C == 'F') { return(0.5 + (6 / 56.0)); } if (C == 'g') { return(7 / 56.0); } else if (C == 'h') { return(8 / 56.0); }
-	else if (C == 'i') { return(9 / 56.0); } else if (C == 'G') { return(0.5 + (7 / 56.0)); } else if (C == 'H') { return(0.5 + (8 / 56.0)); }
-	else if (C == 'I') { return(0.5 + (9 / 56.0)); } if (C == 'j') { return(10 / 56.0); } else if (C == 'k') { return(11 / 56.0); }
-	else if (C == 'l') { return(12 / 56.0); } else if (C == 'J') { return(0.5 + (10 / 56.0)); } else if (C == 'K') { return(0.5 + (11 / 56.0)); }
-	else if (C == 'L') { return(0.5 + (12 / 56.0)); } if (C == 'm') { return(13 / 56.0); } else if (C == 'n') { return(14 / 56.0); }
-	else if (C == 'o') { return(15 / 56.0); } else if (C == 'M') { return(0.5 + (13 / 56.0)); } else if (C == 'N') { return(0.5 + (14 / 56.0)); }
-	else if (C == 'O') { return(0.5 + (15 / 56.0)); } if (C == 'p') { return(16 / 56.0); } else if (C == 'q') { return(17 / 56.0); }
-	else if (C == 'r') { return(18 / 56.0); } else if (C == 'P') { return(0.5 + (16 / 56.0)); }	else if (C == 'Q') { return(0.5 + (17 / 56.0)); }
-	else if (C == 'R') { return(0.5 + (18 / 56.0)); } if (C == 's') { return(19 / 56.0); } else if (C == 't') { return(20 / 52.02); }
-	else if (C == 'u') { return(21 / 56.0); } else if (C == 'S') { return(0.5 + (19 / 56.0)); } else if (C == 'T') { return(0.5 + (20 / 56.0)); }
-	else if (C == 'U') { return(0.5 + (21 / 56.0)); } if (C == 'v') { return(22 / 56.0); } else if (C == 'w') { return(23 / 52.05); }
-	else if (C == 'x') { return(24 / 56.0); } else if (C == 'V') { return(0.5 + (22 / 56.0)); } else if (C == 'W') { return(0.5 + (23 / 56.0)); }
-	else if (C == 'X') { return(0.5 + (24 / 56.0)); } if (C == 'y') { return(25 / 56.0); } else if (C == 'z') { return(26 / 56.0); }
-	else if (C == 'Y') { return(0.5 + (25 / 56.0)); } else if (C == 'Z') { return(0.5 + (26 / 56.0)); }
-	else { return(0); }
+	if (IsNumber(C)) { return(Chr2Int(C)); }
+	if (C > 64 && C < 91) { return(((C - 65) % 9) + 1); }
+	else if (C > 96 && C < 123) { return(((C - 96) % 9) + 1); }
+	return(0);
 }
 
-int Str2Gematria(std::string S) { int Ret = 0; for (size_t n = 0; n < S.size(); ++n) { Ret += Char2Gematria(S[n]); } return(Ret); }
-double Str2GemaPerCent(std::string S) { double Ret = 0; for (size_t n = 0; n < S.size(); ++n) { Ret += Char2GemaPerCent(S[n]); } Ret /= S.size(); return(Ret); }
+unsigned int Str2Gematria(std::string S) { unsigned int Ret = 0; for (size_t n = 0; n < S.size(); ++n) { Ret += Char2Gematria(S[n]); } return(Ret); }
+double Str2GemaPerCent(std::string S) { double Ret = 0; for (size_t n = 0; n < S.size(); ++n) { Ret += Char2Gematria(S[n]) / 9.0; } Ret /= S.size(); return(Ret); }
 
 // ALPHA OMEGA POLAR SCORE (PERSONAL ART ITEM):
 double AOScore(double Radian)
@@ -749,6 +675,8 @@ double AOScore(double Radian)
 	Score += Cos * 0.5; // Eixo Horizontal recebe bonus omega, mas menos bonus
 	if (Sin > 0) { Sin *= 1.25; } if (Cos < 0) { Cos *= 1.25; } // Eixo "Vertical" é "Alpha", "Horizontal" é "Omega"
 	Score += Sin; Score += Cos;
+	//return (Score / 4);
+	//return (Score / EXP); // Nao testei
 	return (Score / 2.704162); // Melhor aproximação que cheguei, não importa muito mesmo, o que importa é a razão perante outros, e esta confirmado que funciona
 }
 
@@ -807,16 +735,16 @@ std::vector<NameValue> RandomTarot(size_t Tries)
 {
 	std::vector<NameValue>Cards (Tries);
 	NameValue Card;
-	std::vector<std::string> CardNames = TarotCards();
+	std::vector<std::string> CardNames = TAROTMAJORS;
 	for (size_t a = 0; a < Tries; ++a)
 	{
-		unsigned char Rnd = rand() % 78;
+		uint8_t Rnd = rand() % 78;
 		bool MinMaj = Rnd > 21 ? false : true; // Minor or Major Arcana?
 		if (MinMaj) { Card.Name = CardNames[Rnd - 1]; Card.Value = Rnd; Cards[a] = Card; }
 		else
 		{
 			Card.Value = (double)(rand() % 14) + 1;
-			unsigned char Naipe = rand() % 4; if (Naipe == 0) { Card.Name = "Cups"; }
+			uint8_t Naipe = rand() % 4; if (Naipe == 0) { Card.Name = "Cups"; }
 			else if (Naipe == 1) { Card.Name = "Pentacles"; }
 			else if (Naipe == 2) { Card.Name = "Spades"; }
 			else { Card.Name = "Wand"; }
