@@ -9,8 +9,8 @@ using namespace cimg_library;
 // ############## FUNÇÕES #######
 // ###################################
 // ############## DECLARAÇÕES:
-Point3D<unsigned char> BitmapRGB(CImg<unsigned char>, unsigned int, unsigned int);
-Point3D<unsigned char> LinearRGB(double, double, double);
+Point3D<uint8_t> BitmapRGB(CImg<uint8_t>, unsigned int, unsigned int);
+Point3D<uint8_t> LinearRGB(double, double, double);
 // ###################################
 // ############## TYPEDEFS:
 //typedef std::vector<std::vector<Point3DFlt>> IMGDataSet; // !!!!!!! !!!!!!! !!!!!!! PAY ATTENTION TO THIS TYPEDEF !!!!!!! !!!!!!! !!!!!!!
@@ -24,13 +24,13 @@ Point3D<unsigned char> LinearRGB(double, double, double);
 // ############## TÉCNICOS:
 
 // INSIDE A GAP OF RGB NUMBERS:
-bool InsideRGBGap(unsigned char RGB[3], int R0, int R1, int G0, int G1, int B0, int B1)
+bool InsideRGBGap(uint8_t RGB[3], int R0, int R1, int G0, int G1, int B0, int B1)
 { if (RGB[0] >= R0 && RGB[0] <= R1 && RGB[1] >= G0 && RGB[1] <= G1 && RGB[2] >= B0 && RGB[2] <= B1) { return(true); } else { return(false); } }
-bool InsideRGBGap(Point3D<unsigned char> RGB, int R0, int R1, int G0, int G1, int B0, int B1)
+bool InsideRGBGap(Point3D<uint8_t> RGB, int R0, int R1, int G0, int G1, int B0, int B1)
 { if (RGB.x >= R0 && RGB.x <= R1 && RGB.y >= G0 && RGB.y <= G1 && RGB.z >= B0 && RGB.z <= B1) { return(true); } else { return(false); } }
-bool InsideRGBGapOR(unsigned char RGB[3], int R0, int R1, int G0, int G1, int B0, int B1)
+bool InsideRGBGapOR(uint8_t RGB[3], int R0, int R1, int G0, int G1, int B0, int B1)
 { if (RGB[0] >= R0 || RGB[0] <= R1 || RGB[1] >= G0 || RGB[1] <= G1 || RGB[2] >= B0 || RGB[2] <= B1) { return(true); } else { return(false); } }
-bool InsideRGBGapOR(Point3D<unsigned char> RGB, int R0, int R1, int G0, int G1, int B0, int B1)
+bool InsideRGBGapOR(Point3D<uint8_t> RGB, int R0, int R1, int G0, int G1, int B0, int B1)
 { if (RGB.x >= R0 || RGB.x <= R1 || RGB.y >= G0 || RGB.y <= G1 || RGB.z >= B0 || RGB.z <= B1) { return(true); } else { return(false); } }
 
 
@@ -97,20 +97,20 @@ void MaxMinPixel(std::vector<Pixel> VP, Point<unsigned int>& MaxxMinx, Point<uns
 // ############## BITMAP:
 
 // BITMAP RGB:
-Point3D<unsigned char> BitmapRGB(CImg<unsigned char> BMP, unsigned int x, unsigned int y)
+Point3D<uint8_t> BitmapRGB(CImg<uint8_t> BMP, unsigned int x, unsigned int y)
 {
-	Point3D<unsigned char> Ret;
+	Point3D<uint8_t> Ret;
 	if (x > BMP.width() - 1) { x = BMP.width() - 1; } if (y > BMP.height() - 1) { y = BMP.height() - 1; }
 	Ret.x = BMP(x, y, 0, 0); Ret.y = BMP(x, y, 0, 1); Ret.z = BMP(x, y, 0, 2);
 	return(Ret);
 }
-void BitmapRGBuc(CImg<unsigned char> BMP, unsigned int x, unsigned int y, unsigned char* Clr)
+void BitmapRGBuc(CImg<uint8_t> BMP, unsigned int x, unsigned int y, uint8_t* Clr)
 {
 	if (x > BMP.width() - 1) { x = BMP.width() - 1; } if (y > BMP.height() - 1) { y = BMP.height() - 1; }
 	Clr[0] = BMP(x, y, 0, 0); Clr[1] = BMP(x, y, 0, 1); Clr[2] = BMP(x, y, 0, 2);
 }
 // BITMAP PIXEL:
-Pixel BitmapPixel(CImg<unsigned char> BMP, unsigned int x, unsigned int y)
+Pixel BitmapPixel(CImg<uint8_t> BMP, unsigned int x, unsigned int y)
 {
 	Pixel Ret;
 	if (x > BMP.width() - 1) { x = BMP.width() - 1; } if (y > BMP.height() - 1) { y = BMP.height() - 1; }
@@ -120,18 +120,18 @@ Pixel BitmapPixel(CImg<unsigned char> BMP, unsigned int x, unsigned int y)
 }
 
 // ALL RGBS FROM BITMAP:
-std::vector<Point3D<unsigned char>> BitmapRGBMatrix(CImg<unsigned char> BMP)
+std::vector<Point3D<uint8_t>> BitmapRGBMatrix(CImg<uint8_t> BMP)
 {
-	std::vector<Point3D<unsigned char>> Ret;
+	std::vector<Point3D<uint8_t>> Ret;
 	for (int m = 0; m < BMP.height(); ++m)
 	{
 		for (int n = 0; n < BMP.width(); ++n)
-		{ Point3D<unsigned char> RGB = BitmapRGB(BMP, n, m); Ret.push_back(RGB); }
+		{ Point3D<uint8_t> RGB = BitmapRGB(BMP, n, m); Ret.push_back(RGB); }
 	}
 	return(Ret);
 }
 // ALL PIXELS FROM BITMAP:
-std::vector<Pixel> BitmapPixelMatrix(CImg<unsigned char> BMP)
+std::vector<Pixel> BitmapPixelMatrix(CImg<uint8_t> BMP)
 {
 	std::vector<Pixel> Ret;
 	for (int y = 0; y < BMP.height(); ++y)
@@ -145,21 +145,21 @@ std::vector<Pixel> BitmapPixelMatrix(CImg<unsigned char> BMP)
 }
 
 // ALL RGBS FROM BITMAP (in float), IT GOES LIKE R, THEN G, THEN B, THEN NEXT PIXEL, SO THE VECTOR HAVE 3X THE SIZE OF THE IMAGE:
-std::vector<double> BitmapRGBVector(CImg<unsigned char> BMP)
+std::vector<double> BitmapRGBVector(CImg<uint8_t> BMP)
 {
 	std::vector<double> Ret;
 	for (int m = 0; m < BMP.height(); ++m)
 	{
 		for (int n = 0; n < BMP.width(); ++n)
 		{
-			Point3D<unsigned char> RGB = BitmapRGB(BMP, n, m);  Ret.push_back(RGB.x / 255.0);  Ret.push_back(RGB.y = RGB.y / 255.0);  Ret.push_back(RGB.z = RGB.z / 255.0);
+			Point3D<uint8_t> RGB = BitmapRGB(BMP, n, m);  Ret.push_back(RGB.x / 255.0);  Ret.push_back(RGB.y = RGB.y / 255.0);  Ret.push_back(RGB.z = RGB.z / 255.0);
 		}
 	}
 	return(Ret);
 }
 
 // LIMITED PIXEL MATRIX:
-std::vector<Pixel> BitmapPixelLimMatrix(CImg<unsigned char> BMP, int R0, int R1, int G0, int G1, int B0, int B1)
+std::vector<Pixel> BitmapPixelLimMatrix(CImg<uint8_t> BMP, int R0, int R1, int G0, int G1, int B0, int B1)
 {
 	std::vector<Pixel> Ret;
 	for (int m = 0; m < BMP.height(); ++m)
@@ -183,7 +183,7 @@ std::vector<Pixel> BitmapPixelLimMatrix(CImg<unsigned char> BMP, int R0, int R1,
 	IMGDataSet Ret;
 	for (int Index = 0; Index < Last; ++Index)
 	{
-		CImg<unsigned char> BMP;
+		CImg<uint8_t> BMP;
 		std::vector<Point3DFlt> Frame;
 		for (int m = 0; m < BMP.height(); ++m)
 		{
@@ -214,8 +214,8 @@ std::vector<Pixel> BitmapPixelLimMatrix(CImg<unsigned char> BMP, int R0, int R1,
 
 // LINEAR RGB:
 // Preferable range for 'Lum' is '0 to 2', and for 'Cont' is '0 to 1'.
-// You can use on 'CImg' colors with '(unsigned char*)&Some3DPoint<unsigned char>'.
-Point3D<unsigned char> LinearRGB(double x, double Lum, double Cont)
+// You can use on 'CImg' colors with '(uint8_t*)&Some3DPoint<uint8_t>'.
+Point3D<uint8_t> LinearRGB(double x, double Lum, double Cont)
 {
 	if (x < 0.0) { x *= -1; } if (x > 1.0) { x = x - floor(x); }
 	if (Lum > 2.0) { Lum = 2.0; } if (Lum < 0.0) { Lum = 0.0; }
@@ -245,12 +245,12 @@ Point3D<unsigned char> LinearRGB(double x, double Lum, double Cont)
 
 	// Limit:
 	if (R > 255) { R = 255; } if (G > 255) { G = 255; } if (B > 255) { B = 255; }
-	Point3D<unsigned char> RGB; RGB.x = R; RGB.y = G; RGB.z = B;
+	Point3D<uint8_t> RGB; RGB.x = R; RGB.y = G; RGB.z = B;
 	return(RGB);
 }
 
-// OVERWRITE POINTED 'unsigned char[3]':
-void LinearRGBuc(double x, double Lum, double Cont, unsigned char* Color)
+// OVERWRITE POINTED 'uint8_t[3]':
+void LinearRGBuc(double x, double Lum, double Cont, uint8_t* Color)
 {
 	if (x < 0.0) { x *= -1; } if (x > 1.0) { x = x - floor(x); }
 	if (Lum > 2.0) { Lum = 2.0; } if (Lum < 0.0) { Lum = 0.0; }
