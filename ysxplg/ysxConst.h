@@ -22,7 +22,23 @@
 #define ROOTPI 1.7724538509055160272981674833411 // sqrt(Pi)
 #define EULERMASCH 0.577215664901533 // 0.577215664901532'86060651209008240243104215933593992
 #define PLASTICNUM 1.324717957244746025960908854
-long double PlasticNumFx() { return(pow((9 + sqrt(69)) / 18.0, 1.0 / 3) + pow((9 - sqrt(69)) / 18.0, 1.0 / 3)); }
+#define PLASTICNUMEQ pow((9 + sqrt(69)) / 18.0, 1.0 / 3) + pow((9 - sqrt(69)) / 18.0, 1.0 / 3) // 1.324717957244746025960908854
+
+// #####################
+// ####### TABLES
+// #####################
+
+// POWERS OF TWO THAT FITS 2 BYTES:
+#define TWOPOWERS { 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536 }
+
+// POPULAR SAMPLE-RATES TABLE:
+// https://en.wikipedia.org/wiki/Sampling_(signal_processing)#Sampling_rate
+#define SAMPLERATES { 8000, 11025, 16000, 22050, 32000, 44056, 44100, 47250, 48000, 50000, 50400, 64000, 88200, 96000, 176400, 192000, 352800, 2822400, 5644800, 11289600, 22579200 }
+
+// HIGH COMPOSITE NUMBERS:
+// https://oeis.org/A002182
+#define HIGHCOMPNUMS { 1, 2, 4, 6, 12, 24, 36, 48, 60, 120, 180, 240, 360, 720, 840, 1260, 1680, 2520, 5040, 7560, 10080, 15120, 20160, 25200, 27720, \
+45360, 50400, 55440, 83160, 110880, 166320, 221760, 277200, 332640, 498960, 554400, 665280, 720720, 1081080, 1441440, 2162160 }
 
 // #####################
 // ####### RADICALS
@@ -60,7 +76,7 @@ long double PlasticNumFx() { return(pow((9 + sqrt(69)) / 18.0, 1.0 / 3) + pow((9
 // #####################
 // CIRCLES:
 
-#define CIRCLESQRAREA 0.785398163397448 // 0.78539816339744830961566084581988; // Area of a circle inside a square of sides 1
+#define CIRCLESQRAREA 0.785398163397448 // 0.78539816339744830961566084581988; // Area of a circle inside a square of side 1
 #define SQRAREACIRCLE 0.214601836602552 // 0.21460183660255169038433915418012; // Area left if you remove a circle from a square of area 1
 #define QUARTERCIRCHALFSQR 0.285398163397448 // 0.28539816339744830961566084581988; // Remove a half square from the area of a quarter circle of radius 1;
 #define CROSSEDQUARTERCIRCLE 0.570796326794897 // 0.57079632679489661923132169163975; // The area you get when two quarter circles overlap inside a square of radius 1;
@@ -114,6 +130,7 @@ std::vector<NameValue> FrictionList()
 // Some disciplines use the charge-to-mass ratio (Q/m) instead.
 // CODATA recommended value for an electron is: (Q/m) = -1.75882001076(53) * 10^11 C*kg^-1
 #define C2MASSRATIOELEC -1.75882001076
+
 // A photon's energy is equal to its frequency multiplied by the Planck constant. Due to mass–energy equivalence, the Planck constant also relates mass to frequency.
 // 6.62607015 * 10^-34 (J*s || J*Hz^-1) // Exact value
 #define PLANCK 6.62607015
@@ -145,36 +162,23 @@ std::vector<NameValue> FrictionList()
 #define LUNARDIST 384402 // km | Lunar distance
 #define ASTROUNIT 149597870700 // Astronomical unit, approximately the distance between the Earth and Sun
 
-// Som de computador:
-// VETOR COM VARIAS CONSTANTES DE SAMPLERATE:
-// https://en.wikipedia.org/wiki/Sampling_(signal_processing)#Sampling_rate
-std::vector<int> SampleRateList()
-{
-	return(std::vector<int>::vector() = { 8000, 11025, 16000, 22050, 32000, 44056, 44100, 47250, 48000, 50000, 50400, 64000, 88200, 96000, 176400, 192000, 352800, 2822400, 5644800, 11289600, 22579200 });
-}
+// #####################
+// ####### SIGNALS
+// #####################
 
-// ####### Numbers:
-// High Composite Numbers: https://oeis.org/A002182
-std::vector<int> HighCompNumList()
-{
-	return
-	(
-		std::vector<int>::vector() =
-		{ 1, 2, 4, 6, 12, 24, 36, 48, 60, 120, 180, 240, 360, 720, 840, 1260, 1680, 2520, 5040, 7560, 10080, 15120, 20160, 25200, 27720,
-		45360, 50400, 55440, 83160, 110880, 166320, 221760, 277200, 332640, 498960, 554400, 665280, 720720, 1081080, 1441440, 2162160 }
-	);
-}
 
-// ####### Misc.:
-std::vector<std::string> TarotCards()
-{
-	return
-	(
-		std::vector<std::string>::vector() =
-		{ "The Fool", "The Magician", "The High Priestess", "The Empress", "The Emperor", "The  Hierophant", "The  Lovers", "The Chariot", "Strength",
-		"The Hermit", "Wheel of Fortune", "Justice", "The Hanged Man", "Death", "Temperance", "The Devil", "The Tower", "The Star", "The Moon", "The Sun", "Judgement", "The World" }
-	);
-}
+// #####################
+// ####### NUMBERS
+// #####################
+
+
+// #####################
+// ####### MISC
+// #####################
+
+// TAROT MAJOR CARDS:
+#define TAROTMAJORS { "The Fool", "The Magician", "The High Priestess", "The Empress", "The Emperor", "The  Hierophant", "The  Lovers", "The Chariot", "Strength", \
+"The Hermit", "Wheel of Fortune", "Justice", "The Hanged Man", "Death", "Temperance", "The Devil", "The Tower", "The Star", "The Moon", "The Sun", "Judgement", "The World" }
 // ################################################# FIM ####################################################################################
 
 #endif // SCPARSE_

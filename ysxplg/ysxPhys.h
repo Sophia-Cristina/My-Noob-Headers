@@ -280,20 +280,12 @@ public:
 class AcousticWave
 {
 public:
-	AcousticWave(double Freq, double Vel, double W, double Dist, int tVectorSize);
-	double Frequency;
-	double WaveLenght;
-	double Pressure;
+	double Frequency, WaveLenght, Pressure;
 	double Omega; // Omega, radians per sec; Frequencia em termos musicais, 440hz é na verdade 440omega;
-	double Velocity;
-	double Wavenumber;
-	double Distance;
-	double VectorSize;
-	double Watts;
-
+	double Velocity, Wavenumber, Distance, VectorSize, Watts;
 	std::vector<double> WaveFunction;
 
-	// ##################################################################################################
+	// #################################################
 	// Mudar Tamanho da Onda:
 	void ChangeWaveLenght(double NewNum)
 	{
@@ -304,90 +296,92 @@ public:
 	// Fazer vetor com razões por tempo:
 	std::vector<double> MakeModVector(double Velr, double Freqr, double tPhase) // r = rate, if you leave as '1' it will not modulate, ex.: "tVel = Velocity * Velr".
 	{
-		std::vector<double> ThisVector;
+		std::vector<double> V;
 		double tVel = Velocity, tWaven, tFreq = Frequency, tOmega;
+		double tdiv, t, y;
 		for (int tn = 0; tn < VectorSize; ++tn)
 		{
-			double tdiv = tn / (VectorSize - 1);
-			double t = (Distance * tdiv);
+			tdiv = tn / (VectorSize - 1);
+			t = (Distance * tdiv);
 			tPhase = (tPhase + tPhase) / 2.0; tVel *= Velr; tFreq *= Freqr;
 			tOmega = TAU * tFreq; tWaven =  TAU / (tVel / tFreq);
 			//cout << tVel << " " << tFreq << " " << tOmega << " " << tWaven << std::endl;
-			double y = NonStatWaveFunc(SndInt2db(SoundIntSph(Watts, t * tVel)), Distance, t, tWaven, tOmega, tPhase);
-			ThisVector.push_back(y);
+			y = NonStatWaveFunc(SndInt2db(SoundIntSph(Watts, t * tVel)), Distance, t, tWaven, tOmega, tPhase);
+			V.push_back(y);
 		}
-		return (ThisVector);
+		return (V);
+	}
+
+	// #################################################
+
+	AcousticWave(double Freq, double Vel, double W, double Dist, int tVectorSize)
+	{
+		Frequency = Freq;
+		Velocity = Vel;
+		Distance = Dist;
+		WaveLenght = Velocity / Frequency; // WaveLgh(Velocity, Frequency); Funtion for that.
+		Wavenumber = TAU / WaveLenght;
+		Omega = TAU * Frequency;
+		Watts = W;
+		VectorSize = tVectorSize;
+		WaveFunction = NonStatWaveVec(VectorSize, Velocity, Distance, Watts, 1, Wavenumber, Omega, 0);
 	}
 };
-
-AcousticWave::AcousticWave(double Freq, double Vel, double W, double Dist, int tVectorSize)
-{
-	Frequency = Freq;
-	Velocity = Vel;
-	Distance = Dist;
-	WaveLenght = Velocity / Frequency; // WaveLgh(Velocity, Frequency); Funtion for that.
-	Wavenumber = TAU / WaveLenght;
-	Omega = TAU * Frequency;
-	Watts = W;
-	VectorSize = tVectorSize;
-	WaveFunction = NonStatWaveVec(VectorSize, Velocity, Distance, Watts, 1, Wavenumber, Omega, 0);
-}
 
 // ##################################################################################################
 // FLUTE SYNTH:
 class FluteSynth
 {
 public:
-	FluteSynth(double Nwtn, double Ang, double Ang0, double Dist, double FlteSize, double Diamtr);
 	double Size, Diameter, N, Angle, Angle0, MaxAng, Distance; // Size of the flute, Diameter, Newtons (change to watts, maybe?), Angles of blow, Distance of the mouth
 	struct Hole { double Pos; bool Open; };
 	std::vector<Hole> Holes;
-	
+
+	FluteSynth(double Nwtn, double Ang, double Ang0, double Dist, double FlteSize, double Diamtr)
+	{
+
+	}	
 };
 
-FluteSynth::FluteSynth(double Nwtn, double Ang, double Ang0, double Dist, double FlteSize, double Diamtr)
-{
-	
-}
 
 // ##################################################################################################
 // VELACELLNEWTON:
 class VelAclNtnMntJlWt
 {
 public:
-
-	VelAclNtnMntJlWt(double ms2, double kg, double OpForce, double Seconds, double CellSize);
 	std::vector<double> Acell, Vel, Newton, Moment, Joule, Watt;
 	std::vector<bool> SecMap;
 	void ClearVectors()	{ std::vector<double> New; Acell = New; Vel = New; Newton = New; Moment = New; Joule = New; Watt = New; }
+
+	VelAclNtnMntJlWt(double ms2, double kg, double OpForce, double Seconds, double CellSize)
+	{
+		if (CellSize < 1) { CellSize = 1; }
+		CellSize = Seconds / CellSize;
+		int Cnt = 1; // Conta quantas células do vetor se passaram, todo vetor começa com uma célula
+		double NetF; // Esse objeto vai reduzir a força em ação pela de Oposição (OpForce)
+		double SecFrac = 1 / Seconds; // Fração do total de segundos, resultando na razão de um segundo
+		Vel.push_back(0);
+		Moment.push_back(kg * Vel[0]);
+		Acell.push_back(ms2);
+		Newton.push_back(Acell[0] * kg);
+		Joule.push_back(Newton[0] * (Vel[0] * CellSize));
+		Watt.push_back(Joule[0] / CellSize);
+		for (double n = CellSize; n < Seconds; n += CellSize)
+		{
+			Vel.push_back(Vel[Cnt - 1] + (Acell[Cnt - 1] * CellSize));
+			Moment.push_back(kg * Vel[Cnt - 1]);
+			if (Newton[Cnt - 1] >= -OpForce) { NetF = Newton[Cnt - 1] - (OpForce * CellSize); }
+			else { NetF = -OpForce; }
+			Acell.push_back(NetF / kg);
+			Newton.push_back(Acell[Cnt - 1] * kg);
+			Joule.push_back(Newton[Cnt - 1] * (Vel[Cnt - 1] * CellSize));
+			Watt.push_back(Joule[Cnt - 1] / CellSize);
+			//std::cout << "Vel: " << Vel[Cnt] << " | Acell: " << Acell[Cnt] << " | N: " << Newton[Cnt] << std::endl;
+			++Cnt;
+		}
+	}
 };
 
-VelAclNtnMntJlWt::VelAclNtnMntJlWt(double ms2, double kg, double OpForce, double Seconds, double CellSize)
-{
-	if (CellSize < 1) { CellSize = 1; }
-	CellSize = Seconds / CellSize;
-	int Cnt = 1; // Conta quantas células do vetor se passaram, todo vetor começa com uma célula
-	double NetF; // Esse objeto vai reduzir a força em ação pela de Oposição (OpForce)
-	double SecFrac = 1 / Seconds; // Fração do total de segundos, resultando na razão de um segundo
-	Vel.push_back(0);
-	Moment.push_back(kg * Vel[0]);
-	Acell.push_back(ms2);
-	Newton.push_back(Acell[0] * kg);
-	Joule.push_back(Newton[0] * (Vel[0] * CellSize));
-	Watt.push_back(Joule[0] / CellSize);
-	for (double n = CellSize; n < Seconds; n += CellSize)
-	{
-		Vel.push_back(Vel[Cnt - 1] + (Acell[Cnt - 1] * CellSize));
-		Moment.push_back(kg * Vel[Cnt - 1]);
-		if (Newton[Cnt - 1] >= -OpForce) { NetF = Newton[Cnt - 1] - (OpForce * CellSize); }	else { NetF = -OpForce; }
-		Acell.push_back(NetF / kg);
-		Newton.push_back(Acell[Cnt - 1] * kg);
-		Joule.push_back(Newton[Cnt - 1] * (Vel[Cnt - 1] * CellSize));
-		Watt.push_back(Joule[Cnt - 1] / CellSize);
-		//std::cout << "Vel: " << Vel[Cnt] << " | Acell: " << Acell[Cnt] << " | N: " << Newton[Cnt] << std::endl;
-		++Cnt;
-	}
-}
 // ##################################################################################################
 
 // ################################################# FIM ####################################################################################
