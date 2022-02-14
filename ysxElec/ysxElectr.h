@@ -46,7 +46,7 @@ class Wire;
 class CompConfig
 {
 public:
-    unsigned int Samples = 64; // This probably is only going to be used in components which power up stuffs
+    uint32_t Samples = 64; // This probably is only going to be used in components which power up stuffs
     double Volts = 1; // For 'normalization'
     float NoiseGain = 0.1; // !!! Noise Multiplied by input vector is always scaled to 'Volts' !!!
 
@@ -93,7 +93,7 @@ public:
     {
         if (OUTs.size() > 0)
         {
-            for (unsigned int n = 0; n < OUTs.size(); ++n)
+            for (uint32_t n = 0; n < OUTs.size(); ++n)
             {
                 if (n < OUTs.size())
                 {
@@ -129,11 +129,11 @@ public:
                 Sum = SumTwoVec(Signals[0], Signals[1]);
                 if (Signals.size() > 2)
                 {
-                    for (unsigned int n = 2; n < Signals.size(); ++n) { Sum = SumTwoVec(Sum, Signals[n]); }
+                    for (uint32_t n = 2; n < Signals.size(); ++n) { Sum = SumTwoVec(Sum, Signals[n]); }
                 }
             }
         }
-        if (OUTs.size() > 0) { for (unsigned int n = 0; n < OUTs.size(); ++n) { *OUTs[n] = Sum; } }
+        if (OUTs.size() > 0) { for (uint32_t n = 0; n < OUTs.size(); ++n) { *OUTs[n] = Sum; } }
     }
 };
 
@@ -181,7 +181,7 @@ public:
     void ProcessSignal() override
     {
         if (Ohms == 0) { Ohms = 1; }
-        for (unsigned int n = 0; n < Signals[0].size(); ++n)
+        for (uint32_t n = 0; n < Signals[0].size(); ++n)
         {
             Signals[0][n] /= Ohms; Output->Signals[0] = Signals[0]; Output->ProcessSignal();
         }
@@ -208,10 +208,10 @@ public:
     }
 
     // CALLS IMAGE OF INDEX (SigSample) FROM CERTAIN SIGNAL (SigIndex):
-    CImg<uint8_t> SeeLED(unsigned int SigIndex, unsigned int SigSample)
+    CImg<uint8_t> SeeLED(uint32_t SigIndex, uint32_t SigSample)
     {
         CImg<uint8_t> I(LEDSize, LEDSize, 1, 3, 255);
-        uint8_t Red = 31; unsigned int s = Signals[SigIndex].size();
+        uint8_t Red = 31; uint32_t s = Signals[SigIndex].size();
         double Val = Signals[SigIndex][SigSample % s];
         
         Red = round((Val / Volts) * 160);
@@ -246,7 +246,7 @@ public:
     // Negative numbers makes it run stopless, so close window to stop it!
     void ProcessSignal() override
     {
-        unsigned int Sample = 0, Signal = 0;
+        uint32_t Sample = 0, Signal = 0;
         // #####################
         std::cout << "DOWN / UP = Last / Next Signal Sample | LEFT / RIGHT = Last / Next Signal\n\nTYPE SOMETHING TO CONTINUE: ";
         char NADA; std::cin >> NADA;
@@ -274,11 +274,11 @@ class Oscilloscope : public Component
 {
 public:
     double Volts = 0, BlockZoom = 1;
-    unsigned short x, y;
+    uint16_t x, y;
     CImg<uint8_t> Print;
     bool Neg = true;
     // VOLTAGE TO APPEAR ON MONITOR | ZOOM BLOCK SAMPLE (PERCENTAGE) | SCREEN SIZE | NEGATIVE NUMBERS:
-    Oscilloscope(double iVolts, double iBlockZoom, unsigned short Screenx, unsigned short Screeny, bool InNeg)
+    Oscilloscope(double iVolts, double iBlockZoom, uint16_t Screenx, uint16_t Screeny, bool InNeg)
     {
         Volts = iVolts, BlockZoom = iBlockZoom; x = Screenx; y = Screeny; Neg = InNeg;
         NewImage(Neg);
@@ -335,22 +335,22 @@ class LEDArray : public Component
 {
 public:
     uint8_t LEDSize;
-    uint8_t Bits; unsigned short Rows;
+    uint8_t Bits; uint16_t Rows;
     double Volts;
     
     // TAKE CARE WITH THE AMMOUNT OF COLLUMS, IT IS !!! A COLLUM PER BIT, NOT BYTE !!!:
-    LEDArray(uint8_t LED_Diameter, uint8_t Bytes, unsigned short iRows, double Voltage)
+    LEDArray(uint8_t LED_Diameter, uint8_t Bytes, uint16_t iRows, double Voltage)
     {
         LEDSize = LED_Diameter; Bits = Bytes * 8; Rows = iRows; Volts = Voltage;
     }
 
     // CALLS IMAGE OF THE ARRAY FROM SIGNAL NUMBER 'INDEX', ROW PAGE BEGINS AT '0':
     // *** Take in mind that if it overflows the number of indexes in a signal, it will simple go back to zero (module) ***
-    CImg<uint8_t> SeeArray(unsigned int SigIndex, unsigned int RowPage)
+    CImg<uint8_t> SeeArray(uint32_t SigIndex, uint32_t RowPage)
     {
         CImg<uint8_t> I(LEDSize * Bits, LEDSize * Rows, 1, 3, 255);
-        uint8_t Red = 31; unsigned int s = Signals[SigIndex].size();
-        for (unsigned int n = 0; n < Rows; ++n) // DRAW LED MATRIX
+        uint8_t Red = 31; uint32_t s = Signals[SigIndex].size();
+        for (uint32_t n = 0; n < Rows; ++n) // DRAW LED MATRIX
         {
             for (char m = 0; m < Bits; ++m)
             {
@@ -366,7 +366,7 @@ public:
             }
         }
         CImg<uint8_t> Append(I.width(), 16, 1, 3, 64); // APPEND INFORMATION
-        for (unsigned int n = 0; n < Bits; ++n)
+        for (uint32_t n = 0; n < Bits; ++n)
         {
             uint8_t Color[] = { 127, 127, 255 };
             AddText(Append, 4 + (Bits - 1 - n) * LEDSize, 2, std::to_string((int)pow(2, n)), Color);
@@ -379,7 +379,7 @@ public:
     // Negative numbers makes it run stopless, so close window to stop it!
     void ProcessSignal() override
     {
-        unsigned int Page = 0, Signal = 0;
+        uint32_t Page = 0, Signal = 0;
         // #####################
         std::cout << "UP / DOWN = Rows Page\n\nTYPE SOMETHING TO CONTINUE: ";
         char NADA; std::cin >> NADA;
@@ -408,8 +408,8 @@ float W = CellxSize * 4, H = CellySize * 8;
         float WD = W - T;
         float HD = H - T;
         //bool Red = false;
-        char Red = 32; char m = 0; unsigned int s = DATA.size();
-        for (unsigned int Byte = 0; Byte < DATA.size(); Byte += 8)
+        char Red = 32; char m = 0; uint32_t s = DATA.size();
+        for (uint32_t Byte = 0; Byte < DATA.size(); Byte += 8)
         {
             for (char n = 0; n < 8; ++n)
             {

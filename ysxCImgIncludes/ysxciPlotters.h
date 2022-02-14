@@ -953,15 +953,15 @@ CImg<uint8_t> PrintVectorBarsAbs(std::vector<double> V, int Width, double Ratio,
 
 // IMAGENS DA MATRIZ DOS VETORES:
 // Salva uma imagem 'x' por 'y' usando um vetor com o RGB em double '0 a 1.0':
-CImg<uint8_t> PrintVectorImg(std::vector<Point3D<double>> V, int x, int y, double Rsize)
+CImg<uint8_t> PrintVectorImg(std::vector<Point3D<double>> V, int x, int y, double Rsize = 1.0)
 {
 	CImg<uint8_t> Ret(x, y, 1, 3, 0);
 	int C = 0;
 	for (int n = 0; n < V.size(); ++n)
 	{
-		unsigned short R = V[n].x * 255; if (R > 255) { R = 255; } if (R < 0) { R = 0; }
-		unsigned short G = V[n].y * 255; if (G > 255) { G = 255; } if (G < 0) { G = 0; }
-		unsigned short B = V[n].z * 255; if (B > 255) { B = 255; } if (B < 0) { B = 0; }
+		uint16_t R = V[n].x * 255; if (R > 255) { R = 255; } if (R < 0) { R = 0; }
+		uint16_t G = V[n].y * 255; if (G > 255) { G = 255; } if (G < 0) { G = 0; }
+		uint16_t B = V[n].z * 255; if (B > 255) { B = 255; } if (B < 0) { B = 0; }
 		uint8_t Color[] = { R, G, B };
 		Ret.draw_point(n % x, C, Color);
 		
@@ -970,18 +970,18 @@ CImg<uint8_t> PrintVectorImg(std::vector<Point3D<double>> V, int x, int y, doubl
 	if (Rsize != 1.0) { Resize(Ret, round(x * Rsize), round(y * Rsize), 6); }
 	return(Ret);
 }
-CImg<uint8_t> PrintVectorImg(std::vector<Point3D<double>> V, double Rsize)
+CImg<uint8_t> PrintVectorImg(std::vector<Point3D<double>> V, double Rsize = 1.0)
 {
 	double SqrtVec = sqrt(V.size());
-	unsigned short x = round(SqrtVec), y;
+	uint16_t x = round(SqrtVec), y;
 	if (SqrtVec / x == 1) { y = round(SqrtVec); } else { y = ceil(SqrtVec); }
 	CImg<uint8_t> Ret(x, y, 1, 3, 0);
 	int C = 0;
 	for (int n = 0; n < V.size(); ++n)
 	{
-		unsigned short R = V[n].x * 255; if (R > 255) { R = 255; } if (R < 0) { R = 0; }
-		unsigned short G = V[n].y * 255; if (G > 255) { G = 255; } if (G < 0) { G = 0; }
-		unsigned short B = V[n].z * 255; if (B > 255) { B = 255; } if (B < 0) { B = 0; }
+		uint16_t R = V[n].x * 255; if (R > 255) { R = 255; } if (R < 0) { R = 0; }
+		uint16_t G = V[n].y * 255; if (G > 255) { G = 255; } if (G < 0) { G = 0; }
+		uint16_t B = V[n].z * 255; if (B > 255) { B = 255; } if (B < 0) { B = 0; }
 		uint8_t Color[] = { R, G, B };
 		Ret.draw_point(n % x, C, Color);
 		
@@ -990,7 +990,7 @@ CImg<uint8_t> PrintVectorImg(std::vector<Point3D<double>> V, double Rsize)
 	if (Rsize != 1.0) { Resize(Ret, round(x * Rsize), round(y * Rsize), 6); }
 	return(Ret);
 }
-CImg<uint8_t> PrintVectorImg(std::vector<Point3D<uint8_t>> V, int x, int y, double Rsize)
+CImg<uint8_t> PrintVectorImg(std::vector<Point3D<uint8_t>> V, int x, int y, double Rsize = 1.0)
 {
 	CImg<uint8_t> Ret(x, y, 1, 3, 0);
 	int C = 0;
@@ -1003,10 +1003,10 @@ CImg<uint8_t> PrintVectorImg(std::vector<Point3D<uint8_t>> V, int x, int y, doub
 	if (Rsize != 1.0) { Resize(Ret, round(x * Rsize), round(y * Rsize), 6); }
 	return(Ret);
 }
-CImg<uint8_t> PrintVectorImg(std::vector<Point3D<uint8_t>> V, double Rsize)
+CImg<uint8_t> PrintVectorImg(std::vector<Point3D<uint8_t>> V, double Rsize = 1.0)
 {
 	double SqrtVec = sqrt(V.size());
-	unsigned short x = round(SqrtVec), y;
+	uint16_t x = round(SqrtVec), y;
 	if (SqrtVec / x == 1) { y = round(SqrtVec); }
 	else { y = ceil(SqrtVec); }
 	CImg<uint8_t> Ret(x, y, 1, 3, 0);
@@ -1022,17 +1022,16 @@ CImg<uint8_t> PrintVectorImg(std::vector<Point3D<uint8_t>> V, double Rsize)
 }
 
 // Salva uma Imagem com a cor sendo função de 'x' e 'y':
-CImg<uint8_t> PrintVectorInfoLRGB(std::vector<double> V, double Rsize)
+CImg<uint8_t> PrintVectorInfoLRGB(std::vector<double> V, double Rsize = 1.0)
 {
 	double SqrtVec = sqrt(V.size());
-	unsigned short x = round(SqrtVec), y;
+	uint16_t x = round(SqrtVec), y;
 	if (SqrtVec / x == 1) { y = x; } else { y = ceil(SqrtVec); }
 	CImg<uint8_t> R(x, y, 1, 3, 0);
 	int C = 0;
 	for (int n = 0; n < V.size(); ++n)
 	{
-		Point3D<uint8_t> RGB = LinearRGB(V[n], 1.0, 1.0);
-		uint8_t Color[] = { RGB.x, RGB.y, RGB.z };
+		uint8_t Color[3]; LinearRGBuc(V[n], 1.0, 1.0, Color);
 		R.draw_point(n % x, C, Color);
 		if (n % x == x - 1) { ++C; }
 	}
@@ -1040,19 +1039,16 @@ CImg<uint8_t> PrintVectorInfoLRGB(std::vector<double> V, double Rsize)
 	if (Rsize != 1.0) { Resize(R, round(x * Rsize), round(y * Rsize), 6); }
 	return(R);
 }
-CImg<uint8_t> PrintVectorInfoLRGB(std::vector<double> V, int x, double Rsize)
+CImg<uint8_t> PrintVectorInfoLRGB(std::vector<double> V, int x, double Rsize = 1.0)
 {
-	double SqrtVec = sqrt(V.size());
 	if (x > V.size()) { x = V.size(); } if (x < 1) { x = 1; }
 	int y = ceil(V.size() / (x * 1.0));
 	CImg<uint8_t> R(x, y, 1, 3, 0);
 	int C = 0;
 	for (int n = 0; n < V.size(); ++n)
 	{
-		Point3D<uint8_t> RGB = LinearRGB(V[n], 1.0, 1.0);
-		uint8_t Color[] = { RGB.x, RGB.y, RGB.z };
+		uint8_t Color[3]; LinearRGBuc(V[n], 1.0, 1.0, Color);
 		R.draw_point(n % x, C, Color);
-		
 		if (n % x == x - 1) { ++C; }
 	}
 
@@ -1060,7 +1056,7 @@ CImg<uint8_t> PrintVectorInfoLRGB(std::vector<double> V, int x, double Rsize)
 	return(R);
 }
 
-CImg<uint8_t> PrintVectorInfoLRGB(std::vector<unsigned short> V, double Rsize)
+CImg<uint8_t> PrintVectorInfoLRGB(std::vector<uint16_t> V, double Rsize = 1.0)
 {
 	double SqrtVec = sqrt(V.size());
 	int x = round(SqrtVec), y;
@@ -1070,8 +1066,22 @@ CImg<uint8_t> PrintVectorInfoLRGB(std::vector<unsigned short> V, double Rsize)
 	int C = 0;
 	for (int n = 0; n < V.size(); ++n)
 	{
-		Point3D<uint8_t> RGB = LinearRGB(V[n] / 65535.0, 1.0, 1.0);
-		uint8_t Color[] = { RGB.x, RGB.y, RGB.z };
+		uint8_t Color[3]; LinearRGBuc(V[n] / 65535.0, 1.0, 1.0, Color);
+		R.draw_point(n % x, C, Color);
+		if (n % x == x - 1) { ++C; }
+	}
+
+	if (Rsize != 1.0) { Resize(R, round(x * Rsize), round(y * Rsize), 6); }
+	return(R);
+}
+CImg<uint8_t> PrintVectorInfoLRGB(std::vector<uint16_t> V, uint16_t x, double Rsize = 1.0)
+{
+	if (x > V.size()) { x = V.size(); } if (x < 1) { x = 1; }
+	uint16_t y = ceil(V.size() / (x * 1.0)), C = 0;
+	CImg<uint8_t> R(x, y, 1, 3, 0);
+	for (int n = 0; n < V.size(); ++n)
+	{
+		uint8_t Color[3]; LinearRGBuc(V[n] / 65535.0, 1.0, 1.0, Color);
 		R.draw_point(n % x, C, Color);
 		if (n % x == x - 1) { ++C; }
 	}
@@ -1081,76 +1091,66 @@ CImg<uint8_t> PrintVectorInfoLRGB(std::vector<unsigned short> V, double Rsize)
 }
 
 
-CImg<uint8_t> PrintVectorInfoLRGB(std::vector<char> V, double Rsize)
+CImg<uint8_t> PrintVectorInfoLRGB(std::vector<uint8_t> V, double Rsize = 1.0)
 {
 	double SqrtVec = sqrt(V.size());
-	unsigned short x = round(SqrtVec), y;
+	uint16_t x = round(SqrtVec), y;
 	if (SqrtVec / x == 1) { y = x; } else { y = ceil(SqrtVec); }
 	CImg<uint8_t> R(x, y, 1, 3, 0);
 	int C = 0;
 	for (int n = 0; n < V.size(); ++n)
 	{
-		Point3D<uint8_t> RGB = LinearRGB(V[n] / 255.0, 1.0, 1.0);
-		uint8_t Color[] = { RGB.x, RGB.y, RGB.z };
+		uint8_t Color[3]; LinearRGBuc(V[n] / 255.0, 1.0, 1.0, Color);
 		R.draw_point(n % x, C, Color);
-		
 		if (n % x == x - 1) { ++C; }
 	}
 
 	if (Rsize != 1.0) { Resize(R, round(x * Rsize), round(y * Rsize), 6); }
 	return(R);
 }
-CImg<uint8_t> PrintVectorInfoLRGB(std::vector<char> V, unsigned short x, double Rsize)
+CImg<uint8_t> PrintVectorInfoLRGB(std::vector<uint8_t> V, uint16_t x, double Rsize = 1.0)
 {
-	double SqrtVec = sqrt(V.size());
 	if (x > V.size()) { x = V.size(); } if (x < 1) { x = 1; }
-	unsigned short y = ceil(V.size() / (x * 1.0)), C = 0;
+	uint16_t y = ceil(V.size() / (x * 1.0)), C = 0;
 	CImg<uint8_t> R(x, y, 1, 3, 0);
 	for (int n = 0; n < V.size(); ++n)
 	{
-		Point3D<uint8_t> RGB = LinearRGB(V[n] / 255.0, 1.0, 1.0);
-		uint8_t Color[] = { RGB.x, RGB.y, RGB.z };
+		uint8_t Color[3]; LinearRGBuc(V[n] / 255.0, 1.0, 1.0, Color);
 		R.draw_point(n % x, C, Color);
-		
 		if (n % x == x - 1) { ++C; }
 	}
 
 	if (Rsize != 1.0) { Resize(R, round(x * Rsize), round(y * Rsize), 6); }
 	return(R);
 }
-CImg<uint8_t> PrintVectorInfoLRGB(std::string String, double Rsize)
+CImg<uint8_t> PrintVectorInfoLRGB(std::string String, double Rsize = 1.0)
 {
 	double SqrtVec = sqrt(String.size());
-	unsigned short x = round(SqrtVec), y;
+	uint16_t x = round(SqrtVec), y;
 	if (SqrtVec / x == 1) { y = x; }
 	else { y = ceil(SqrtVec); }
 	CImg<uint8_t> R(x, y, 1, 3, 0);
 	int C = 0;
 	for (int n = 0; n < String.size(); ++n)
 	{
-		Point3D<uint8_t> RGB = LinearRGB(String[n] / 255.0, 1.0, 1.0);
-		uint8_t Color[] = { RGB.x, RGB.y, RGB.z };
+		uint8_t Color[3]; LinearRGBuc(String[n] / 255.0, 1.0, 1.0, Color);
 		R.draw_point(n % x, C, Color);
-		
 		if (n % x == x - 1) { ++C; }
 	}
 
 	if (Rsize != 1.0) { Resize(R, round(x * Rsize), round(y * Rsize), 6); }
 	return(R);
 }
-CImg<uint8_t> PrintVectorInfoLRGB(std::string String, int x, double Rsize)
+CImg<uint8_t> PrintVectorInfoLRGB(std::string String, int x, double Rsize = 1.0)
 {
-	double SqrtVec = sqrt(String.size());
 	if (x > String.size()) { x = String.size(); } if (x < 1) { x = 1; }
 	int y = ceil(String.size() / (x * 1.0));
 	CImg<uint8_t> R(x, y, 1, 3, 0);
 	int C = 0;
 	for (int n = 0; n < String.size(); ++n)
 	{
-		Point3D<uint8_t> RGB = LinearRGB(String[n] / 255.0, 1.0, 1.0);
-		uint8_t Color[] = { RGB.x, RGB.y, RGB.z };
+		uint8_t Color[3]; LinearRGBuc(String[n] / 255.0, 1.0, 1.0, Color);
 		R.draw_point(n % x, C, Color);
-		
 		if (n % x == x - 1) { ++C; }
 	}
 
@@ -1158,21 +1158,20 @@ CImg<uint8_t> PrintVectorInfoLRGB(std::string String, int x, double Rsize)
 	return(R);
 }
 
-// Salva uma Imagem com a cor sendo grayscale de '0' a '127':
-CImg<uint8_t> PrintVectorInfo(std::vector<double> V, double Rsize)
+
+// Salva uma Imagem com a cor sendo grayscale de '0' a '255':
+CImg<uint8_t> PrintVectorInfo(std::vector<double> V, double Rsize = 1.0)
 {
 	double SqrtVec = sqrt(V.size());
-	unsigned short x = round(SqrtVec), y;
+	uint16_t x = round(SqrtVec), y;
 	if (SqrtVec / round(SqrtVec) == 1) { y = round(SqrtVec); }
 	else { y = ceil(sqrt(V.size())); }
 	CImg<uint8_t> R(x, y, 1, 3, 0);
 	int C = 0;
 	for (int n = 0; n < V.size(); ++n)
 	{
-		Point3D<uint8_t> RGB; RGB.x = V[n] * 255; RGB.y = V[n] * 255; RGB.z = V[n] * 255;
-		if (RGB.x > 255) { RGB.x = 255; } if (RGB.y > 255) { RGB.y = 255; } if (RGB.z > 255) { RGB.z = 255; }
-		if (RGB.x < 0) { RGB.x = 0; } if (RGB.y < 0) { RGB.y = 0; } if (RGB.z < 0) { RGB.z = 0; }
-		uint8_t Color[] = { RGB.x, RGB.y, RGB.z };
+		if (V[n] > 1) { V[n] = 1; } if (V[n] < 0) { V[n] = 0; }
+		uint8_t Color[] = { V[n] * 255, V[n] * 255, V[n] * 255 };
 		R.draw_point(n % x, C, Color);
 		if (n % x == x - 1) { ++C; }
 	}
@@ -1180,7 +1179,7 @@ CImg<uint8_t> PrintVectorInfo(std::vector<double> V, double Rsize)
 	if (Rsize != 1.0) { Resize(R, round(x * Rsize), round(y * Rsize), 6); }
 	return(R);
 }
-CImg<uint8_t> PrintVectorInfo(std::vector<double> V, int x, double Rsize)
+CImg<uint8_t> PrintVectorInfo(std::vector<double> V, int x, double Rsize = 1.0)
 {
 	double SqrtVec = sqrt(V.size());
 	if (x > V.size()) { x = V.size(); }
@@ -1190,10 +1189,8 @@ CImg<uint8_t> PrintVectorInfo(std::vector<double> V, int x, double Rsize)
 	int C = 0;
 	for (int n = 0; n < V.size(); ++n)
 	{
-		Point3D<uint8_t> RGB; RGB.x = V[n] * 255; RGB.y = V[n] * 255; RGB.z = V[n] * 255;
-		if (RGB.x > 255) { RGB.x = 255; } if (RGB.y > 255) { RGB.y = 255; } if (RGB.z > 255) { RGB.z = 255; }
-		if (RGB.x < 0) { RGB.x = 0; } if (RGB.y < 0) { RGB.y = 0; } if (RGB.z < 0) { RGB.z = 0; }
-		uint8_t Color[] = { RGB.x, RGB.y, RGB.z };
+		if (V[n] > 1) { V[n] = 1; } if (V[n] < 0) { V[n] = 0; }
+		uint8_t Color[] = { V[n] * 255, V[n] * 255, V[n] * 255 };
 		R.draw_point(n % x, C, Color);
 		if (n % x == x - 1) { ++C; }
 	}
@@ -1203,10 +1200,10 @@ CImg<uint8_t> PrintVectorInfo(std::vector<double> V, int x, double Rsize)
 }
 
 // Salva uma Imagem com a cor sendo função de 'y' dividido em 3 partes, de vermelho a azul:
-CImg<uint8_t> PrintVectorInfoTriClr(std::vector<double> V, double Rsize)
+CImg<uint8_t> PrintVectorInfoTriClr(std::vector<double> V, double Rsize = 1.0)
 {
 	double SqrtVec = sqrt(V.size());
-	unsigned short x = round(SqrtVec), y;
+	uint16_t x = round(SqrtVec), y;
 	if (SqrtVec / round(SqrtVec) == 1) { y = round(SqrtVec); }
 	else { y = ceil(sqrt(V.size())); }
 	CImg<uint8_t> Ret(x, y, 1, 3, 0);
@@ -1227,17 +1224,17 @@ CImg<uint8_t> PrintVectorInfoTriClr(std::vector<double> V, double Rsize)
 
 // Save file bytes as linear RGB (HUE):
 // Salva uma Imagem com a cor sendo função de 'x' e 'y', Rsize = Resize:
-CImg<uint8_t> PrintFileAsBMP(std::string Path, double Multiplier, double Rsize)
+CImg<uint8_t> PrintFileAsBMP(std::string Path, double Multiplier, double Rsize = 1.0)
 {
 	std::ifstream I(Path, std::ios::binary); // FILE
 	I.seekg(0, std::ios::end); int End = I.tellg(); I.seekg(0, std::ios::beg);
-	std::vector<char> V(End);
+	std::vector<uint8_t> V(End);
 	if (I.is_open()) { I.read((char*)&V[0], End); } else { std::cout << "COULDN'T OPEN FILE!\n"; }
 	//while (!I.eof()) { char c; I.read(&c, 1); V.push_back(c); std::cout << "CHAR: " << (int)c << " |\n"; } // Add this inside 'if' if you want to get char by char
 	I.close();
 
 	double SqrtVec = sqrt(V.size()); // IMAGE
-	unsigned short x = round(SqrtVec), y;
+	uint16_t x = round(SqrtVec), y;
 	if (SqrtVec / x == 1) { y = x; } else { y = ceil(SqrtVec); }
 	CImg<uint8_t> R(x, y, 1, 3, 0);
 

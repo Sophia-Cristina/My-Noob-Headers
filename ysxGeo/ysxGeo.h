@@ -3,8 +3,6 @@
 #ifndef YSXGEO_H
 #define YSXGEO_H
 
-#include "ysxTri.h"
-
 // #####################################################################################################################################
 
 // ATENÇÃO: QUASE TODOS OS ANGLES DEVEM SER COLOCADOS COMO RADIANOS, USAR FUNÇÃO "Ang2Rad" SE NÃO SOUBER!!!!!!!
@@ -85,12 +83,6 @@ double saw(double x) { x /= TAU; x -= floor(x); x = (x * 2) - 1; return (x); }
 double phasor(double x) { x /= TAU; x -= floor(x); return (x); }
 double tri(double x) { int f = floor(((2 * x) / TAU) + 0.5); x = (4 / TAU) * (x - PI * f) * pow(-1, f); return (x); }
 
-
-// #####################################################################################################################################
-// ####### POLIGONS:
-
-double Perim(double Sides, double Size) { return(Sides * Size); }
-
 // #####################################################################################################################################
 // ####### ANGLES:
 
@@ -134,6 +126,15 @@ double Mollweidepos(double a, double b, double c) { return((a + b) / c); } // Ba
 double Mollweideneg(double a, double b, double c) { return((a - b) / c); } // Based on Law of Cotangent = sin((Alpha - Beta) * 0.5) / cos(Gama * 0.5)
 double MollweideposAng(double Alpha, double Beta, double Gama) { return(cos((Alpha - Beta) * 0.5) / sin(Gama * 0.5)); } // Based on Law of Cotangent = (a + b) / c
 double MollweidenegAng(double Alpha, double Beta, double Gama) { return(sin((Alpha - Beta) * 0.5) / cos(Gama * 0.5)); } // Based on Law of Cotangent = (a - b) / c
+
+// #####################################################################################################################################
+
+#include "ysxTri.h"
+
+// #####################################################################################################################################
+// ####### POLIGONS:
+
+double Perim(double Sides, double Size) { return(Sides * Size); }
 
 // #####################################################################################################################################
 // ####### QUADRILATERALS:

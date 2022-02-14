@@ -20,6 +20,8 @@
 #include <functional>
 #include <algorithm>
 #include <vector>
+#include <array> // Fixed-size sequence containers
+#include <list>
 
 // ############################################################################################################################################
 // ################################################# ANOTATIONS AND ALTERATIONS #################################################
@@ -62,17 +64,17 @@ template <class T_> struct LinePoint3D { Point3D<T_> P0, P1; }; // In my opinion
 
 // #####################################################################################################################################
 
-#include "ysxplg\\ysxConst.h";
-#include "ysxplg\\ysxConv.h"
-#include "ysxplg\\ysxVector.h";
-#include "ysxplg\\ysxPhys.h";
-#include "ysxGeo\\ysxGeo.h";
-#include "ysxplg\\ysxCalc.h";
-#include "ysxplg\\ysxField.h";
-#include "ysxElec\\ysxElectr.h" // Some trigonomotry in 'ysxGeo.h'. Also #include 'ysxBytes.h' and 'ysxSignal.h'.
-#include "ysxplg\\ysxMusic.h"
-#include "ysxplg\\ysxMoney.h"; // Things about money and related to economy and etc...
-#include "ysxplg\\ysxFractal.h";
+#include "ysxplg/ysxConst.h";
+#include "ysxplg/ysxConv.h"
+#include "ysxplg/ysxVector.h";
+#include "ysxplg/ysxPhys.h";
+#include "ysxGeo/ysxGeo.h"
+#include "ysxplg/ysxCalc.h";
+#include "ysxplg/ysxField.h";
+#include "ysxElec/ysxElectr.h" // Some trigonomotry in 'ysxGeo.h'. Also #include 'ysxBytes.h' and 'ysxSignal.h'.
+#include "ysxplg/ysxMusic.h"
+#include "ysxplg/ysxMoney.h"; // Things about money and related to economy and etc...
+#include "ysxplg/ysxFractal.h";
 
 // #####################################################################################################################################
 

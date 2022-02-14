@@ -117,7 +117,6 @@ public:
 	enum TriLnghtType { NoTypeLgt, Equilateral, Isoceles, Scalene };
 	enum TriAngType { NoTypeAng, Right, Acute, Obtuse };
 	unsigned char LnghtType = NoTypeLgt, AngType = NoTypeAng; // Make it a single byte with 8 flags, 4 for ang type and 4 for lenght type
-	Triangulo(double asize, double bsize, double Angle); //  ####### CONTRUCTOR #######
 	// ############################
 	Point<int> Coord[3], Midpoints[3], Circumcenter;
 	// ############################

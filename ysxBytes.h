@@ -16,6 +16,7 @@
 
 // #####################################################################################################################################
 
+#define LOOP4 for(uint8_t n = 0; n < 4; ++n)
 #define LOOP8 for(uint8_t n = 0; n < 8; ++n)
 #define LOOP16 for(uint8_t n = 0; n < 16; ++n)
 #define LOOP24 for(uint8_t n = 0; n < 24; ++n)
@@ -23,18 +24,18 @@
 #define LOOP48 for(uint8_t n = 0; n < 48; ++n)
 #define LOOP64 for(uint8_t n = 0; n < 64; ++n)
 #define LOOP128 for(uint8_t n = 0; n < 128; ++n)
-#define LOOP256 for(uint8_t n = 0; n < 256; ++n)
+#define LOOP256 for(uint16_t n = 0; n < 256; ++n)
 
 // #####################################################################################################################################
 // #####################################################################################################################################
 // #####################################################################################################################################
 
-std::string ANDstr(std::string A, std::string B) { std::string C; for (size_t n = 0; n < A.size(); ++n) { if (n < B.size()) { C.push_back(A[n] & B[n]); } } }
-std::string ORstr(std::string A, std::string B) { std::string C; for (size_t n = 0; n < A.size(); ++n) { if (n < B.size()) { C.push_back(A[n] | B[n]); } } }
-std::string XORstr(std::string A, std::string B) { std::string C; for (size_t n = 0; n < A.size(); ++n) { if (n < B.size()) { C.push_back(A[n] ^ B[n]); } } }
-std::string NOTstr(std::string A) { std::string B; for (size_t n = 0; n < A.size(); ++n) { B.push_back(~A[n]); } }
-std::string RSHFstr(std::string A, uint8_t i) { std::string B; for (size_t n = 0; n < A.size(); ++n) { B.push_back(A[n] >> i); } }
-std::string LSHFstr(std::string A, uint8_t i) { std::string B; for (size_t n = 0; n < A.size(); ++n) { B.push_back(A[n] << i); } }
+std::vector<uint8_t> ANDstr(std::vector<uint8_t> A, std::vector<uint8_t> B) { std::vector<uint8_t> C; for (size_t n = 0; n < A.size(); ++n) { if (n < B.size()) { C.push_back(A[n] & B[n]); } } }
+std::vector<uint8_t> ORstr(std::vector<uint8_t> A, std::vector<uint8_t> B) { std::vector<uint8_t> C; for (size_t n = 0; n < A.size(); ++n) { if (n < B.size()) { C.push_back(A[n] | B[n]); } } }
+std::vector<uint8_t> XORstr(std::vector<uint8_t> A, std::vector<uint8_t> B) { std::vector<uint8_t> C; for (size_t n = 0; n < A.size(); ++n) { if (n < B.size()) { C.push_back(A[n] ^ B[n]); } } }
+std::vector<uint8_t> NOTstr(std::vector<uint8_t> A) { std::vector<uint8_t> B; for (size_t n = 0; n < A.size(); ++n) { B.push_back(~A[n]); } }
+std::vector<uint8_t> RSHFstr(std::vector<uint8_t> A, uint8_t i) { std::vector<uint8_t> B; for (size_t n = 0; n < A.size(); ++n) { B.push_back(A[n] >> i); } }
+std::vector<uint8_t> LSHFstr(std::vector<uint8_t> A, uint8_t i) { std::vector<uint8_t> B; for (size_t n = 0; n < A.size(); ++n) { B.push_back(A[n] << i); } }
 
 std::vector<uint8_t> ANDv(std::vector<uint8_t> A, std::vector<uint8_t> B) { std::vector<uint8_t> C; for (size_t n = 0; n < A.size(); ++n) { if (n < B.size()) { C.push_back(A[n] & B[n]); } } }
 std::vector<uint8_t> ORv(std::vector<uint8_t> A, std::vector<uint8_t> B) { std::vector<uint8_t> C; for (size_t n = 0; n < A.size(); ++n) { if (n < B.size()) { C.push_back(A[n] | B[n]); } } }
@@ -121,7 +122,7 @@ std::string ASCII2Hex(std::string s)
 	std::vector<std::vector<uint8_t>> Oo;
 	for (size_t n = 0; n < s.size(); ++n)
 	{
-		std::vector<unsigned short> O;
+		std::vector<uint16_t> O;
 		if (IsNumber(s[n]))
 		{
 			O.push_back(Chr2Int(s[n]));
@@ -154,9 +155,9 @@ std::string ASCII2Bin(std::string s)
 }
 
 // HEX string to Decimal (uses full string as one number):
-unsigned long long Hex2Dec(std::string Hex)
+uint64_t Hex2Dec(std::string Hex)
 {
-	long long Sum = 0;
+	uint64_t Sum = 0;
 	for (size_t n = 0; n < Hex.size(); ++n)
 	{
 		std::string s; s.push_back(Hex[n]);
@@ -175,28 +176,24 @@ void StrInUChar(std::string s, uint8_t* Array, size_t Size) { for (size_t n = 0;
 void StrInChar(std::string s, char* Array, size_t Size) { for (size_t n = 0; n < s.size(); ++n) { Array[n % Size] = s[n]; } }
 void StrInwChar(std::string s, wchar_t* Array, size_t Size) { for (size_t n = 0; n < s.size(); ++n) { Array[n % Size] = s[n]; } }  // Never tested
 
-// GET AN UCHAR ARRAY AND ADD BYTES TO A NEW STRING, PLEASE, USE CORRECT ARRAY SIZE, IT USES POINTER:
+// GET AN UCHAR ARRAY AND ADD BYTES TO A NEW STRING:
 std::string uchar2str(uint8_t* Array, size_t Size) { std::string s; for (size_t n = 0; n < Size; ++n) { s.push_back(Array[n]); } return(s); }
-std::string char2str(char* Array, size_t Size) { std::string s; for (size_t n = 0; n < Size; ++n) { s.push_back(Array[n]); } return(s); }
 
 // INSERT WHATEVER IS ON A STRING TO WHATEVER DATA IS THE OUTPUT, BE SURE TO CHECK SIZES:
-// 'Size' of the 'Output' array; Input wont copy if it have more elements than Size;
-void StringOut(uint8_t* Output, std::string Input, size_t Size)
-{
-	Input.size() < Size ? memcpy(Output, &Input[0], Input.size()) : memcpy(Output, &Input[0], Size);
-}
+// 'Size' of the 'O' array; Input wont copy if it have more elements than Size;
+void StringOut(std::string I, uint8_t* O, size_t Size) { I.size() < Size ? memcpy(O, &I[0], I.size()) : memcpy(O, &I[0], Size); }
 
 // ####### VECTOR CONVERTERS #######
 
-// NORMALIZE FLOAT VALUE FROM '-1 TO 1' TO '0 TO MAX':
+// NORMALIZE FLOAT VALUE TO '-1 TO 1':
 // * In the future i'm going to use template *
-std::vector<unsigned short> ScaleFloat2UI16(std::vector<float> V)
+std::vector<uint16_t> ScaleUI16(std::vector<float> V)
 {
-	std::vector<unsigned short> ui16(V.size());
+	std::vector<uint16_t> ui16(V.size());
 	for (size_t n = 0; n < V.size(); ++n) { ui16[n] = round((V[n] + 1) * 32767.5); }
 	return(ui16);
 }
-std::vector<uint8_t> ScaleFloat2UI8(std::vector<float> V)
+std::vector<uint8_t> ScaleUI8(std::vector<float> V)
 {
 	std::vector<uint8_t> ui8(V.size());
 	for (size_t n = 0; n < V.size(); ++n) { ui8[n] = round((V[n] + 1) * 127.5); }
@@ -212,6 +209,13 @@ template <class T_> std::vector<T_> str2Vec(std::string s) // NOT TESTED YET
 	uint8_t Size = sizeof(T_), sSize = s.size();
 	std::vector<T_> v(ceil(sSize / (double)Size));
 	memcpy(&v[0], &s[0], sSize);
+	return(v);
+}
+template <class T_> std::vector<T_> str2Vec(uint8_t* s, uint32_t Size)
+{
+	uint8_t tSize = sizeof(T_);
+	std::vector<T_> v(ceil(Size / (double)tSize));
+	memcpy(&v[0], s, Size);
 	return(v);
 }
 
@@ -237,13 +241,13 @@ void InvertArray(uint8_t* c, unsigned int Size)
 
 // BUFFER TO DATA:
 template<class T_>
-T_ Buffer2long(uint8_t* ui8, bool LittleBig)
+T_ Buffer2Type(uint8_t* ui8, bool LittleBig)
 {
-	long long Return;
+	T_ R;
 	if (LittleBig) { ui8 += sizeof(T_); }
-	uint8_t* q = (uint8_t*)&Return;
-	for (uint8_t n = 0; n < sizeof(T_); ++n) { *q = *ui8; ++q; if (!LittleBig) { ++ui8; } else { --ui8; } }
-	return(Return);
+	uint8_t* q = (uint8_t*)&R;
+	for (uint8_t n = 0; n < sizeof(T_); ++n) { *q = *ui8; ++q; if (LittleBig) { --ui8; } else { ++ui8; } }
+	return(R);
 }
 
 // #####################################################################################################################################
