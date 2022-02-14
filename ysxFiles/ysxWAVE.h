@@ -23,7 +23,7 @@ Notes:
  * The default byte ordering assumed for WAVE data files is little-endian. Files written using the big-endian byte ordering scheme have the identifier RIFX instead of RIFF.
  * The sample data must end on an even byte boundary. Whatever that means.
  * 8-bit samples are stored as unsigned bytes, ranging from 0 to 255. 16-bit samples are stored as 2's-complement signed integers, ranging from -32768 to 32767.
- * There may be additional subchunks in a Wave data stream. If so, each will have a char[4] SubChunkID, and unsigned long SubChunkSize, and SubChunkSize amount of data.
+ * There may be additional subchunks in a Wave data stream. If so, each will have a uint8_t[4] SubChunkID, and unsigned long SubChunkSize, and SubChunkSize amount of data.
  * RIFF stands for Resource Interchange File Format.
 */
 /*
@@ -69,10 +69,10 @@ The "fmt " subchunk describes the sound data's format:
 20        2   AudioFormat      PCM = 1 (i.e. Linear quantization)
 							   Values other than 1 indicate some
 							   form of compression.
-22        2   NumChannels      Mono = 1, Stereo = 2, etc.
+22        2   Channels      Mono = 1, Stereo = 2, etc.
 24        4   SampleRate       8000, 44100, etc.
-28        4   ByteRate         == SampleRate * NumChannels * BitsPerSample/8
-32        2   BlockAlign       == NumChannels * BitsPerSample/8
+28        4   ByteRate         = SampleRate * Channels * BitsPerSample/8
+32        2   BlockAlign       = Channels * BitsPerSample/8
 							   The number of bytes for one sample including
 							   all channels. I wonder what happens when
 							   this number isn't an integer?
@@ -84,7 +84,7 @@ The "data" subchunk contains the size of the data and the actual sound:
 
 36        4   Subchunk2ID      Contains the letters "data"
 							   (0x64617461 big-endian form).
-40        4   Subchunk2Size    == NumSamples * NumChannels * BitsPerSample/8
+40        4   Subchunk2Size    = NumSamples * Channels * BitsPerSample/8
 							   This is the number of bytes in the data.
 							   You can also think of this as the size
 							   of the read of the subchunk following this
@@ -93,22 +93,47 @@ The "data" subchunk contains the size of the data and the actual sound:
 
 
 As an example, here are the opening 72 bytes of a WAVE file with bytes shown as hexadecimal numbers:
+*/
+// RIFF:
+// 52 49 46 46 24 08 00 00 57 41 56 45
+// R  I  F  F  |ChunkSize| W  A  V  E
+struct wavRIFF
+{
+	uint8_t RIFF[4]; // 4 - 'RIFF' | Resource Interchange File Format
+	uint32_t ChunkSize; // 4 - make sure to read only 4 bits | I think it works like this: (4 + (8 + Subchunk1Size) + (8 + Subchunk2Size))
+	uint8_t WAVE[4]; // 4 - 'WAVE'
+	// TOTAL: 12
+};
 
-RIFFChunk:
-52 49 46 46 24 08 00 00 57 41 56 45
-R  I  F  F  |ChunkSize| W  A  V  E
+// wavFMT:
+// 66 6d 74 20 10 00 00 00 01 00 02 00
+// F  M  T     |SubChunk1S|AuFor|Channels
+// 22 56 00 00 88 58 01 00 04 00 10 00
+// SampleRate | ByteRate |BlkAlig|BPS|
+struct wavFMT
+{
+	uint8_t fmt[4]; // 4 - 'fmt ' | Subchunk1ID
+	uint32_t Size; // 4 - Subchunk1Size
+	uint16_t AudioFormat; // 2 - PCM = 1 (i.e. Linear quantization). Values other than 1 indicate some form of compression.
+	uint16_t Channels; // 2 - Mono = 1, Stereo = 2, etc.
+	uint32_t SampleRate; // 4
+	uint32_t ByteRate; // 4 - == SampleRate * Channels * BitsPerSample / 8
+	uint16_t BlockAlign; // 2 - == Channels * BitsPerSample / 8 | The number of bytes for one sample including all channels. I wonder what happens when this number isn't an integer?
+	uint16_t BitsPerSample; // 2 - 8 bits = 1 byte, 16 bits = 2 bytes, etc.
+	// TOTAL: 24 + 12 = 36
+};
 
-FMTChunk:
-66 6d 74 20 10 00 00 00 01 00 02 00
-F  M  T     |SubChunk1S|AuFor|NumChannels
-22 56 00 00 88 58 01 00 04 00 10 00
-SampleRate | ByteRate |BlkAlig|BPS|
+// wavDATA:
+// 64 61 74 61 00 08 00 00
+// d  a  t  a |SubChunk2S|
+struct wavDATA
+{
+	uint8_t ID[4]; // 4 - 'data' | Subchunk2ID
+	uint32_t Size; // 4 - Subchunk2Size | Count all data per bits-per-sample
+	// TOTAL: 8 + 24 + 12 = 44
+};
 
-DataChunk:
-64 61 74 61 00 08 00 00
-d  a  t  a |SubChunk2S|
-
-Samples:
+/*Samples:
 00 00 00 00
 LEFT | RIGHT
 Sample 1
@@ -138,9 +163,8 @@ LEFT | RIGHT
 Sample 7
 
 SHORT INT Max and Min values (2 bytes):
-signed: 32767 & -32768 | unsigned: 65535
+signed: 32767 & -32768 | unsigned: 65535*/
 
-*/
 // #####################################################################################################################################
 
 // #####################################################################################################################################
@@ -157,27 +181,24 @@ std::string WAVEHeaderHex()
 	return("52494646a400000057415645666d7420100000000100010044ac000088580100020010006461746180000000"); // A WAVE FILE HEADER IN HEXADECIMAL:
 }
 
-std::string MemoHeaderChar() // !!!!!!! NOT WORKING !!!!!!!
+/*std::vector<uint8_t> MemoHeaderChar() // not tested
 {
-	std::string Return;
-	char Buffer[44]; char* p = Buffer;
-	char RIFF[4]; char * q = (char*)RIFF; for (int n = 0; n < 4; ++n) { *p = *q; ++p; ++q; }
-	unsigned int ChunkSize = 36; q = (char*)&ChunkSize; for (int n = 0; n < 4; ++n) { *p = *q; ++p; ++q; }
-	char WAVE[4]; q = (char*)WAVE; for (int n = 0; n < 4; ++n) { *p = *q; ++p; ++q; }
-	char fmt[4]; q = (char*)fmt; for (int n = 0; n < 4; ++n) { *p = *q; ++p; ++q; }
-	unsigned int Size = 16; q = (char*)&Size; for (int n = 0; n < 4; ++n) { *p = *q; ++p; ++q; }
-	short int AudioFormat = 1; q = (char*)&AudioFormat; for (int n = 0; n < 2; ++n) { *p = *q; ++p; ++q; }
-	short int NumChannels = 1; q = (char*)&NumChannels; for (int n = 0; n < 2; ++n) { *p = *q; ++p; ++q; }
-	unsigned int SampleRate = 44100; q = (char*)&SampleRate; for (int n = 0; n < 4; ++n) { *p = *q; ++p; ++q; }
-	unsigned int ByteRate = 88200; q = (char*)&ByteRate; for (int n = 0; n < 4; ++n) { *p = *q; ++p; ++q; }
-	short int BlockAlign = 2; q = (char*)&BlockAlign; for (int n = 0; n < 2; ++n) { *p = *q; ++p; ++q; }
-	short int BitsPerSample = 16; q = (char*)&BitsPerSample; for (int n = 0; n < 2; ++n) { *p = *q; ++p; ++q; }
-	char ID[4]; q = (char*)ID; for (int n = 0; n < 4; ++n) { *p = *q; ++p; ++q; }
-	unsigned int Size2 = 0; q = (char*)&Size2; for (int n = 0; n < 4; ++n) { *p = *q; ++p; ++q; }
-	Return = Buffer;
-	
-	return(Return);
-}
+	std::vector<uint8_t> Buf(44); uint8_t* p = &Buf[0];
+	uint8_t RIFF[4]; uint8_t * q = (uint8_t*)RIFF; LOOP4{ *p = *q; ++p; ++q; }
+	uint32_t ChunkSize = 36; q = (uint8_t*)&ChunkSize; LOOP4{ *p = *q; ++p; ++q; }
+	uint8_t WAVE[4]; q = (uint8_t*)WAVE; LOOP4{ *p = *q; ++p; ++q; }
+	uint8_t fmt[4]; q = (uint8_t*)fmt; LOOP4{ *p = *q; ++p; ++q; }
+	uint32_t Size = 16; q = (uint8_t*)&Size; LOOP4{ *p = *q; ++p; ++q; }
+	uint16_t AudioFormat = 1; q = (uint8_t*)&AudioFormat; for (uint8_t n = 0; n < 2; ++n) { *p = *q; ++p; ++q; }
+	uint16_t Channels = 1; q = (uint8_t*)&Channels; for (uint8_t n = 0; n < 2; ++n) { *p = *q; ++p; ++q; }
+	uint32_t SampleRate = 44100; q = (uint8_t*)&SampleRate; LOOP4{ *p = *q; ++p; ++q; }
+	uint32_t ByteRate = 88200; q = (uint8_t*)&ByteRate; LOOP4{ *p = *q; ++p; ++q; }
+	uint16_t BlockAlign = 2; q = (uint8_t*)&BlockAlign; for (uint8_t n = 0; n < 2; ++n) { *p = *q; ++p; ++q; }
+	uint16_t BitsPerSample = 16; q = (uint8_t*)&BitsPerSample; for (uint8_t n = 0; n < 2; ++n) { *p = *q; ++p; ++q; }
+	uint8_t ID[4]; q = (uint8_t*)ID; LOOP4{ *p = *q; ++p; ++q; }
+	uint32_t Size2 = 0; q = (uint8_t*)&Size2; LOOP4{ *p = *q; ++p; ++q; }
+	return(Buf);
+}*/
 
 // #####################################################################################################################################
 // #####################################################################################################################################
@@ -187,20 +208,23 @@ std::string MemoHeaderChar() // !!!!!!! NOT WORKING !!!!!!!
 class WAVEFile
 {
 public:
-	const int HeaderSize = 44;
-	std::string Path;
-	std::fstream wavFile;
-	int FileSize;
+	enum ByteMapping
+	{
+		bRIFF = 0, bChunkSize = 4, bFormat = 8, bSubChunk1ID = 12, bSubChunk1Size = 16, bAudioFormat = 20, bChannels = 22, bSampleRate = 24,
+		bByteRate = 28, bBlockAlign = 32, bBitsPetSample = 34, bSubChunk2ID = 36, bSubchunk2Size = 40, bDataBegin = 44
+	};
+	std::string Path; std::fstream wavFile; uint32_t FileSize;
+	wavRIFF RIFF; wavFMT FMT; wavDATA DATA; // Chunks
 
 	// #################################################
 	// #################################################
 	// #################################################
 
-	WAVEFile(std::string InputPath)
+	WAVEFile(std::string In)
 	{
 		if (wavFile.is_open()) { wavFile.close(); }
-		wavFile.open(InputPath, std::ios::in | std::ios::out | std::ios::binary);
-		Path = InputPath;
+		wavFile.open(In, std::ios::in | std::ios::out | std::ios::binary);
+		Path = In;
 		ReadHeader();
 		// NUMBER OF BYTES:
 		wavFile.seekg(0, std::ios::end);
@@ -208,7 +232,7 @@ public:
 		wavFile.seekg(0, std::ios::beg);
 	}
 
-	WAVEFile(std::string FileName, unsigned int SampleRate, short int Channels)
+	WAVEFile(std::string FileName, uint32_t SampleRate, uint16_t Channels)
 	{
 		FileName += ".wav";
 		std::ofstream CREATE(FileName, std::ios::binary);
@@ -216,21 +240,21 @@ public:
 		if (wavFile.is_open()) { wavFile.close(); }
 		wavFile.open(FileName, std::ios::in | std::ios::out | std::ios::binary);
 		Path = FileName;
-		RIFFChnk.RIFF[0] = 'R'; RIFFChnk.RIFF[1] = 'I'; RIFFChnk.RIFF[2] = 'F'; RIFFChnk.RIFF[3] = 'F';
-		RIFFChnk.ChunkSize = 36;
-		RIFFChnk.WAVE[0] = 'W'; RIFFChnk.WAVE[1] = 'A'; RIFFChnk.WAVE[2] = 'V'; RIFFChnk.WAVE[3] = 'E';
+		RIFF.RIFF[0] = 'R'; RIFF.RIFF[1] = 'I'; RIFF.RIFF[2] = 'F'; RIFF.RIFF[3] = 'F';
+		RIFF.ChunkSize = 36;
+		RIFF.WAVE[0] = 'W'; RIFF.WAVE[1] = 'A'; RIFF.WAVE[2] = 'V'; RIFF.WAVE[3] = 'E';
 
-		FMTChnk.fmt[0] = 'f'; FMTChnk.fmt[1] = 'm'; FMTChnk.fmt[2] = 't'; FMTChnk.fmt[3] = ' ';
-		FMTChnk.Size = 16;
-		FMTChnk.AudioFormat = 1;
-		FMTChnk.BitsPerSample = 16;
-		FMTChnk.NumChannels = Channels;
-		FMTChnk.SampleRate = SampleRate;
-		FMTChnk.BlockAlign = FMTChnk.NumChannels * (FMTChnk.BitsPerSample / 8);
-		FMTChnk.ByteRate = FMTChnk.SampleRate * FMTChnk.BlockAlign;
+		FMT.fmt[0] = 'f'; FMT.fmt[1] = 'm'; FMT.fmt[2] = 't'; FMT.fmt[3] = ' ';
+		FMT.Size = 16;
+		FMT.AudioFormat = 1;
+		FMT.BitsPerSample = 16;
+		FMT.Channels = Channels;
+		FMT.SampleRate = SampleRate;
+		FMT.BlockAlign = FMT.Channels * (FMT.BitsPerSample / 8);
+		FMT.ByteRate = FMT.SampleRate * FMT.BlockAlign;
 		
-		DATAChnk.ID[0] = 'd'; DATAChnk.ID[1] = 'a'; DATAChnk.ID[2] = 't'; DATAChnk.ID[3] = 'a';
-		DATAChnk.Size = 0;
+		DATA.ID[0] = 'd'; DATA.ID[1] = 'a'; DATA.ID[2] = 't'; DATA.ID[3] = 'a';
+		DATA.Size = 0;
 		
 		//WAVEHeaderHexWriteIt();
 		WriteHeader();
@@ -256,46 +280,6 @@ public:
 		wavFile.seekg(0, std::ios::beg);
 	}
 
-	// #################################################
-	// #################################################
-	// #################################################
-	enum ByteMapping
-	{
-		RIFF = 0, ChunkSize = 4, Format = 8, SubChunk1ID = 12, SubChunk1Size = 16, AudioFormat = 20, NumChannels = 22, SampleRate = 24,
-		ByteRate = 28, BlockAlign = 32, BitsPetSample = 34, SubChunk2ID = 36, Subchunk2Size = 40, DataBegin = 44
-	};
-
-	struct RIFFChunk
-	{
-		char RIFF[4]; // 4 - 'RIFF' | Resource Interchange File Format
-		unsigned int ChunkSize; // 4 - make sure to read only 4 bits | I think it works like this: (4 + (8 + Subchunk1Size) + (8 + Subchunk2Size))
-		char WAVE[4]; // 4 - 'WAVE'
-		// TOTAL: 12
-	};
-
-	struct FMTChunk
-	{
-		char fmt[4]; // 4 - 'fmt ' | Subchunk1ID
-		unsigned int Size; // 4 - Subchunk1Size
-		short int AudioFormat; // 2 - PCM = 1 (i.e. Linear quantization). Values other than 1 indicate some form of compression.
-		short int NumChannels; // 2 - Mono = 1, Stereo = 2, etc.
-		unsigned int SampleRate; // 4
-		unsigned int ByteRate; // 4 - == SampleRate * NumChannels * BitsPerSample / 8
-		short int BlockAlign; // 2 - == NumChannels * BitsPerSample / 8 | The number of bytes for one sample including all channels. I wonder what happens when this number isn't an integer?
-		short int BitsPerSample; // 2 - 8 bits = 1 byte, 16 bits = 2 bytes, etc.
-		// TOTAL: 24 + 12 = 36
-	};
-
-	struct DataChunk
-	{
-		char ID[4]; // 4 - 'data' | Subchunk2ID
-		unsigned int Size; // 4 - Subchunk2Size | Count all data per bits-per-sample
-		// TOTAL: 8 + 24 + 12 = 44
-	};
-
-	// #################################################
-
-	RIFFChunk RIFFChnk; FMTChunk FMTChnk; DataChunk DATAChnk; // Chunks
 
 	// #################################################
 	// #################################################
@@ -303,86 +287,65 @@ public:
 	
 	// TOOLS:
 	// GET CHUNK SIZE:
-	//int GetChunkSize() { return(36 + DATAChnk.Size); }
-	unsigned int GetChunkSize() { return(4 + (8 + FMTChnk.Size) + (8 + DATAChnk.Size)); }
-
-	// GET DATA SIZE (Data Chunk):
-	unsigned int GetDataSize() { RefreshFileSize(); return(FileSize - 44); }
+	//int GetChunkSize() { return(36 + DATA.Size); }
+	uint32_t GetChunkSize() { return(20 + FMT.Size + DATA.Size); }
 
 	// CHECK IF THE CHUNK IS SIZED CORRECTLY:
-	bool IsChunkSizeCorrect() { if (RIFFChnk.ChunkSize == (4 + (8 + FMTChnk.Size) + (8 + DATAChnk.Size))) { return(true); } else { return(false); } }
-
-	// WRITE THE HEX STRING TO HEADER (STANDARD HEADER, WHEN YOU CREATE YOUR OWN WAV):
-	/*void WAVEHeaderHexWriteIt()
-	{
-		std::string Buffer = Hex2ASCII(WAVEHeaderHex());
-		char* p = (char*)&Buffer.at(0);
-
-		char* q = (char*)&RIFFChnk; for (int n = 0; n < 12; ++n) { *q = *p; ++q; ++p; }
-		q = (char*)&FMTChnk; for (int n = 0; n < 24; ++n) { *q = *p; ++q; ++p; }
-		q = (char*)&DATAChnk; for (int n = 0; n < 8; ++n) { *q = *p; ++q; ++p; }
-		GetDataSize(); GetChunkSize();
-	}*/
+	bool IsSizeCorrect() { if (RIFF.ChunkSize == 20 + FMT.Size + DATA.Size) { return(true); } return(false); }
 
 	// #################################################
 	// #################################################
 	// #################################################
 
 	// GET NUMBER OF BYTES:
-	void RefreshFileSize()
-	{
-		wavFile.seekg(0, std::ios::end);
-		FileSize = wavFile.tellg();
-		wavFile.seekg(0, std::ios::beg);
-	}
+	void RefreshFileSize() { wavFile.seekg(0, std::ios::end); FileSize = wavFile.tellg(); wavFile.seekg(0, std::ios::beg);	}
 
 	// PREPARE CHUNK STRUCTURES:
 	void ReadHeader()
 	{
-		wavFile.read((char*)&RIFFChnk, sizeof(RIFFChunk));
-		wavFile.read((char*)&FMTChnk, sizeof(FMTChunk));
-		wavFile.read((char*)&DATAChnk, sizeof(DataChunk));
+		wavFile.read((char*)&RIFF, sizeof(wavRIFF));
+		wavFile.read((char*)&FMT, sizeof(wavFMT));
+		wavFile.read((char*)&DATA, sizeof(wavDATA));
 		wavFile.seekg(0, std::ios::beg);
 	}
 
 	// REFRESH THE HEADER VALUES:
 	void RefreshHeader()
 	{
-		if (FileSize <= 44) { DATAChnk.Size = 0; }	else { DATAChnk.Size = GetDataSize(); } RIFFChnk.ChunkSize = GetChunkSize();
-		FMTChnk.BlockAlign = FMTChnk.NumChannels * (FMTChnk.BitsPerSample / 8);
-		FMTChnk.ByteRate == FMTChnk.SampleRate * FMTChnk.BlockAlign;
-		
+		if (FileSize <= 44) { DATA.Size = 0; } else { DATA.Size = FileSize - 44; } RIFF.ChunkSize = GetChunkSize();
+		FMT.BlockAlign = FMT.Channels * (FMT.BitsPerSample / 8);
+		FMT.ByteRate = FMT.SampleRate * FMT.BlockAlign;		
 	}
 
 	// CHANGE SAMPLE RATE IN HEADER FILE AND THE OBJECTS THAT DEPENDS ON IT:
-	void ChangeSampleRate(unsigned int NewSampleRate)
+	void ChangeSampleRate(uint32_t NewSampleRate)
 	{
-		FMTChnk.SampleRate = NewSampleRate;
-		FMTChnk.BlockAlign = FMTChnk.NumChannels * (FMTChnk.BitsPerSample / 8);
-		FMTChnk.ByteRate = FMTChnk.SampleRate * FMTChnk.BlockAlign;
+		FMT.SampleRate = NewSampleRate;
+		FMT.BlockAlign = FMT.Channels * (FMT.BitsPerSample / 8);
+		FMT.ByteRate = FMT.SampleRate * FMT.BlockAlign;
 	}
 
 	// CHANGE NUMBER OF CHANNELS IN HEADER FILE AND THE OBJECTS THAT DEPENDS ON IT:
-	void ChangeNumChannels(unsigned int NewNumChannels)
+	void ChangeChannels(uint32_t NumChannels)
 	{
-		FMTChnk.NumChannels = NewNumChannels;
-		FMTChnk.BlockAlign = FMTChnk.NumChannels * (FMTChnk.BitsPerSample / 8);
-		FMTChnk.ByteRate = FMTChnk.SampleRate * FMTChnk.BlockAlign;
+		FMT.Channels = NumChannels;
+		FMT.BlockAlign = FMT.Channels * (FMT.BitsPerSample / 8);
+		FMT.ByteRate = FMT.SampleRate * FMT.BlockAlign;
 	}
 
 	// WRITE HEADER:
 	void WriteHeader() // 12 24 8
 	{
 		wavFile.seekp(0, std::ios::beg);
-		char Buffer[44]; char* p = Buffer;
+		char Buf[44]; char* p = Buf;
 		RefreshFileSize();
 		RefreshHeader();
 
 		// 12 + 24 + 8
-		char* q = (char*)&RIFFChnk; for (int n = 0; n < 12; ++n) { *p = *q; ++p; ++q; }
-		q = (char*)&FMTChnk; for (int n = 0; n < 24; ++n) { *p = *q; ++p; ++q; }
-		q = (char*)&DATAChnk; for (int n = 0; n < 8; ++n) { *p = *q; ++p; ++q; }
-		wavFile.write(Buffer, sizeof(Buffer));
+		char* q = (char*)&RIFF; for (int n = 0; n < 12; ++n) { *p = *q; ++p; ++q; }
+		q = (char*)&FMT; for (int n = 0; n < 24; ++n) { *p = *q; ++p; ++q; }
+		q = (char*)&DATA; for (int n = 0; n < 8; ++n) { *p = *q; ++p; ++q; }
+		wavFile.write((char*)Buf, sizeof(Buf));
 		wavFile.seekp(0, std::ios::beg);
 	}
 
@@ -408,10 +371,10 @@ public:
 	void ReWriteSizes()
 	{
 		wavFile.seekg(0, std::ios::end);
-		int DataSize = wavFile.tellg(); DataSize -= 44;
-		DATAChnk.Size = DataSize; RIFFChnk.ChunkSize = GetChunkSize();
-		wavFile.seekp(4); wavFile.write((char*)&RIFFChnk.ChunkSize, sizeof(unsigned int));
-		wavFile.seekp(40); wavFile.write((char*)&DATAChnk.Size, sizeof(unsigned int));
+		uint32_t DataSize = wavFile.tellg(); DataSize -= 44;
+		DATA.Size = DataSize; RIFF.ChunkSize = GetChunkSize();
+		wavFile.seekp(4); wavFile.write((char*)&RIFF.ChunkSize, sizeof(uint32_t));
+		wavFile.seekp(40); wavFile.write((char*)&DATA.Size, sizeof(uint32_t));
 		wavFile.seekp(0, std::ios::beg); wavFile.seekg(0, std::ios::beg);
 	}
 
@@ -420,55 +383,55 @@ public:
 	void CoutHeaderInfo()
 	{
 		std::cout << "#####################\nPath: " << Path << "\n#####################\n\n";
-		std::cout << "RIFF[4]: " << RIFFChnk.RIFF << std::endl;
-		std::cout << "ChunkSize: " << RIFFChnk.ChunkSize << " = 4 + (8 + SubChunk1Size) + (8 + SubChunk2Size) =\n               | 4 + (8 + " << FMTChnk.Size << ") + (8 + " << DATAChnk.Size << ") =\n";
-		std::cout << "               | 4 + (" << 8 + FMTChnk.Size << ") + (" << 8 + DATAChnk.Size << ") = 4 + (" << 8 + FMTChnk.Size + 8 + DATAChnk.Size << ")\n\n";
-		std::cout << "Wave[4]: " << RIFFChnk.WAVE << "\n\n";
+		std::cout << "RIFF[4]: " << RIFF.RIFF << '\n';
+		std::cout << "ChunkSize: " << RIFF.ChunkSize << " = 4 + (8 + SubChunk1Size) + (8 + SubChunk2Size) =\n               | 4 + (8 + " << FMT.Size << ") + (8 + " << DATA.Size << ") =\n";
+		std::cout << "               | 4 + (" << 8 + FMT.Size << ") + (" << 8 + DATA.Size << ") = 4 + (" << 8 + FMT.Size + 8 + DATA.Size << ")\n\n";
+		std::cout << "Wave[4]: " << RIFF.WAVE << "\n\n";
 
-		std::cout << "fmt[4]: " << FMTChnk.fmt << std::endl;
-		std::cout << "Subchunk1Size: " << FMTChnk.Size << std::endl;
-		std::cout << "AudioFormat: " << FMTChnk.AudioFormat << std::endl;
-		std::cout << "NumChannels: " << FMTChnk.NumChannels << std::endl;
-		std::cout << "SampleRate: " << FMTChnk.SampleRate << std::endl;
-		std::cout << "ByteRate: " << FMTChnk.ByteRate << " = SampleRate * BlockAlign = " << FMTChnk.SampleRate << " * " << FMTChnk.BlockAlign << std::endl;
-		std::cout << "BlockAlign: " << FMTChnk.BlockAlign << " = NumChannels * BitsPerSample / 8 = " << FMTChnk.NumChannels << " * " << FMTChnk.BitsPerSample / 8 << std::endl;
-		std::cout << "BitsPerSample: " << FMTChnk.BitsPerSample << "\n\n";
+		std::cout << "fmt[4]: " << FMT.fmt << '\n';
+		std::cout << "Subchunk1Size: " << FMT.Size << '\n';
+		std::cout << "AudioFormat: " << FMT.AudioFormat << '\n';
+		std::cout << "Channels: " << FMT.Channels << '\n';
+		std::cout << "SampleRate: " << FMT.SampleRate << '\n';
+		std::cout << "ByteRate: " << FMT.ByteRate << " = SampleRate * BlockAlign = " << FMT.SampleRate << " * " << FMT.BlockAlign << '\n';
+		std::cout << "BlockAlign: " << FMT.BlockAlign << " = Channels * BitsPerSample / 8 = " << FMT.Channels << " * " << FMT.BitsPerSample / 8 << '\n';
+		std::cout << "BitsPerSample: " << FMT.BitsPerSample << "\n\n";
 
-		std::cout << "Subchunk2ID: " << DATAChnk.ID << std::endl;
-		std::cout << "Subchunk2Size: " << DATAChnk.Size << "\nNOTE: 'short int' size is '2 bytes', Fixed size to 'short int': " << DATAChnk.Size / 2 << "\n\n";
+		std::cout << "Subchunk2ID: " << DATA.ID << '\n';
+		std::cout << "Subchunk2Size: " << DATA.Size << "\nNOTE: 'uint16_t' size is '2 bytes', Fixed size to 'uint16_t': " << DATA.Size / 2 << "\n\n";
 		std::cout << "#####################\n\n";
 
 		std::cout << "CLASS INFO:\n";
-		std::cout << "FileSize: " << FileSize << std::endl;
-		std::cout << "sizeof(WAVEFile): " << sizeof(WAVEFile) << std::endl;
+		std::cout << "FileSize: " << FileSize << '\n';
+		std::cout << "sizeof(WAVEFile): " << sizeof(WAVEFile) << '\n';
 
-		std::cout << "#####################\n\n";
+		std::cout << "#####################\n" << std::endl;
 	}
 
 	std::string StringHeaderInfo()
 	{
 		std::string s = "#####################\nPath: " + Path + "\n#####################\n\n";
-		s += "ChunkSize: " + std::to_string(RIFFChnk.ChunkSize) + " = 4 + (8 + SubChunk1Size) + (8 + SubChunk2Size) =\n               | 4 + (8 + " + std::to_string(FMTChnk.Size);
-		s += ") + (8 + " + std::to_string(DATAChnk.Size) + ") =\n";
-		s += "               | 4 + (" + std::to_string(8 + FMTChnk.Size) + ") + (" + std::to_string(8 + DATAChnk.Size) + ") = 4 + (" + std::to_string(8 + FMTChnk.Size + 8 + DATAChnk.Size) + ")\n\n";
-		s += "Wave[4]: " + RIFFChnk.WAVE[0] + RIFFChnk.WAVE[1] + RIFFChnk.WAVE[2] + RIFFChnk.WAVE[3]; s += +"\n\n";
+		s += "ChunkSize: " + std::to_string(RIFF.ChunkSize) + " = 4 + (8 + SubChunk1Size) + (8 + SubChunk2Size) =\n               | 4 + (8 + " + std::to_string(FMT.Size);
+		s += ") + (8 + " + std::to_string(DATA.Size) + ") =\n";
+		s += "               | 4 + (" + std::to_string(8 + FMT.Size) + ") + (" + std::to_string(8 + DATA.Size) + ") = 4 + (" + std::to_string(8 + FMT.Size + 8 + DATA.Size) + ")\n\n";
+		s += "Wave[4]: " + RIFF.WAVE[0] + RIFF.WAVE[1] + RIFF.WAVE[2] + RIFF.WAVE[3]; s += +"\n\n";
 
-		s += "fmt[4]: " + FMTChnk.fmt[0] + FMTChnk.fmt[1] + FMTChnk.fmt[2] + FMTChnk.fmt[3]; s += "\n";
-		s += "Subchunk1Size: " + std::to_string(FMTChnk.Size) + "\n";
-		s += "AudioFormat: " + std::to_string(FMTChnk.AudioFormat) + "\n";
-		s += "NumChannels: " + std::to_string(FMTChnk.NumChannels) + "\n";
-		s += "SampleRate: " + std::to_string(FMTChnk.SampleRate) + "\n";
-		s += "ByteRate: " + std::to_string(FMTChnk.ByteRate) + " = SampleRate * BlockAlign = " + std::to_string(FMTChnk.SampleRate) + " * " + std::to_string(FMTChnk.BlockAlign) + "\n";
-		s += "BlockAlign: " + std::to_string(FMTChnk.BlockAlign) + " = NumChannels * BitsPerSample / 8 = " + std::to_string(FMTChnk.NumChannels) + " * " + std::to_string(FMTChnk.BitsPerSample / 8) + "\n";
-		s += "BitsPerSample: " + std::to_string(FMTChnk.BitsPerSample) + "\n\n";
+		s += "fmt[4]: " + FMT.fmt[0] + FMT.fmt[1] + FMT.fmt[2] + FMT.fmt[3]; s += '\n';
+		s += "Subchunk1Size: " + std::to_string(FMT.Size) + '\n';
+		s += "AudioFormat: " + std::to_string(FMT.AudioFormat) + '\n';
+		s += "Channels: " + std::to_string(FMT.Channels) + '\n';
+		s += "SampleRate: " + std::to_string(FMT.SampleRate) + '\n';
+		s += "ByteRate: " + std::to_string(FMT.ByteRate) + " = SampleRate * BlockAlign = " + std::to_string(FMT.SampleRate) + " * " + std::to_string(FMT.BlockAlign) + '\n';
+		s += "BlockAlign: " + std::to_string(FMT.BlockAlign) + " = Channels * BitsPerSample / 8 = " + std::to_string(FMT.Channels) + " * " + std::to_string(FMT.BitsPerSample / 8) + '\n';
+		s += "BitsPerSample: " + std::to_string(FMT.BitsPerSample) + "\n\n";
 
-		s += "Subchunk2ID: " + DATAChnk.ID[0] + DATAChnk.ID[1] + DATAChnk.ID[2] + DATAChnk.ID[3]; s += "\n";
-		s += "Subchunk2Size: " + std::to_string(DATAChnk.Size) + "\nNOTE: 'short int' size is '2 bytes', Fixed size to 'short int': " + std::to_string(DATAChnk.Size / 2) + "\n\n";
+		s += "Subchunk2ID: " + DATA.ID[0] + DATA.ID[1] + DATA.ID[2] + DATA.ID[3]; s += '\n';
+		s += "Subchunk2Size: " + std::to_string(DATA.Size) + "\nNOTE: 'uint16_t' size is '2 bytes', Fixed size to 'uint16_t': " + std::to_string(DATA.Size / 2) + "\n\n";
 		s += "#####################\n\n";
 
 		s += "CLASS INFO:\n";
-		s += "FileSize: " + std::to_string(FileSize) + "\n";
-		s += "sizeof(WAVEFile): " + std::to_string(sizeof(WAVEFile)) + "\n";
+		s += "FileSize: " + std::to_string(FileSize) + '\n';
+		s += "sizeof(WAVEFile): " + std::to_string(sizeof(WAVEFile)) + '\n';
 
 		s += "#####################\n\n";
 		return(s);
@@ -480,68 +443,36 @@ public:
 
 	// #################################################
 
-	std::vector<short int> GetAllDataSINT()
+	template <class T_>
+	std::vector<T_> GetAllData()
 	{
 		wavFile.seekg(0, std::ios::end);
-		int End = wavFile.tellg();
-		short int ReadSample;
-		int pos = FileSize - DATAChnk.Size;
-		wavFile.seekg(pos);
-
-		std::vector<short int> GETDATA;
-		for (int n = pos; n < End; )
-		{
-			wavFile.read((char*)&ReadSample, sizeof(ReadSample));
-			GETDATA.push_back(ReadSample);
-			n = wavFile.tellg();
-		}
+		uint32_t End = wavFile.tellg();
+		wavFile.seekg(FileSize - DATA.Size);
+		std::vector<T_> v(End - (FileSize - DATA.Size));
+		wavFile.read((char*)&v[0], sizeof(T_) * v.size());
 		wavFile.seekg(0, std::ios::beg);
-		return(GETDATA);
+		return(v);
 	}
 
 	// #################################################
 
-	// GET INT DATA, THIS IS THE DOUBLE (4 BYTES) OF THE STANDARD SIZE OF DATA (2 BYTES, 16 BITSPERSAMPLE):
-	std::vector<int> GetDataINT(int Index, int Size)
-	{
-		int Bytes = sizeof(int);
-		Index *= Bytes; Size *= Bytes;
-		wavFile.seekg(0, std::ios::end);
-		int End = wavFile.tellg();
-		int pos = End - DATAChnk.Size;
-		int Begin = pos + Index;
-		if (Index + Size > End) { Size -= Index + Size - End; End = Index + Size; }
-		else { End = Index + Size + pos; }
-		int ReadSample;
-
-		wavFile.seekg(Begin);
-		std::vector<int> GETDATA;
-		for (int n = Begin; n < End; )
-		{
-			wavFile.read((char*)&ReadSample, Bytes);
-			GETDATA.push_back(ReadSample);
-			n = wavFile.tellg();
-		}
-		wavFile.seekg(0, std::ios::beg);
-		return(GETDATA);
-	}
-
 	// GET SHORT INT DATA, THIS IS THE STANDARD SIZE OF DATA (2 BYTES):
-	std::vector<short int> GetDataSHINT(int Index, int Size)
+	std::vector<uint16_t> GetDataSHINT(int Index, int Size)
 	{
-		int Bytes = sizeof(short int);
+		uint8_t Bytes = sizeof(uint16_t);
 		Index *= Bytes; Size *= Bytes;
 		wavFile.seekg(0, std::ios::end);
 		int End = wavFile.tellg();
-		int pos = End - DATAChnk.Size;
+		int pos = End - DATA.Size;
 		int Begin = pos + Index;
 		if (Index + Size > End) { Size -= Index + Size - End; End = Index + Size; }
 		else { End = Index + Size + pos; }
 
-		short int ReadSample;
+		uint16_t ReadSample;
 
 		wavFile.seekg(Begin);
-		std::vector<short int> GETDATA;
+		std::vector<uint16_t> GETDATA;
 		for (int n = Begin; n < End; )
 		{
 			wavFile.read((char*)&ReadSample, Bytes);
@@ -553,23 +484,23 @@ public:
 	}
 
 	// GET SHORT INT DATA FROM EITHER LEFT OR RIGHT CHANNEL:
-	std::vector<short int> GetDataSHINTChannel(int Index, int Size, bool LeftRight)
+	std::vector<uint16_t> GetDataSHINTChannel(int Index, int Size, bool LeftRight)
 	{
-		int Bytes = sizeof(short int);
+		int Bytes = sizeof(uint16_t);
 		Index *= Bytes; Size *= Bytes;
 		wavFile.seekg(0, std::ios::end);
 		int End = wavFile.tellg();
-		int pos = End - DATAChnk.Size;
+		int pos = End - DATA.Size;
 		int Begin = pos + Index;
 		if (Index + Size > End) { Size -= Index + Size - End; End = Index + Size; }
 		else { End = Index + Size + pos; }
 		bool Switch = true;
 		if (LeftRight) { Switch = false; }
 
-		short int ReadSample;
+		uint16_t ReadSample;
 
 		wavFile.seekg(Begin);
-		std::vector<short int> GETDATA;
+		std::vector<uint16_t> GETDATA;
 		for (int n = Begin; n < End; )
 		{
 			wavFile.read((char*)&ReadSample, Bytes);
@@ -584,18 +515,18 @@ public:
 	// #################################################
 
 	// GET DATA READY TO WORK AS A DOUBLE VECTOR (CONSIDERING THE SHORT INT MAX AT 32768), IGNORE LeftRight IF THERE IS ONLY ONE CHANNEL.
-	// Use only multiples of '8' as 'FMTChnk.BitsPerSample', or else the vector returns with a single item of number '0':.
-	// The function begins JUST AFTER the end of the '.wav' header, if you want 'Size' to reach the End of file, use the it equal as "DATAChnk.Size":
+	// Use only multiples of '8' as 'FMT.BitsPerSample', or else the vector returns with a single item of number '0':.
+	// The function begins JUST AFTER the end of the '.wav' header, if you want 'Size' to reach the End of file, use the it equal as "DATA.Size":
 	std::vector<double> GetDataReadyToUse(int Index, int Size, bool LeftRight = false)
 	{
 		std::vector<double> GETDATA;
-		int Bytes = FMTChnk.BitsPerSample / 8;
-		if (FMTChnk.BitsPerSample % 8 == 0) // !!! PARA GARANTIR O NUMERO DE BYTES PARA OS COMPARADORES !!!
+		int Bytes = FMT.BitsPerSample / 8;
+		if (FMT.BitsPerSample % 8 == 0) // !!! PARA GARANTIR O NUMERO DE BYTES PARA OS COMPARADORES !!!
 		{
 			Index *= Bytes; Size *= Bytes;
 			wavFile.seekg(0, std::ios::end);
 			int End = wavFile.tellg();
-			int pos = End - DATAChnk.Size;
+			int pos = End - DATA.Size;
 			int Begin = pos + Index;
 			if (Index + Size > End) { Size -= Index + Size - End; End = Index + Size; }
 			else { End = Index + Size + pos; }
@@ -608,11 +539,11 @@ public:
 			for (int n = Begin; n < End; )
 			{
 				double Push;
-				short int Val; wavFile.read((char*)&Val, Bytes); Push = Val; // !!!!!!! POR ENQUANTO SÓ SHORT INT !!!!!!!
+				uint16_t Val; wavFile.read((char*)&Val, Bytes); Push = Val; // !!!!!!! POR ENQUANTO SÓ SHORT INT !!!!!!!
 				//cout << "VAL: " << Push <<  " | ";
 				if (Push > 0) { Push /= (pow(256, Bytes) / 2.0) - 1; } else { Push /= pow(256, Bytes) / 2.0; }
-				if (FMTChnk.NumChannels == 1) { /*cout << "PUSH: " << Push << std::endl;*/ GETDATA.push_back(Push); }
-				else { if (Switch) { /*cout << "PUSH: " << Push << std::endl;*/ GETDATA.push_back(Push); Switch = false; } else { Switch = true; } }
+				if (FMT.Channels == 1) { /*cout << "PUSH: " << Push << std::endl;*/ GETDATA.push_back(Push); }
+				else { if (Switch) { /*cout << "PUSH: " << Push << '\n';*/ GETDATA.push_back(Push); Switch = false; } else { Switch = true; } }
 
 				n = wavFile.tellg();
 			}
@@ -627,17 +558,17 @@ public:
 	// #################################################
 		
 	// PREPARE DATA TO OUTPUT: (!!! ATTENTION: This function Multiplies the data by 32767 !!!)
-	std::vector<short int> PrepareData(std::vector<double> In)
+	std::vector<uint16_t> PrepareData(std::vector<double> In)
 	{
-		std::vector<short int> Buffer;
-		for (int n = 0; n < In.size(); ++n)	{ if (In[n] > 0) { Buffer.push_back(round(In[n] * 32767)); } else { Buffer.push_back(round(In[n] * 32768)); } }
-		return(Buffer);
+		std::vector<uint16_t> Buf;
+		for (int n = 0; n < In.size(); ++n)	{ if (In[n] > 0) { Buf.push_back(round(In[n] * 32767)); } else { Buf.push_back(round(In[n] * 32768)); } }
+		return(Buf);
 	}
-	std::vector<short int> PrepareData(std::vector<float> In)
+	std::vector<uint16_t> PrepareData(std::vector<float> In)
 	{
-		std::vector<short int> Buffer;
-		for (int n = 0; n < In.size(); ++n) { if (In[n] > 0) { Buffer.push_back(round(In[n] * 32767)); } else { Buffer.push_back(round(In[n] * 32768)); } }
-		return(Buffer);
+		std::vector<uint16_t> Buf;
+		for (int n = 0; n < In.size(); ++n) { if (In[n] > 0) { Buf.push_back(round(In[n] * 32767)); } else { Buf.push_back(round(In[n] * 32768)); } }
+		return(Buf);
 	}
 
 	// #################################################
@@ -645,21 +576,21 @@ public:
 	// SAVE DATA FULL:
 	void SaveDataSInt(std::vector<double> In)
 	{
-		std::vector<short int> Buffer = PrepareData(In); wavFile.seekp(44);
-		for (int n = 0; n < Buffer.size(); ++n) { for (int Channel = 0; Channel < FMTChnk.NumChannels; ++Channel) { wavFile.write((char*)&Buffer[n], sizeof(short int)); } }
+		std::vector<uint16_t> Buf = PrepareData(In); wavFile.seekp(44);
+		for (int n = 0; n < Buf.size(); ++n) { for (int Channel = 0; Channel < FMT.Channels; ++Channel) { wavFile.write((char*)&Buf[n], sizeof(uint16_t)); } }
 		ReWriteSizes();
 		ReOpenFile();
 	}
 	void SaveDataSInt(std::vector<double> In, bool LeftRight)
 	{
-		std::vector<short int> Buffer = PrepareData(In); wavFile.seekp(44); short int Bytes = sizeof(short int);
-		for (int n = 0; n < Buffer.size(); ++n)
+		std::vector<uint16_t> Buf = PrepareData(In); wavFile.seekp(44); uint16_t Bytes = sizeof(uint16_t);
+		for (int n = 0; n < Buf.size(); ++n)
 		{
-			//for (int Channel = 0; Channel < FMTChnk.NumChannels; ++Channel)
+			//for (int Channel = 0; Channel < FMT.Channels; ++Channel)
 			//{
-				if (LeftRight) { short int pos = wavFile.tellp(); pos += Bytes; wavFile.seekp(pos); }
-				wavFile.write((char*)&Buffer[n], sizeof(short int));
-				if (!LeftRight) { short int pos = wavFile.tellp(); pos += Bytes; wavFile.seekp(pos); }
+				if (LeftRight) { uint16_t pos = wavFile.tellp(); pos += Bytes; wavFile.seekp(pos); }
+				wavFile.write((char*)&Buf[n], sizeof(uint16_t));
+				if (!LeftRight) { uint16_t pos = wavFile.tellp(); pos += Bytes; wavFile.seekp(pos); }
 			//}
 		}
 		ReWriteSizes();
@@ -667,15 +598,15 @@ public:
 	}
 	void SaveDataSInt(std::vector<float> In)
 	{
-		std::vector<short int> Buffer = PrepareData(In); wavFile.seekp(44);
-		for (int n = 0; n < Buffer.size(); ++n) { wavFile.write((char*)&Buffer[n], sizeof(short int)); }
+		std::vector<uint16_t> Buf = PrepareData(In); wavFile.seekp(44);
+		for (int n = 0; n < Buf.size(); ++n) { wavFile.write((char*)&Buf[n], sizeof(uint16_t)); }
 		ReWriteSizes();
 		ReOpenFile();
 	}
-	void SaveDataSInt(std::vector<short int> In)
+	void SaveDataSInt(std::vector<uint16_t> In)
 	{
 		wavFile.seekp(44);
-		for (int n = 0; n < In.size(); ++n) { wavFile.write((char*)&In[n], sizeof(short int)); }
+		for (int n = 0; n < In.size(); ++n) { wavFile.write((char*)&In[n], sizeof(uint16_t)); }
 		ReWriteSizes();
 		ReOpenFile();
 	}
@@ -685,21 +616,21 @@ public:
 	// SAVE DATA INDEX:
 	void SaveDataSInt(std::vector<double> In, int Index)
 	{
-		std::vector<short int> Buffer = PrepareData(In);
-		int Begin = (Index * sizeof(short int)) + 44; wavFile.seekp(Begin); for (int n = 0; n < Buffer.size(); ++n) { wavFile.write((char*)&Buffer[n], sizeof(short int)); }
+		std::vector<uint16_t> Buf = PrepareData(In);
+		int Begin = (Index * sizeof(uint16_t)) + 44; wavFile.seekp(Begin); for (int n = 0; n < Buf.size(); ++n) { wavFile.write((char*)&Buf[n], sizeof(uint16_t)); }
 		ReWriteSizes();
 		ReOpenFile();
 	}
 	void SaveDataSInt(std::vector<float> In, int Index)
 	{
-		std::vector<short int> Buffer = PrepareData(In);
-		int Begin = (Index * sizeof(short int)) + 44; wavFile.seekp(Begin); for (int n = 0; n < In.size(); ++n) { wavFile.write((char*)&In[n], sizeof(short int)); }
+		std::vector<uint16_t> Buf = PrepareData(In);
+		int Begin = (Index * sizeof(uint16_t)) + 44; wavFile.seekp(Begin); for (int n = 0; n < In.size(); ++n) { wavFile.write((char*)&In[n], sizeof(uint16_t)); }
 		ReWriteSizes();
 		ReOpenFile();
 	}
-	void SaveDataSInt(std::vector<short int> In, int Index)
+	void SaveDataSInt(std::vector<uint16_t> In, int Index)
 	{
-		int Begin = (Index * sizeof(short int)) + 44; wavFile.seekp(Begin); for (int n = 0; n < In.size(); ++n) { wavFile.write((char*)&In[n], sizeof(short int)); }
+		int Begin = (Index * sizeof(uint16_t)) + 44; wavFile.seekp(Begin); for (int n = 0; n < In.size(); ++n) { wavFile.write((char*)&In[n], sizeof(uint16_t)); }
 		ReWriteSizes();
 		ReOpenFile();
 	}
