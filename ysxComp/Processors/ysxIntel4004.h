@@ -32,7 +32,48 @@ CLKPHS1 -|      |- CM    CLKPHS1 -|      |- CM    CLKPHS1 -|      |- CM-ROM
 CLKPHS2 -|      |- CL    CLKPHS2 -|      |- P0    CLKPHS2 -|      |- TEST
 SYNC    -|______|- RESET SYNC    -|______|- RESET SYNC    -|______|- RESET
 
+4004:
+Clock = 740khz;
+ Drive: 4KB ROM and 640B
 */
+
+struct Intel4002
+{
+    uint8_t RAM[16][4][16]; // Bank | CHIPS | Bytes
+    uint8_t addr = 0, cm = 1;
+    uint8_t stat[16][4][4];
+    uint8_t out[16];
+    uint8_t ph = 0, pm = 0, pl = 0;
+
+    void ramAdrDecoder()
+    {
+        /*RAM.addr = 0xAC;
+        RAMCM 1: 2
+        RAMCM 2: 6
+        RAMCM 4: 10
+        RAMCM 8: 14
+        pm: 2
+        pl: 14*/
+        switch (cm)
+        {
+        case 1:		// RAM bank 0         2; >> 6
+            ph = addr >> 6; // Ex.: AC = 10; 101100
+            break;
+        case 2:		// RAM bank 1
+            ph = 0x4 | addr >> 6;
+            break;
+        case 4:		// RAM bank 2
+            ph = 0x8 | addr >> 6;
+            break;
+        case 8:		// RAM bank 3
+            ph = 0xC | addr >> 6;
+            break;
+        }
+        //if (PROG & testFlag) { ph &= 0x1; }
+        pm = (addr & 0x30) >> 4; // AC -> 2
+        pl = addr & 0xf; // AC -> C
+    }
+};
 
 class Intel4004
 {
@@ -48,8 +89,8 @@ public:
     /* ### ROM:
     divided by 16 pages of 256 bytes, totalling 4096 bytes
     !!! MAKE SURE TO BE 4096 BYTES !!!*/
-    unsigned char* ROM;
-
+    uint8_t* ROM;
+    
     enum ePRG { stepFlag = 0, runFlag = 1, animFlag = 2, testFlag = 4 };
     /* PROG BITMAP *
     Think that it is a debugger, there are 5 bits free
@@ -57,72 +98,41 @@ public:
            | ePRG
      00000 1 11
            4 21*/
-    unsigned char PROG = 0;
-    unsigned char sp = 0; // Stack
-    unsigned char Regs[8]; // 16 4-bit index regs. R0R1... [2] P. 11
+    uint8_t PROG = 0;
+    uint8_t sp = 0; // Stack
+    uint8_t Regs[8]; // 16 4-bit index regs. R0R1... [2] P. 11
 
     /* ACCUMULATOR * [2] P. 49
     00 00 0000
     00 nn reg.
     ACC & 48 = OP | ACC & 15 = Registers*/
-    unsigned char ACC = 0;
+    uint8_t ACC = 0;
     
-    //unsigned char ROM[4096];
-    unsigned char ROMcm, ROMport;
-    unsigned char RAM[16][4][16]; // Bank | CHIPS | Bytes
-    unsigned char RAMaddr, RAMcm;
-
-    unsigned char RAMstat[16][4][4];
-    unsigned char RAMout[16];
-
-    unsigned char ph = 0, pm = 0, pl = 0;
+    //uint8_t ROM[4096];
+    uint8_t ROMcm, ROMport;
+    Intel4002 RAM;
 
     // Consists of three 12-bit registers used to hold addresses of program instructions.
     // Since programs are always run in ROM or program RAM, the stack registers will always refer to ROM locations
     // or program RAM locations:
     unsigned short PCs[4] = { 0, 0, 0, 0 }; // 16 bits, but only 12 bits used; T: 6B
-    //unsigned char PCs[6]; // Tenta fazer com ponteiros depois
+    //uint8_t PCs[6]; // Tenta fazer com ponteiros depois
 
     // CT: "var C_flag, T_flag;" | Ref.: [1]
-    unsigned char CT[2];
-    unsigned char temp;
+    uint8_t CT[2];
+    uint8_t temp;
 
     // #################################################
     // ### SYSTEM:
     void incPC() { PCs[0]++; PCs[0] &= 0xfff; if (PROG & testFlag) PCs[0] &= 255; }
-    unsigned char nextCode() { incPC(); if (PCs[0] < 4096) { return(ROM[PCs[0]] & 255); } return(0); }
-    unsigned char activeCode() { if (PCs[0] < 4096) { return(ROM[PCs[0]] & 255); } return(0); }
-    void setRpar(unsigned char rpar, unsigned char pset) { if (rpar < 8) { Regs[rpar] = pset & 255; } } // Set Register Pair
-    unsigned char getRpar(unsigned char rpar) { return(((Regs[rpar] << 4) & 0xf0) | ((Regs[rpar] >> 4) & 0xf)); } // Get Register Pair
+    /*
+    Faze um BUS no lugar do ROM, fica mais realista. E pode usar outras fontes de BUS.
 
-    void ramAdrDecoder()
-    {
-        /*RAMaddr = 0xAC;
-        RAMCM 1: 2
-        RAMCM 2: 6
-        RAMCM 4: 10
-        RAMCM 8: 14
-        pm: 2
-        pl: 14*/
-        switch (RAMcm)
-        {
-        case 1:		// RAM bank 0              >> 6
-            ph = RAMaddr >> 6; // Ex.: AE = 10.101110 -> 2 = 0000 0010, is that the same in JS?
-            break;
-        case 2:		// RAM bank 1
-            ph = 0x4 | RAMaddr >> 6; // 100 | AE >> 6 = 100 | 2 = 6?
-            break;
-        case 4:		// RAM bank 2
-            ph = 0x8 | RAMaddr >> 6; // AC = A?
-            break;
-        case 8:		// RAM bank 3
-            ph = 0xC | RAMaddr >> 6; // AC = E?
-            break;
-        }
-        if (PROG & testFlag) { ph &= 0x1; }
-        pm = (RAMaddr & 0x30) >> 4; // AC
-        pl = RAMaddr & 0xf;
-    }
+    */
+    uint8_t nextCode() { incPC(); if (PCs[0] < 4096) { return(ROM[PCs[0]] & 255); } return(0); }
+    uint8_t activeCode() { if (PCs[0] < 4096) { return(ROM[PCs[0]] & 255); } return(0); }
+    void setRpar(uint8_t rpar, uint8_t pset) { if (rpar < 8) { Regs[rpar] = pset & 255; } } // Set Register Pair
+    uint8_t getRpar(uint8_t rpar) { return(((Regs[rpar] << 4) & 0xf0) | ((Regs[rpar] >> 4) & 0xf)); } // Get Register Pair
 
     // #################################################
     // ####### 4004 FUNCTIONS:
@@ -131,9 +141,9 @@ public:
     void NOP() { incPC(); }
     
     //JCN jump conditionally [1]
-    void JCN(unsigned char cond)
+    void JCN(uint8_t cond)
     {
-        unsigned char F = 0;
+        uint8_t F = 0;
         if (cond & 0x8) { F = 1; } // AD & 8 = 8 -> F = 1
         temp = PCs[0] & 0xf00;
         temp |= nextCode(); incPC();
@@ -143,35 +153,30 @@ public:
     }
 
     // FIM Fetch Immediate
-    void FIM(unsigned char rpar) { setRpar(rpar, nextCode()); incPC(); }
+    void FIM(uint8_t rpar) { setRpar(rpar, nextCode()); incPC(); }
     
     // SRC Send Register Control
-    void SRC(unsigned char rpar) { RAMaddr = getRpar(rpar); incPC(); }
+    void SRC(uint8_t rpar) { RAM.addr = getRpar(rpar); incPC(); }
     
     // FIN Fetch Indirect
-    void FIN(unsigned char rpar) { setRpar(rpar, ROM[(PCs[0] & 0xf00) | getRpar(0)]); incPC(); }
+    void FIN(uint8_t rpar) { setRpar(rpar, ROM[(PCs[0] & 0xf00) | getRpar(0)]); incPC(); }
 
     // JIN Jump Indirect
-    void JIN(unsigned char rpar) { PCs[0] = (PCs[0] & 0xf00) | getRpar(rpar); if (PROG & testFlag) PCs[0] &= 255; }
+    void JIN(uint8_t rpar) { PCs[0] = (PCs[0] & 0xf00) | getRpar(rpar); if (PROG & testFlag) PCs[0] &= 255; }
 
     // JUN Jump Uncoditional
-    void JUN(unsigned char addr) { PCs[0] = addr | nextCode(); if (PROG & testFlag) { PCs[0] &= 255; } }
+    void JUN(uint8_t addr) { PCs[0] = addr | nextCode(); if (PROG & testFlag) { PCs[0] &= 255; } }
 
-    void JMS(unsigned char addr)
-    {	//JMS Jump to Subroutine
+    //JMS Jump to Subroutine
+    void JMS(uint8_t addr)
+    {
         temp = addr | nextCode();
         if (sp < 3)
         {
-            sp++;
-            for (char i = sp; i > 0; i--) { PCs[i] = PCs[i - 1]; }
-            PCs[0] = temp;
-            if (PROG & testFlag) PCs[0] &= 255;
+            sp++; for (char i = sp; i > 0; i--) { PCs[i] = PCs[i - 1]; }
+            PCs[0] = temp; if (PROG & testFlag) PCs[0] &= 255;
         }
-        else
-        {
-            incPC();
-            if (bLOG) { LOG += "PCs overflow\n"; }
-        }
+        else { incPC(); if (bLOG) { LOG += "PCs overflow\n"; } }
     }
 
     // ### REG 4-BIT FUNCTIONS:
@@ -181,7 +186,7 @@ public:
     // reg should be 0 to 15. It will be '>>= 1' and access the correct pair.
 
     //INC Increment:
-    void INC(unsigned char reg)
+    void INC(uint8_t reg)
     {
         // 'Regs' are pairs: Regs[0] = R1R2;
         // reg = 13 -> reg % 2 = 1 -> Regs[6] | reg = 1 -> reg % 2 = 1 -> Regs[0]
@@ -192,7 +197,7 @@ public:
     }
 
     // ISZ Increment and Skip:
-    void ISZ(unsigned char reg)
+    void ISZ(uint8_t reg)
     {
         temp = nextCode();
         if (reg % 2)
@@ -212,7 +217,7 @@ public:
     }
 
     // ADD Add:
-    void ADD(unsigned char reg)
+    void ADD(uint8_t reg)
     {
         //ACC = ACC + Regs[reg] + CT[0];
         if (reg % 2) { reg >>= 1; ACC = ACC + (Regs[reg] & 0xf) + CT[0]; }
@@ -222,7 +227,7 @@ public:
     }
 
     //SUB Subtract:
-    void SUB(unsigned char reg)
+    void SUB(uint8_t reg)
     {
         if (reg % 2) { reg >>= 1; ACC = ACC + (~Regs[reg] & 0xf) + (~CT[0] & 1); }
         else { reg >>= 1; ACC = ACC + (~(Regs[reg] >> 4) & 0xf) + (~CT[0] & 1); }
@@ -231,7 +236,7 @@ public:
     }
 
     // LD Load:
-    void LD(unsigned char reg)
+    void LD(uint8_t reg)
     {
         if (reg % 2) { reg >>= 1; ACC = Regs[reg] & 0xf; }
         else { reg >>= 1; ACC = Regs[reg] >> 4; }
@@ -239,7 +244,7 @@ public:
     }
 
     // XCH Exchange:
-    void XCH(unsigned char reg)
+    void XCH(uint8_t reg)
     {
         temp = ACC;
         if (reg % 2) { reg >>= 1; ACC = Regs[reg] & 0xf; Regs[reg] = (Regs[reg] & 0xf0) + temp; }
@@ -248,11 +253,11 @@ public:
     }
 
     // BBL Branch Back and Load:
-    void BBL(unsigned char data)
+    void BBL(uint8_t data)
     {
         if (sp > 0)
         {
-            for (unsigned char i = 0; i < sp; i++) { PCs[i] = PCs[i + 1]; }
+            for (uint8_t i = 0; i < sp; i++) { PCs[i] = PCs[i + 1]; }
             PCs[sp] = 0;
             sp--; ACC = data;
         }
@@ -261,48 +266,48 @@ public:
     }
 
     // LDM Load Immediate
-    void LDM(unsigned char data) { ACC = data; incPC(); }
+    void LDM(uint8_t data) { ACC = data; incPC(); }
 
     // ### MEMORY FUNCTIONS:
 
     // WRM Write Main Memory
-    void WRM() { ramAdrDecoder(); RAM[ph][pm][pl] = ACC; incPC(); }
+    void WRM() { RAM.ramAdrDecoder(); RAM.RAM[RAM.ph][RAM.pm][RAM.pl] = ACC; incPC(); }
 
     // WMP Write RAM Port
-    void WMP() { ramAdrDecoder(); RAMout[ph] = ACC; if (PROG & testFlag) { CT[1] = RAMout[0] & 1; } incPC(); }
+    void WMP() { RAM.ramAdrDecoder(); RAM.out[RAM.ph] = ACC; if (PROG & testFlag) { CT[1] = RAM.out[0] & 1; } incPC(); }
     
     // WRR Write ROM Port
     void WRR() { ROMport = ACC; incPC(); }
     
     // WRx Write Status Char
-    void WR(unsigned char status) { ramAdrDecoder(); RAMstat[ph][pm][status] = ACC; incPC(); }
+    void WR(uint8_t status) { RAM.ramAdrDecoder(); RAM.stat[RAM.ph][RAM.pm][status] = ACC; incPC(); }
     
     // SBM Subtract Main Memory
     void SBM()
     {
-        ramAdrDecoder();
-        ACC = ACC + ((~RAM[ph][pm][pl]) & 0xf) + (~CT[0] & 1);
+        RAM.ramAdrDecoder();
+        ACC = ACC + ((~RAM.RAM[RAM.ph][RAM.pm][RAM.pl]) & 0xf) + (~CT[0] & 1);
         CT[0] = 0; if (ACC & 0xf0) { ACC &= 0xf; CT[0] = 1; }
         incPC();
     }
 
     // RDM Read Main Memory
-    void RDM() { ramAdrDecoder(); ACC = RAM[ph][pm][pl]; incPC(); }
+    void RDM() { RAM.ramAdrDecoder(); ACC = RAM.RAM[RAM.ph][RAM.pm][RAM.pl]; incPC(); }
 
     // RDR Read ROM Port
-    void RDR() { if (PROG & testFlag) ROMport = RAMout[1]; ACC = ROMport; incPC(); }
+    void RDR() { if (PROG & testFlag) { ROMport = RAM.out[1]; } ACC = ROMport; incPC(); }
 
     // ADM Add Main Memory
     void ADM()
     {
-        ramAdrDecoder();
-        ACC = ACC + RAM[ph][pm][pl] + CT[0];
+        RAM.ramAdrDecoder();
+        ACC = ACC + RAM.RAM[RAM.ph][RAM.pm][RAM.pl] + CT[0];
         CT[0] = 0; if (ACC & 0xf0) { ACC &= 0xf; CT[0] = 1; }
         incPC();
     }
 
     // RDx Read Status Char
-    void RD(unsigned char status) { ramAdrDecoder(); ACC = RAMstat[ph][pm][status]; incPC(); }
+    void RD(uint8_t status) { RAM.ramAdrDecoder(); ACC = RAM.stat[RAM.ph][RAM.pm][status]; incPC(); }
 
     // CLB Clear Both
     void CLB() { ACC = 0; CT[0] = 0; incPC(); }
@@ -378,21 +383,21 @@ public:
         switch (ACC & 0x7)
         {
         case 0:
-            RAMcm = 1; break;
+            RAM.cm = 1; break;
         case 1:
-            RAMcm = 2; break;
+            RAM.cm = 2; break;
         case 2:
-            RAMcm = 4; break;
+            RAM.cm = 4; break;
         case 3:
-            RAMcm = 3; break;
+            RAM.cm = 3; break;
         case 4:
-            RAMcm = 8; break;
+            RAM.cm = 8; break;
         case 5:
-            RAMcm = 10; break;
+            RAM.cm = 10; break;
         case 6:
-            RAMcm = 12; break;
+            RAM.cm = 12; break;
         case 7:
-            RAMcm = 14; break;
+            RAM.cm = 14; break;
         }
         incPC();
     }
@@ -400,10 +405,10 @@ public:
     // #################################################
 
     // BYTE TO MACHINE INSTRUCTIONS:
-    void Instrc(unsigned char H)
+    void Instrc(uint8_t H)
     {
         if (bLOG) { LOG += "Instr.: " + std::to_string((short)H) + '\n'; }
-        unsigned char n = H & 0xf, m = H & 0xf0;
+        uint8_t n = H & 0xf, m = H & 0xf0;
         if (H == 0) { NOP(); }
         else if (m == 0x10) { JCN(n); }
         else if (((H & 0xf1) ^ 0x21) == 1) { FIM(n >> 1); }
@@ -448,7 +453,7 @@ public:
 
     // #################################################
 
-    Intel4004(unsigned char* ROM4096) { ROM = ROM4096; }
+    Intel4004(uint8_t* ROM4096) { ROM = ROM4096; }
 
 	~Intel4004(){}
 
@@ -458,7 +463,7 @@ public:
         memset(PCs, 0, sizeof(short) * 4); // PCs must always be declared with 4 "size", else, change it here
         sp = 0;
         memset(Regs, 0, 8); // Regs have 8 bytes as size
-        RAMcm = 1; RAMaddr = 0;
+        RAM.cm = 1; RAM.addr = 0;
         ROMcm = 0;
         PROG = 0;
         //cpuCycles = 0;
@@ -466,13 +471,13 @@ public:
 
     void clearRAM()
     {
-        unsigned char i, j, k;
-        for (i = 0; i < 16; i++) { for (j = 0; j < 4; j++) { for (k = 0; k < 16; k++) { RAM[i][j][k] = 0; } } }
-        for (i = 0; i < 16; i++) { for (j = 0; j < 4; j++) { for (k = 0; k < 4; k++) { RAMstat[i][j][k] = 0; } } }
-        for (i = 0; i < 16; i++) { RAMout[i] = 0; }
+        uint8_t i, j, k;
+        for (i = 0; i < 16; i++) { for (j = 0; j < 4; j++) { for (k = 0; k < 16; k++) { RAM.RAM[i][j][k] = 0; } } }
+        for (i = 0; i < 16; i++) { for (j = 0; j < 4; j++) { for (k = 0; k < 4; k++) { RAM.stat[i][j][k] = 0; } } }
+        for (i = 0; i < 16; i++) { RAM.out[i] = 0; }
     }
 
-    void clearROM() { for (unsigned char i = 0; i < 4096; ++i) { ROM[i] = 0; } ROMport = 0; }
+    void clearROM() { for (uint8_t i = 0; i < 4096; ++i) { ROM[i] = 0; } ROMport = 0; }
 
     void reset() { resetCPU(); clearRAM(); clearROM(); } // changeAll();
 
@@ -485,9 +490,9 @@ public:
         L += std::to_string((short)Regs[0]) + " " + std::to_string((short)Regs[1]) + " " + std::to_string((short)Regs[2]) + " " + std::to_string((short)Regs[3]) + '\n';
         L += std::to_string((short)Regs[4]) + " " + std::to_string((short)Regs[5]) + " " + std::to_string((short)Regs[6]) + " " + std::to_string((short)Regs[7]) + '\n';
         L += "ACC: " + std::to_string((short)ACC) + " | Carry: " + std::to_string((short)CT[0]) + " | T: " + std::to_string((short)CT[1]) + '\n';
-        L += "RAMaddr: " + std::to_string((short)RAMaddr) + " | RAMcm: " + std::to_string((short)RAMcm) + " | sp: " + std::to_string((short)sp) + '\n';
-        L += "ph: " + std::to_string((short)ph) + " | pm: " + std::to_string((short)pm) + " | pl: " + std::to_string((short)pl);
-        L += " | RAM: " + std::to_string((short)RAM[ph][pm][pl]) + '\n';
+        L += "RAM.addr: " + std::to_string((short)RAM.addr) + " | cm: " + std::to_string((short)RAM.cm) + " | sp: " + std::to_string((short)sp) + '\n';
+        L += "ph: " + std::to_string((short)RAM.ph) + " | pm: " + std::to_string((short)RAM.pm) + " | pl: " + std::to_string((short)RAM.pl);
+        L += " | RAM: " + std::to_string((short)RAM.RAM[RAM.ph][RAM.pm][RAM.pl]) + '\n';
         L += "PCs: " + std::to_string((short)PCs[0]) + " " + std::to_string((short)PCs[1]) + " " + std::to_string((short)PCs[2]) + " " + std::to_string((short)PCs[3]) + '\n';
         return(L);
     }

@@ -15,6 +15,9 @@
 // #######
 // #####################
 
+// UTILS:
+#include "ysxCImg.h"
+
 // PROCESSORS:
 #include "ysxComp/Processors/ysxIntel4004.h"
 
@@ -26,11 +29,6 @@
 
 // EDUCATIONAL STUFF:
 #include "ysxComp/ysxEMUEdu.h"
-
-
-// #####################
-// ####### FORWARD DECLARATIONS:
-// #####################
 
 // #################################################
 /* REFERENCES:
@@ -50,12 +48,62 @@ EPROM DESIGN:
 // (S) | (Q & (~(R)))
 //uint8_t SRFF(uint8_t S, uint8_t R, uint8_t Q) { return (S | (Q & (~R))); }
 
-// SET-RESET NOR FLIP-FLOP:
+/* SET-RESET NOR FLIP-FLOP:
+   NOR.x , NOR.y
+	 Q.y , Q.x
+	y | S, x | R = x, y
+Hold:
+	0 | 0, 0 | 0 = 1, 1:<-| Loop
+	1 | 0, 1 | 0 = 0, 0:>-|
+Reset:
+	0 | 0, 0 | 1 = 0, 1:<-| Loop
+	1 | 0, 1 | 1 = 0, 0:  |
+	0 | 0, 1 | 1 = 0, 1:  |
+	1 | 0, 1 | 1 = 0, 0:>-|
+Set:
+	0 | 1, 0 | 0 = 1, 0:<-| Loop
+	0 | 1, 1 | 0 = 0, 0:  |
+	0 | 1, 0 | 0 = 1, 0:  |
+	0 | 1, 1 | 0 = 0, 0:>-|
+Not allowed:
+    0 | 1, 0 | 1 = 0, 0:<-| Loop
+
+	S  = 0101 1110
+	R  = 0110 0010
+
+	^  = 0011 1100
+	S&^= 0001 1100
+	R&^= 0010 0000
+*/
 struct SRNORFF
 {
 	Point<uint8_t> Q = { 0, 0 };
 	void FF(uint8_t S, uint8_t R)
-	{ Point<uint8_t> NOR = { ~(Q.y | S), ~(Q.x | R) }; Q.x = NOR.y; Q.y = NOR.x; }
+	{
+		uint8_t X = S ^ R; S &= X; R &= X;
+		Point<uint8_t> NOR = { ~(Q.y | S), ~(Q.x | R) };
+		Q.x = NOR.y; Q.y = NOR.x;
+	}
+	
+};
+
+/* JK Flip-Flop:
+       PR,    CLR,    CLK
+   110011, 001111, 010101
+*/
+class JKFF
+{
+public:
+	uint8_t PR = 0, CLR = 0, CLK = 0;
+	uint8_t J = 0, K = 0;
+	Point<uint8_t> Q = { 0, 0 };
+	void FF()
+	{
+		Point<uint8_t> AND = { ((J & CLK) | Q.y) & PR, ((K & CLK) | Q.x) & CLR };
+		Q.x = AND.y; Q.y = AND.x;
+		//J = Q.y; K = Q.x;
+	}
+
 };
 
 // #################################################
@@ -65,20 +113,19 @@ struct SRNORFF
 class DecadeCnt
 {
 public:
-	SRNORFF FF[4];
-	uint8_t oQ[4];
-	void Count(uint8_t S, uint8_t R)
+	Point<uint8_t> Q = { 0, 0 };
+	void FF(uint8_t S, uint8_t R)
 	{
-		Point<uint8_t> NOR = { ~(FF[0].Q.y | S), ~(FF[0].Q.x | R) };
-		FF[0].Q.x = NOR.y; FF[0].Q.y = NOR.x; oQ[0] = FF[0].Q.x;
-		NOR.x = ~(FF[1].Q.y | FF[0].Q.y); NOR.y = ~(FF[1].Q.x | 0); FF[1].Q.x = NOR.y; FF[1].Q.y = NOR.x; oQ[1] = FF[1].Q.x;
-		NOR.x = ~(FF[2].Q.y | FF[1].Q.y); NOR.y = ~(FF[2].Q.x | 0); FF[2].Q.x = NOR.y; FF[2].Q.y = NOR.x; oQ[2] = FF[2].Q.x;
-		NOR.x = ~(FF[3].Q.y | FF[2].Q.y); NOR.y = ~(FF[3].Q.x | 0); FF[3].Q.x = NOR.y; FF[3].Q.y = NOR.x; oQ[3] = FF[3].Q.x;
-		uint8_t CLR = FF[1].Q.x & FF[3].Q.x;
-		FF[0].Q.x &= CLR; FF[0].Q.y &= CLR; FF[1].Q.x &= CLR; FF[1].Q.y &= CLR;
-		FF[2].Q.x &= CLR; FF[0].Q.y &= CLR; FF[1].Q.x &= CLR; FF[3].Q.y &= CLR;		
+		uint8_t X = S ^ R; S &= X; R &= X;
+		Point<uint8_t> NOR = { ~(Q.y | S), ~(Q.x | R) };
+		Q.x = NOR.y; Q.y = NOR.x;
 	}
 };
+
+// #################################################
+// ############## PORTS ##############
+
+struct USB_C { uint8_t CC, D1, D2, RX1, RX2, TX1, TX2; };
 
 // #################################################
 // ############## PAL16L8 EPROM ##############
@@ -108,45 +155,25 @@ MY TEMPLATE, U8 ADDRESS:
 class TTL_SN7400
 {
 public:
-	
-	std::string GetOuts(std::string In) 
+
+	struct DATA { uint8_t A[4], B[4]; };
+	//DATA d;
+
+	// return is ui32, but that is an array of 4 bytes, ui8[4]:
+	uint32_t Out(DATA In) { return(~(*(uint32_t*)&In.A[0] & *(uint32_t*)&In.B[0])); }
+	std::vector<uint32_t> Outs(std::vector<DATA> In)
 	{
-		std::string O;
-		for (int n = 0; n < In.size(); ++n)
-		{
-						  // unused 4321 Y
-			uint8_t Y = 15;  //   0000 1111
-					   // nB			   nA
-			if ((In[n] & 0x2) && (In[n] & 0x1)) { Y -= 1; }   // Y = 0000 1110 = 14
-			if ((In[n] & 0x8) && (In[n] & 0x4)) { Y -= 2; }   // Y = 0000 1101 = 13
-			if ((In[n] & 0x20) && (In[n] & 0x10)) { Y -= 4; } // Y = 0000 1011 = 11
-			if ((In[n] & 0x80) && (In[n] & 0x40)) { Y -= 8; } // Y = 0000 0111 = 7  // MAYBE I CAN USE A SINGLE CHAR WITH AND AND DELETE ALL THOSE IFS
-			O.push_back(Y);
-			// RESULTS (based on image):
-			// { 3, 7, 11 } + 16 * (Row - 1) // 15 + 16 * (Row - 1)
-			// Especial color each 4 Rows.
-		}
+		std::vector<uint32_t> O(In.size());
+		for (int i = 0; i < In.size(); ++i) { uint32_t d = ~(*(uint32_t*)&In[i].A[0] & *(uint32_t*)&In[i].B[0]); O.push_back(d); }
 		return(O);
 	}
 
-	// DUMP ALL POSSIBLE COMBINATIONS:
-	void GetAllCombinations()
+	// SAVE BINARY FILE WITH OUTPUTS:
+	void GetSequence(std::vector<DATA> s, std::string Path = "!TTLSN7400.bin")
 	{
-		std::string s;
-		for (int n = 0; n < 256; ++n) { s.push_back(n); }
-		s = GetOuts(s);
-		std::ofstream O("!TTLSN7400.bin", std::ios::binary);
-		if (O.is_open()) { O.write((char*)&s[0], s.size()); }
-		else { std::cout << "\nCouldn't open file!\n"; }
-		O.close();
-	}
-
-	// DUMP A STRING RESULT (EACH CHAR BIT CORRESPONDS TO: B4A4B3A3B2A2B1A1):
-	void GetSequence(std::string s)
-	{
-		s = GetOuts(s);
-		std::ofstream O("!TTLSN7400.bin", std::ios::binary); // In fact, it could maybe be text-mode, since the string is in binary anyway
-		if (O.is_open()) { O.write((char*)&s[0], s.size()); }
+		std::vector<uint32_t> o = Outs(s);
+		std::ofstream O(Path, std::ios::binary); // In fact, it could maybe be text-mode, since the string is in binary anyway
+		if (O.is_open()) { for (size_t n = 0; n < o.size(); ++n) { O << o[n]; } }
 		else { std::cout << "\nCouldn't open file!\n"; }
 		O.close();
 	}
