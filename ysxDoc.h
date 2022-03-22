@@ -8,8 +8,8 @@
 // #####################################################################################################################################
 // ####### STRUCTS #######
 // INDEX:
-struct NameValue { std::string Name; double Value; };
-struct NameValueInfo { std::string Name, Info; double Value; };
+template <class T_> struct NameValue { std::string Name; T_ Value = 0; };
+template <class T_> struct NameValueInfo { std::string Name, Info; T_ Value; };
 
 // #####################################################################################################################################
 // ####### SORTING FUNCTIONS #######

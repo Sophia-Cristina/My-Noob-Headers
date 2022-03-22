@@ -9,7 +9,7 @@ using namespace cimg_library;
 // ############## FUNÇÕES #######
 // ###################################
 // ############## DECLARAÇÕES:
-Point3D<uint8_t> BitmapRGB(CImg<uint8_t>, unsigned int, unsigned int);
+Point3D<uint8_t> BitmapRGB(CImg<uint8_t>, uint32_t, uint32_t);
 Point3D<uint8_t> LinearRGB(double, double, double);
 // ###################################
 // ############## TYPEDEFS:
@@ -35,9 +35,9 @@ bool InsideRGBGapOR(Point3D<uint8_t> RGB, int R0, int R1, int G0, int G1, int B0
 
 
 // MAX / MIN OF PIXEL X AND Y:
-Point<unsigned int> MaxxMinxPixel(std::vector<Pixel> VP)
+Point<uint32_t> MaxxMinxPixel(std::vector<Pixel> VP)
 {
-	Point<unsigned int> MM;
+	Point<uint32_t> MM;
 	int Maxx = VP[0].x, Minx = VP[0].x;
 	for (int n = 1; n < VP.size(); ++n)
 	{
@@ -51,9 +51,9 @@ Point<unsigned int> MaxxMinxPixel(std::vector<Pixel> VP)
 	MM.x = Maxx; MM.y = Minx;
 	return(MM);
 }
-Point<unsigned int> MaxyMinyPixel(std::vector<Pixel> VP)
+Point<uint32_t> MaxyMinyPixel(std::vector<Pixel> VP)
 {
-	Point<unsigned int> MM;
+	Point<uint32_t> MM;
 	int Maxy = VP[0].x, Miny = VP[0].x;
 	for (int n = 1; n < VP.size(); ++n)
 	{
@@ -67,7 +67,7 @@ Point<unsigned int> MaxyMinyPixel(std::vector<Pixel> VP)
 	MM.x = Maxy; MM.y = Miny;
 	return(MM);
 }
-void MaxMinPixel(std::vector<Pixel> VP, Point<unsigned int>& MaxxMinx, Point<unsigned int>& MaxyMiny)
+void MaxMinPixel(std::vector<Pixel> VP, Point<uint32_t>& MaxxMinx, Point<uint32_t>& MaxyMiny)
 {
 	int Maxx = VP[0].x, Minx = VP[0].x;
 	int Maxy = VP[0].y, Miny = VP[0].y;
@@ -97,20 +97,20 @@ void MaxMinPixel(std::vector<Pixel> VP, Point<unsigned int>& MaxxMinx, Point<uns
 // ############## BITMAP:
 
 // BITMAP RGB:
-Point3D<uint8_t> BitmapRGB(CImg<uint8_t> BMP, unsigned int x, unsigned int y)
+Point3D<uint8_t> BitmapRGB(CImg<uint8_t> BMP, uint32_t x, uint32_t y)
 {
 	Point3D<uint8_t> Ret;
 	if (x > BMP.width() - 1) { x = BMP.width() - 1; } if (y > BMP.height() - 1) { y = BMP.height() - 1; }
 	Ret.x = BMP(x, y, 0, 0); Ret.y = BMP(x, y, 0, 1); Ret.z = BMP(x, y, 0, 2);
 	return(Ret);
 }
-void BitmapRGBuc(CImg<uint8_t> BMP, unsigned int x, unsigned int y, uint8_t* Clr)
+void BitmapRGBuc(CImg<uint8_t> BMP, uint32_t x, uint32_t y, uint8_t* Clr)
 {
 	if (x > BMP.width() - 1) { x = BMP.width() - 1; } if (y > BMP.height() - 1) { y = BMP.height() - 1; }
 	Clr[0] = BMP(x, y, 0, 0); Clr[1] = BMP(x, y, 0, 1); Clr[2] = BMP(x, y, 0, 2);
 }
 // BITMAP PIXEL:
-Pixel BitmapPixel(CImg<uint8_t> BMP, unsigned int x, unsigned int y)
+Pixel BitmapPixel(CImg<uint8_t> BMP, uint32_t x, uint32_t y)
 {
 	Pixel Ret;
 	if (x > BMP.width() - 1) { x = BMP.width() - 1; } if (y > BMP.height() - 1) { y = BMP.height() - 1; }

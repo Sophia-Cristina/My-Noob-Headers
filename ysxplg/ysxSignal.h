@@ -12,7 +12,7 @@
 // ################################################# NOTES AND ATTENTIONS #################################################
 // !!!!!!!	
 // !!!!!!!	CATALOGUE ANY CHANGE THAT CAN AFFECT CODE VERSIONS:
-// !!!!!!!	* ATTENTION: This header MUST be included by 'ysxElectr.h'. Or else, you must include the headers that makes it work;
+// !!!!!!!	* ATTENTION: The header 'ysxElectr.h' must include this header.
 // !!!!!!!	
 // ################################################# NOTES AND ATTENTIONS #################################################
 // ############################################################################################################################################
@@ -31,16 +31,16 @@
 // ####### ELECTRICITY #######
 // ############################
 
-double ElectricPower(double V, double Q, double t) { return((V * Q) / t); } // = V * I // Q = Coulombs / t = seconds / I = Amperes / V = Volts
+double ElecPower(double V, double Q, double t) { return((V * Q) / t); } // = V * I // Q = Coulombs / t = seconds / I = Amperes / V = Volts
 double ElecPowerRes(double V, double R) { return((V * V) / R); } // = R * I^2 = I * V // Instant power
 
 // TOTAL ENERGY (using miniform):
-double TotalSignalEnergy(double T, int n, double Omega) { if (n < 1) { n = 1; } double dt = T / n; double Sum = 0; for (int i = 1; i <= n; i++) Sum += MiniForm((-T) + (i - 0.5) * dt, Omega) * dt; return(Sum); }
+double TotalSigEnrgy(double T, int n, double Omega) { if (n < 1) { n = 1; } double dt = T / n; double Sum = 0; for (int i = 1; i <= n; i++) Sum += MiniForm((-T) + (i - 0.5) * dt, Omega) * dt; return(Sum); }
 // TOTAl ENERGY BASED ON DISCRETE TIME (DEPENDS ON YOUR VECTOR):
-double TotalSignalEnergy(std::vector<double> V) { double Sum = 0; for (int n = 0; n < V.size(); ++n) { Sum += V[n] * V[n]; } return(Sum); }
+double TotalSigEnrgy(std::vector<double> V) { double Sum = 0; for (int n = 0; n < V.size(); ++n) { Sum += V[n] * V[n]; } return(Sum); }
 
 // AVERAGE POWER (USING MINIFORM):
-double AveragePower(double T, int n, double Omega)
+double AvrgPower(double T, int n, double Omega)
 {
     if (n < 1) { n = 1; }
     double dt = T / n; double Sum = 0;
@@ -51,19 +51,26 @@ double AveragePower(double T, int n, double Omega)
 // Since the formula is based on signal and not c++ vectors, i'm going to change it a little based on the principle that a vector begins at '0'.
 // Consequently the new formula is: P = Limit N : inf -> (1 / N + 1) * SUM(x^2[n], 0, N)
 // Instead of: P = Lim N : inf -> (1 / 2N + 1) * SUM(x^2[n], -N, N);
-double AveragePower(std::vector<double> V)
+double AvrgPower(std::vector<double> V)
 {
     double Sum = 0; int N = V.size();
     for (int n = 0; n < N; ++n) { Sum += V[n] * V[n]; }
     return((1.0 / (N + 1)) * Sum);
 }
 // BOOK: 'caso de um sinal x[n] com período fundamental N':
-double AveragePowerFundPeriod(std::vector<double> V)
+double AvrgPowerFundPeriod(std::vector<double> V)
 {
     double Sum = 0; int N = V.size() - 1;
     for (int n = 0; n < N; ++n) { Sum += V[n] * V[n]; }
     return((1.0 / N) * Sum);
 }
+
+// CAPACITANCE, PARALLEL AND SERIES:
+double CapacitancePara(std::vector<double> Farad) { double F = 0; for (size_t n = 0; n < Farad.size(); ++n) { F += Farad[n]; } return(F); }
+double CapacitanceSer(std::vector<double> Farad) { double F = 0; for (size_t n = 0; n < Farad.size(); ++n) { F += 1 / Farad[n]; } return(1 / F); }
+
+// TIME CONSTANT:
+// Resis * Farad;
 
 // ############################
 // ####### SIGNAL VECTORS #######
@@ -84,14 +91,14 @@ std::vector<double> SignalVec(unsigned int Size, double Volts, double NoiseGain)
 // ####### TRIGONOMETRIC:
 
 // Sine (phase in radians):
-std::vector<double> SineWaveVec(unsigned int Size, double x0, double x1, double Amp, double Freq, double Phase)
+std::vector<double> SinWaveVec(unsigned int Size, double x0, double x1, double Amp, double Freq, double Phase)
 {
     std::vector<double> R(Size);
     if (x0 > x1) { double t = x0; x0 = x1; x1 = t; } double Delta = (x1 - x0) / Size;
     for (unsigned int n = 0; n < Size; ++n) { R[n] = Amp * sin(Phase + (x0 + (Delta * n * Freq))); }
     return(R);
 }
-std::vector<float> SineWaveVecF(unsigned int Size, float x0, float x1, float Amp, float Freq, float Phase)
+std::vector<float> SinWaveVecF(unsigned int Size, float x0, float x1, float Amp, float Freq, float Phase)
 {
     std::vector<float> R(Size);
     if (x0 > x1) { float t = x0; x0 = x1; x1 = t; } float Delta = (x1 - x0) / Size;
@@ -100,14 +107,14 @@ std::vector<float> SineWaveVecF(unsigned int Size, float x0, float x1, float Amp
 }
 
 // Cosine (phase in radians):
-std::vector<double> CosineWaveVec(unsigned int Size, double x0, double x1, double Amp, double Freq, double Phase)
+std::vector<double> CosWaveVec(unsigned int Size, double x0, double x1, double Amp, double Freq, double Phase)
 {
     std::vector<double> R(Size);
     if (x0 > x1) { double t = x0; x0 = x1; x1 = t; } double Delta = (x1 - x0) / Size;
     for (unsigned int n = 0; n < Size; ++n) { R[n] = Amp * cos(Phase + (x0 + (Delta * n * Freq))); }
     return(R);
 }
-std::vector<float> CosineWaveVecF(unsigned int Size, float x0, float x1, float Amp, float Freq, float Phase)
+std::vector<float> CosWaveVecF(unsigned int Size, float x0, float x1, float Amp, float Freq, float Phase)
 {
     std::vector<float> R(Size);
     if (x0 > x1) { float t = x0; x0 = x1; x1 = t; } float Delta = (x1 - x0) / Size;
@@ -116,14 +123,14 @@ std::vector<float> CosineWaveVecF(unsigned int Size, float x0, float x1, float A
 }
 
 // Tangent (phase in radians):
-std::vector<double> TangentWaveVec(unsigned int Size, double x0, double x1, double Amp, double Freq, double Phase)
+std::vector<double> TanWaveVec(unsigned int Size, double x0, double x1, double Amp, double Freq, double Phase)
 {
     std::vector<double> R(Size);
     if (x0 > x1) { double t = x0; x0 = x1; x1 = t; } double Delta = (x1 - x0) / Size;
     for (unsigned int n = 0; n < Size; ++n) { R[n] = Amp * tan(Phase + (x0 + (Delta * n * Freq))); }
     return(R);
 }
-std::vector<float> TangentWaveVecF(unsigned int Size, float x0, float x1, float Amp, float Freq, float Phase)
+std::vector<float> TanWaveVecF(unsigned int Size, float x0, float x1, float Amp, float Freq, float Phase)
 {
     std::vector<float> R(Size);
     if (x0 > x1) { float t = x0; x0 = x1; x1 = t; } float Delta = (x1 - x0) / Size;
@@ -132,14 +139,14 @@ std::vector<float> TangentWaveVecF(unsigned int Size, float x0, float x1, float 
 }
 
 // Cotangent (phase in radians):
-std::vector<double> CotangentWaveVec(unsigned int Size, double x0, double x1, double Amp, double Freq, double Phase)
+std::vector<double> CotWaveVec(unsigned int Size, double x0, double x1, double Amp, double Freq, double Phase)
 {
     std::vector<double> R(Size);
     if (x0 > x1) { double t = x0; x0 = x1; x1 = t; } double Delta = (x1 - x0) / Size;
     for (unsigned int n = 0; n < Size; ++n) { R[n] = Amp * cot(Phase + (x0 + (Delta * n * Freq))); }
     return(R);
 }
-std::vector<float> CotangentWaveVecF(unsigned int Size, float x0, float x1, float Amp, float Freq, float Phase)
+std::vector<float> CotWaveVecF(unsigned int Size, float x0, float x1, float Amp, float Freq, float Phase)
 {
     std::vector<float> R(Size);
     if (x0 > x1) { float t = x0; x0 = x1; x1 = t; } float Delta = (x1 - x0) / Size;
@@ -149,14 +156,14 @@ std::vector<float> CotangentWaveVecF(unsigned int Size, float x0, float x1, floa
 
 // // ####### RECT AND TRI:
 // SquareWave (phase in radians):
-std::vector<double> SquareWaveVec(unsigned int Size, double x0, double x1, double Amp, double Freq, double Phase)
+std::vector<double> SqrWaveVec(unsigned int Size, double x0, double x1, double Amp, double Freq, double Phase)
 {
     std::vector<double> R(Size);
     if (x0 > x1) { double t = x0; x0 = x1; x1 = t; } double Delta = (x1 - x0) / Size;
     for (unsigned int n = 0; n < Size; ++n) { R[n] = Amp * rect(Phase + (x0 + (Delta * n * Freq))); }
     return(R);
 }
-std::vector<float> SquareWaveVecF(unsigned int Size, float x0, float x1, float Amp, float Freq, float Phase)
+std::vector<float> SqrWaveVecF(unsigned int Size, float x0, float x1, float Amp, float Freq, float Phase)
 {
     std::vector<float> R(Size);
     if (x0 > x1) { float t = x0; x0 = x1; x1 = t; } float Delta = (x1 - x0) / Size;
@@ -587,6 +594,7 @@ std::vector<float> LineEnvelopF(std::vector<float> Input, float L1, float L2, fl
     for (unsigned int n = 0; n < Size; ++n) { double x = L1 + pow(Delta * n, Pow) / pow(Size, Pow); R[n] = x * Input[n] * Gain; }
     return(R);
 }*/
+
 // #######
 // MODULATE VECTOR WITH ANOTHER VECTOR.
 // Last index will be from input:
@@ -750,25 +758,43 @@ std::vector<double> NormalizeMod(std::vector<double> fx)
     for (unsigned int n = 0; n < fx.size(); ++n) { fx[n] /= Max; fx[n] += 1; fx[n] *= 0.5; } return(fx);
 }
 
+// ####################################################################################
+// ################################### MAIN CLASSES ###################################
+// ####################################################################################
 
-// ####################################################################################################################################################################################################
-// ####################################################################################################################################################################################################
-// ####################################################################################################################################################################################################
-
-// #################################################
-// ####### CLASSES #######
-// #################################################
-
-// ####### AAA #######
-// AAA:
-
-/*
-class a
-{
-    a() {}
-    ~a() {}
-};
+/* MAIN SIGNAL STREAM BUFFER CLASS FOR INHERITANCE:
+SigStream WORKS LIKE a pointer to an invisible buffer.
+The best usage of SigStream is to use 'Size' as some sort of limit, or modulo.
+And use C as a C.ounter, useful in both cases of ascending and descending.
+Use 'C' vector to add channels / voices.
+Using the input function 'IO(T_)', you can process the sample from a 't'ime that is based
+on 'Size' and 'C'ounter.
 */
+template<class T_> class SigStream
+{
+public:
+    T_ Size = 0; // As samples
+    std::vector<T_> C; // 'C'ount (iterator), use vector index as different voices
+    // INPUT, FOR INHERITANCE:
+    // * Think about the input as 'void', but limited to 32bits, use casts.
+    virtual T_ IO(T_* T_bits) { return(*T_bits); }
+
+    SigStream() { C.push_back(0); }
+    ~SigStream() { }
+};
+
+/* SIGNAL IO OBJECT FOR INHERITANCE:
+Very simple object made only for iheritance.
+Use a object type as 'time' or 'x' (in a 'f(x)') and enjoy the magic returned from the virtual function.
+*/
+template<class T_> class SigIO
+{
+public:
+    virtual T_ IO(T_* Type) { return(*Type); }
+
+    SigIO() { }
+    ~SigIO() { }
+};
 
 // ################################################# FIM ####################################################################################
 

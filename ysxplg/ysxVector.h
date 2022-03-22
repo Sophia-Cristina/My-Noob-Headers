@@ -21,15 +21,15 @@
 // ############################
 
 // CONVERTERS:
-std::vector<float> SInt2Float(std::vector<short int> SInt) { std::vector<float> V; for (size_t n = 0; n < SInt.size(); ++n) { V.push_back(SInt[n]); } return(V); }
-std::vector<double> SInt2double(std::vector<short int> SInt) { std::vector<double> V; for (size_t n = 0; n < SInt.size(); ++n) { V.push_back(SInt[n]); } return(V); }
+std::vector<float> SInt2Float(std::vector<uint16_t> SInt) { std::vector<float> V; for (size_t n = 0; n < SInt.size(); ++n) { V.push_back(SInt[n]); } return(V); }
+std::vector<double> SInt2double(std::vector<uint16_t> SInt) { std::vector<double> V; for (size_t n = 0; n < SInt.size(); ++n) { V.push_back(SInt[n]); } return(V); }
 std::vector<float> Int2Float(std::vector<int> Int) { std::vector<float> V; for (size_t n = 0; n < Int.size(); ++n) { V.push_back(Int[n]); } return(V); }
 std::vector<int> Float2Int(std::vector<float> Float) { std::vector<int> V; for (size_t n = 0; n < Float.size(); ++n) { V.push_back(Float[n]); } return(V); }
-std::vector<int> SInt2Int(std::vector<short int> SInt) { std::vector<int> V; for (size_t n = 0; n < SInt.size(); ++n) { V.push_back(SInt[n]); } return(V); }
+std::vector<int> SInt2Int(std::vector<uint16_t> SInt) { std::vector<int> V; for (size_t n = 0; n < SInt.size(); ++n) { V.push_back(SInt[n]); } return(V); }
 std::vector<double> Float2Double(std::vector<float> Float) { std::vector<double> V; for (size_t n = 0; n < Float.size(); ++n) { V.push_back(Float[n]); } return(V); }
 std::vector<float> Double2Float(std::vector<double> Double) { std::vector<float> V; for (size_t n = 0; n < Double.size(); ++n) { V.push_back(Double[n]); } return(V); }
-std::vector<short int> Double2SInt(std::vector<double> Double) { std::vector<short int> V; for (size_t n = 0; n < Double.size(); ++n) { V.push_back(Double[n]); } return(V); }
-std::vector<short int> Float2SInt(std::vector<float> Float) { std::vector<short int> V; for (size_t n = 0; n < Float.size(); ++n) { V.push_back(Float[n]); } return(V); }
+std::vector<uint16_t> Double2SInt(std::vector<double> Double) { std::vector<uint16_t> V; for (size_t n = 0; n < Double.size(); ++n) { V.push_back(Double[n]); } return(V); }
+std::vector<uint16_t> Float2SInt(std::vector<float> Float) { std::vector<uint16_t> V; for (size_t n = 0; n < Float.size(); ++n) { V.push_back(Float[n]); } return(V); }
 std::vector<uint8_t> Double2uChar(std::vector<double> Double) { std::vector<uint8_t> V; for (size_t n = 0; n < Double.size(); ++n) { V.push_back(round(Double[n] * 255)); } return(V); }
 std::vector<char> Double2Char(std::vector<double> Double) { std::vector<char> V; for (size_t n = 0; n < Double.size(); ++n) { V.push_back(round(Double[n] * 127)); } return(V); }
 std::vector<uint8_t> Float2uChar(std::vector<float> Float) { std::vector<uint8_t> V; for (size_t n = 0; n < Float.size(); ++n) { V.push_back(round(Float[n] * 255)); } return(V); }
@@ -48,18 +48,32 @@ std::string UShort2String(std::vector<unsigned short> Int) { std::string V; for 
 template <class T_>
 std::vector<T_> JoinVectors(std::vector<T_> VecPre, std::vector<T_> VecSuf) { for (size_t n = 0; n < VecSuf.size(); ++n) { VecPre.push_back(VecSuf[n]); } return(VecPre); }
 
+// MERGE VECTORS:
+template <class T_>
+std::vector<T_> MergeVectors(std::vector<T_> a, std::vector<T_> b)
+{
+	//merge(int A[], int m, int B[], int n, int C[]) {
+	uint32_t i = 0, j = 0, k = -1; // k will be incremented before storing a number in C[k]
+	uint32_t as = a.size(), bs = b.size();
+	std::vector<T_> c(as + bs);
+	while (i < as && j < bs) { if (a[i] < b[j]) { c[++k] = a[i++]; } else { c[++k] = b[j++]; } }
+	if (i == as) { for (; j < bs; j++) { c[++k] = b[j]; } }
+	else { for (; i < as; i++) { c[++k] = a[i]; } } // j == n, copy A[i] to A[m-1] to C
+	return(c);
+}
+
 // BREAK VECTOR INTO SUB-BLOCK:
-std::vector<std::vector<double>> VectorSubBlocks(std::vector<double> In, int Div)
+std::vector<std::vector<double>> VectorSubBlocks(std::vector<double> In, uint32_t Div)
 {
 	std::vector<double> v;
 	std::vector<std::vector<double>> V;
-	int Fraction = In.size() / Div;
+	uint32_t Fraction = In.size() / Div;
 	size_t Size = In.size();
 
 	for (size_t n = 0; n < Size; ++n)
 	{
 		v.push_back(In[n]);
-		int Mod = n % Fraction;
+		uint32_t Mod = n % Fraction;
 		if (Mod == Fraction - 1) { V.push_back(v); v = std::vector<double>::vector(); }
 		else if (n == Size - 1) { V.push_back(v); }
 	}
@@ -75,7 +89,7 @@ template <class T_>
 std::vector<T_> SubstituteZero(std::vector<T_> Vec0, std::vector<T_> Vec1)
 {
 	std::vector<T_> V; bool v0v1 = false;
-	int Size = 0;
+	uint32_t Size = 0;
 	if (Vec0.size() <= Vec1.size()) { Size = Vec0.size(); }	else { Size = Vec1.size(); v0v1 = true; }
 	for (size_t n = 0; n < Size; ++n) { if (Vec0[n] != 0) { V.push_back(Vec0[n]); } else { V.push_back(Vec1[n]); } }
 	if (!v0v1) { if (Vec1.size() - Size > 0) { for (size_t n = Size; n < Vec1.size(); ++n) { V.push_back(Vec1[n]); } } }
@@ -92,7 +106,7 @@ std::vector<T_> InsertRandomZeros(std::vector<T_> Vector, size_t Zeros)
 	for (size_t Z = 0; Z < Zeros; ++Z)
 	{
 		std::vector<T_> v;
-		int Rand = rand() % Size;
+		uint32_t Rand = rand() % Size;
 		for (size_t n = 0; n < Size; ++n)
 		{
 			v.push_back(Vector[n]); if (n == Rand) { v.push_back(0); }
@@ -147,7 +161,7 @@ std::vector<T_> InsertZerosBetweenTermsExpo(std::vector<T_> Vector, size_t Zeros
 
 // INSERT ZEROS AT A INDEX:
 template <class T_>
-std::vector<T_> InsertZerosatTerm(std::vector<T_> Vector, size_t Zeros, int at, bool BeforeAfter)
+std::vector<T_> InsertZerosatTerm(std::vector<T_> Vector, size_t Zeros, uint32_t at, bool BeforeAfter)
 {
 	std::vector<T_> V; size_t Size = Vector.size();
 	for (size_t n = 0; n < Size; ++n)
@@ -173,14 +187,14 @@ std::vector<T_> DeleteZeros(std::vector<T_> Vector)
 // ############################
 
 // Insert copy of an indexed value at random positions into a vector:
-std::vector<double> InsertRandomCopies(std::vector<double> Vector, int Copies)
+std::vector<double> InsertRandomCopies(std::vector<double> Vector, uint32_t Copies)
 {
 	if (Copies < 1) { Copies = 1; }
 	std::vector<double> V;
 	for (size_t c = 0; c < Copies; ++c)
 	{
 		std::vector<double> v;
-		int Rand = rand() % Vector.size();
+		uint32_t Rand = rand() % Vector.size();
 		for (size_t n = 0; n < Vector.size(); ++n)
 		{
 			v.push_back(Vector[n]); if (n == Rand) { v.push_back(Vector[n]); }
@@ -192,35 +206,35 @@ std::vector<double> InsertRandomCopies(std::vector<double> Vector, int Copies)
 }
 
 // if (Index + n < DSize) { Dest[Index + n] = In[n]; }:
-void SubstituteVals(std::vector<double>& Dest, std::vector<double> In, unsigned int Index)
+void SubstituteVals(std::vector<double>& Dest, std::vector<double> In, uint32_t Index)
 {
-	unsigned int Size = (Index + In.size()) > Dest.size() ? Dest.size() : In.size();
+	uint32_t Size = (Index + In.size()) > Dest.size() ? Dest.size() : In.size();
 	for (size_t n = 0; n < Size; ++n) { Dest[Index + n] = In[n]; }
 }
-void SubstituteVals(std::vector<float>& Dest, std::vector<float> In, unsigned int Index)
+void SubstituteVals(std::vector<float>& Dest, std::vector<float> In, uint32_t Index)
 {
-	unsigned int Size = (Index + In.size()) > Dest.size() ? Dest.size() : In.size();
+	uint32_t Size = (Index + In.size()) > Dest.size() ? Dest.size() : In.size();
 	for (size_t n = 0; n < Size; ++n) { Dest[Index + n] = In[n]; }
 }
-void SubstituteVals(std::vector<uint8_t>& Dest, std::vector<uint8_t> In, unsigned int Index)
+void SubstituteVals(std::vector<uint8_t>& Dest, std::vector<uint8_t> In, uint32_t Index)
 {
-	unsigned int Size = (Index + In.size()) > Dest.size() ? Dest.size() : In.size();
+	uint32_t Size = (Index + In.size()) > Dest.size() ? Dest.size() : In.size();
 	for (size_t n = 0; n < Size; ++n) { Dest[Index + n] = In[n]; }
 }
 // Dest[(Index + n) % DSize] = In[n];
-void SubstituteValsMod(std::vector<double>& Dest, std::vector<double> In, unsigned int Index)
+void SubstituteValsMod(std::vector<double>& Dest, std::vector<double> In, uint32_t Index)
 {
-	unsigned int Size = Dest.size();
+	uint32_t Size = Dest.size();
 	for (size_t n = 0; n < In.size(); ++n) { Dest[(Index + n) % Size] = In[n]; }
 }
-void SubstituteValsMod(std::vector<float>& Dest, std::vector<float> In, unsigned int Index)
+void SubstituteValsMod(std::vector<float>& Dest, std::vector<float> In, uint32_t Index)
 {
-	unsigned int Size = Dest.size();
+	uint32_t Size = Dest.size();
 	for (size_t n = 0; n < In.size(); ++n) { Dest[(Index + n) % Size] = In[n]; }
 }
-void SubstituteValsMod(std::vector<uint8_t>& Dest, std::vector<uint8_t> In, unsigned int Index)
+void SubstituteValsMod(std::vector<uint8_t>& Dest, std::vector<uint8_t> In, uint32_t Index)
 {
-	unsigned int Size = Dest.size();
+	uint32_t Size = Dest.size();
 	for (size_t n = 0; n < In.size(); ++n) { Dest[(Index + n) % Size] = In[n]; }
 }
 
@@ -234,21 +248,21 @@ void SubstituteValsMod(std::vector<uint8_t>& Dest, std::vector<uint8_t> In, unsi
 
 // QUICKSORT:
 template <class T_>
-void QuickSort(std::vector<T_>& V, int l, int r)
+void QuickSort(std::vector<T_>& V, uint32_t l, uint32_t r)
 {
 	if (l >= r) { return; } size_t pivot = V[r]; size_t cnt = l;
 	for (size_t i = l; i <= r; ++i) { if (V[i] <= pivot) { std::swap(V[cnt], V[i]); ++cnt; } }
 	QuickSort(V, l, cnt - 2); QuickSort(V, cnt, r);
 }
-void QuickSortPtx(std::vector<Point<double>>& V, int l, int r)
+void QuickSortPtx(std::vector<Point<double>>& V, uint32_t l, uint32_t r)
 {
-	if (l >= r) { return; } double pivot = V[r].x; int cnt = l;
+	if (l >= r) { return; } double pivot = V[r].x; size_t cnt = l;
 	for (size_t i = l; i <= r; ++i) { if (V[i].x <= pivot) { std::swap(V[cnt].x, V[i].x); std::swap(V[cnt].y, V[i].y); ++cnt; } }
 	QuickSortPtx(V, l, cnt - 2); QuickSortPtx(V, cnt, r);
 }
-void QuickSortPty(std::vector<Point<double>>& V, int l, int r)
+void QuickSortPty(std::vector<Point<double>>& V, uint32_t l, uint32_t r)
 {
-	if (l >= r) { return; } double pivot = V[r].y; int cnt = l;
+	if (l >= r) { return; } double pivot = V[r].y; uint32_t cnt = l;
 	for (size_t i = l; i <= r; ++i) { if (V[i].y <= pivot) { std::swap(V[cnt].x, V[i].x); std::swap(V[cnt].y, V[i].y); ++cnt; } }
 	QuickSortPty(V, l, cnt - 2); QuickSortPty(V, cnt, r);
 }
@@ -257,12 +271,44 @@ void QuickSortPty(std::vector<Point<double>>& V, int l, int r)
 template <class T_>
 void BubbleSort(std::vector<T_>& V)
 {
-	unsigned int N = V.size();
-	for (unsigned int i = 0; i < N; ++i)
+	uint32_t N = V.size();
+	for (uint32_t i = 0; i < N; ++i)
+	{ uint32_t p = 0; while (p < N - 1 - i) { if (V[p] > V[p + 1]) { T_ t = V[p]; V[p] = V[p + 1]; V[p + 1] = t; } ++p; } }
+}
+
+// INSERTION SORT:
+template <class T_>
+void InsertionSort(std::vector<T_>& V)
+{
+	uint32_t n = V.size(), K, k;
+	if (n > 1)
 	{
-		int p = 0; while (p < N - 1 - i) { if (V[p] > V[p + 1]) { int t = V[p]; V[p] = V[p + 1]; V[p + 1] = t; } ++p; }
+		for (uint32_t h = 1; h < n; ++h)
+		{
+			K = V[h]; k = h - 1;
+			while (k >= 0 && K < V[k]) { V[k + 1] = V[k]; --k; }
+			V[k + 1] = K;
+		}
 	}
 }
+
+// ############################
+// ####### SEARCH
+// ############################
+
+// BINARY SEARCH (-1 = NOT FOUND):
+// Vector should be sorted already!
+/*template <class T_>
+uint32_t BinSearch(uint32_t Val, std::vector<T_> V)
+{
+	uint32_t n = 0, m = V.size();
+	while (lo <= hi)
+	{
+		uint32_t mid = (n + m) / 2;	if (Val == V[mid]) { return(mid); } // found
+		if (Val < V[mid]) { m = mid - 1; } else { n = mid + 1; }
+	}
+	return(-1); // n and m have crossed; key not found
+}*/
 
 // #####################################################################################################################################
 // #####################################################################################################################################
@@ -516,12 +562,8 @@ template <class T_> std::vector<T_> mRootOfn(double n, int m1, int m2) { std::ve
 // ####### OBJETOS #######
 
 // CHECKERED BLOCK:
-template <class T_> std::vector<T_> CheckeredBlock(int Size, double a, double b)
-{
-	std::vector<double> R(Size); bool Switch = false;
-	for (size_t n = 0; n < Size; ++n) { if (!Switch) { R[n] = a; Switch = true; } else { R[n] = b; Switch = false; } }
-	return(R);
-}
+template <class T_> std::vector<T_> CheckeredBlock(uint32_t Size, double a, double b)
+{ std::vector<double> R(Size); for (size_t n = 0; n < Size; ++n) { if (!(n % 2)) { R[n] = a; } else { R[n] = b; } } return(R); }
 
 // ####### ARI. E GEO. #######
 

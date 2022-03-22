@@ -42,10 +42,10 @@ using namespace cimg_library; // UNCOMMENT IF YOU ARE HAVING A PROBLEM
 
 // ###################################
 // ############## FORWARD DECLARATIONS:
-CImg<uint8_t> DrawImageIgnClr(CImg<uint8_t>, CImg<uint8_t>, int, int, uint8_t*);
+CImg<uint8_t> DrawImageIgnClr(CImg<uint8_t>, CImg<uint8_t>, uint32_t, uint32_t, uint8_t*);
 bool InImg(CImg<uint8_t>, int, int);
 void AddVert(CImg<uint8_t>&, unsigned short, unsigned short, unsigned short, uint8_t*);
-void AddText(CImg<uint8_t>&, int, int, std::string, uint8_t[3]);
+void AddText(CImg<uint8_t>&, uint32_t , uint32_t , std::string, uint8_t[3]);
 CImg<uint8_t> ValueBarAbs(int, double, double, int, int, bool);
 void Resize(CImg<uint8_t>&, int, int, int);
 void FillArea(CImg<uint8_t>&, int, int, uint8_t[3]);
@@ -156,13 +156,13 @@ std::vector<double> BitmapVector(CImg<uint8_t> BMP, int R0orG1orB2)
 
 // ############## TEXTOS:
 // ADD TEXT ON IMAGE:
-void AddText(CImg<uint8_t>& Img, int x, int y, std::string String, uint8_t Color[3])
+void AddText(CImg<uint8_t>& Img, uint32_t x, uint32_t y, std::string String, uint8_t Color[3])
 {
-	CImgList<uint8_t> font(const unsigned int font_height = 19, const bool variable_size = true);
-	Img.draw_text(x, y, String.data(), Color);
+	//CImgList<uint8_t> font(1, Img, 1);
+	Img.draw_text(x, y, String.data(), Color);// , 19);
 }
 // SAME AS 'AddText', BUT PRINT IN CIRCLE DIVISION WITH A VECTOR OF STRINGS:
-void AddTextCirc(CImg<uint8_t>& Img, double r, int x, int y, std::vector<std::string> Strings, uint8_t Color[3])
+void AddTextCirc(CImg<uint8_t>& Img, double r, uint32_t x, uint32_t y, std::vector<std::string> Strings, uint8_t Color[3])
 {
 	double Div = TAU / Strings.size(); int Count = 0;
 	for (double rad = 0; rad <= TAU; rad += Div) { AddText(Img, x + round(cos(rad) * (r - 8)), y + round(sin(rad) * (r - 8)), Strings[Count], Color); ++Count; }
@@ -316,7 +316,7 @@ CImg<uint8_t> MixRGB(CImg<uint8_t> Img0, CImg<uint8_t> Img1, uint8_t IgnoreColor
 	}
 	return (Ret);
 }
-CImg<uint8_t> MixRGB(CImg<uint8_t> Img0, CImg<uint8_t> Img1, int x, int y, uint8_t IgnoreColor[3])
+CImg<uint8_t> MixRGB(CImg<uint8_t> Img0, CImg<uint8_t> Img1, uint32_t x, uint32_t y, uint8_t IgnoreColor[3])
 {
 	if (x < 0) { x = 0; } if (y < 0) { y = 0; }
 	int Width = 1, Height = 1;
@@ -352,16 +352,16 @@ CImg<uint8_t> MixRGB(CImg<uint8_t> Img0, CImg<uint8_t> Img1, int x, int y, uint8
 }
 
 // DRAW IMAGE OVER ANOTHER IMAGE, BUT IGNORE SPECIFIC COLOR:
-CImg<uint8_t> DrawImageIgnClr(CImg<uint8_t> Img0, CImg<uint8_t> Img1, int x, int y, uint8_t IgnoreColor[3])
+CImg<uint8_t> DrawImageIgnClr(CImg<uint8_t> Img0, CImg<uint8_t> Img1, uint32_t x, uint32_t y, uint8_t IgnoreColor[3])
 {
 	if (x < 0) { x = 0; } if (y < 0) { y = 0; }
-	int Width = Img1.width(), Height = Img1.height();
+	uint32_t  Width = Img1.width(), Height = Img1.height();
 	CImg<uint8_t> Ret = Img0;
 	Point3D<uint8_t> RGB;
 	uint8_t Clr[3];
-	for (int i = 0; i < Height; ++i)
+	for (uint32_t  i = 0; i < Height; ++i)
 	{
-		for (int j = 0; j < Width; ++j)
+		for (uint32_t  j = 0; j < Width; ++j)
 		{
 			if (j + x >= Img0.width() - 1) { break; }
 			RGB = BitmapRGB(Img1, j, i);
@@ -402,20 +402,20 @@ int main(int argc, char **argv) {
 
 // ############## MISC:
 // SIEVE OF ERATOSTHENES:
-CImg<uint8_t> SieveEratosthenes(int n)
+CImg<uint8_t> SieveEratosthenes(uint32_t  n)
 {
 	if (n < 10) { n = 10; }
 	std::vector<CImg<uint8_t>> Squares(n);
 	std::vector<Point3D<uint8_t>> RGBs(4);
-	int Lines = ceil(n / 10.0);
+	uint32_t  Lines = ceil(n / 10.0);
 	CImg<uint8_t> Ret(10 * 32, Lines * 32, 1, 3, 0);
 	Point3D<uint8_t> RGB;
-	for (int m = 0; m < 4; ++m)
+	for (uint8_t m = 0; m < 4; ++m)
 	{
 		RGB = LinearRGB(m / 4.0, 1, 1);
 		RGBs[m] = RGB;
 	}
-	for (int m = 1; m <= n; ++m)
+	for (uint8_t m = 1; m <= n; ++m)
 	{
 		// Colors:
 		uint8_t Color[] = { 0, 0, 0 };
@@ -430,19 +430,19 @@ CImg<uint8_t> SieveEratosthenes(int n)
 		AddText(Square, 7, 15, std::to_string(m), Color);
 		Squares[n] = Square;
 	}
-	for (int m = 0; m < Lines; ++m) { for (int k = 0; k < 10; ++k) { if (k + (m * 10) < Squares.size()) { Ret.draw_image(k * 32, m * 32, Squares[k + (m * 10)]); } } }
+	for (uint32_t  m = 0; m < Lines; ++m) { for (uint8_t k = 0; k < 10; ++k) { if (k + (m * 10) < Squares.size()) { Ret.draw_image(k * 32, m * 32, Squares[k + (m * 10)]); } } }
 	return(Ret);
 }
 
 // RAY INFO:
-CImg<uint8_t> RayInfo(double Degrees, int ImgSize)
+CImg<uint8_t> RayInfo(double Degrees, uint32_t  ImgSize)
 {
 	if (ImgSize < 192) { ImgSize = 192; }
 	CImg<uint8_t> I(ImgSize, ImgSize, 1, 3, 0);
 	double Rad = Ang2Rad(Degrees);
-	int r = round(0.5 * ImgSize);
+	uint32_t  r = round(0.5 * ImgSize);
 	uint8_t Color[] = { 64, 64, 64 };
-	int Line = 8, Txtpx = r - 24;
+	uint32_t  Line = 8, Txtpx = r - 24;
 	std::string Sin = "Sin: " + std::to_string(sin(Rad)), Cos = "Cos: " + std::to_string(cos(Rad)), Tan = "Tan: " + std::to_string(tan(Rad)),
 		Cot = "Cot: " + std::to_string(cot(Rad)), Sec = "Sec: " + std::to_string(sec(Rad)), Csc = "Csc: " + std::to_string(csc(Rad)),
 		Ver = "Versin: " + std::to_string(versin(Rad)), Exsec = "ExSec: " + std::to_string(exsec(Rad)),

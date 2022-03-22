@@ -20,73 +20,8 @@
 
 // #################################################
 // REFERENCES:
-// [1] The Computer Music Tutorial - Curtis Roads
+// [1]
 // #################################################
-
-// #################################################
-// ####### DRUM KIT #######
-
-// KICK SAMPLE, Kick(x), HEHE:
-// sin(x*Omega*TAU*((1 - x)^PF)) * (1 - x)^PA
-double KickSmpD(double x, double Omega, double PowFreq, double PowAmp, double Attack)
-{
-	if (x < 0) { x *= -1; } if (x > 1) { x -= floor(x); } float g = x < Attack ? x / Attack : 1;
-	return(sin(x * (Omega * TAU * pow(1 - x, PowFreq))) * pow(1 - x, PowAmp) * g);
-}
-float KickSmpF(float x, float Omega, float PowFreq, float PowAmp, float Attack)
-{
-	if (x < 0) { x *= -1; } if (x > 1) { x -= floor(x); } float g = x < Attack ? x / Attack : 1;
-	return(sin(x * (Omega * TAU * pow(1 - x, PowFreq))) * pow(1 - x, PowAmp) * g);
-}
-unsigned char KickSmpC(float x, float Omega, float PowFreq, float PowAmp, float Attack)
-{
-	if (x < 0) { x *= -1; } if (x > 1) { x -= floor(x); } float g = x < Attack ? x / Attack : 1;
-	return(((sin(x * (Omega * TAU * pow(1 - x, PowFreq))) * pow(1 - x, PowAmp)) + 1) * 127.5 * g);
-}
-unsigned short KickSmpSI(float x, float Omega, float PowFreq, float PowAmp, float Attack)
-{
-	if (x < 0) { x *= -1; } if (x > 1) { x -= floor(x); } float g = x < Attack ? x / Attack : 1;
-	return(((sin(x * (Omega * TAU * pow(1 - x, PowFreq))) * pow(1 - x, PowAmp)) + 1) * 32767.5 * g);
-}
-unsigned int KickSmpI(float x, float Omega, float PowFreq, float PowAmp, float Attack)
-{
-	if (x < 0) { x *= -1; } if (x > 1) { x -= floor(x); } float g = x < Attack ? x / Attack : 1;
-	return(((sin(x * (Omega * TAU * pow(1 - x, PowFreq))) * pow(1 - x, PowAmp)) + 1) * 2147483647.5 * g);
-}
-
-// GENERATE A KICK BUFFER, USE BYTES 1, 2 OR 4:
-std::vector<unsigned char> KickSimpleBuf(unsigned int Size, unsigned int SampleRate, unsigned char Bytes, float Omega, float PowFreq, float PowAmp, float Attack)
-{
-	if (Attack > 1) { Attack = 1; } if (Attack < 0) { Attack = 0; }
-	std::vector<unsigned char> B(Size * Bytes);
-	unsigned int BSize = B.size(), ASize = BSize * Attack;
-	if (Bytes == 4 || Bytes == 2 || Bytes == 1)
-	{
-		for (int n = 0; n < BSize; n += Bytes)
-		{
-			double x = (double)n / SampleRate;
-			double b = sin(x * Omega * TAU * pow(1 - x, PowFreq)) * pow(1 - x, PowAmp);
-			if (n < ASize) { b *= ((double)n / ASize); }
-			if (Bytes == 4)
-			{
-				unsigned int a = (b + 1) * 2147483647.5;
-				memcpy(&B[0], &a, Bytes);
-			}
-			else if (Bytes == 2)
-			{
-				unsigned short a = (b + 1) * 32767.5;
-				memcpy(&B[0], &a, Bytes);
-			}
-			else
-			{
-				unsigned char a = (b + 1) * 127.5;
-				B[n] = a;
-			}
-		}
-	}
-	else { std::cout << "Sorry, for now, this only supports '1', '2' and '4' bytes format!\n"; }
-	return(B);
-}
 
 // ###############################################################################################################################################################################
 // ###############################################################################################################################################################################
@@ -145,6 +80,7 @@ public:
 	}
 };
 
+// #################################################
 
 // SIMPLE OSCILLATOR, YOU MAY INHERIT IT WITH OTHER CLASSES:
 class Oscillator : public AudioBuffer
@@ -200,8 +136,6 @@ public:
 		}
 	}
 };
-
-// #################################################
 
 // ###############################################################################################################################################################################
 // ####### MAIN #################################################################################################################################################################

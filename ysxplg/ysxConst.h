@@ -18,6 +18,7 @@
 #define TAU 6.283185307179586
 #define PI 3.141592653589793
 #define HPI 1.570796326794897 // Half PI: 1.5707963267948966192313216916398
+#define QPI 0.785398163397448 // Quarter PI: 0.78539816339744830961566084581988
 #define TTAU 4.71238898038469 // 3 / 4 of a TAU: 4.7123889803846898576939650749193
 #define ROOTPI 1.7724538509055160272981674833411 // sqrt(Pi)
 #define EULERMASCH 0.577215664901533 // 0.577215664901532'86060651209008240243104215933593992
@@ -44,6 +45,11 @@
 // ####### RADICALS
 // #####################
 
+#define ROOT0125 0.353553390593274 // Square root of 1/8 | 0.35355339059327376220042218105242
+#define ROOT033 0.577350269189626 // Square root of 1/3  | 0.57735026918962576450914878050196
+#define ROOT05 0.707106781186547 // Square root of 1/2   | 0.70710678118654752440084436210485
+#define ROOT067 0.816496580927726 // Square root of 2/3  | 0.81649658092772603273242802490196
+#define ROOT075 0.866025403784439 // Square root of 3/4  | 0.86602540378443864676372317075294
 #define ROOT2 1.414213562373095 // Square root of 2  | 1.4142135623730950488016887242097
 #define ROOT3 1.732050807568877 // Square root of 3  | 1.7320508075688772935274463415059
 #define ROOT5 2.236067977499790 // Square root of 5  | 2.2360679774997896964091736687313
@@ -75,11 +81,10 @@
 
 // #####################
 // CIRCLES:
-
-#define CIRCLESQRAREA 0.785398163397448 // 0.78539816339744830961566084581988; // Area of a circle inside a square of side 1
-#define SQRAREACIRCLE 0.214601836602552 // 0.21460183660255169038433915418012; // Area left if you remove a circle from a square of area 1
-#define QUARTERCIRCHALFSQR 0.285398163397448 // 0.28539816339744830961566084581988; // Remove a half square from the area of a quarter circle of radius 1;
-#define CROSSEDQUARTERCIRCLE 0.570796326794897 // 0.57079632679489661923132169163975; // The area you get when two quarter circles overlap inside a square of radius 1;
+#define CIRCLESQRAREA 0.785398163397448 // 0.78539816339744830961566084581988; Area of a circle inside a square of side 1
+#define SQRAREACIRCLE 0.214601836602552 // 0.21460183660255169038433915418012; Area left if you remove a circle from a square of area 1
+#define QUARTERCIRCHALFSQR 0.285398163397448 // 0.28539816339744830961566084581988; Remove a half square from the area of a quarter circle of radius 1;
+#define CROSSEDQUARTERCIRCLE 0.570796326794897 // 0.57079632679489661923132169163975; The area you get when two quarter circles overlap inside a square of radius 1;
 
 // In a square of side 1, four quarter circles in four directions cross each other, the center figure area is:
 // 0.3151467436277204526267681195873;
@@ -89,6 +94,14 @@
 #define RATIOSEMICIRCTANGRECTTOTANGCIRC 5.828427124746190
 
 // #####################
+// POLYGON:
+// Hexagon:
+#define INRADREGHEX 0.86602540378443864676372317075294 // 0.86602540378443864676372317075294; Inradius of regular hexagon
+#define SAGITTAREGHEX 0.13089969389957471826927680763665 // 0.13089969389957471826927680763665; Sagitta of regular hexagon
+// Heptagon
+#define INRADREGHEP 0.90096886790241912623610231950745 // 0.90096886790241912623610231950745; Inradius of regular heptagon
+
+// #####################
 // ####### PHYSICS
 // #####################
 
@@ -96,17 +109,13 @@
 // WEIGHT:
 
 // #####################
-// FRICTION:
 
-std::vector<NameValue> FrictionList()
+// FRICTION:
+// https://en.wikipedia.org/wiki/Friction#Approximate_coefficients_of_friction
+std::vector<NameValue<double>> FrictionList()
 {
-	//std::vector<NameValue> List{ {"a", 1}, {"b", 3} };
-	std::vector<NameValue> List;
-	// https://en.wikipedia.org/wiki/Friction#Approximate_coefficients_of_friction
-	NameValue L;
-	L.Name = "Aluminum (Static)"; L.Value = 1.2; List.push_back(L);
-	L.Name = "Aluminum (Kinect)"; L.Value = 1.45; List.push_back(L);
-	return (List);
+	std::vector<NameValue<double>> List = { { "Aluminum (Static)", 1.2 }, { "Aluminum (Kinect)", 1.45 } };
+	return(List);
 }
 
 // #####################

@@ -37,7 +37,7 @@ BIT MEANING OF 'SDL_AudioFormat':
 ||       ||          || +---sample bit size---+
 15 14 13 12 11 10 09 08 07 06 05 04 03 02 01 00
  |		  |			  |128 64 32 16 08 04 02 00
- 1	0  0  1	 0	0  0  0  0  0  0  1  0  0  0  0 = AUDIO_S16MSB = 0x9010 = 36880 <- Example
+ 1	0  0  1	 0	0  0  0  0  0  1  0  0  0  0  0 = AUDIO_S16MSB = 0x9010 = 36880 <- Example
  
  * NOTE: You can use 'AND' to '255' and get only the bit size.
 		 Ex.: F = 0x9020 = 36896 = %1001 0000 0010 0000
@@ -58,33 +58,21 @@ AUDIO_S16    UDIO_S16LSB
 */
 
 // ###############################################################################################################################################################################
-// ###############################################################################################################################################################################
+
 // ###############################################################################################################################################################################
 // ####### STRUCTS #######
+
+// ###############################################################################################################################################################################
+// ####### CALLBACK #######
 
 // POISTION AND LENGHT LEFT TO BE READ:
 // Audio->Pos += Samples; Audio->Samples -= Samples;
 struct AudioData { Uint8* Pos; Uint32 Samples; };
-
-// SET 'Pos' TO FIRST SAMPLE WHILE 'Loops' IS NOT '0':
-// ! 'SamplesStart' *MUST* BE *EQUAL* TO SamplesLeft' WHEN 'LoopData' IS CONFIGURED !
-// ! THE FORMULA TO SET POSITION BACK TO THE START AFTER A LOOP IS:
-// ! if (Audio->Loops > 0) { Audio->Pos -= Audio->SamplesStart; --Audio->Loops; }
-// ! BUT WHILE THE LOOP IS NOT FINISHED, IT IS:
-// ! Audio->Pos += Samples; Audio->SamplesLeft -= Samples;
-struct LoopData { Uint8* Pos; Uint32 SamplesStart; Uint32 SamplesLeft; Uint16 Loops; };
-
-// THIS DATA LOOPS THE BUFFER WITH A MODULO:
-// Check the callback function!
-struct SignalData { Uint8* Pos; Uint32 Count; Uint32 Samples; };
-
-// ###############################################################################################################################################################################
-// ####### CALLBACK #######
 // With 'SDL >= 2.0.4' you can choose to avoid callbacks and use 'SDL_QueueAudio()' instead, if you like.
 // Just open your audio device with a NULL callback.
-void AudioCall(void* UserData, Uint8* Stream, int StreamSamples)
+void AudioCall(void* Data, Uint8* Stream, int StreamSamples)
 {
-	AudioData* Audio = (AudioData*)UserData;
+	AudioData* Audio = (AudioData*)Data;
 
 	if (Audio->Samples == 0) { return; } Uint32 Samples = (Uint32)StreamSamples;
 	Samples = Samples > Audio->Samples ? Audio->Samples : Samples;
@@ -93,64 +81,74 @@ void AudioCall(void* UserData, Uint8* Stream, int StreamSamples)
 	Audio->Pos += Samples; Audio->Samples -= Samples;
 }
 
+// SET 'Pos' TO FIRST SAMPLE WHILE 'Loops' IS NOT '0':
+// ! 'Start' *MUST* BE *EQUAL* TO SmpLeft' WHEN 'LoopData' IS CONFIGURED !
+// ! THE FORMULA TO SET POSITION BACK TO THE START AFTER A LOOP IS:
+// ! if (Audio->Loops > 0) { Audio->Pos -= Audio->Start; --Audio->Loops; }
+// ! BUT WHILE THE LOOP IS NOT FINISHED, IT IS:
+// ! Audio->Pos += Samples; Audio->SmpLeft -= Samples;
+struct LoopData { Uint8* Pos; Uint32 Size; Uint32 SmpLeft; Uint16 Loops; };
 // CALLBACK WHICH LOOPS UNTIL YOU STOP THE AUDIO:
-void LoopCall(void* UserData, Uint8* Stream, int StreamSamples)
+void LoopCall(void* Data, Uint8* Stream, int StreamSamples)
 {
-	LoopData* Audio = (LoopData*)UserData;
+	LoopData* S = (LoopData*)Data;
 
-	if (Audio->SamplesLeft == 0)
+	if (S->SmpLeft == 0)
 	{
-		if (Audio->Loops > 0) { Audio->Pos -= Audio->SamplesStart; Audio->SamplesLeft = Audio->SamplesStart; --Audio->Loops; }
+		if (S->Loops > 0) { S->Pos -= S->Size; S->SmpLeft = S->Size; --S->Loops; }
 		else { return; }
 	}
 	Uint32 Samples = (Uint32)StreamSamples;
-	Samples = Samples > Audio->SamplesLeft ? Audio->SamplesLeft : Samples;
+	Samples = Samples > S->SmpLeft ? S->SmpLeft : Samples;
 
-	SDL_memcpy(Stream, Audio->Pos, Samples);
-	Audio->Pos += Samples; Audio->SamplesLeft -= Samples;
+	SDL_memcpy(Stream, S->Pos, Samples);
+	S->Pos += Samples; S->SmpLeft -= Samples;
 }
 
+// THIS DATA LOOPS THE BUFFER WITH A MODULO:
+// Check the callback function! Pos = &array[0], Samples = array.size();
+struct SignalData { Uint8* Pos; Uint32 Count; Uint32 Samples; };
 // CALLBACK FOR A SIGNAL BUFFER LOOPED BY A MODULO:
 // Changes are to be done in the buffer index which is going to be played!
 // ~| 0 | 1 | 2 | 3 || 4 | 5 | 6 | 7 |~ BYTES
 //  |Pos| .	| .	| .	|| . |B.S|Set| % |~ SIZE // B.S = Block Size = 6 samples (example)
 //	| _	| _ | _	|B.S||Set| _ | _ | % |
-void SignalCall(void* UserData, Uint8* Stream, int StreamSamples)
+void SignalCall(void* Data, Uint8* Stream, int StreamSamples)
 {
-	SignalData* Audio = (SignalData*)UserData;
-	unsigned int SamplesLeft = Audio->Samples - Audio->Count;
-	unsigned short BS = (Uint32)StreamSamples;
-	Uint32 Samples = BS > SamplesLeft ? SamplesLeft : BS;					// If 'Block Size' is bigger than the space left...
-	SDL_memcpy(Stream, &Audio->Pos[Audio->Count], Samples);					// ... For now we add every sample possible.
-	if (Samples < BS) { SDL_memcpy(Stream, &Audio->Pos[0], BS - Samples); } // And now we add the rest.
-	Audio->Count += BS; Audio->Count %= Audio->Samples;						// Loop if needed! Pos. should be seem as a constant, however, you can change.
-	//std::cout << "C: " << Audio->Count << std::endl;
+	SignalData* S = (SignalData*)Data;
+	Uint32 Left = S->Samples - S->Count;
+	Uint16 BS = (Uint32)StreamSamples;
+	Uint32 Samples = BS > Left ? Left : BS; // If 'Block Size' is bigger than the space left...
+	SDL_memcpy(Stream, &S->Pos[S->Count], Samples); // ... For now we add every sample possible.
+	if (Samples < BS) { SDL_memcpy(Stream, &S->Pos[0], BS - Samples); } // And now we add the rest.
+	S->Count += BS; S->Count %= S->Samples; // Loop if needed! Pos. should be seem as a constant, however, you can change.
+	//std::cout << "C: " << S->Count << std::endl;
 }
 
 // CALLBACK FOR WAV FILES:
-void WavCall(void* UserData, Uint8* Stream, int StreamSamples)
+void WavCall(void* Data, Uint8* Stream, int StreamSamples)
 {
-	AudioData* Audio = (AudioData*)UserData;
+	AudioData* S = (AudioData*)Data;
 
-	if (Audio->Samples == 0) { return; } Uint32 length = (Uint32)StreamSamples;
-	length = (length > Audio->Samples ? Audio->Samples : length);
+	if (S->Samples == 0) { return; } Uint32 length = (Uint32)StreamSamples;
+	length = (length > S->Samples ? S->Samples : length);
 
-	SDL_memcpy(Stream, Audio->Pos, length);
-	Audio->Pos += length; Audio->Samples -= length;
+	SDL_memcpy(Stream, S->Pos, length);
+	S->Pos += length; S->Samples -= length;
 }
 // ###############################################################################################################################################################################
 // ####### OBJECTS #######
 
 // SDL_AudioFormat::format = NewSpecFormat(...);
-unsigned short NewSpecFormat(unsigned char Bytes, bool Signed, bool BigEndian)
+Uint16 NewSpecFormat(Uint8 Bytes, bool Signed, bool BigEndian)
 {
-	if (Bytes > 31) { Bytes = 31; } unsigned short f = Bytes * 8;
+	if (Bytes > 31) { Bytes = 31; } Uint16 f = Bytes * 8;
 	if (Signed) { f += 0x8000; } if (BigEndian) { f += 0x1000; }
 	return(f);
 }
 
 // EZ SPEC MAKER:
-SDL_AudioSpec NewAudioSpec(unsigned int SampleRate, unsigned short BlockSize, unsigned char BytesPerSample, unsigned char Channels, bool Signed, bool BigEndian)
+SDL_AudioSpec NewAuSpec(Uint32 SampleRate, Uint16 BlockSize, Uint8 BytesPerSample, Uint8 Channels, bool Signed, bool BigEndian)
 {
 	SDL_AudioSpec S; SDL_zero(S);
 	S.freq = SampleRate; S.samples = BlockSize; S.channels = Channels;
@@ -164,7 +162,7 @@ SDL_AudioSpec NewAudioSpec(unsigned int SampleRate, unsigned short BlockSize, un
 // ####### INFOS #######
 
 // COUT SPEC FORMAT:
-void CoutFormat(unsigned short Format)
+void CoutFormat(Uint16 Format)
 {
 	std::cout << "# Format #\n";
 	std::cout << "Value: " << Format << std::endl;
@@ -188,9 +186,9 @@ void CoutSpec(SDL_AudioSpec Spec)
 }
 
 // COUT DATA:
-void CoutData(AudioData D) { std::cout << "Pos.: " << (unsigned int)D.Pos << " | Samples: " << D.Samples << std::endl; }
-void CoutData(LoopData D) { std::cout << "Pos.: " << (unsigned int)D.Pos << " | Smp. Left: " << D.SamplesLeft << " | Loop Samples: " << D.SamplesStart << std::endl; }
-void CoutData(SignalData D) { std::cout << "Ini. Pos.: " << (unsigned int)D.Pos << " | Total Samples: " << D.Samples << " | Current pos.: " << D.Count << std::endl; }
+void CoutData(AudioData D) { std::cout << "Pos.: " << (Uint32)D.Pos << " | Samples: " << D.Samples << std::endl; }
+void CoutData(LoopData D) { std::cout << "Pos.: " << (Uint32)D.Pos << " | Smp. Left: " << D.SmpLeft << " | Loop Samples: " << D.Size << std::endl; }
+void CoutData(SignalData D) { std::cout << "Ini. Pos.: " << (Uint32)D.Pos << " | Total Samples: " << D.Samples << " | Current pos.: " << D.Count << std::endl; }
 
 // ###############################################################################################################################################################################
 
@@ -213,58 +211,59 @@ void CoutData(SignalData D) { std::cout << "Ini. Pos.: " << (unsigned int)D.Pos 
 	* 'Block' vector is to be used to inject values in the position being read
 	  in 'Signal' vector. This is also to be used with 'SignalData'.
 */
-class SDLAudioDevice
+class SDLAuDevice
 {
 public:
-	SDL_AudioSpec* InSpec;
+	SDL_AudioSpec* Spec;
 	//SDL_AudioSpec OutSpec; // [6][7]
 	std::vector<std::vector<Uint8>> Buffers; // Add your audios here
 	std::vector<Uint8> Signal; // !!! FOR CALLBACK LOOP, CAUTION WHEN TOUCHING IT !!!
 	std::vector<Uint8> Block; // You may modify this to be read by the signal block
-	unsigned char Bytes = 2; // Bytes per sample. (Spec.format & 255) / 8
+	Uint8 Bytes = 2; // Bytes per sample. (Spec.format & 255) / 8
 	bool IsOpen = false; // To make sure that the audio is closed when this class is destroyed
 	SDL_AudioDeviceID Device;
 	// #################################################
-	SDLAudioDevice(SDL_AudioSpec& Spec, unsigned int SignalSize)
+	SDLAuDevice(SDL_AudioSpec& InSpec, Uint32 SigSize)
 	{
-		Spec.callback = AudioCall;
-		Bytes = (Spec.format & 255) / 8;
-		if (SignalSize < Spec.samples) { Signal = std::vector<Uint8>::vector(Spec.samples); }
-		else { Signal = std::vector<Uint8>::vector(SignalSize); }
-		Block = std::vector<Uint8>::vector(Spec.samples);
-		InSpec = &Spec;
-		for (unsigned int n = 0; n < Signal.size(); ++n) { Signal[n] = 127; } // Need to change based on bits later
+		InSpec.callback = AudioCall;
+		Bytes = (InSpec.format & 255) / 8;
+		if (SigSize < InSpec.samples) { Signal = std::vector<Uint8>::vector(InSpec.samples); }
+		else { Signal = std::vector<Uint8>::vector(SigSize); }
+		Block = std::vector<Uint8>::vector(InSpec.samples);
+		Spec = &InSpec;
+		for (Uint32 n = 0; n < Signal.size(); ++n) { Signal[n] = 127; } // Need to change based on bits later
 	}
-	~SDLAudioDevice()
+	~SDLAuDevice()
 	{
 		if (IsOpen) { SDL_CloseAudio(); }
 		//delete(Start);
 	}
-	// #################################################
 	
 	// CONFIG SIGNAL DATA:
 	void ConfigSigData(SignalData& SigD)
 	{
 		SigD.Pos = &Signal[0]; SigD.Samples = Signal.size();
-		SigD.Count = 0; InSpec->userdata = &SigD;
+		SigD.Count = 0; Spec->userdata = &SigD;
 	}
 	
+	// #################################################
+
 	// MAKE SURE THE BUFFER IS NOT EMPTY!
-	void PlayBuffer(unsigned int nBuffer, bool COut)
+	void PlayBuffer(Uint32 nBuffer, bool COut)
 	{
 		if (nBuffer < Buffers.size())
 		{
-			AudioData Audio; Audio.Pos = &Buffers[nBuffer][0]; Audio.Samples = Buffers[nBuffer].size();
-			InSpec->userdata = &Audio; InSpec->callback = AudioCall;
-			unsigned int Time = round((double)Audio.Samples / (InSpec->freq / 1000.0)); // Time to end a playback
-			if (SDL_OpenAudio(InSpec, NULL) < 0) { std::cout << "!!! FAILED TO OPEN AUDIO: " << SDL_GetError() << " !!!\n"; }
+			AudioData Au; Au.Pos = &Buffers[nBuffer][0]; Au.Samples = Buffers[nBuffer].size();
+			Spec->userdata = &Au; Spec->callback = AudioCall;
+			Uint32 Time = round((double)Au.Samples / (Spec->freq / 1000.0)); // Time to end a playback
+			if (SDL_OpenAudio(Spec, NULL) < 0) { std::cout << "!!! FAILED TO OPEN AUDIO: " << SDL_GetError() << " !!!\n"; }
 			else
 			{
 				SDL_PauseAudio(0);
-				while (Audio.Samples > 0)
+				while (Au.Samples > 0)
 				{
 					if (COut)
-					{ std::cout << "(Synth) Seconds: " << Samples2Sec(Audio.Samples, InSpec->freq, InSpec->format & 255, InSpec->channels) << std::endl; }
+					{ std::cout << "(Synth) Seconds: " << Samples2Sec(Au.Samples, Spec->freq, Spec->format & 255, Spec->channels) << std::endl; }
 					SDL_Delay(Time);
 				}
 				SDL_CloseAudio();
@@ -278,43 +277,46 @@ public:
 	{
 		SDL_AudioSpec wSpec; Uint8* wStart; Uint32 wSamples;
 		if (SDL_LoadWAV(Filename.data(), &wSpec, &wStart, &wSamples) == NULL)
-		{
-			std::cerr << "ERROR: '" << Filename << "' could not be loaded!" << std::endl;
-		}
+		{ std::cerr << "ERROR: '" << Filename << "' could not be loaded!" << std::endl; }
 		else
 		{
-			AudioData Audio; Audio.Pos = wStart; Audio.Samples = wSamples;
-			wSpec.callback = WavCall; wSpec.userdata = &Audio;
-			unsigned int Time = round((double)InSpec->samples / (InSpec->freq / 1000.0));
+			AudioData Au; Au.Pos = wStart; Au.Samples = wSamples;
+			wSpec.callback = WavCall; wSpec.userdata = &Au;
+			Uint32 Time = round((double)Spec->samples / (Spec->freq / 1000.0));
 			time_t t = time(&t);
-			long long Ts = t;
-			long long Te = (Time / 1000) + t;
+			Uint64 Ts = t;
+			Uint64 Te = (Time / 1000) + t;
 			Device = SDL_OpenAudioDevice(NULL, 0, &wSpec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
 			if (Device == 0) { std::cout << "!!! FAILED TO OPEN AUDIO: " << SDL_GetError() << " !!!\n"; }
 			else
 			{
 				SDL_PauseAudioDevice(Device, 0);
-				while (Audio.Samples > 0)
+				while (Au.Samples > 0)
 				{
 					while (time(&t) < Te) { /* Do nothing!*/ }
 					if (COut)
-					{ std::cout << "(Synth) Seconds: " << Samples2Sec(Audio.Samples, wSpec.freq, wSpec.format & 255, wSpec.channels) << " | Time: " << time(&t) << std::endl; }
+					{ std::cout << "(Synth) Seconds: " << Samples2Sec(Au.Samples, wSpec.freq, wSpec.format & 255, wSpec.channels) << " | Time: " << time(&t) << std::endl; }
 				}
 				SDL_CloseAudioDevice(Device); SDL_FreeWAV(wStart);
 			}
 		}
 	}
 
+	// #################################################
+
 	// OPEN:
-	void OpenDevice()
+	void Open()
 	{
-		Device = SDL_OpenAudio(InSpec, NULL); if (Device < 0) { std::cout << "!!! FAILED TO OPEN AUDIO: " << SDL_GetError() << " !!!\n"; }
+		Device = SDL_OpenAudio(Spec, NULL); if (Device < 0) { std::cout << "!!! FAILED TO OPEN AUDIO: " << SDL_GetError() << " !!!\n"; }
+		else { IsOpen = true; }
 	}
 
 	// CLOSE:
-	void CloseDevice() { SDL_CloseAudio(); }
+	void Close() { SDL_CloseAudio(); IsOpen = false; }
 };
 
+// #################################################
+// #################################################
 // #################################################
 
 class SDLAudioStream // [3]
@@ -324,7 +326,7 @@ public:
 	// You put data at Sint16/mono/22050Hz, you get back data at Float32/stereo/48000Hz
 	SDL_AudioStream* Stream;
 	Sint16 *Samples;
-	unsigned int BlockSize;
+	Uint32 BlockSize;
 
 	// #################################################
 	// 'pSamples', imagine as a sample block, please, use the correct size (SampleBlockSize) as the array (pSamples):
@@ -332,7 +334,7 @@ public:
 					const SDL_AudioFormat src_format, const Uint8 src_channels,
 					const int src_rate, const SDL_AudioFormat dst_format,
 					const Uint8 dst_channels, const int dst_rate,
-					Sint16* SamplesPointer, unsigned int SampleBlockSize
+					Sint16* SamplesPointer, Uint32 SampleBlockSize
 				  )
 	{
 		Stream = SDL_NewAudioStream(src_format, src_channels, src_rate, dst_format, dst_channels, dst_rate);

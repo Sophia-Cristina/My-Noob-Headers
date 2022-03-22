@@ -617,7 +617,7 @@ CImg<uint8_t> PrintVectorPolygn(std::vector<double> Vec, int BackGround, uint8_t
 // Esse assume que cada pixel de uma imagem corresponde a um dx (PROVAVELMENTE IGUAL O SEM "Norm"):
 // f[n] = y = V[n] * (sy / 255) | V[n] is based in '0 to 255':
 // Ex.: f(x) = sin(x) * (512 / 255) = sin(x) * 2.007843 -> y;
-CImg<uint8_t> PrintVectorPointNorm(std::vector<uint8_t> V, int sy, double yrto)
+CImg<uint8_t> PrintVectorPointNorm(std::vector<uint8_t> V, int sy, double yrto = 1)
 {
 	CImg<uint8_t> R(V.size(), sy, 1, 3, 0);
 	float syd = sy / 255.0;
@@ -649,7 +649,7 @@ CImg<uint8_t> PrintVectorPointNorm(std::vector<float> V)
 	}
 	return (R);
 }
-CImg<uint8_t> PrintVectorPointNorm(std::vector<float> V, int sy, float yrto)
+CImg<uint8_t> PrintVectorPointNorm(std::vector<float> V, int sy, float yrto = 1)
 {
 	CImg<uint8_t> R(V.size(), sy, 1, 3, 0);
 	float Max, Min; MaxMinVecAbs(V, Max, Min);
@@ -683,7 +683,7 @@ CImg<uint8_t> PrintVectorPointNorm(std::vector<double> V)
 }
 // f[n] = y = (V[n] * (sy / 2) * yrto) + (sy / 2) | V[n] is normalized to '-1 to 1':
 // Ex.: f(x) = sin(x) * 32 * 1 + 32 = sin(x) * 32 + 32 -> y;
-CImg<uint8_t> PrintVectorPointNorm(std::vector<double> V, int sy, double yrto)
+CImg<uint8_t> PrintVectorPointNorm(std::vector<double> V, int sy, double yrto = 1)
 {
 	CImg<uint8_t> R(V.size(), sy, 1, 3, 0);
 	double Max, Min; MaxMinVecAbs(V, Max, Min);
@@ -696,7 +696,7 @@ CImg<uint8_t> PrintVectorPointNorm(std::vector<double> V, int sy, double yrto)
 	}
 	return (R);
 }
-CImg<uint8_t> PrintVectorPointNorm(std::vector<double> V, int sy, double yrto, uint8_t* Color)
+CImg<uint8_t> PrintVectorPointNorm(std::vector<double> V, int sy, uint8_t* Color, double yrto = 1)
 {
 	CImg<uint8_t> R(V.size(), sy, 1, 3, 0);
 	double Max, Min; MaxMinVecAbs(V, Max, Min);
@@ -709,7 +709,7 @@ CImg<uint8_t> PrintVectorPointNorm(std::vector<double> V, int sy, double yrto, u
 
 // ######################################################################
 
-CImg<uint8_t> PrintVectorPointNormFill(std::vector<uint8_t> V, int sy, double yrto)
+CImg<uint8_t> PrintVectorPointNormFill(std::vector<uint8_t> V, int sy, double yrto = 1)
 {
 	CImg<uint8_t> R(V.size(), sy, 1, 3, 0);
 	double syd = sy / 255.0;
@@ -722,7 +722,7 @@ CImg<uint8_t> PrintVectorPointNormFill(std::vector<uint8_t> V, int sy, double yr
 	}
 	return (R);
 }
-CImg<uint8_t> PrintVectorPointNormFill(std::vector<double> V, int sy, double yrto)
+CImg<uint8_t> PrintVectorPointNormFill(std::vector<double> V, int sy, double yrto = 1)
 {
 	CImg<uint8_t> R(V.size(), sy, 1, 3, 0);
 	double Max, Min; MaxMinVecAbs(V, Max, Min);
@@ -738,7 +738,7 @@ CImg<uint8_t> PrintVectorPointNormFill(std::vector<double> V, int sy, double yrt
 
 // ######################################################################
 
-void PrintVectorLineOnImg(CImg<uint8_t>& Img, std::vector<double> V, double yrto)
+void PrintVectorLineOnImg(CImg<uint8_t>& Img, std::vector<double> V, double yrto = 1)
 {
 	int sy = Img.height(), sx = Img.width();
 	double Max, Min; MaxMinVecAbs(V, Max, Min);
@@ -762,7 +762,7 @@ void PrintVectorLineOnImg(CImg<uint8_t>& Img, std::vector<double> V, double yrto
 		Linexy(Img, xi0, yi0, xi1, yi1, Color, false);
 	}
 }
-void PrintVectorLineOnImg(CImg<uint8_t>& Img, std::vector<double> V, double yrto, uint8_t* Color)
+void PrintVectorLineOnImg(CImg<uint8_t>& Img, std::vector<double> V, uint8_t* Color, double yrto = 1)
 {
 	int sy = Img.height(), sx = Img.width();
 	double Max, Min; MaxMinVecAbs(V, Max, Min);
@@ -787,7 +787,7 @@ void PrintVectorLineOnImg(CImg<uint8_t>& Img, std::vector<double> V, double yrto
 	}
 }
 
-void PrintVectorPointOnImg(CImg<uint8_t>& Img, std::vector<double> V, double yrto)
+void PrintVectorPointOnImg(CImg<uint8_t>& Img, std::vector<double> V, double yrto = 1)
 {
 	int sy = Img.height(), sx = Img.width();
 	double Max, Min; MaxMinVecAbs(V, Max, Min);
@@ -805,7 +805,7 @@ void PrintVectorPointOnImg(CImg<uint8_t>& Img, std::vector<double> V, double yrt
 		Img.draw_point(xi, yi, Color); // Read comment from function above
 	}
 }
-void PrintVectorPointOnImg(CImg<uint8_t>& Img, std::vector<double> V, double yrto, uint8_t* Color)
+void PrintVectorPointOnImg(CImg<uint8_t>& Img, std::vector<double> V, uint8_t* Color, double yrto = 1)
 {
 	int sy = Img.height(), sx = Img.width();
 	double Max, Min; MaxMinVecAbs(V, Max, Min);

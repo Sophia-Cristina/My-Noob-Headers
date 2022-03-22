@@ -17,7 +17,13 @@
 // #####################################################################################################################################
 
 #define LOOP4 for(uint8_t n = 0; n < 4; ++n)
+#define LOOP5 for(uint8_t n = 0; n < 5; ++n)
+#define LOOP6 for(uint8_t n = 0; n < 6; ++n)
+#define LOOP7 for(uint8_t n = 0; n < 7; ++n)
 #define LOOP8 for(uint8_t n = 0; n < 8; ++n)
+#define LOOP9 for(uint8_t n = 0; n < 9; ++n)
+#define LOOP10 for(uint8_t n = 0; n < 10; ++n)
+#define LOOP12 for(uint8_t n = 0; n < 12; ++n)
 #define LOOP16 for(uint8_t n = 0; n < 16; ++n)
 #define LOOP24 for(uint8_t n = 0; n < 24; ++n)
 #define LOOP32 for(uint8_t n = 0; n < 32; ++n)

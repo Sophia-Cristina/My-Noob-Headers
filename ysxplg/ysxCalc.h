@@ -39,8 +39,11 @@ double Dec2Sec(double Dec) { return(Dec * 60); }
 // ####### CALCULOS #######
 // #################################################
 
-// LINHA (y = a + x * b):
+// LINE (y = a + x * b):
 double Linex(double x, double a, double b) { return(a + x * b); }
+
+// POLAR ROSE CURVE:
+//double RoseCrv(double t, double k) { return(cos(k * t)); }
 
 // FORMULA COMPLEXA ((a * Seno(x^b)) + c) / d | LEMBRAR DE FAZER UMA FUNÇÃO QUE LEIA QUALQUER FORMULA:
 double Formula(double a, double Omega, double x, double b, double c, double d)
@@ -141,14 +144,14 @@ double ArcLength(double a, double b, int n, double Omega)
 }
 
 // DERIVATIVE:
-double Derivative(double x, double Omega) { double Limit = 1.0e-9; return((MiniForm(x + 0.5 * Limit, Omega) - MiniForm(x - 0.5 * Limit, Omega)) / Limit); }
+double Derivative(double x, double Omega) { double Lim = 1.0e-9; return((MiniForm(x + 0.5 * Lim, Omega) - MiniForm(x - 0.5 * Lim, Omega)) / Lim); }
 double Derivative(double x, double Delta, double Omega) { return((MiniForm(x + 0.5 * Delta, Omega) - MiniForm(x - 0.5 * Delta, Omega)) / Delta); }
 double Derivative(double x1, double x2, double t1, double t2) { return((x2 - x1) / (t2 - t1)); }
 double Derivative(double x1, double x2, double t1, double t2, double Omega) { return((MiniForm(x2 - x1, Omega) - MiniForm(x1, Omega)) / (t2 - t1)); }
 
 // EQ. DIFERENCIAL DE SEGUNDA ORDEM:
 // Second-Order Central | Finite Difference:
-double d2xdt2(double x, double Omega) { double Limit = 1.0e-6; double Eq = (MiniForm(x + Limit, Omega) - 2 * MiniForm(x, Omega) + MiniForm(x - Limit, Omega)) / (Limit * Limit); return(Eq); }
+double d2xdt2(double x, double Omega) { double Lim = 1.0e-6; double Eq = (MiniForm(x + Lim, Omega) - 2 * MiniForm(x, Omega) + MiniForm(x - Lim, Omega)) / (Lim * Lim); return(Eq); }
 double d2xdt2(double x0, double x1, double dt) { double dx = x1 - x0; return((x1 - (2 * x0) + (x0 - dx)) / (dt * dt)); }
 double d2xdt2(double x, double dx, double dt, double Omega) { double Eq = (MiniForm(x + dx, Omega) - 2 * MiniForm(x, Omega) + MiniForm(x - dx, Omega)) / dt; return(Eq); }
 double d2xdt2(double x0, double x1, double x2, double t0, double t1) { double dx1 = x2 - x1, dx0 = x1 - x0, dt = t1 - t0; return((x2 - (2 * x1) + dx0) / (dt * dt)); }

@@ -4,7 +4,7 @@
 #define YSXELECTR_H
 
 #include "ysxCImg.h" // Some output needs
-#include "ysxplg/ysxConst.h";
+#include "ysxplg/ysxConst.h"
 #include "ysxBytes.h"
 #include "ysxplg/ysxSignal.h"
 
@@ -75,8 +75,8 @@ class Wire : public Component
 {
 public:
     // If you need identification for your wire!
-    // Standard is NONE, however, there is only 4 bytes, so, you may use some binary code for 2^32 combinations.
-    // You can transfer an int number to char[4] using a pointer.
+    // Standard is NONE, however, there is only 4 bytes, so you might use some binary code for 2^32 combinations.
+    // You can transfer an int number to uint8[4] using a pointer.
     uint8_t ID[4] = { 'N', 'O', 'N', 'E' };
     
     Wire(std::string SetID4chars)
@@ -91,17 +91,7 @@ public:
     // #####################
     void ProcessSignal() override
     {
-        if (OUTs.size() > 0)
-        {
-            for (uint32_t n = 0; n < OUTs.size(); ++n)
-            {
-                if (n < OUTs.size())
-                {
-                    *OUTs[n] = Signals[n % Signals.size()]; // Load Signal
-                }
-                else { break; }
-            }
-        }
+        if (OUTs.size() > 0) { for (uint32_t n = 0; n < OUTs.size(); ++n) { *OUTs[n] = Signals[n % Signals.size()]; } } // Load Signal
     }
 };
 
@@ -156,11 +146,7 @@ public:
         Sig = SignalVec(Config->Samples, Config->Volts, Config->NoiseGain);
     }
 
-    void ProcessSignal() override
-    {
-        Output->Signals[0] = Sig;
-        Output->ProcessSignal();
-    }
+    void ProcessSignal() override { Output->Signals[0] = Sig; Output->ProcessSignal(); }
 
     //void ProcessSignal(std::vector<double> Sig) { Output->SendSignal(Sig); }
 };
@@ -181,16 +167,102 @@ public:
     void ProcessSignal() override
     {
         if (Ohms == 0) { Ohms = 1; }
-        for (uint32_t n = 0; n < Signals[0].size(); ++n)
+        Output->Signals[0] = Signals[0]; size_t os = Output->Signals[0].size();
+        for (uint32_t n = 0; n < os; ++n) { Output->Signals[0][n] /= Ohms; }
+        
+    }
+};
+
+
+// #################################################
+
+// CAPACITOR:
+// * Implementar um jeito de filtrar com eles.
+class Capacitor : public Component
+{
+public:
+    double F = 1, C, V, J; // Farad, Coulomb, Volts, Joules
+    double Vd = 1; // Volt. Diff.
+    Wire* Output;
+
+    Capacitor(double Farad, double Volts) { F = Farad; if (F == 0) { F = 1; } V = Volts; C = F * V; J = 0.5 * F * V * V; }
+    
+    void ProcessSignal() override
+    {
+        if (F == 0) { F = 1; }
+        Output->Signals[0] = Signals[0]; size_t os = Output->Signals[0].size();
+        for (uint32_t n = 0; n < os; ++n) { Output->Signals[0][n] = 1; }
+    }
+};
+
+double CapacitancePara(std::vector<Capacitor> Caps) { double F = 0; for (size_t n = 0; n < Caps.size(); ++n) { F += Caps[n].F; } return(F); }
+double CapacitanceSer(std::vector<Capacitor> Caps) { double F = 0; for (size_t n = 0; n < Caps.size(); ++n) { F += 1 / Caps[n].F; } return(1 / F); }
+
+// #################################################
+
+/* Bipolar Junction Transistor, NPN PNP, needs two inputs:
+ PNP can have one or two outputs.
+ NPN: iC--v->oE | PNP: oC--v-<iE
+         iB     |         oB
+https://www.youtube.com/watch?v=J4oO7PT_nzQ */
+class TrnsBipolarSig : public Component
+{
+public:
+    double ActV = 0.6, BrnV = 1; // Volts to active it / Volts to burn it
+    double Gain = 1, Ratio = 1; // If feedbacked, maybe there is a better way
+    bool Burned = false, NPN_PNP = false;
+    Wire* Output; // Emitter
+
+    TrnsBipolarSig(bool NPNorPNP = 0)
+    {
+        std::vector<double> s(Signals[0].size());
+        Signals = std::vector<std::vector<double>>::vector(2);
+        Signals[0] = s; Signals[1] = s; // [0] = Collector / Emitter; [1] = Base;
+        NPN_PNP = NPNorPNP;
+    }
+    void ProcessSignal() override
+    {
+        unsigned s = Signals[0].size(), os = Output->Signals.size(), oss = Output->Signals[0].size();
+        double Out = 0;
+        for (uint32_t n = 0; n < s; ++n)
         {
-            Signals[0][n] /= Ohms; Output->Signals[0] = Signals[0]; Output->ProcessSignal();
+            if (Signals[0][n] >= BrnV) { Burned = true; }
+            if (Burned) { Output->Signals[0][n] = 0; }
+            else
+            {
+                //if (Signals[0][n] != 0 && Signals[1][n] > ActV)
+                if (NPN_PNP)
+                {
+                    if (Signals[1][n] > ActV)
+                    {
+                        if (n < oss)
+                        {
+                            Output->Signals[0][n] = Signals[0][n] - Signals[1][n];
+                            if (os > 1) { Output->Signals[1][n] = Signals[1][n]; }
+                        }
+                    }
+                    else { Output->Signals[0][n] = 0; }
+                    //Ratio * (Signals[0][n] / Signals[1][n]); // Find ratio on the transistor datasheet
+                }
+                else
+                {
+                    if (Signals[1][n] > ActV)
+                    {
+                        Out = Signals[0][n] + Signals[1][n]; if (n < oss) { Output->Signals[0][n] = Out; }
+                    }
+                    else { Output->Signals[0][n] = 0; }
+                }
+            }
         }
+        Output->ProcessSignal();
     }
 };
 
 // #################################################
 // #################################################
 // #################################################
+
+// ####### LIGHTS AND REFERENCE COMPONENTS #######
 
 // MAKE LEDS, IT CAN HAVE MORE THAN ONE SIGNAL, HOWEVER, THE OUTPUT WILL BE THE AVERAGE OF THE SUM OF ALL SIGNALS:
 // * Add ohmns *
@@ -270,65 +342,6 @@ public:
     }
 };
 
-class Oscilloscope : public Component
-{
-public:
-    double Volts = 0, BlockZoom = 1;
-    uint16_t x, y;
-    CImg<uint8_t> Print;
-    bool Neg = true;
-    // VOLTAGE TO APPEAR ON MONITOR | ZOOM BLOCK SAMPLE (PERCENTAGE) | SCREEN SIZE | NEGATIVE NUMBERS:
-    Oscilloscope(double iVolts, double iBlockZoom, uint16_t Screenx, uint16_t Screeny, bool InNeg)
-    {
-        Volts = iVolts, BlockZoom = iBlockZoom; x = Screenx; y = Screeny; Neg = InNeg;
-        NewImage(Neg);
-    }
-
-    // #################################################
-    void NewImage(bool Neg)
-    {
-        uint8_t Color[] = { 7, 31, 7 };
-        Print = CImg<uint8_t>::CImg(x, y, 1, 3, 0); FillArea(Print, 2, 2, Color);
-        Color[0] = 23; Color[1] = 95; Color[2] = 23;
-        if (Neg) { MetricLines(Print, -Volts, Volts, 4, false, true, Color); }
-        else { MetricLines(Print, 0, Volts, 8, false, true, Color); } // !!!!!!! ATTENTION, THE IMAGE PLOTTER IS PLOTTING IN THE MIDDLE OF IMAGE, FIX IT BEFORE USING THIS CODE !!!!!!!
-        MetricLines(Print, 0, Signals[0].size(), 4, true, false, Color); // I don't know why it isn't printing the horizontal division... :s
-    }
-    //void Zoom() {} // Use BlockZoom here!
-    // #################################################
-    void PrintImageInxCart(int Signal)
-    {
-        if (!Print.is_empty())
-        {
-            std::vector<double> S = Signals[Signal];
-            double Max = MaxVec(S); MultVecTerms(S, 1.0 / Max); MultVecTerms(S, 64.0);
-            uint8_t Color[] = { 47, 127, 47 };
-            if (Neg) { PrintVectorLineOnImg(Print, S, Max / Volts, Color); }
-            else { PrintVectorLineOnImg(Print, S, Max / Volts, Color); }
-        }
-    }
-
-    // FAZER NA MESMA FUNÇÃO, SÓ TROCAR X POR Y E SX POR SY:
-    //void PrintImageInyCart() { if (!Print.is_empty()) { double Max = MaxVec(Signals[Signal]); PrintVectorPointOnImg(Print, Signals[Signal], 64.0 / Max, 47, 127, 47); } } // I need to make a function for that
-    // #################################################
-    void PrintImageInPolar(int Signal)
-    {
-        // NOT POLAR YET
-        if (!Print.is_empty())
-        {
-            std::vector<double> S = Signals[Signal];
-            double Max = MaxVec(S); MultVecTerms(S, 1.0 / Max); MultVecTerms(S, 64.0);
-            uint8_t Color[] = { 47, 127, 47 };
-            PrintVectorLineOnImg(Print, S, Max / Volts, Color);
-        }
-    } 
-    // #################################################
-    void ProcessSignal() override
-    {
-
-    }
-};
-
 // A LED Matrix that you can see your stuffs... The Voltage is how much Volts it needs to be fully lighten:
 // I'll add outputs and ohmns in the future...
 class LEDArray : public Component
@@ -397,6 +410,65 @@ public:
     }
 };
 
+class Oscilloscope : public Component
+{
+public:
+    double Volts = 0, BlockZoom = 1;
+    uint16_t x, y;
+    CImg<uint8_t> Print;
+    bool Neg = true;
+    // VOLTAGE TO APPEAR ON MONITOR | ZOOM BLOCK SAMPLE (PERCENTAGE) | SCREEN SIZE | NEGATIVE NUMBERS:
+    Oscilloscope(double iVolts, double iBlockZoom, uint16_t Screenx, uint16_t Screeny, bool InNeg)
+    {
+        Volts = iVolts, BlockZoom = iBlockZoom; x = Screenx; y = Screeny; Neg = InNeg;
+        NewImage(Neg);
+    }
+
+    // #################################################
+    void NewImage(bool Neg)
+    {
+        uint8_t Color[] = { 7, 31, 7 };
+        Print = CImg<uint8_t>::CImg(x, y, 1, 3, 0); FillArea(Print, 2, 2, Color);
+        Color[0] = 23; Color[1] = 95; Color[2] = 23;
+        if (Neg) { MetricLines(Print, -Volts, Volts, 4, false, true, Color); }
+        else { MetricLines(Print, 0, Volts, 8, false, true, Color); } // !!!!!!! ATTENTION, THE IMAGE PLOTTER IS PLOTTING IN THE MIDDLE OF IMAGE, FIX IT BEFORE USING THIS CODE !!!!!!!
+        MetricLines(Print, 0, Signals[0].size(), 4, true, false, Color); // I don't know why it isn't printing the horizontal division... :s
+    }
+    //void Zoom() {} // Use BlockZoom here!
+    // #################################################
+    void PrintImageInxCart(int Signal)
+    {
+        if (!Print.is_empty())
+        {
+            std::vector<double> S = Signals[Signal];
+            double Max = MaxVec(S); MultVecTerms(S, 1.0 / Max); MultVecTerms(S, 64.0);
+            uint8_t Color[] = { 47, 127, 47 };
+            if (Neg) { PrintVectorLineOnImg(Print, S, Color, Max / Volts); }
+            else { PrintVectorLineOnImg(Print, S, Color, Max / Volts); }
+        }
+    }
+
+    // FAZER NA MESMA FUNÇÃO, SÓ TROCAR X POR Y E SX POR SY:
+    //void PrintImageInyCart() { if (!Print.is_empty()) { double Max = MaxVec(Signals[Signal]); PrintVectorPointOnImg(Print, Signals[Signal], 64.0 / Max, 47, 127, 47); } } // I need to make a function for that
+    // #################################################
+    void PrintImageInPolar(int Signal)
+    {
+        // NOT POLAR YET
+        if (!Print.is_empty())
+        {
+            std::vector<double> S = Signals[Signal];
+            double Max = MaxVec(S); MultVecTerms(S, 1.0 / Max); MultVecTerms(S, 64.0);
+            uint8_t Color[] = { 47, 127, 47 };
+            PrintVectorLineOnImg(Print, S, Color, Max / Volts);
+        }
+    }
+    // #################################################
+    void ProcessSignal() override
+    {
+
+    }
+};
+
 /*
 float W = CellxSize * 4, H = CellySize * 8;
         CImg<uint8_t> Monitor(W, H, 1, 3, 0);
@@ -431,18 +503,18 @@ float W = CellxSize * 4, H = CellySize * 8;
 
 /*
 // ####### TEMPLATE:
-class Resistor : public Component
+class A : public Component
 {
 public:
-public:
-    double Ohms = 0; // Power supply will send this ammount of Volts to a wire
+    double a = 1;
+    Wire* Output;
 
-    PowerDC(double SetOhms, Wire* SetOutput)
+    A(double Seta) { a = Seta; }
+    void ProcessSignal() override
     {
-        Ohms = SetOhms;
-        Output = SetOutput;
+        for (uint32_t n = 0; n < Signals[0].size(); ++n) { //Something }
+        Output->Signals[0] = Signals[0]; Output->ProcessSignal();
     }
-
 };
 */
 

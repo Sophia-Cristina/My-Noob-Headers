@@ -54,13 +54,13 @@ std::vector<float> PatternFx(int COitava, int TOitava, int Size, int Steps, int 
 	COitava *= 12; TOitava *= 12;
 	float Delta = TOitava - COitava;
 	int StepCount = 0, DivStep = round(Size / Steps);
-	float Radians = Turns * Tau;
+	float Rad = Turns * Tau;
 	std::vector<float> Pattern;
 	// Ação:
 	for (int n = 0; n < Size; ++n)
 	{
 		float ndiv = n / (Size - 1.0);
-		float x = (ndiv * Radians) + (TurnOffSet * Tau);
+		float x = (ndiv * Rad) + (TurnOffSet * Tau);
 		float FormulaResult = ModForm(x, Omega);
 		float Nota = (FormulaResult * Delta) + COitava;
 		int rNota = round(Nota);
@@ -88,13 +88,13 @@ std::vector<int> PatternFxVel(int CVel, int TVel, int Size, int Steps, int StepB
 	if (TVel > 127) { TVel = 127; }
 	int Delta = TVel - CVel;
 	int StepCount = 0, DivStep = round(Size / Steps);
-	float Radians = Turns * Tau;
+	float Rad = Turns * Tau;
 	std::vector<int> Pattern;
 	// Ação:
 	for (int n = 0; n < Size; ++n)
 	{
 		float ndiv = n / (Size - 1.0);
-		float x = (ndiv * Radians) + (TurnOffSet * Tau);
+		float x = (ndiv * Rad) + (TurnOffSet * Tau);
 		float FormulaResult = ModForm(x, Omega);
 		float Nota = (FormulaResult * Delta) + CVel;
 		int rNota = round(Nota);
@@ -121,13 +121,13 @@ std::vector<float> PatternFxFlt(float Cflt, float Tflt, int Size, int Steps, int
 	// Matematica:
 	float Delta = Tflt - Cflt;
 	int StepCount = 0, DivStep = round(Size / Steps);
-	float Radians = Turns * Tau;
+	float Rad = Turns * Tau;
 	std::vector<float> Pattern;
 	// Ação:
 	for (int n = 0; n < Size; ++n)
 	{
 		float ndiv = n / (Size - 1.0);
-		float x = (ndiv * Radians) + (TurnOffSet * Tau);
+		float x = (ndiv * Rad) + (TurnOffSet * Tau);
 		float FormulaResult = ModForm(x, Omega);
 		float Nota = (FormulaResult * Delta) + Cflt;
 		int rNota = round(Nota);

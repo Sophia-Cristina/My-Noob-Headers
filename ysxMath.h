@@ -16,12 +16,44 @@
 #include <iostream>
 #include <fstream>
 // MATEMATICAS:
-#include <math.h> // #include <cmath> // Anterior
-#include <functional>
-#include <algorithm>
-#include <vector>
+#include <math.h> // #include <cmath>
+#include <functional> // Objects specifically designed to be used with a syntax similar to that of functions
+#include <algorithm> // Collection of functions especially designed to be used on ranges of elements
+
+// CONTAINERS:
 #include <array> // Fixed-size sequence containers
-#include <list>
+#include <deque> // Double ended queue deque (usually pronounced like "deck") is an irregular
+				 // acronym of double - ended queue. Double - ended queues are sequence
+				 // containers with dynamic sizes that can be expanded or contracted on both
+				 // ends(either its front or its back).
+#include <forward_list> // Sequence containers that allow constant time insert and erase
+					    // operations anywhere within the sequence.
+#include <list> // Sequence containers that allow constant time insert and erase operations
+				// anywhere within the sequence, and iteration in both directions.
+#include <map> // Associative containers that store elements formed by a combination of a key
+			   // value and a mapped value, following a specific order.
+			   // Multimaps, where multiple elements can have equivalent keys.
+#include <queue> // A type of container adaptor, specifically designed to operate in a FIFO
+				 // context (first-in first-out), where elements are inserted into one end
+				 // of the container and extracted from the other.
+				 // Priority queues are specifically designed such that its first element is
+				 // always the greatest of the elements it contains, according to some strict
+				 // weak ordering criterion.
+#include <set> // Store unique elements following a specific order.
+			   // Multsets, where multiple elements can have equivalent values.
+#include <stack> // A type of container adaptor, specifically designed to operate in a LIFO
+				 // context(last - in first - out), where elements are insertedand extracted
+				 // only from one end of the container.
+#include <unordered_map> // Associative containers that store elements formed by the
+						 // combination of a key value and a mapped value, and which allows
+						 // for fast retrieval of individual elements based on their keys.
+						 // Multimaps, much like unordered_map containers, but
+						 // allowing different elements to have equivalent keys.
+#include <unordered_set> // Store unique elements in no particular order, and which allow
+						 // for fast retrieval of individual elements based on their value.
+						 // Multisets, much like unordered_set containers, but allowing
+						 // different elements to have equivalent values.
+#include <vector> // Sequence containers representing arrays that can change in size
 
 // ############################################################################################################################################
 // ################################################# ANOTATIONS AND ALTERATIONS #################################################
@@ -61,20 +93,23 @@ template <class T_> struct Point { T_ x, y; }; // Coordinates 2D
 template <class T_> struct Point3D { T_ x, y, z; }; // Coordinates 3D
 template <class T_> struct LinePoint { Point<T_> P0, P1; }; // In my opinion, easier to make lines
 template <class T_> struct LinePoint3D { Point3D<T_> P0, P1; }; // In my opinion, easier to make lines
+template <class T_, class T__> struct IdxVal { T_ i; T__ v; }; // Index and Value, maybe use 'map<,>' instead if you need a container
 
 // #####################################################################################################################################
 
-#include "ysxplg/ysxConst.h";
-#include "ysxplg/ysxConv.h"
-#include "ysxplg/ysxVector.h";
-#include "ysxplg/ysxPhys.h";
-#include "ysxGeo/ysxGeo.h"
-#include "ysxplg/ysxCalc.h";
-#include "ysxplg/ysxField.h";
+#include "ysxplg/ysxConst.h"
+#include "ysxplg/ysxConv.h" // Conversors
+#include "ysxplg/ysxVector.h" // std::vector
+#include "ysxplg/ysxPhys.h" // Physics
+#include "ysxGeo/ysxGeo.h" // Geometry
+#include "ysxplg/ysxCalc.h" // Calculus
+#include "ysxplg/ysxField.h" // Field arithmetics
+#include "ysxMech/ysxEngn.h" // Engineering stuffs
 #include "ysxElec/ysxElectr.h" // Some trigonomotry in 'ysxGeo.h'. Also #include 'ysxBytes.h' and 'ysxSignal.h'.
-#include "ysxplg/ysxMusic.h"
-#include "ysxplg/ysxMoney.h"; // Things about money and related to economy and etc...
-#include "ysxplg/ysxFractal.h";
+#include "ysxMusic/ysxMusic.h"
+#include "ysxMusic/ysxSynth.h"
+#include "ysxplg/ysxMoney.h" // Things about money and related to economy and etc...
+#include "ysxplg/ysxFractal.h"
 
 // #####################################################################################################################################
 
@@ -83,6 +118,18 @@ template <class T_> struct LinePoint3D { Point3D<T_> P0, P1; }; // In my opinion
 // ############################
 
 // ############## MATHEMATICS ##############
+
+// ############################
+// ####### FRACTIONS:
+
+// ADD FRACTIONS
+template <class T_> Point<T_> FracAdd(Point<T_> a, Point<T_> b) { Point<T_> c; c.x = a.x * b.y + a.y * b.x; c.y = a.y * b.y; return(c); }
+// SUB FRACTIONS
+template <class T_> Point<T_> FracSub(Point<T_> a, Point<T_> b) { Point<T_> c; c.x = a.x * b.y - a.y * b.x; c.y = a.y * b.y; return(c); }
+// MULTIPLY FRACTIONS
+template <class T_> Point<T_> FracMul(Point<T_> a, Point<T_> b) { Point<T_> c; c.y = a.x * b.x; c.x = a.y * b.y; return(c); }
+// DIVIDE FRACTIONS
+template <class T_> Point<T_> FracDiv(Point<T_> a, Point<T_> b) { Point<T_> c; c.y = a.x * b.y; c.x = a.y * b.x; return(c); }
 
 // ############################
 // ####### MULTIPLES OR DIVISORS:
@@ -116,7 +163,7 @@ double HarmMean(std::vector<double> Vec) { double Sum = 0; size_t n = Vec.size()
 
 // GEOMETRIC MEAN:
 double GeoMean(std::vector<double> Vec)
-{ double Mult = 0; if (Vec.size() != 0) { for (size_t n = 0; n < Vec.size(); ++n) { Mult *= Vec[n]; } Mult = pow(Mult, 1 / Vec.size()); } return (Mult); }
+{ double Mul = 0; if (Vec.size() != 0) { for (size_t n = 0; n < Vec.size(); ++n) { Mul *= Vec[n]; } Mul = pow(Mul, 1 / Vec.size()); } return (Mul); }
 
 // ARITHMETIC-GEOMETRIC MEAN:
 Point<double> ArithGeoMean(Point<double> PointDbl, int Iter)
@@ -279,7 +326,7 @@ template <class T_> double GetRadBetween(Point<T_> A, Point<T_> B)
 // SUBTRACT, ADD OR MULTIPLY EUC. VECTOR:
 template <class T_> Point<T_> SubEucVector(Point<T_> A, Point<T_> B) { Point<T_> C = { A.x - B.x, A.y - B.y }; return(C); }
 template <class T_> Point<T_> AddEucVector(Point<T_> A, Point<T_> B) { Point<T_> C = { A.x + B.x, A.y + B.y }; return(C); }
-template <class T_> Point<T_> SclrMultEucVec(Point<T_> A, double ScalarMultiplier) { Point<T_> B = { A.x * ScalarMultiplier, A.y * ScalarMultiplier }; return(B); }
+template <class T_> Point<T_> SclrMulEucVec(Point<T_> A, double ScalarMultiplier) { Point<T_> B = { A.x * ScalarMultiplier, A.y * ScalarMultiplier }; return(B); }
 
 // DOT PRODUCT:
 template <class T_> T_ DotProd(double AMag, double BMag, double Rad) { return(AMag * BMag * cos(Rad)); }
@@ -717,10 +764,10 @@ std::vector<Point<unsigned short>> RandomDominoes(size_t Tries)
 }
 
 // RANDOM CARD:
-std::vector<NameValue> RandomCard(size_t Tries)
+std::vector<NameValue<uint8_t>> RandomCard(size_t Tries)
 {
-	std::vector<NameValue> Cards(Tries);
-	NameValue Card;
+	std::vector<NameValue<uint8_t>> Cards(Tries);
+	NameValue<uint8_t> Card;
 	for (size_t a = 0; a < Tries; ++a)
 	{
 		Card.Value = (rand() % 13) + 1;
@@ -733,10 +780,10 @@ std::vector<NameValue> RandomCard(size_t Tries)
 }
 
 // RANDOM TAROT:
-std::vector<NameValue> RandomTarot(size_t Tries)
+std::vector<NameValue<uint8_t>> RandomTarot(size_t Tries)
 {
-	std::vector<NameValue>Cards (Tries);
-	NameValue Card;
+	std::vector<NameValue<uint8_t>>Cards (Tries);
+	NameValue<uint8_t> Card;
 	std::vector<std::string> CardNames = TAROTMAJORS;
 	for (size_t a = 0; a < Tries; ++a)
 	{
@@ -745,7 +792,7 @@ std::vector<NameValue> RandomTarot(size_t Tries)
 		if (MinMaj) { Card.Name = CardNames[Rnd - 1]; Card.Value = Rnd; Cards[a] = Card; }
 		else
 		{
-			Card.Value = (double)(rand() % 14) + 1;
+			Card.Value = (rand() % 14) + 1;
 			uint8_t Naipe = rand() % 4; if (Naipe == 0) { Card.Name = "Cups"; }
 			else if (Naipe == 1) { Card.Name = "Pentacles"; }
 			else if (Naipe == 2) { Card.Name = "Spades"; }

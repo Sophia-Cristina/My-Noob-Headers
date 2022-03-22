@@ -135,6 +135,7 @@ double MollweidenegAng(double Alpha, double Beta, double Gama) { return(sin((Alp
 // ####### POLIGONS:
 
 double Perim(double Sides, double Size) { return(Sides * Size); }
+double Inradius(double Sides, double Size) { return(Size * 0.5 * cot(PI / Sides)); } // Inradius regular polygon
 
 // #####################################################################################################################################
 // ####### QUADRILATERALS:
@@ -189,9 +190,8 @@ double SphericalSegA(double R, double h) { return(2 * PI * R * h); }
 // ####### CILINDROS:
 
 // VOLUME AND AREA:
-double CylinSurf(double r, double h) { return(PI * r * r * h); }
+double CylinSurf(double r, double h) { return(TAU * r * h); }
 double CylinVol(double r, double h) { return(PI * r * r * h); }
-double CylinLatArea(double r, double h) { return(2 * PI * r * h); }
 
 // #####################################################################################################################################
 // ####### CONES AND FRUSTRUM (TRONCO):
