@@ -164,7 +164,7 @@ public:
 		// Every division of 56, '7 * 8':
 		double a = 0.625, b = 0.375;// , h = 0.625; // 7 * 5, 7 * 3, 7 * 5
 		double H = 0.5;//, W = 1; // 7 / 14 | 7 * 4
-		double t = LawSinAngle(H, b, HPI);
+		double t = LawSinRad(H, b, HPI);
 		//double ATri = (H * b) / 2, AStamp = a * H, A = H * W;
 		double dx = (y / cos(t)) * sin(t);
 		if (x <= (WIn * a) + dx && x >= dx)

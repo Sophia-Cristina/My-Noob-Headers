@@ -11,13 +11,6 @@
 // #####################
 
 // #####################################################################################################################################
-
-// #####################################################################################################################################
-
-// #####################################################################################################################################
-// #####################################################################################################################################
-// #####################################################################################################################################
-
 // ##################### TEXTOS #####################
 
 // PRINT STRING LIKE A TEXT IN A NOTEPAD:
@@ -34,21 +27,13 @@ void PrintCharAsInt(std::string File, bool Spaces)
 	std::vector<char> V;
 	std::ifstream In(File); if (!In.is_open()) { std::cout << "File error" << std::endl; }
 	else
-	{
-		while (!In.eof())
-		{
-			char C;
-			In.read(&C, 1);
-			V.push_back(C);
-		}
-	}
+	{ while (!In.eof()) { char C; In.read(&C, 1); V.push_back(C); }	}
 	In.close();
 	std::ofstream O("READ INT.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
 	else
 	{
-		if (Spaces) { for (int n = 0; n < V.size() - 1; ++n) { O << (int)V[n] << " "; } }
-		else { for (int n = 0; n < V.size() - 1; ++n) { O << (int)V[n]; } }
-		
+		if (Spaces) { for (size_t n = 0; n < V.size() - 1; ++n) { O << (short)V[n] << " "; } }
+		else { for (size_t n = 0; n < V.size() - 1; ++n) { O << (short)V[n]; } }
 	}
 	O.close();
 }
@@ -66,22 +51,16 @@ void PrintCharPlotter(char C, std::vector<double> V, int L)
 		std::cout << "MAX AND MIN: " << Max << " | " << Min << "\n\n";
 
 		double md = MaxAbs - Max;
-		for (int n = 0; n < L; ++n)
+		for (uint64_t n = 0; n < L; ++n)
 		{
 			//double ValCeil = (MaxAbs * ((L - n + 1) / (double)L)), ValFloor = (MaxAbs * ((L - n) / (double)L));
 			//double ValCeil = (Max * ((L - n + 1) / L)), ValFloor = (Max * ((L - n) / L));
 			double ValCeil = (MaxAbs * ((L - n) / (double)L)), ValFloor = (MaxAbs * ((L - 1 - n) / (double)L));
 
-			for (int m = 0; m < V.size(); ++m)
+			for (uint64_t m = 0; m < V.size(); ++m)
 			{
-				if (V[m] >= ValFloor - md && V[m] <= ValCeil - md)
-				{
-					O << C << "|"; std::cout << C << "|";
-				}
-				else
-				{
-					O << "_|"; std::cout << "_|";
-				}
+				if (V[m] >= ValFloor - md && V[m] <= ValCeil - md) { O << C << "|"; std::cout << C << "|"; }
+				else { O << "_|"; std::cout << "_|"; }
 			}
 			O << " | " << ValFloor - md << " to " << ValCeil - md << " | ";
 			std::cout << " | " << ValFloor - md << " to " << ValCeil - md << " | ";
@@ -98,6 +77,7 @@ void PrintCharPlotter(char C, std::vector<double> V, int L)
 // #####################################################################################################################################
 
 // ##################### MÉTRICA #####################
+
 // Print.open("Print.txt");
 // if (!Print.is_open()) { std::cout << "File error" << std::endl; }
 void PrintMeterSecConvesor(double ms)
@@ -112,16 +92,10 @@ void PrintMeterSecConvesor(double ms)
 }
 
 // #####################################################################################################################################
-
-
-// #####################################################################################################################################
-// #####################################################################################################################################
-// #####################################################################################################################################
-
 // ##################### MATEMÁTICAS #####################
 
 // Imprime numero elevado a 'n':
-void PrintPowerandRoot(double n, int From, int To)
+void PrintPowRoot(double n, int From, int To)
 {
 	if (From > To) { int Tmp = From; From = To; To = Tmp; }
 	std::ofstream O("PowerRoot.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
@@ -129,58 +103,44 @@ void PrintPowerandRoot(double n, int From, int To)
 	{
 		std::vector<long> pn = PowerOfn<long>(n, From, To);
 		O << "#####################\n";
-		for (int m = 0; m < pn.size(); ++m)
-		{
-			O << n << "^" << From + m << " = " << pn[m] << std::endl;
-		}
+		for (int m = 0; m < pn.size(); ++m) { O << n << "^" << From + m << " = " << pn[m] << std::endl; }
 		pn = PowerByn<long>(n, From, To);
 		O << "#####################\n";
-		for (int m = 0; m < pn.size(); ++m)
-		{
-			O << From + m << "^" << n << " = " << pn[m] << std::endl;
-		}
+		for (int m = 0; m < pn.size(); ++m) { O << From + m << "^" << n << " = " << pn[m] << std::endl;	}
+		
 		std::vector<double> rn = nRootOfm<double>(n, From, To);
 		O << "#####################\n";
-		for (int m = 0; m < pn.size(); ++m)
-		{
-			O << n << "root(" << From + m << ") = " << rn[m] << std::endl;
-		}
+		for (int m = 0; m < pn.size(); ++m)	{ O << n << "root(" << From + m << ") = " << rn[m] << std::endl; }
 		rn = mRootOfn<double>(n, From, To);
 		O << "#####################\n";
-		for (int m = 0; m < pn.size(); ++m)
-		{
-			O << From + m << "root(" << n << ") = " << rn[m] << std::endl;
-		}
+		for (int m = 0; m < pn.size(); ++m) { O << From + m << "root(" << n << ") = " << rn[m] << std::endl; }
 	}
 	O.close();
 }
 
 // Imprime multiplos e divisões:
-void PrintMult(double x, double Ini, double End, double Div)
+void PrintMult(double x, double Ini, double End, double Inc)
 {
 	std::ofstream O("PrintMult.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
 	else
 	{
-		O << "####### MULTIPLICAÇÕES:\n\n";
-		for (double a = Ini; a <= End; a += 1.0 / Div)
-		{
-			O << x << " * " << a << " = " << x * a << std::endl;
-		}
-		O << "####### FIM!\n";
+		O << "####### MULTIPLICATIONS:\n\n";
+		for (double a = Ini; a <= End; a += 1.0 / Inc) { O << x << " * " << a << " = " << x * a << std::endl; }
+		O << "####### END!\n";
 	}
 	O.close();
 }
-void PrintDiv(double x, double Ini, double End, double Div)
+void PrintDiv(double x, double Ini, double End, double Inc)
 {
 	std::ofstream O("PrintDiv.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
 	else
 	{
-		O << "####### DIVIÕES:\n\n";
-		for (double a = Ini; a <= End; a += 1.0 / Div)
+		O << "####### DIVISIONS:\n\n";
+		for (double a = Ini; a <= End; a += 1.0 / Inc)
 		{
 			O << x << " / " << a << " = " << x / a << std::endl;
 		}
-		O << "####### FIM!\n";
+		O << "####### END!\n";
 	}
 	O.close();
 }
@@ -211,7 +171,7 @@ void PrtTriInfo(double a, double b, double ang)
 	std::ofstream O("Print.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
 	else
 	{
-		Triangulo Tri(a, b, ang);
+		Triangle Tri(a, b, ang);
 		O << "0: NoTypeLgt; 1: Equilateral; 2: Isoceles; 3: Scalene;\n";
 		O << "0: NoTypeAng; 1: Right; 2: Acute; 3: Obtuse;\n";
 		O << "Tipo triangulo = " << (int)Tri.LnghtType << " & " << (int)Tri.AngType << std::endl;
@@ -227,6 +187,10 @@ void PrtTriInfo(double a, double b, double ang)
 }
 
 // #####################################################################################################################################
+
+// ##################### FRACTAIS #####################
+
+// #####################################################################################################################################
 // #####################################################################################################################################
 // #####################################################################################################################################
 
@@ -240,28 +204,6 @@ void PrintVector(std::vector<T_> Vec)
 	else { O << "VECTOR: \n\n"; for (int n = 0; n < Vec.size(); ++n) { O << n << ": " << Vec[n] << std::endl; } } O.close();
 }
 
-// ############## PLOT VECTOR:
-/*void PrintCharPlotter(char C, std::vector<double> V, int L)
-{
-	double MaxAbs = MaxVecAbs(V), Max = MaxVec(V), Min = MinVec(V); Min *= -1;
-
-	for (int n = 0; n < L; ++n)
-	{
-		O
-		for (int m = 0; m < V.size(); ++m)
-		{
-
-		}
-	}
-}*/
-
-
-// #####################################################################################################################################
-// #####################################################################################################################################
-// #####################################################################################################################################
-
-// ##################### FRACTAIS #####################
-
 // #####################################################################################################################################
 // #####################################################################################################################################
 // #####################################################################################################################################
@@ -270,7 +212,7 @@ void PrintVector(std::vector<T_> Vec)
 
 // "Prt" significa "Print"
 // Imprime Informações que possam ser adiquiridas atravéz de um BPM:
-void PrtBPMInfo(double BPM, double Div, double Div0, double Increment, double Increment0)
+void PrtBPMInfo(double BPM, double Div, double Div0, double Inc, double Inc0)
 {
 	std::ofstream O("BPMInfo.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
 	else
@@ -284,24 +226,24 @@ void PrtBPMInfo(double BPM, double Div, double Div0, double Increment, double In
 		O << " | 8 * (4/4) : " << Dec2Sec(ms2Min((Beatms * 4) * 8) - floor(ms2Min((Beatms * 4) * 8))) << std::endl;
 		O << "16 * 4/4: " << Dec2Sec(ms2Min((Beatms * 4) * 16) - floor(ms2Min((Beatms * 4) * 16))) << std::endl;
 		O << "Freq.: " << ms2Freq(Beatms) << "hz;\n";
-		O << "-------\nDivisões:\n";
-		for (double n = 1; n <= Div; n += Increment) { double b = Beatms / n;  O << "Beat: " << Beatms << " / " << n << " = " << b << " || " << ms2Freq(b) << "hz;\n"; }
+		O << "-------\nDivisions:\n";
+		for (double n = 1; n <= Div; n += Inc) { double b = Beatms / n;  O << "Beat: " << Beatms << " / " << n << " = " << b << " || " << ms2Freq(b) << "hz;\n"; }
 		O << "!!!!!!!\n";
-		for (double m = 1; m < Div0; m += Increment0)
+		for (double m = 1; m < Div0; m += Inc0)
 		{
-			for (double n = 1; n <= 10; n += Increment)
+			for (double n = 1; n <= 10; n += Inc)
 			{
 				double b = (Beatms / n) + (Beatms / m);
 				O << "(" << Beatms << " / " << n << ") + Beat / " << m << " = " << b << " || " << ms2Freq(b) << "hz;\n";
 			}
 			O << std::endl;
 		}
-		O << "-------\nMultiplicações:\n";
-		for (double n = 1; n <= Div; n += Increment) { double b = Beatms * n;  O << "Beat: " << Beatms << " * " << n << " = " << b << " || " << ms2Freq(b) << "hz;\n"; }
+		O << "-------\nMultiplications:\n";
+		for (double n = 1; n <= Div; n += Inc) { double b = Beatms * n;  O << "Beat: " << Beatms << " * " << n << " = " << b << " || " << ms2Freq(b) << "hz;\n"; }
 		O << "!!!!!!!\n";
-		for (double m = 1; m < Div0; m += Increment0)
+		for (double m = 1; m < Div0; m += Inc0)
 		{
-			for (double n = 1; n <= 10; n += Increment)
+			for (double n = 1; n <= 10; n += Inc)
 			{
 				double b = (Beatms / n) + (Beatms * m);
 				O << "(" << Beatms << " / " << n << ") + (Beat * " << m << ") = " << b << " || " << ms2Freq(b) << "hz;\n";
@@ -313,34 +255,34 @@ void PrtBPMInfo(double BPM, double Div, double Div0, double Increment, double In
 }
 
 // Imprime Informações que possam ser adiquiridas atravéz de milisegundos:
-void PrtmsInfo(double ms, double Div, double Div0, double Increment, double Increment0)
+void PrtmsInfo(double ms, double Div, double Div0, double Inc, double Inc0)
 {
 	std::ofstream O("PrtmsInfo.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
 	else
 	{
-		O << "ms em minutos: " << ms2Min(ms) << " | ms em BPM: " << ms2BPM(ms) << " | ms em freq.: " << ms2Freq(ms) << std::endl;
+		O << "ms as minutes: " << ms2Min(ms) << " | ms as BPM: " << ms2BPM(ms) << " | ms as freq.: " << ms2Freq(ms) << std::endl;
 		O << "4 beats (ms): " << ms * 4 << " | 4 * 4/4: " << 4 * ms * 4 << " | 16 * 4 / 4: " << 16 * ms * 4 << std::endl;
 		O << "Minutes (4 * 4/4  = pattern Renoise):\n4/4: " << ms2Min(ms) * 4 << " | 4 * 4/4: " << 4 * (ms2Min(ms) * 4) << std::endl;
 		O << "8 * 4/4: " << 8 * (ms2Min(ms) * 4) << " | 16 * 4 / 4: " << 16 * (ms2Min(ms) * 4) << std::endl;
 		O << "Freq.: " << ms2Freq(ms) << "hz;\n";
-		O << "-------\nDivisões:\n";
-		for (double n = 1; n <= Div; n += Increment) { double b = ms / n;  O << "Beat: " << ms << " / " << n << " = " << b << " || " << ms2Freq(b) << "hz;\n"; }
+		O << "-------\nDivisions:\n";
+		for (double n = 1; n <= Div; n += Inc) { double b = ms / n;  O << "Beat: " << ms << " / " << n << " = " << b << " || " << ms2Freq(b) << "hz;\n"; }
 		O << "!!!!!!!\n";
-		for (double m = 1; m < Div0; m += Increment0)
+		for (double m = 1; m < Div0; m += Inc0)
 		{
-			for (double n = 1; n <= 10; n += Increment)
+			for (double n = 1; n <= 10; n += Inc)
 			{
 				double b = (ms / n) + (ms / m);
 				O << "(" << ms << " / " << n << ") + Beat / " << m << " = " << b << " || " << ms2Freq(b) << "hz;\n";
 			}
 			O << std::endl;
 		}
-		O << "-------\nMultiplicações:\n";
-		for (double n = 1; n <= Div; n += Increment) { double b = ms * n;  O << "Beat: " << ms << " * " << n << " = " << b << " || " << ms2Freq(b) << "hz;\n"; }
+		O << "-------\nMultiplications:\n";
+		for (double n = 1; n <= Div; n += Inc) { double b = ms * n;  O << "Beat: " << ms << " * " << n << " = " << b << " || " << ms2Freq(b) << "hz;\n"; }
 		O << "!!!!!!!\n";
-		for (double m = 1; m < Div0; m += Increment0)
+		for (double m = 1; m < Div0; m += Inc0)
 		{
-			for (double n = 1; n <= 10; n += Increment)
+			for (double n = 1; n <= 10; n += Inc)
 			{
 				double b = (ms / n) + (ms * m);
 				O << "(" << ms << " / " << n << ") + (Beat * " << m << ") = " << b << " || " << ms2Freq(b) << "hz;\n";
@@ -374,11 +316,11 @@ void MtoFPrint(int MIDImin, int MIDImax, int Temperament, double BaseFreq)
 	{
 		O << "####### MIDI to Frequency #######\n\n";
 		O << "Temperament: " << Temperament << " | Base Freq.: " << BaseFreq << "\n\n";
-		int CountOctave = 0;
+		uint8_t Oct = 0;
 		for (int MIDI = MIDImin; MIDI <= MIDImax; ++MIDI)
 		{
 			O << "MIDI: " << MIDI << " | FREQ.: " << MIDItoFreq(MIDI, Temperament, BaseFreq);
-			if (MIDI == Temperament * CountOctave) { O << " <- NOTE 'A'!\n"; ++CountOctave; }
+			if (MIDI == Temperament * Oct) { O << " <- NOTE 'A'!\n"; ++Oct; }
 			else { O << std::endl; }
 		}
 		O << "\n####### FIM! #######";
@@ -386,13 +328,13 @@ void MtoFPrint(int MIDImin, int MIDImax, int Temperament, double BaseFreq)
 	O.close();
 }
 
-// ##############       ##############
+// ##############				 ##############
 // ############## RENOISE STUFFS ##############
-// ##############       ##############
+// ##############				 ##############
 
 // Print a text which can be copied and pasted on the automation section of Renoise (2.8.0).
 // You should normalize it before using. It adds ".txt" after "FileName":
-void Vector2RenoiseAuto(std::vector<double> V, int Type, int LenghtInPatternLines, std::string FileName)
+void Vec2RenoiseAuto(std::vector<double> V, int Type, int LenghtInPatternLines, std::string FileName)
 {
 	if (V.size() > 0)
 	{
@@ -443,8 +385,8 @@ void Vector2RenoiseAuto(std::vector<double> V, int Type, int LenghtInPatternLine
 }
 
 // PRINT BLOCKS OF VECTORS:
-void Vector2RenoiseAuto(std::vector<std::vector<double>> Vv, int Type, int LenghtInPatternLines, std::string FileName)
-{ for (int n = 0; n < Vv.size(); ++n) { Vector2RenoiseAuto(Vv[n], Type, LenghtInPatternLines, FileName + std::to_string(n)); } }
+void Vec2RenoiseAuto(std::vector<std::vector<double>> Vv, int Type, int LenghtInPatternLines, std::string FileName)
+{ for (int n = 0; n < Vv.size(); ++n) { Vec2RenoiseAuto(Vv[n], Type, LenghtInPatternLines, FileName + std::to_string(n)); } }
 
 // ##############       ##############
 // ############## COLL: ##############
@@ -513,7 +455,7 @@ void FiboWordFracCoord2Coll(int Iter, bool CollMsn, int Line, float Dist, bool x
 }
 
 // Any Vector to coll:
-void Vector2Coll(std::vector<float> Coll, bool CollMsn, int Line)
+void Vec2Coll(std::vector<float> Coll, bool CollMsn, int Line)
 {
 	std::ofstream O("Vector.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
 	else
@@ -530,7 +472,7 @@ void Vector2Coll(std::vector<float> Coll, bool CollMsn, int Line)
 }
 
 // Print Vector of Vectors into 'Line + n':
-void VectorofVectors2Coll(std::vector<std::vector<float>> Coll, int Line)
+void VecOfVec2Coll(std::vector<std::vector<float>> Coll, int Line)
 {
 	std::ofstream O("Vector.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
 	else
@@ -560,7 +502,7 @@ void VectorofVectors2Coll(std::vector<std::vector<float>> Coll, int Line)
 // #####################################################################################################################################
 // #####################################################################################################################################
 
-// ##################### ESPECIAIS #####################
+// ##################### SPECIALS #####################
 
 // PRINT SOMETHING A NUMBER OF TIMES:
 void PrintitNtimes()
@@ -572,7 +514,7 @@ void PrintitNtimes()
 	O.close();
 }
 // PLOT VECTOR WITH '#', SCALE THE SIZE WITH NUMBER OF LINES:
-void PrintVectorPlot(std::vector<float> V, int Lines)
+void PrintVecPlot(std::vector<float> V, int Lines)
 {
 	if (Lines < 2) { Lines = 2; }
 	std::ofstream O("PrintVector.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
@@ -595,8 +537,6 @@ void PrintVectorPlot(std::vector<float> V, int Lines)
 }
 
 // #####################################################################################################################################
-
-
 
 // ################################################# FIM ####################################################################################
 

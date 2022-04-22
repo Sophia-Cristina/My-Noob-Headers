@@ -269,7 +269,7 @@ public:
 			else { Tot.N = Tot.N - Frictions[FrcIndx].muk; Tot.Fx = sqrt((Tot.N * Tot.N) - (Tot.Fy * Tot.Fy)); Tot.Fy = sqrt((Tot.N * Tot.N) - (Tot.Fx * Tot.Fx)); }
 		}
 		Tot.N = sqrt((Tot.Fx * Tot.Fx) + (Tot.Fy * Tot.Fy));
-		Tot.Angle = LawSinAngle(Tot.Fx, Tot.Fy, 90);
+		Tot.Angle = LawSinRad(Tot.Fx, Tot.Fy, HPI);
 		Tot.Accel = Tot.N / Tot.kg;
 		FTotal = Tot; // !!!!!!! DONE !!!!!!!
 	}

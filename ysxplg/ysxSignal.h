@@ -773,11 +773,12 @@ on 'Size' and 'C'ounter.
 template<class T_> class SigStream
 {
 public:
-    T_ Size = 0; // As samples
-    std::vector<T_> C; // 'C'ount (iterator), use vector index as different voices
+    // Maybe make an option to choose the bit of the 'Size' and 'C'
+    uint32_t Size = 0; // As samples
+    std::vector<uint32_t> C; // 'C'ount (iterator), use vector index as different voices
     // INPUT, FOR INHERITANCE:
-    // * Think about the input as 'void', but limited to 32bits, use casts.
-    virtual T_ IO(T_* T_bits) { return(*T_bits); }
+    // * Think about the input as 'void', but limited to n-bits, use casts.
+    virtual T_ IO(T_ T_bits) { return(T_bits); }
 
     SigStream() { C.push_back(0); }
     ~SigStream() { }

@@ -10,7 +10,14 @@
 // ####### Functions normally used in music and related
 // #####################
 
+// Temper = Temperament;
+
 // #####################################################################################################################################
+
+// ############################
+// ####### INSTRUMENT AND RELATED:
+template<class Stream, class PatSize, class GainT>
+struct Instr { SigStream<Stream>* S; PatSize Ptrn = 0; GainT g = 0; };
 
 // ############################
 // ####### CLOCK / TIME:
@@ -39,9 +46,10 @@ double Samples2Sec(uint32_t Samples, uint32_t SampRate) { return((double)Samples
 // ####### NOTES AND PATTERNS:
 
 // # FREQUENCIES:
-//double MIDItoFreq(int MIDI, int Temperament, double BaseFreq) { return(pow(2.0, (MIDI - (Temperament * 5.75)) / Temperament) * BaseFreq); } // A3 = 57; C3 = 48;
-double MIDItoFreq(uint8_t MIDI, uint16_t Temperament, double BaseFreq) { return(pow(2.0, ((double)MIDI / Temperament)) * BaseFreq * 0.0185814); } // Modo Reduzido, mas fixo em 'A3 = 57'
-double FreqtoMIDI(double Freq, uint16_t Temperament, double BaseFreq) { return(81 * log2(Freq / BaseFreq)); }
+//double MIDItoFreq(int MIDI, int Temper, double BaseFreq) { return(pow(2.0, (MIDI - (Temper * 5.75)) / Temper) * BaseFreq); } // A3 = 57; C3 = 48;
+double MIDItoFreq(uint8_t MIDI, uint16_t Temper, double BaseFreq) { return(pow(2.0, ((double)MIDI / Temper)) * BaseFreq * 0.0185814); } // Modo Reduzido, mas fixo em 'A3 = 57'
+double MtoFMini(uint8_t MIDI) { return(pow(2.0, (MIDI / 12.0)) * 440 * 0.0185814); }
+double FreqtoMIDI(double Freq, uint16_t Temper, double BaseFreq) { return(81 * log2(Freq / BaseFreq)); }
 
 // ############################
 // ####### SPECIAL:
@@ -52,16 +60,16 @@ std::vector<int> FindValueInSine(double a, int b0, int b1, double Value, double 
 { std::vector<int> Return; for (int b = b0; b < b1; ++b) { if (sin(Radian * a * b) == Value) { Return.push_back(b); } } return(Return); }
 
 // The same, but based on a music scale (MIDI):
-std::vector<int> FindValueInSineinMIDI(double a, uint8_t MIDIini, uint8_t MIDIend, double Value, double Radian, uint16_t Temperament, double BaseFreq)
-{ std::vector<int> Return; for (int M = MIDIini; M < MIDIend; ++M) { if (sin(Radian * a * MIDItoFreq(M, Temperament, BaseFreq)) == Value) { Return.push_back(M); } } return(Return); }
+std::vector<int> FindValueInSineinMIDI(double a, uint8_t MIDIini, uint8_t MIDIend, double Value, double Radian, uint16_t Temper, double BaseFreq)
+{ std::vector<int> Return; for (int M = MIDIini; M < MIDIend; ++M) { if (sin(Radian * a * MIDItoFreq(M, Temper, BaseFreq)) == Value) { Return.push_back(M); } } return(Return); }
 
 // The same, but based on a music scale (Frequency):
-std::vector<double> FindValueInSineinFreq(double a, int FreqIni, int FreqEnd, double Increment, double Value, double Radian, int Temperament, double BaseFreq)
+std::vector<double> FindValueInSineinFreq(double a, int FreqIni, int FreqEnd, double Increment, double Value, double Radian, int Temper, double BaseFreq)
 {
 	std::vector<double> Return;
 	for (int f = FreqIni; f < FreqEnd; f += Increment)
 	{
-		if (sin(Radian * a * f) == Value) { Return.push_back(FreqtoMIDI(f, Temperament, BaseFreq)); }
+		if (sin(Radian * a * f) == Value) { Return.push_back(FreqtoMIDI(f, Temper, BaseFreq)); }
 	}
 	return(Return);
 }

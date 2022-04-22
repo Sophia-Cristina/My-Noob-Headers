@@ -75,7 +75,7 @@ double MiniForm(double, double);
 double Derivative(double, double); double Derivative(double, double, double);
 double Derivative(double, double, double, double); double Derivative(double, double, double, double, double);
 double d2xdt2(double, double);
-double LawSinAngle(double, double, double);
+double LawSinRad(double, double, double);
 
 // Intern:
 template <class T_> T_ SumVec(std::vector<T_>);
@@ -98,6 +98,7 @@ template <class T_, class T__> struct IdxVal { T_ i; T__ v; }; // Index and Valu
 // #####################################################################################################################################
 
 #include "ysxplg/ysxConst.h"
+#include "ysxplg/ysxTable.h" // Const tables
 #include "ysxplg/ysxConv.h" // Conversors
 #include "ysxplg/ysxVector.h" // std::vector
 #include "ysxplg/ysxPhys.h" // Physics
@@ -306,13 +307,13 @@ long long BinomialCoff(int n, int k) { n = abs(n); k = abs(k); long Fct = (n - k
 // ############################
 // ####### EUCLIDEAN VECTOR:
 // GET MAGNITUDE:
-//template <class T_> T_ GetMag(Point<T_> Vector) { return(hipo(fabs(Vector.x), fabs(Vector.y))); }
-double GetMag(Point<double> Vector) { return(hipo(fabs(Vector.x), fabs(Vector.y))); }
+//template <class T_> T_ GetMag(Point<T_> Vector) { return(hypot(fabs(Vector.x), fabs(Vector.y))); }
+double GetMag(Point<double> Vector) { return(hypot(fabs(Vector.x), fabs(Vector.y))); }
 
 // GET RADIAN:
 double GetVecRad(Point<double> Vector)
 {
-	double ax = fabs(Vector.x), ay = fabs(Vector.y); double Rad = asin(ay / hipo(ax, ay));
+	double ax = fabs(Vector.x), ay = fabs(Vector.y); double Rad = asin(ay / hypot(ax, ay));
 	if (Vector.x >= 0 && Vector.y >= 0) { return (Rad); }
 	else if (Vector.x < 0 && Vector.y >= 0) { return (PI - Rad); }
 	else if (Vector.x < 0 && Vector.y < 0) { return (PI + Rad); }

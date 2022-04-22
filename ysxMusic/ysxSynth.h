@@ -27,7 +27,7 @@ AD = A.ttack.D.ecay. A system where 'A' is a percentage of the playing time, and
  ~ After that, signal loses gain until D.ecay, the end gain would be 0.467;
 F = F.loat, F.lag, F.requency; // Or something else if i miss
 FFT = F.ast-F.ourier-T.ransform;
-Flt = Float; // If a float, *probably* something from -1 to 1, or 0 to 1
+Flt32 = float; // If a float, *probably* something from -1 to 1, or 0 to 1
 pSomething = probably 'the p.ower' or 'a p.ower' or 'iterator' or 'p.ointer' of 'Something';
 PW = P.ulse-W.idth;
 SRate = S.ample Rate;
@@ -105,101 +105,102 @@ std::vector<uint8_t> KickSmpBuf(uint32_t Size, uint32_t SRate, uint8_t Bytes, fl
 }
 
 // #################################################
-// ####### INSTRUMENT TO 'SIGNAL STREAM' INHERITANCE
+// ####### INSTRUMENT FOR 'SIGNAL STREAM' INHERITANCE
 // #################################################
 
-// KICK AS INSTRUMENT (CLASS IN 'ysxMusic.h'):
-template<class T_>
-class I_Kick : public SigStream<T_>
+// ### IO PLUGS:
+// Add Seconds
+struct iopSec : public SigStream<float> { float sec = 1; void SecBySize(uint32_t SRate) { sec = Size / SRate; } };
+// ###
+
+// KICK IO:
+class IO_Kick : public iopSec
 {
 private:
-	float x = 0, g = 0;
+	float g = 0;
 public:
-	float Freq = 1, pFreq = 1, pAmp = 1, Atk = 0.05, sec = 1;
+	float Freq = 1, pFreq = 1, pAmp = 1, Atk = 0.05;
 
 	// USE TURNS! Preferably 32b:
-	T_ IO(T_* Flt) override
+	float IO(float x) override
 	{
-		x = *(float*)Flt;
 		if (sec <= 0) { sec = 1; } if (x < 0) { x *= -1; }
 		if (x > sec) { x = (x - floor(x)) - (sec - floor(sec)); }
+		if (x < Atk && Atk != 0) { g = x / Atk; }
 		x = sin(x * Freq * TAU * pow(1 - x / sec, pFreq)) * pow(1 - x / sec, pAmp) * g;
-		if (x < Atk && Atk != 0) { x /= Atk; }
-		return(*(T_*)&x);
+		
+		return(x);
 	}
 };
 
 // KICK USES FEW BYTES:
-template<class T_>
-class I_KickMini : public SigStream<T_>
+class IO_KickMini : public SigStream<float>
 {
 private:
-	float x = 0, g = 0;
+	float g = 0;
 public:
 	float Freq = 1;
 	uint8_t PFPA = 8; // 15 levels of power, 0xF0 = pFreq; 0x0F = pAmp
 	uint8_t AtkSec = 1; // 15 levels of: 0xF0 = Attack; 0x0F = sec / 3; 5 seconds max
 
 	// USE TURNS! Preferably 32b:
-	T_ IO(T_* Flt) override
+	float IO(float x) override
 	{
-		x = *(float*)Flt;
 		if ((AtkSec & 15) == 0) { ++AtkSec; } if (x < 0) { x *= -1; }
 		if (x > (AtkSec & 15) / 45.0) { x = (x - floor(x)) - ((AtkSec & 15) / 45.0 - floor((AtkSec & 15) / 45.0)); }
+		if (x < (AtkSec >> 4) / 15.0 && (AtkSec >> 4) / 15.0 != 0) { g =  x / ((AtkSec >> 4) / 15.0); }
 		x = sin(x * Freq * TAU * pow(1 - x / ((AtkSec & 15) / 45.0), (PFPA >> 4) / 15.0)) * pow(1 - x / ((AtkSec & 15) / 45.0), (PFPA & 15) / 15.0) * g;
-		if (x < (AtkSec >> 4) / 15.0 && (AtkSec >> 4) / 15.0 != 0) { x /= (AtkSec >> 4) / 15.0; }
-		return(*(T_*)&x);
+		
+		return(x);
 	}
 };
 
-// KICK USES EVEN FEWER BYTES:
+// KICK USES EVEN FEWER BYTES (WORK IN PROGRESS):
 // 'x' is like fixed, 0 to 255 is 0 to 2*PI.
 // 'g'ain is 0 to 255 as 0 to 1.
 // 'Freq'uency is 0 to 255 equal MtoF.
-template<class T_>
-class I_KickMicro : public SigStream<T_>
+class IO_KickMicro : public SigStream<uint8_t> // !!! WIP !!!
 {
 private:
-	uint8_t x = 0, g = 0;
+	uint8_t g = 0;
 public:
-	float Freq = 1;
-	uint8_t PFPA = 8; // 15 levels of power, 0xF0 = pFreq; 0x0F = pAmp
-	uint8_t AtkSec = 1; // 15 levels of: 0xF0 = Attack; 0x0F = sec / 3; 5 seconds max
+	// MIDI | 15 levels of power, 0xF0 = pFreq; 0x0F = pAmp | 15 levels of: F0 = Atk; 0F = sec / 3; 5 sec max
+	uint8_t Freq = 1, PFPA = 8, AtkSec = 1;
 
 	// USE TURNS! Preferably 32b:
-	T_ IO(T_* Flt) override
+	uint8_t IO(uint8_t ui8) override
 	{
-		x = *(float*)Flt;
-		if ((AtkSec & 15) == 0) { ++AtkSec; } if (x < 0) { x *= -1; }
-		if (x > (AtkSec & 15) / 45.0) { x = (x - floor(x)) - ((AtkSec & 15) / 45.0 - floor((AtkSec & 15) / 45.0)); }
-		x = sin(x * Freq * TAU * pow(1 - x / ((AtkSec & 15) / 45.0), (PFPA >> 4) / 15.0)) * pow(1 - x / ((AtkSec & 15) / 45.0), (PFPA & 15) / 15.0) * g;
-		if (x < (AtkSec >> 4) / 15.0 && (AtkSec >> 4) / 15.0 != 0) { x /= (AtkSec >> 4) / 15.0; }
-		return(*(T_*)&x);
+		if ((AtkSec & 15) == 0) { ++AtkSec; } if (ui8 < 0) { ui8 *= -1; }
+		//if ((ui8 / 255.0) > (AtkSec & 15) / 45.0) { ui8 = ((ui8 / 255.0) - floor((ui8 / 255.0))) - ((AtkSec & 15) / 45.0 - floor((AtkSec & 15) / 45.0)); }
+		//if (ui8 < (AtkSec >> 4) / 15.0 && (AtkSec >> 4) / 15.0 != 0) { g = ui8 / ((AtkSec >> 4) / 15.0); }
+		if (ui8 > (AtkSec & 15) * 17) { ui8 %= (AtkSec & 15) * 17; }
+		if (ui8 < (AtkSec >> 4) * 17 && AtkSec >> 4 != 0) { g = (AtkSec >> 4) * 17; }
+		ui8 = sin((ui8 / 255.0) * MtoFMini(Freq) * TAU * pow(1 - (ui8 / 255.0) / ((AtkSec & 15) / 45.0), (PFPA >> 4) / 15.0)) * pow(1 - (ui8 / 255.0) / ((AtkSec & 15) / 45.0), (PFPA & 15) / 15.0) * (g / 255.0);
+		return(ui8);
+		//sin((n / 255.0) * M * TAU * pow(1 - (n / 255.0) / s, p) * pow(1 - (n / 255.0) / s, q) * (g / 255.0);
 	}
 };
 
 
 // KICK INSTRUMENT, SIN-TRI-RECT:
-template<class T_>
-class I_KickSTR : public SigStream<T_>
+class IO_KickSTR : public iopSec
 {
 private:
-	float x = 0, g = 0;
+	float g = 0;
 public:
-	float Freq = 1, RatioT = 1, RatioR = 1, pFreq = 1, pAmp = 1, Atk = 0.05, sec = 1;
+	float Freq = 1, RatioT = 1, RatioR = 1, pFreq = 1, pAmp = 1, Atk = 0.05;
 
 	// USE TURNS! Preferably 32b:
-	T_ IO(T_* Flt) override
+	float IO(float x) override
 	{
-		x = *(float*)Flt;
 		if (sec <= 0) { sec = 1; } if (x < 0) { x *= -1; }
 		if (x > sec) { x = (x - floor(x)) - (sec - floor(sec)); }
-		x = (sin(x * Freq * TAU * pow(1 - x / sec, pFreq)) * pow(1 - x / sec, pAmp)) +
+		if (x < Atk && Atk != 0) { g = x / Atk; }
+		x = (sin(x * Freq * TAU * pow(1 - x / sec, pFreq)) * pow(1 - x / sec, pAmp) * 0.3 +
 			tri(x * Freq * RatioT * TAU * pow(1 - x / sec, pFreq)) * pow(1 - x / sec, pAmp) * 0.3 +
-			rect(x * Freq * RatioR * TAU * pow(1 - x / sec, pFreq)) * pow(1 - x / sec, pAmp) * 0.3 * g;
-		x /= 3;
-		if (x < Atk && Atk != 0) { x /= Atk; }
-		return(*(T_*)&x);
+			rect(x * Freq * RatioR * TAU * pow(1 - x / sec, pFreq)) * pow(1 - x / sec, pAmp) * 0.3) * g;
+		//if (fabs(x) > 1) { std::cout << "CLIP!!! x = " << x << '\n'; }
+		return(x);
 	}
 };
 
@@ -207,57 +208,64 @@ public:
 // ####### OSCILLATORS #######
 
 // SIMPLE OSCILLATOR:
-template<class T_>
-class I_SimpleOSC : public SigStream<T_>
+class IO_SimpleOSC : public SigStream<float>
 {
 public:
-	float Freq = 1, x = 0, y = 0; uint8_t n = 0;
+	float Freq = 1, y = 0;
+	uint8_t n = 0;
 	uint8_t F = 1; // Flags, 1111 15-levels PW, or phase for others than rect | 1111 saw, rect, tri, sine
 
-	// USE RADIANS! Preferably 32b:
-	T_ IO(T_* RadFlt) override
+	// USE TURNS! Preferably 32b:
+	float IO(float x) override
 	{
 		if (F == 0) { F = 1; }
-		x = *(float*)RadFlt; y = 0; n = 0;
+		x *= 6.283185; y = 0; n = 0;
 		if (F & 1) { y += sin(Freq * x + 6.283185 * (F >> 4) / 15.0); ++n; }
 		if (F & 2) { y += tri(Freq * x + 6.283185 * (F >> 4) / 15.0); ++n; }
 		if (F & 4) { y += rect(Freq * x, (F >> 4) / 15.0); ++n; }
 		if (F & 8) { y += saw(Freq * x + 6.283185 * (F >> 4) / 15.0); ++n; }
 		if (n == 0) { n = 1; } // Just for safety
 		y /= n;
-		return(*(T_*)&y);
+		return(y);
 	}
 };
 
 // OSCILLATOR WITH 15 LEVELS OF ATTACK AND DECAY (NOT TESTED YET):
-template<class T_>
-class I_OSC_AD : public SigStream<T_>
+class IO_OSC_AD : public SigStream<float>
 {
 private:
-	float x = 0, y = 0, At = 0; uint8_t n = 0;
+	float y = 0, At = 0; uint8_t n = 0;
 public:
-	float Freq = 1; uint8_t AD = 0, sec = 0; // AD >> 4 = Attack; AD & 15 = Decay; sec = 1 / 25.5;
-	uint8_t F = 1; // Flags, 1111 15-levels PW, or phase for others than rect | 1111 saw, rect, tri, sine
+	float Freq = 1;
+	uint8_t AD = 0, sec = 0; // AD >> 4 = Attack; AD & 15 = Decay; sec = 1 / 25.5; 10 secs
+	uint8_t F = 1; // Flags, 1111 15-levels PW or phase for non-rect | 1111 saw, rect, tri, sine
 	
-	// USE RADIANS! Preferably 32b:
-	T_ IO(T_* RadFlt) override
+	// USE TURNS! Preferably 32b:
+	float IO(float x) override
 	{
 		if (F & 15 == 0) { F += 1; } if (sec == 0) { sec = 1; }
-		x = *(float*)RadFlt; y = 0; n = 0; At = (AD >> 4) * 0.418879;
-		if (x > 6.283185 * sec * 0.039216) { x = (x - 6.283185 * sec * 0.039216); }
-		if (F & 1) { y += sin(Freq * x + 6.283185 * (F >> 4) / 15.0); ++n; }
-		if (F & 2) { y += tri(Freq * x + 6.283185 * (F >> 4) / 15.0); ++n; }
-		if (F & 4) { y += rect(Freq * x, (F >> 4) / 15.0); ++n; }
-		if (F & 8) { y += saw(Freq * x + 6.283185 * (F >> 4) / 15.0); ++n; }
-		if (n == 0) { n = 1; } // Just for safety
-		y /= n;	if (x < At * sec * 0.039216 && At * sec * 0.039216 != 0) { y *= x / (At * sec * 0.039216); }
+		y = 0; n = 0; At = (AD >> 4) / 15.0; //std::cout << "At: " << At << '\n';
+		if (x > sec * 0.039216) { x -= sec * 0.039216; x-= floor(x); }
+		if (F & 1) { y += sin(Freq * x * 6.283185 + 6.283185 * (F >> 4) / 15.0); ++n; }
+		if (F & 2) { y += tri(Freq * x * 6.283185 + 6.283185 * (F >> 4) / 15.0); ++n; }
+		if (F & 4) { y += rect(Freq * x * 6.283185, (F >> 4) / 15.0); ++n; }
+		if (F & 8) { y += saw(Freq * x * 6.283185 + 6.283185 * (F >> 4) / 15.0); ++n; }
+		if (n == 0) { ++n; } // Just for safety
+		y /= n;
+		if (x < (AD >> 4) * sec / 3825.0 && (AD >> 4) * sec / 3825.0 != 0) { y *= x / ((AD >> 4) * sec / 3825.0); }
 		else
 		{
-			y = (y * (15 - (AD & 15) / 15.0) * (((6.283185 * sec * 0.039216 - At) - x - At * sec * 0.039216) / (6.283185 * sec * 0.039216 - At))) + y;
-			y /= (1 + (15 - (AD & 15) / 15.0));
+			/* Wolfram in:
+			(d * y * ((s * 0.039216 - a * s / 3825.0 - (x - a * s / 3825.0)) / (s * 0.039216 - a * s / 3825.0))) + y * (1 - d);
+			(y * (AD & 15) / 15.0) * (((x - sec * 0.039216) / (((AD >> 4) * sec / 3825.0) - sec * 0.039216)) - 1) + y;*/
+			y = (y * (AD & 15) / 15.0) * (((x - sec * 0.039216) / (((AD >> 4) * sec / 3825) - sec * 0.039216)) - 1) + y;
+			y *= 0.5;
 		}
-		return(*(T_*)&y);
+		return(y);
 	}
+
+	// CAREFUL WITH OVERFLOW:
+	void SecBySize(uint32_t SRate) { sec = (Size / SRate) * 25.5; }
 };
 
 // ###############################################################################################################################################################################

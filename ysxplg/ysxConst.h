@@ -3,8 +3,6 @@
 #ifndef YSXCONST_H
 #define YSXCONST_H
 
-#include "ysxDoc.h"
-
 // #####################################################################################################################################
 
 // #####################
@@ -17,29 +15,19 @@
 #define EXP 2.718281828459045
 #define TAU 6.283185307179586
 #define PI 3.141592653589793
-#define HPI 1.570796326794897 // Half PI: 1.5707963267948966192313216916398
-#define QPI 0.785398163397448 // Quarter PI: 0.78539816339744830961566084581988
-#define TTAU 4.71238898038469 // 3 / 4 of a TAU: 4.7123889803846898576939650749193
+#define QPI 0.785398163397448 // PI / 4: 0.78539816339744830961566084581988, aka.: area inside square
+#define TPI 1.047197551196598 // PI / 3: 1.0471975511965977461542144610932
+#define HPI 1.570796326794897 // PI / 2: 1.5707963267948966192313216916398
+#define TTPI 2.094395102393195 // PI * 2 / 3: 2.0943951023931954923084289221863
+#define TQPI 2.356194490192345 // PI * 3 / 4: 2.3561944901923449288469825374596
+#define TTTAU 4.18879020478639 // TAU * 2 / 3: 4.1887902047863909846168578443727
+#define TQTAU 4.71238898038469 // TAU * 3 / 4: 4.7123889803846898576939650749193
+#define QSTAU 5.23598775598299 // TAU * 5 / 6: 5.2359877559829887307710723054658
+
 #define ROOTPI 1.7724538509055160272981674833411 // sqrt(Pi)
 #define EULERMASCH 0.577215664901533 // 0.577215664901532'86060651209008240243104215933593992
 #define PLASTICNUM 1.324717957244746025960908854
 #define PLASTICNUMEQ pow((9 + sqrt(69)) / 18.0, 1.0 / 3) + pow((9 - sqrt(69)) / 18.0, 1.0 / 3) // 1.324717957244746025960908854
-
-// #####################
-// ####### TABLES
-// #####################
-
-// POWERS OF TWO THAT FITS 2 BYTES:
-#define TWOPOWERS { 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536 }
-
-// POPULAR SAMPLE-RATES TABLE:
-// https://en.wikipedia.org/wiki/Sampling_(signal_processing)#Sampling_rate
-#define SAMPLERATES { 8000, 11025, 16000, 22050, 32000, 44056, 44100, 47250, 48000, 50000, 50400, 64000, 88200, 96000, 176400, 192000, 352800, 2822400, 5644800, 11289600, 22579200 }
-
-// HIGH COMPOSITE NUMBERS:
-// https://oeis.org/A002182
-#define HIGHCOMPNUMS { 1, 2, 4, 6, 12, 24, 36, 48, 60, 120, 180, 240, 360, 720, 840, 1260, 1680, 2520, 5040, 7560, 10080, 15120, 20160, 25200, 27720, \
-45360, 50400, 55440, 83160, 110880, 166320, 221760, 277200, 332640, 498960, 554400, 665280, 720720, 1081080, 1441440, 2162160 }
 
 // #####################
 // ####### RADICALS
@@ -73,7 +61,6 @@
 
 // #####################
 // TRIANGLES:
-
 #define EQUITRIAREA 0.433012701892219 // 0.43301270189221932338186158537647; MULTIPLY BY 'SIDE^2' | Also equal to 'sqrt(3) / 4'
 
 // #####################
@@ -81,10 +68,10 @@
 
 // #####################
 // CIRCLES:
-#define CIRCLESQRAREA 0.785398163397448 // 0.78539816339744830961566084581988; Area of a circle inside a square of side 1
-#define SQRAREACIRCLE 0.214601836602552 // 0.21460183660255169038433915418012; Area left if you remove a circle from a square of area 1
-#define QUARTERCIRCHALFSQR 0.285398163397448 // 0.28539816339744830961566084581988; Remove a half square from the area of a quarter circle of radius 1;
-#define CROSSEDQUARTERCIRCLE 0.570796326794897 // 0.57079632679489661923132169163975; The area you get when two quarter circles overlap inside a square of radius 1;
+#define CIRCSQRAREA 0.785398163397448 // 0.78539816339744830961566084581988 = pi / 4; Area of a circle inside a square of side 1
+#define SQRAREACIRC 0.214601836602552 // 0.21460183660255169038433915418012; Area left if you remove a circle from a square of area 1
+#define QUARTCIRCHALFSQR 0.285398163397448 // 0.28539816339744830961566084581988; Remove a half square from the area of a quarter circle of radius 1;
+#define CROSSQUARTCIRC 0.570796326794897 // 0.57079632679489661923132169163975; The area you get when two quarter circles overlap inside a square of radius 1;
 
 // In a square of side 1, four quarter circles in four directions cross each other, the center figure area is:
 // 0.3151467436277204526267681195873;
@@ -107,16 +94,6 @@
 
 // #####################
 // WEIGHT:
-
-// #####################
-
-// FRICTION:
-// https://en.wikipedia.org/wiki/Friction#Approximate_coefficients_of_friction
-std::vector<NameValue<double>> FrictionList()
-{
-	std::vector<NameValue<double>> List = { { "Aluminum (Static)", 1.2 }, { "Aluminum (Kinect)", 1.45 } };
-	return(List);
-}
 
 // #####################
 // SPEED / ACCELERATION:
@@ -175,19 +152,14 @@ std::vector<NameValue<double>> FrictionList()
 // ####### SIGNALS
 // #####################
 
-
 // #####################
 // ####### NUMBERS
 // #####################
-
 
 // #####################
 // ####### MISC
 // #####################
 
-// TAROT MAJOR CARDS:
-#define TAROTMAJORS { "The Fool", "The Magician", "The High Priestess", "The Empress", "The Emperor", "The  Hierophant", "The  Lovers", "The Chariot", "Strength", \
-"The Hermit", "Wheel of Fortune", "Justice", "The Hanged Man", "Death", "Temperance", "The Devil", "The Tower", "The Star", "The Moon", "The Sun", "Judgement", "The World" }
 // ################################################# FIM ####################################################################################
 
-#endif // SCPARSE_
+#endif
