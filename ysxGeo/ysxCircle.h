@@ -106,6 +106,7 @@ CircSector GetCircSec(double rad, double r)
 	S.rad = rad; S.r = r;
 	S.Arc = r * rad; S.w = 2 * r * sin(0.5 * rad);
 	S.A_Sec = 0.5 * r * r * rad; S.P_Sec = r + r + S.Arc;
+	return(S);
 }
 
 // GET CIRCLE QUADRANT, SEXTANT OR OCTANT:
@@ -114,18 +115,21 @@ CircSector GetCircQuad(double r)
 	CircSector S;
 	S.rad = HPI; S.r = r; S.Arc = r * HPI; S.w = 2 * r * sin(0.5 * HPI);
 	S.A_Sec = 0.5 * r * r * HPI; S.P_Sec = r + r + S.Arc;
+	return(S);
 }
 CircSector GetCircSext(double r)
 {
 	CircSector S;
 	S.rad = TPI; S.r = r; S.Arc = r * TPI; S.w = 2 * r * sin(0.5 * TPI);
 	S.A_Sec = 0.5 * r * r * TPI; S.P_Sec = r + r + S.Arc;
+	return(S);
 }
 CircSector GetCircOct(double r)
 {
 	CircSector S;
 	S.rad = QPI; S.r = r; S.Arc = r * QPI; S.w = 2 * r * sin(0.5 * QPI);
 	S.A_Sec = 0.5 * r * r * QPI; S.P_Sec = r + r + S.Arc;
+	return(S);
 }
 
 // ####### DEFINITIONS #######

@@ -234,7 +234,7 @@ public:
 class IO_OSC_AD : public SigStream<float>
 {
 private:
-	float y = 0, At = 0; uint8_t n = 0;
+	float y = 0; uint8_t n = 0;
 public:
 	float Freq = 1;
 	uint8_t AD = 0, sec = 0; // AD >> 4 = Attack; AD & 15 = Decay; sec = 1 / 25.5; 10 secs
@@ -244,7 +244,7 @@ public:
 	float IO(float x) override
 	{
 		if (F & 15 == 0) { F += 1; } if (sec == 0) { sec = 1; }
-		y = 0; n = 0; At = (AD >> 4) / 15.0; //std::cout << "At: " << At << '\n';
+		y = 0; n = 0; //At = (AD >> 4) / 15.0; //std::cout << "At: " << At << '\n';
 		if (x > sec * 0.039216) { x -= sec * 0.039216; x-= floor(x); }
 		if (F & 1) { y += sin(Freq * x * 6.283185 + 6.283185 * (F >> 4) / 15.0); ++n; }
 		if (F & 2) { y += tri(Freq * x * 6.283185 + 6.283185 * (F >> 4) / 15.0); ++n; }
@@ -265,6 +265,54 @@ public:
 	}
 
 	// CAREFUL WITH OVERFLOW:
+	void SecBySize(uint32_t SRate) { sec = (Size / SRate) * 25.5; }
+};
+
+// CIRCLES BY CHORD SYNTH:
+// 'D' (diameter of the first circle) should be the MIDI note.
+// 'Cs' means "Circles", and it should have at least 1, which in fact means three circles,
+// it is the amount of circles that will create the chord circle, and it is an 'ui8'.
+class ysxCCRDSYNTH : public SigStream<float>
+{
+private:
+	float D1 = D, D2 = 43.2;
+	float y = 0, h = 1; // By cord: h = (8 * r - (c * c) / h) * 0.25
+public:
+	uint8_t Cs = 1, D = 48; bool Type = false;
+	float Ratio = 0.9;
+	uint8_t AD = 0, sec = 0; // sec = 1 / 25.5; 10 secs
+
+	float IO(float x) override
+	{
+		if (x > sec * 0.039216) { x -= sec * 0.039216; x -= floor(x); }
+		y = 0;
+		if (D > 127) { D = 127; } if (D == 0) { D = 1; } if (Cs == 0) { Cs = 1; }
+		D1 = pow(2, (D / 12.0)) * 8.175816; //440 * 0.0185814;
+		// Sample:
+		for (uint8_t n = 0; n < Cs; ++n)
+		{
+			D2 = D1 * Ratio;
+			//h = D1 - (D2 * 0.5);
+			h = D2 * 0.5;
+			y += sin(D1 * TAU * x);
+			y += sin(D2 * TAU * x);
+			if (Type) { y *= sin(((D1 - D2) * sin(TAU * x) - D2 * sin(TAU * x * ((D1 - D2) / D2))) * TAU * x); }
+			else { y *= sin((D1 - D2) * sin(TAU * x) - D2 * sin(TAU * x * ((D1 - D2) / D2))); }
+			//else { y *= sin((D1 - D2) * sin(TAU * x) - D2 * sin(TAU * x * ((D1 - D2) / D2))); }
+			D1 = 2 * sqrt(h * (D1 - h));
+		}
+		y /= (Cs + 1) * 0.5;// * 2.0;
+
+		// Envelope:
+		if (x < (AD >> 4) * sec / 3825.0 && (AD >> 4) * sec / 3825.0 != 0) { y *= x / ((AD >> 4) * sec / 3825.0); }
+		else
+		{
+			y = (y * (AD & 15) / 15.0) * (((x - sec * 0.039216) / (((AD >> 4) * sec / 3825) - sec * 0.039216)) - 1) + y;
+			y *= 0.5;
+		}
+		return(y);
+	}
+
 	void SecBySize(uint32_t SRate) { sec = (Size / SRate) * 25.5; }
 };
 

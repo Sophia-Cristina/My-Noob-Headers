@@ -36,27 +36,32 @@
 // #####################################################################################################################################
 // #####################################################################################################################################
 
-std::vector<uint8_t> ANDstr(std::vector<uint8_t> A, std::vector<uint8_t> B) { std::vector<uint8_t> C; for (size_t n = 0; n < A.size(); ++n) { if (n < B.size()) { C.push_back(A[n] & B[n]); } } }
-std::vector<uint8_t> ORstr(std::vector<uint8_t> A, std::vector<uint8_t> B) { std::vector<uint8_t> C; for (size_t n = 0; n < A.size(); ++n) { if (n < B.size()) { C.push_back(A[n] | B[n]); } } }
-std::vector<uint8_t> XORstr(std::vector<uint8_t> A, std::vector<uint8_t> B) { std::vector<uint8_t> C; for (size_t n = 0; n < A.size(); ++n) { if (n < B.size()) { C.push_back(A[n] ^ B[n]); } } }
-std::vector<uint8_t> NOTstr(std::vector<uint8_t> A) { std::vector<uint8_t> B; for (size_t n = 0; n < A.size(); ++n) { B.push_back(~A[n]); } }
-std::vector<uint8_t> RSHFstr(std::vector<uint8_t> A, uint8_t i) { std::vector<uint8_t> B; for (size_t n = 0; n < A.size(); ++n) { B.push_back(A[n] >> i); } }
-std::vector<uint8_t> LSHFstr(std::vector<uint8_t> A, uint8_t i) { std::vector<uint8_t> B; for (size_t n = 0; n < A.size(); ++n) { B.push_back(A[n] << i); } }
 
-std::vector<uint8_t> ANDv(std::vector<uint8_t> A, std::vector<uint8_t> B) { std::vector<uint8_t> C; for (size_t n = 0; n < A.size(); ++n) { if (n < B.size()) { C.push_back(A[n] & B[n]); } } }
-std::vector<uint8_t> ORv(std::vector<uint8_t> A, std::vector<uint8_t> B) { std::vector<uint8_t> C; for (size_t n = 0; n < A.size(); ++n) { if (n < B.size()) { C.push_back(A[n] | B[n]); } } }
-std::vector<uint8_t> XORv(std::vector<uint8_t> A, std::vector<uint8_t> B) { std::vector<uint8_t> C; for (size_t n = 0; n < A.size(); ++n) { if (n < B.size()) { C.push_back(A[n] ^ B[n]); } } }
-std::vector<uint8_t> NOTv(std::vector<uint8_t> A) { std::vector<uint8_t> B; for (size_t n = 0; n < A.size(); ++n) { B.push_back(~A[n]); } }
-std::vector<uint8_t> RSHFv(std::vector<uint8_t> A, uint8_t i) { std::vector<uint8_t> B; for (size_t n = 0; n < A.size(); ++n) { B.push_back(A[n] >> i); } }
-std::vector<uint8_t> LSHFv(std::vector<uint8_t> A, uint8_t i) { std::vector<uint8_t> B; for (size_t n = 0; n < A.size(); ++n) { B.push_back(A[n] << i); } }
+std::string ANDstr(std::string A, std::string B) { for (size_t n = 0; n < A.size(); ++n) { if (n < B.size()) { A[n] &= B[n]; } } return(A); }
+std::string ORstr(std::string A, std::string B) { for (size_t n = 0; n < A.size(); ++n) { if (n < B.size()) { A[n] |= B[n]; } } return(A); }
+std::string XORstr(std::string A, std::string B) { for (size_t n = 0; n < A.size(); ++n) { if (n < B.size()) { A[n] ^= B[n]; } } return(A); }
+std::string NOTstr(std::string A) { for (size_t n = 0; n < A.size(); ++n) { A[n] = ~A[n]; } return(A); }
+// CHANGE LATER THAT ONE BYTE CARRIES TO ANOTHER:
+std::string RSHFstr(std::string A, uint8_t i) { for (size_t n = 0; n < A.size(); ++n) { A[n] >>= i; } return(A); }
+// CHANGE LATER THAT ONE BYTE CARRIES TO ANOTHER:
+std::string LSHFstr(std::string A, uint8_t i) { for (size_t n = 0; n < A.size(); ++n) { A[n] <<= i; } return(A); }
+
+template <class T_>	std::vector<T_> ANDv(std::vector<T_> A, std::vector<T_> B) { for (size_t n = 0; n < A.size(); ++n) { if (n < B.size()) { A[n] &= B[n]; } } return(A); }
+template <class T_>	std::vector<T_> ORv(std::vector<T_> A, std::vector<T_> B) { for (size_t n = 0; n < A.size(); ++n) { if (n < B.size()) { A[n] |= B[n]; } } return(A); }
+template <class T_> std::vector<T_> XORv(std::vector<T_> A, std::vector<T_> B) { for (size_t n = 0; n < A.size(); ++n) { if (n < B.size()) { A[n] ^= B[n]; } } return(A); }
+template <class T_> std::vector<T_> NOTv(std::vector<T_> A) { for (size_t n = 0; n < A.size(); ++n) { A[n] = ~A[n]; } return(A); }
+// CHANGE LATER THAT ONE BYTE CARRIES TO ANOTHER:
+template <class T_> std::vector<T_> RSHFstr(std::vector<T_> A, uint8_t i) { for (size_t n = 0; n < A.size(); ++n) { A[n] >>= i; } return(A); }
+// CHANGE LATER THAT ONE BYTE CARRIES TO ANOTHER:
+template <class T_> std::vector<T_> LSHFstr(std::vector<T_> A, uint8_t i) { for (size_t n = 0; n < A.size(); ++n) { A[n] <<= i; } return(A); }
 
 // A is going to be the return:
-void ANDuc(uint8_t* A, uint8_t* B, unsigned int Size) { for (size_t n = 0; n < Size; ++n) { A[n] &= B[n]; } }
-void ORuc(uint8_t* A, uint8_t* B, unsigned int Size) { for (size_t n = 0; n < Size; ++n) { A[n] |= B[n]; } }
-void XORuc(uint8_t* A, uint8_t* B, unsigned int Size) { for (size_t n = 0; n < Size; ++n) { A[n] ^= B[n]; } }
-void NOTuc(uint8_t* A, unsigned int Size) { for (size_t n = 0; n < Size; ++n) { A[n] = ~A[n]; } }
-void RSHFuc(uint8_t* A, uint8_t i, unsigned int Size) { for (size_t n = 0; n < Size; ++n) { A[n] >>= i; } }
-void LSHFuc(uint8_t* A, uint8_t i, unsigned int Size) { for (size_t n = 0; n < Size; ++n) { A[n] <<= i; } }
+void ANDuc(uint8_t* A, uint8_t* B, uint16_t Size) { for (size_t n = 0; n < Size; ++n) { A[n] &= B[n]; } }
+void ORuc(uint8_t* A, uint8_t* B, uint16_t Size) { for (size_t n = 0; n < Size; ++n) { A[n] |= B[n]; } }
+void XORuc(uint8_t* A, uint8_t* B, uint16_t Size) { for (size_t n = 0; n < Size; ++n) { A[n] ^= B[n]; } }
+void NOTuc(uint8_t* A, uint16_t Size) { for (size_t n = 0; n < Size; ++n) { A[n] = ~A[n]; } }
+void RSHFuc(uint8_t* A, uint8_t i, uint16_t Size) { for (size_t n = 0; n < Size; ++n) { A[n] >>= i; } }
+void LSHFuc(uint8_t* A, uint8_t i, uint16_t Size) { for (size_t n = 0; n < Size; ++n) { A[n] <<= i; } }
 
 // #####################################################################################################################################
 // #####################################################################################################################################
@@ -96,7 +101,7 @@ std::string Bin2ASCII(std::string Bin)
 }
 
 // CHAR TO HEX STRING:
-std::string ASCII2Hex(uint8_t* c, unsigned int Size)
+std::string ASCII2Hex(uint8_t* c, uint16_t Size)
 {
 	std::string Hex;
 	const char HexChars[16] = HEXCHARS;
@@ -238,7 +243,7 @@ std::string ScaleFloat2String(std::vector<float> V)
 // ####### ARRAYS #######
 
 // INVERT
-void InvertArray(uint8_t* c, unsigned int Size)
+void InvertArray(uint8_t* c, uint16_t Size)
 {
 	std::vector<uint8_t> t(Size);
 	for (size_t n = 0; n < Size; ++n) { t[Size - 1 - n] = c[n]; }

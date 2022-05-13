@@ -1187,7 +1187,7 @@ CImg<uint8_t> PrintVectorInfoLRGB(std::string str, int x, double Rsize = 1.0)
 CImg<uint8_t> PrintVectorInfo(std::vector<double> V, double Rsize = 1.0)
 {
 	uint32_t Size = V.size(); double SqrtVec = sqrt(Size);
-	uint16_t x = round(SqrtVec), y;
+	uint16_t x = round(SqrtVec), y = ceil(Size / (x * 1.0));
 	CImg<uint8_t> R(x, y, 1, 3, 0); uint8_t C[3];
 	if (SqrtVec / round(SqrtVec) == 1) { y = round(SqrtVec); }
 	else { y = ceil(sqrt(Size)); }	

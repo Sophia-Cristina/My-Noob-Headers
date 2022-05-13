@@ -30,7 +30,7 @@
 // PROFIT FROM AN OPERATION WHICH YOU BUY THEN SELL, OR OTHERWISE:
 double ProfitOP(double Price1, double Coins1, double Price2, double Coins2)
 {
-
+    return(0);
 }
 
 // SINGLE TRADE OPERATION:
