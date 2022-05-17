@@ -23,17 +23,19 @@
 // ####### Header made do some useful stuffs with 'CImg.h'
 // #####################
 
-using namespace cimg_library; // UNCOMMENT IF YOU ARE HAVING A PROBLEM
+using namespace cimg_library; // COMMENT IF YOU ARE HAVING A PROBLEM
 
 // ############################################################################################################################################
-// ################################################# ANOTAÇÕES E ATENÇÕES #################################################
+// ################################################# NOTES AND ATTENTIONS #################################################
 // !!!!!!!	
-// !!!!!!!	CATALOGO DE MUDANÇAS (MANTENHA EM ORDEM):
-// !!!!!!!	* Funções com nomes tipo 'SaveBmp' agora são 'SaveBMP';
-// !!!!!!!	* 'VerImg(...)' é agora 'CIMG(...)';
-// !!!!!!!	* 'AdcTexto' é agora 'AddText', e 'AdcBarras' eu acho que agora é 'DrawBars';
+// !!!!!!!	CATALOGUE ANY CHANGE THAT CAN AFFECT CODE VERSIONS:
+// !!!!!!!	* Functions with names like 'SaveBmp' are now 'SaveBMP';
+// !!!!!!!	* 'VerImg(...)' is 'CIMG(...)' now;
+// !!!!!!!	* 'AdcTexto' is 'AddText' now, and 'AdcBarras' i think is called 'DrawBars' now; ! Everything that is in portuguese is going to be changed !
+// !!!!!!!	* Function 'FillAll' is now called 'CleanImg';
+// !!!!!!!	'OpenImg' removed;
 // !!!!!!!	
-// ################################################# ANOTAÇÕES E ATENÇÕES #################################################
+// ################################################# NOTES AND ATTENTIONS #################################################
 // ############################################################################################################################################
 
 // ###################################
@@ -42,11 +44,11 @@ CImg<uint8_t> DrawImageIgnClr(CImg<uint8_t>, CImg<uint8_t>, uint32_t, uint32_t, 
 bool InImg(CImg<uint8_t>, int, int);
 void AddVert(CImg<uint8_t>&, unsigned short, unsigned short, unsigned short, uint8_t*);
 void AddText(CImg<uint8_t>&, uint32_t , uint32_t , std::string, uint8_t[3]);
-CImg<uint8_t> ValueBarAbs(int, double, double, int, int, bool);
-void Resize(CImg<uint8_t>&, int, int, int);
-void FillArea(CImg<uint8_t>&, int, int, uint8_t[3]);
-void FillAll(CImg<uint8_t>&, uint8_t[3]);
-CImg<uint8_t> ExpandImg(CImg<uint8_t>, int, char);
+CImg<uint8_t> ValueBarAbs(uint16_t, double, double, uint16_t, uint16_t, bool);
+void Resize(CImg<uint8_t>&, uint16_t, uint16_t, uint8_t);
+void FillArea(CImg<uint8_t>&, uint16_t, uint16_t, uint8_t[3]);
+void CleanImg(CImg<uint8_t>&, uint8_t[3]);
+CImg<uint8_t> ExpandImg(CImg<uint8_t>, uint16_t, char);
 CImg<uint8_t> JoinImg(CImg<uint8_t>, CImg<uint8_t>, bool);
 double GetMag(Point<double>);
 double GetVecRad(Point<double>);
@@ -55,6 +57,7 @@ std::vector<std::string> BinaryWordsSeq(int);
 std::vector<long> BinaryWordSeqArean(int);
 double AOScore(double);
 // ###################################
+
 // ###################################
 // ############## TOOLS:
 struct Pixel { unsigned int x; unsigned int y; uint8_t RGB[3]; };
@@ -74,14 +77,12 @@ struct Pixel { unsigned int x; unsigned int y; uint8_t RGB[3]; };
 // ############################################################################################################################################
 
 // ############################################################################################################################################
-// ############## TÉCNICOS:
-// ABRIR (acho que apenas 'Open(FileName.data())' basta):
-CImg<uint8_t> OpenImg(std::string FileName) { CImg<uint8_t> Open(FileName.data()); return(Open); }
+// ############## TECHNICAL:
 
-// SALVAR (Com uso de 'string to char', minha função que cria um vetor de char com um string, acho que cimg aceita só um 'char array'):
+// SAVE:
 void SaveBMP(CImg<uint8_t> Image, std::string FileName) { Image.save_bmp(FileName.data()); }
 void SavePNG(CImg<uint8_t> Image, std::string FileName) { Image.save_png(FileName.data()); }
-void SavePNG(CImg<uint8_t> Image, std::string FileName, int BytesPerPixel) { Image.save_png(FileName.data(), BytesPerPixel); }
+void SavePNG(CImg<uint8_t> Image, std::string FileName, int BytesPerPixel) { Image.save_png(FileName.data(), BytesPerPixel); } // needs 'libpng' defined
 void SaveJPG(CImg<uint8_t> Image, std::string FileName) { Image.save_jpeg(FileName.data(), 100); } // 100% quality
 void SaveJPG(CImg<uint8_t> Image, std::string FileName, int QualityPercent) { Image.save_jpeg(FileName.data(), QualityPercent); }
 
@@ -92,59 +93,9 @@ bool InImg(CImg<uint8_t> Img, int y, int x)
 	else { return (false); }
 }
 
-// VER IMAGEM SALVA:
-void CIMG(std::string Nome)
-{
-	CImg<uint8_t> ImagemAbrir(Nome.data());// , Grafico(100, 100, 1, 3, 0);
-	CImgDisplay main_disp(ImagemAbrir, "Bela Arte:");// , draw_disp(Grafico, "Perfil de Intensidade");
-
-	//const uint8_t red[] = { 255, 0, 0 }, green[] = { 0, 255, 0 }, blue[] = { 0, 0, 255 };
-	while (!main_disp.is_closed())// && !draw_disp.is_closed())
-	{
-		main_disp.wait();
-		/*if (main_disp.button() && main_disp.mouse_y() >= 0)
-		{
-			int y = 0;
-			const int ycimg = main_disp.mouse_y();
-			Grafico.fill(0).draw_graph(ImagemAbrir.get_crop(0, ycimg, 0, 0, ImagemAbrir.width() - 1, y, 0, 0), red, 1, 1, 0, 255, 0);
-			Grafico.draw_graph(ImagemAbrir.get_crop(0, ycimg, 0, 1, ImagemAbrir.width() - 1, y, 0, 1), green, 1, 1, 0, 255, 0);
-			Grafico.draw_graph(ImagemAbrir.get_crop(0, ycimg, 0, 2, ImagemAbrir.width() - 1, y, 0, 2), blue, 1, 1, 0, 255, 0).display(draw_disp);
-		}*/
-	}
-}
-
-// VER IMAGEM MEMORIA:
-void CIMG(CImg<uint8_t>& Img) { CImgDisplay d(Img, "Img"); while (!d.is_closed()) { d.wait(); } }
-void CIMG(CImg<uint8_t>& Img, std::string Title) { CImgDisplay d(Img, Title.data()); while (!d.is_closed()) { d.wait(); } }
-
-// POEM DADOS NO VETOR ATRAVEZ DE UM BITMAP (GRAYSCALE):
-std::vector<double> BitmapVector(CImg<uint8_t> BMP)
-{
-	std::vector<double> V;
-	Point3D<uint8_t> RGB;
-	for (int ny = 0; ny < BMP.height(); ++ny)
-	{
-		for (int nx = 0; nx < BMP.width(); ++nx) { RGB = BitmapRGB(BMP, nx, ny); double Valor = ((RGB.x + RGB.y + RGB.z) / 765.0); V.push_back(Valor); }
-	}
-	return (V);
-}
-// POEM DADOS NO VETOR ATRAVEZ DE UM BITMAP (R = 0, G = 1, B = 2):
-std::vector<double> BitmapVector(CImg<uint8_t> BMP, int R0orG1orB2)
-{
-	std::vector<double> V;
-	Point3D<uint8_t> RGB;
-	for (int ny = 0; ny < BMP.height(); ++ny)
-	{
-		for (int nx = 0; nx < BMP.width(); ++nx)
-		{
-			RGB = BitmapRGB(BMP, nx, ny);
-			double Value = 0; if (R0orG1orB2 == 0) { Value = RGB.x; } if (R0orG1orB2 == 1) { Value = RGB.y; } if (R0orG1orB2 == 2) { Value = RGB.z; }
-			Value /= 255.0;
-			V.push_back(Value);
-		}
-	}
-	return (V);
-}
+// SEE IMG, LIKE, CIMG, GOTCHA?:
+void CIMG(std::string File, std::string Title = "Art! :3") { CImg<uint8_t> Img(File.data()); CImgDisplay d(Img, Title.data()); while (!d.is_closed()) { d.wait(); } }
+void CIMG(CImg<uint8_t>& Img, std::string Title = "Img") { CImgDisplay d(Img, Title.data()); while (!d.is_closed()) { d.wait(); } }
 
 // ############################################################################################################################################
 // ############################################################################################################################################
@@ -160,7 +111,7 @@ void AddText(CImg<uint8_t>& Img, uint32_t x, uint32_t y, std::string String, uin
 // SAME AS 'AddText', BUT PRINT IN CIRCLE DIVISION WITH A VECTOR OF STRINGS:
 void AddTextCirc(CImg<uint8_t>& Img, double r, uint32_t x, uint32_t y, std::vector<std::string> Strings, uint8_t Color[3])
 {
-	double Div = TAU / Strings.size(); int Count = 0;
+	double Div = TAU / Strings.size(); uint32_t Count = 0;
 	for (double rad = 0; rad <= TAU; rad += Div) { AddText(Img, x + round(cos(rad) * (r - 8)), y + round(sin(rad) * (r - 8)), Strings[Count], Color); ++Count; }
 }
 
@@ -172,12 +123,15 @@ void AddTextCirc(CImg<uint8_t>& Img, double r, uint32_t x, uint32_t y, std::vect
 
 // REDO IMAGE WITH SPECIFIC COLOR (OR ELSE, IT IS BLACK):
 void FillAlpha(CImg<uint8_t>& Img) { Img = CImg<uint8_t>::CImg(Img.width(), Img.height(), 1, 4, 0); uint8_t C[] = { 0, 0, 0, 0 }; Img.draw_fill(1, 1, C, 1, 1); } // Maybe it is already black
-void FillAll(CImg<uint8_t>& Img) { Img = CImg<uint8_t>::CImg(Img.width(), Img.height(), 1, 3, 0); }
-void FillAll(CImg<uint8_t>& Img, uint8_t Color[3])
+void CleanImg(CImg<uint8_t>& Img) { Img = CImg<uint8_t>::CImg(Img.width(), Img.height(), 1, 3, 0); }
+void CleanImg(CImg<uint8_t>& Img, uint8_t Color[3])
 {
 	Img = CImg<uint8_t>::CImg(Img.width(), Img.height(), 1, 3, 0);
 	Img.draw_fill(1, 1, Color, 1, 1, false);
 }
+// Fill / clean entire image, but by drawing a rectangle over it:
+void FillRect(CImg<uint8_t>& Img) { uint8_t c[] = { 0, 0, 0 }; Img.draw_rectangle(0, 0, Img.width() - 1, Img.height() - 1, c); }
+void FillRect(CImg<uint8_t>& Img, uint8_t Color[3]) { Img.draw_rectangle(0, 0, Img.width() - 1, Img.height() - 1, Color); }
 
 // EZ CREATE NEW IMAGE WITH COLORED BACKGROUND:
 CImg<uint8_t> NewImgBGColor(int Width, int Height, uint8_t Color[3])
@@ -207,7 +161,7 @@ CImg<uint8_t> NewImgBGColor(int Width, int Height, uint8_t Color[3])
 // MIX IMAGES AND CAN ALSO IGNORE COLORS:
 CImg<uint8_t> MixRGB(CImg<uint8_t> Img0, CImg<uint8_t> Img1)
 {
-	int Width = 1, Height = 1;
+	uint16_t Width = 1, Height = 1;
 	if (Img0.width() > Img1.width()) { Width = Img1.width(); }
 	else { Width = Img0.width(); } // Maior que (>), pois, ao passar pelo pixel, não vai pedir memória aonde não tem
 	if (Img0.height() > Img1.height()) { Height = Img1.height(); }
@@ -215,10 +169,9 @@ CImg<uint8_t> MixRGB(CImg<uint8_t> Img0, CImg<uint8_t> Img1)
 	CImg<uint8_t> Ret(Width, Height, 1, 3, 0);
 	Point3D<uint8_t> RGB0, RGB1;
 	uint8_t Clr[3];
-	for (int n = 0; n < Height; ++n)
+	for (uint16_t n = 0; n < Height; ++n)
 	{
-		int Prog = round((n / Height) * 100.0);
-		for (int m = 0; m < Width; ++m)
+		for (uint16_t m = 0; m < Width; ++m)
 		{
 			RGB0 = BitmapRGB(Img0, m, n), RGB1 = BitmapRGB(Img1, m, n);
 			Clr[0] = round((RGB0.x + RGB1.x) * 0.5);
@@ -231,7 +184,7 @@ CImg<uint8_t> MixRGB(CImg<uint8_t> Img0, CImg<uint8_t> Img1)
 }
 CImg<uint8_t> MixRGB(CImg<uint8_t> Img0, CImg<uint8_t> Img1, bool IgnoreBlack, bool IgnoreWhite)
 {
-	int Width = 1, Height = 1;
+	uint16_t Width = 1, Height = 1;
 	if (Img0.width() > Img1.width()) { Width = Img1.width(); }
 	else { Width = Img0.width(); }
 	if (Img0.height() > Img1.height()) { Height = Img1.height(); }
@@ -239,10 +192,9 @@ CImg<uint8_t> MixRGB(CImg<uint8_t> Img0, CImg<uint8_t> Img1, bool IgnoreBlack, b
 	CImg<uint8_t> Ret(Width, Height, 1, 3, 0);
 	Point3D<uint8_t> RGB0, RGB1;
 	uint8_t Clr[3];
-	for (int n = 0; n < Height; ++n)
+	for (uint16_t n = 0; n < Height; ++n)
 	{
-		int Prog = round((n / Height) * 100.0);
-		for (int m = 0; m < Width; ++m)
+		for (uint16_t m = 0; m < Width; ++m)
 		{
 			RGB0 = BitmapRGB(Img0, m, n), RGB1 = BitmapRGB(Img1, m, n); // PEGA PIXEL
 			if (!IgnoreBlack && !IgnoreWhite) { Clr[0] = round((RGB0.x + RGB1.x) * 0.5); Clr[1] = round((RGB0.y + RGB1.y) * 0.5); Clr[2] = round((RGB0.z + RGB1.z) * 0.5); }
@@ -285,7 +237,7 @@ CImg<uint8_t> MixRGB(CImg<uint8_t> Img0, CImg<uint8_t> Img1, bool IgnoreBlack, b
 }
 CImg<uint8_t> MixRGB(CImg<uint8_t> Img0, CImg<uint8_t> Img1, uint8_t IgnoreColor[3])
 {
-	int Width = 1, Height = 1;
+	uint16_t Width = 1, Height = 1;
 	if (Img0.width() > Img1.width()) { Width = Img1.width(); }
 	else { Width = Img0.width(); } // Maior que (>), pois, ao passar pelo pixel, não vai pedir memória aonde não tem
 	if (Img0.height() > Img1.height()) { Height = Img1.height(); }
@@ -293,10 +245,9 @@ CImg<uint8_t> MixRGB(CImg<uint8_t> Img0, CImg<uint8_t> Img1, uint8_t IgnoreColor
 	CImg<uint8_t> Ret(Width, Height, 1, 3, 0);
 	Point3D<uint8_t> RGB0, RGB1;
 	uint8_t Clr[3];
-	for (int n = 0; n < Height; ++n)
+	for (uint16_t n = 0; n < Height; ++n)
 	{
-		int Prog = round((n / Height) * 100.0);
-		for (int m = 0; m < Width; ++m)
+		for (uint16_t m = 0; m < Width; ++m)
 		{
 			RGB0 = BitmapRGB(Img0, m, n), RGB1 = BitmapRGB(Img1, m, n);
 			if (RGB0.x == IgnoreColor[0] && RGB0.y == IgnoreColor[1] && RGB0.z == IgnoreColor[2])
@@ -315,7 +266,7 @@ CImg<uint8_t> MixRGB(CImg<uint8_t> Img0, CImg<uint8_t> Img1, uint8_t IgnoreColor
 CImg<uint8_t> MixRGB(CImg<uint8_t> Img0, CImg<uint8_t> Img1, uint32_t x, uint32_t y, uint8_t IgnoreColor[3])
 {
 	if (x < 0) { x = 0; } if (y < 0) { y = 0; }
-	int Width = 1, Height = 1;
+	uint16_t Width = 1, Height = 1;
 	if (Img0.width() > Img1.width()) { Width = Img1.width(); }
 	else { Width = Img0.width(); } // Maior que (>), pois, ao passar pelo pixel, não vai pedir memória aonde não tem
 	if (Img0.height() > Img1.height()) { Height = Img1.height(); }
@@ -323,9 +274,9 @@ CImg<uint8_t> MixRGB(CImg<uint8_t> Img0, CImg<uint8_t> Img1, uint32_t x, uint32_
 	CImg<uint8_t> Ret(Width, Height, 1, 3, 0);
 	Point3D<uint8_t> RGB0, RGB1;
 	uint8_t Clr[3];
-	for (int n = 0; n < Height; ++n)
+	for (uint16_t n = 0; n < Height; ++n)
 	{
-		for (int m = 0; m < Width; ++m)
+		for (uint16_t m = 0; m < Width; ++m)
 		{
 			if (InImg(Img0, n + y, m + x))
 			{

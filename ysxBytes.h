@@ -46,8 +46,8 @@ std::string RSHFstr(std::string A, uint8_t i) { for (size_t n = 0; n < A.size();
 // CHANGE LATER THAT ONE BYTE CARRIES TO ANOTHER:
 std::string LSHFstr(std::string A, uint8_t i) { for (size_t n = 0; n < A.size(); ++n) { A[n] <<= i; } return(A); }
 
-template <class T_>	std::vector<T_> ANDv(std::vector<T_> A, std::vector<T_> B) { for (size_t n = 0; n < A.size(); ++n) { if (n < B.size()) { A[n] &= B[n]; } } return(A); }
-template <class T_>	std::vector<T_> ORv(std::vector<T_> A, std::vector<T_> B) { for (size_t n = 0; n < A.size(); ++n) { if (n < B.size()) { A[n] |= B[n]; } } return(A); }
+template <class T_> std::vector<T_> ANDv(std::vector<T_> A, std::vector<T_> B) { for (size_t n = 0; n < A.size(); ++n) { if (n < B.size()) { A[n] &= B[n]; } } return(A); }
+template <class T_> std::vector<T_> ORv(std::vector<T_> A, std::vector<T_> B) { for (size_t n = 0; n < A.size(); ++n) { if (n < B.size()) { A[n] |= B[n]; } } return(A); }
 template <class T_> std::vector<T_> XORv(std::vector<T_> A, std::vector<T_> B) { for (size_t n = 0; n < A.size(); ++n) { if (n < B.size()) { A[n] ^= B[n]; } } return(A); }
 template <class T_> std::vector<T_> NOTv(std::vector<T_> A) { for (size_t n = 0; n < A.size(); ++n) { A[n] = ~A[n]; } return(A); }
 // CHANGE LATER THAT ONE BYTE CARRIES TO ANOTHER:

@@ -8,11 +8,11 @@ using namespace cimg_library;
 // ############################################################################################################################################
 // ################################################# ANOTAÇÕES E ATENÇÕES #################################################
 // !!!!!!!	
-// !!!!!!!	FAZER TODOS POSSIVEIS PLOTTERS ESCREVEREM NUMA IMAGEM DE INPUT;
-// !!!!!!!	FAZER TODOS POSSIVEIS PLOTTERS ACEITAREM VECTORS COMO INPUT, E ASSIM ACABAR COM REDUNDANCIAS DE FUNÇÕES, TIPO "POLAR", "CIRCULO" E "TURN";
+// !!!!!!!	MAKE ALL POSSIBLE PLOTTERS TO WRITE ON AN INPUT IMAGE;
+// !!!!!!!	MAKE ALL POSSIBLE PLOTTERS TO ACCEPT VECTORS AS INPUTS TO STOP REDUNDANCY OF FUNCTIONS, LIKE "POLAR", "CIRCLE" AND "TURN";
 // !!!!!!!	
 // !!!!!!!	LOG (TRY TO MANTAIN ORDER):
-// !!!!!!!	* Funções com nome 'SaveVector...' agora são 'PrintVector...';
+// !!!!!!!	* Functions that had the name 'SaveVector...' are now 'PrintVector...';
 // !!!!!!!	* 'yrto *= 2' removed from lot of functions;
 // !!!!!!!	* Huge changes, take care;
 // !!!!!!!	
@@ -1527,9 +1527,9 @@ public:
 
 	// ##################### ##################### #####################
 
-	void CleanImg() { CImg<uint8_t> T; TriOut = T; } // CLEAN
+	void EmptyImg() { CImg<uint8_t> T; TriOut = T; } // CLEAN
 	// Fills the image with a single color, but do not clean height and width like the function above
-	void PaintScreen(uint8_t* Color) { FillAll(TriOut, Color); }
+	void PaintScreen(uint8_t* Color) { CleanImg(TriOut, Color); }
 	void ChangeBorder(int New)
 	{
 		if (New < 0) { New = 0; } Border = New;
