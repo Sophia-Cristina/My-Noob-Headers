@@ -9,7 +9,7 @@ using namespace cimg_library;
 // 'InsideRGBGap' now uses pointers instead of values;
 
 // ############## FORWARD DECLARATION:
-Point3D<uint8_t> BitmapRGB(CImg<uint8_t>, uint32_t, uint32_t);
+//Point3D<uint8_t> BitmapRGB(CImg<uint8_t>&, uint32_t, uint32_t);
 
 // ############################################################################################################################################
 // ############################################################################################################################################
@@ -171,48 +171,47 @@ void MaxMinPixel(std::vector<Pixel> VP, Point<uint32_t>& MaxxMinx, Point<uint32_
 // ############## BITMAP:
 
 // BITMAP RGB:
-Point3D<uint8_t> BitmapRGB(CImg<uint8_t> BMP, uint32_t x, uint32_t y)
+Point3D<uint8_t> BitmapRGB(CImg<uint8_t>& BMP, uint32_t x, uint32_t y)
 {
 	Point3D<uint8_t> Ret;
-	if (x > BMP.width() - 1) { x = BMP.width() - 1; } if (y > BMP.height() - 1) { y = BMP.height() - 1; }
 	Ret.x = BMP(x, y, 0, 0); Ret.y = BMP(x, y, 0, 1); Ret.z = BMP(x, y, 0, 2);
 	return(Ret);
 }
-void BitmapRGBuc(CImg<uint8_t> BMP, uint32_t x, uint32_t y, uint8_t* Clr)
+void BitmapRGBuc(CImg<uint8_t>& BMP, uint32_t x, uint32_t y, uint8_t* Clr)
 {
-	if (x > BMP.width() - 1) { x = BMP.width() - 1; } if (y > BMP.height() - 1) { y = BMP.height() - 1; }
 	Clr[0] = BMP(x, y, 0, 0); Clr[1] = BMP(x, y, 0, 1); Clr[2] = BMP(x, y, 0, 2);
 }
 
 // BITMAP PIXEL:
-Pixel BitmapPixel(CImg<uint8_t> BMP, uint32_t x, uint32_t y)
+Pixel BitmapPixel(CImg<uint8_t>& BMP, uint32_t x, uint32_t y)
 {
 	Pixel Ret;
-	if (x > BMP.width() - 1) { x = BMP.width() - 1; } if (y > BMP.height() - 1) { y = BMP.height() - 1; }
 	Ret.RGB[0] = BMP(x, y, 0, 0); Ret.RGB[1] = BMP(x, y, 0, 1); Ret.RGB[2] = BMP(x, y, 0, 2);
 	Ret.x = x; Ret.y = y;
 	return(Ret);
 }
 
 // ALL RGBS FROM BITMAP:
-std::vector<Point3D<uint8_t>> BitmapRGBMatrix(CImg<uint8_t> BMP)
+std::vector<Point3D<uint8_t>> BitmapRGBMatrix(CImg<uint8_t>& BMP)
 {
-	uint16_t H = BMP.height(), W = BMP.width(); std::vector<Point3D<uint8_t>> Ret(H * W);
+	uint16_t H = BMP.height(), W = BMP.width();
+	std::vector<Point3D<uint8_t>> Ret(H * W);
 	Point3D<uint8_t> RGB;
 	for (uint16_t y = 0; y < H; ++y) { for (uint16_t x = 0; x < W; ++x) { BitmapRGBuc(BMP, x, y, (uint8_t*)&RGB); Ret[y * W + x] = RGB; } }
 	return(Ret);
 }
 
 // ALL PIXELS FROM BITMAP:
-std::vector<Pixel> BitmapPixelMatrix(CImg<uint8_t> BMP)
+std::vector<Pixel> BitmapPixelMatrix(CImg<uint8_t>& BMP)
 {
-	uint16_t H = BMP.height(), W = BMP.width(); std::vector<Pixel> Ret(H * W); Pixel Pix;
+	uint16_t H = BMP.height(), W = BMP.width();
+	std::vector<Pixel> Ret(H * W); Pixel Pix;
 	for (uint16_t y = 0; y < H; ++y) { for (uint16_t x = 0; x < W; ++x) { Pix = BitmapPixel(BMP, x, y); Ret[y * W + x] = Pix; } }
 	return(Ret);
 }
 
 // VECTOR WITH VALUE FROM '-1 TO 1' BY BITMAP VALUES (GRAYSCALE):
-std::vector<double> BitmapVector(CImg<uint8_t> BMP)
+std::vector<double> BitmapVector(CImg<uint8_t>& BMP)
 {
 	uint16_t H = BMP.height(), W = BMP.width();	std::vector<double> V(H * W);
 	double Val = 0; Point3D<uint8_t> RGB;
@@ -220,8 +219,8 @@ std::vector<double> BitmapVector(CImg<uint8_t> BMP)
 	return (V);
 }
 
-// VECTOR WITH VALUE FROM '0 TO 255' (DOUBLE) BY BITMAP VALUES, CHANNEL BY INDEX (vRGB) "R = 0, G = 1, B = 2":
-std::vector<double> BitmapVector(CImg<uint8_t> BMP, uint8_t RGB_n)
+// VECTOR WITH VALUE FROM '0 TO 255' (DOUBLE) BY BITMAP VALUES, CHANNEL BY INDEX (C) "R = 0, G = 1, B > 1":
+std::vector<double> BitmapVector(CImg<uint8_t>& BMP, uint8_t C)
 {
 	uint16_t H = BMP.height(), W = BMP.width();	std::vector<double> V(H * W);
 	double Val = 0; Point3D<uint8_t> RGB;
@@ -230,7 +229,7 @@ std::vector<double> BitmapVector(CImg<uint8_t> BMP, uint8_t RGB_n)
 		for (uint16_t x = 0; x < W; ++x)
 		{
 			BitmapRGBuc(BMP, x, y, (uint8_t*)&RGB);
-			if (!RGB_n) { Val = RGB.x; } else if (RGB_n == 1) { Val = RGB.y; } else { Val = RGB.z; }
+			if (!C) { Val = RGB.x; } else if (C == 1) { Val = RGB.y; } else { Val = RGB.z; }
 			V[y * W + x] = Val;
 		}
 	}
@@ -238,7 +237,7 @@ std::vector<double> BitmapVector(CImg<uint8_t> BMP, uint8_t RGB_n)
 }
 
 // ALL RGBS FROM BITMAP (in float), IT GOES LIKE R, THEN G, THEN B, THEN NEXT PIXEL, SO THE VECTOR HAVE 3X THE SIZE OF THE IMAGE:
-std::vector<double> BitmapRGBVector(CImg<uint8_t> BMP)
+std::vector<double> BitmapRGBVector(CImg<uint8_t>& BMP)
 {
 	uint16_t H = BMP.height(), W = BMP.width(); std::vector<double> Ret(H * W * 3);
 	Point3D<uint8_t> RGB;
@@ -254,7 +253,7 @@ std::vector<double> BitmapRGBVector(CImg<uint8_t> BMP)
 }
 
 // LIMITED PIXEL MATRIX:
-std::vector<Pixel> BitmapPixelLimMatrix(CImg<uint8_t> BMP, uint8_t* RGB0, uint8_t* RGB1)
+std::vector<Pixel> BitmapPixelLimMatrix(CImg<uint8_t>& BMP, uint8_t* RGB0, uint8_t* RGB1)
 {
 	uint16_t H = BMP.height(), W = BMP.width(); std::vector<Pixel> Ret(H * W); Pixel Pix;
 	for (uint16_t y = 0; y < H; ++y)

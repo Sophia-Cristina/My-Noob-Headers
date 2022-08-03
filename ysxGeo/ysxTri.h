@@ -38,6 +38,7 @@ Gamma @###|###@ Beta
 CHANGES:
  * Function 'hip(,)' removed, use 'cmath' 'hypot' instead;
  * Triangle class now uses only 'rad';
+ * To do: prefix 'Tri' to all functions, like namespace;
 
  #################################################
  REFERENCES:
@@ -90,10 +91,10 @@ double TriBisAct(double a, double b, double Rad) // For 'c' shorter than 'b', el
 // https://en.wikipedia.org/wiki/Bisection:
 // If the side lengths of a triangle are 'a,b,c', the semiperimeter 's = (a + b + c) / 2', and A is the angle opposite side 'a',
 // then the length of the internal bisector of angle A is: "(2 * sqrt(b * c * s * (s - a))) / (b + c)":
-//double LghtBis(double a, double b, double c) { double s = (a + b + c) * 0.5; return((2 * sqrt(b * c * s * (s - a))) / (b + c)); } // Lenght of a bisector
-//double PerpBisa(double a, double b, double c, double Area) { return(( 2.0 * a * Area) / pow(a, 2) + pow(b, 2) - pow(c, 2)); } // Interior perpendicular bisectors
-//double PerpBisb(double a, double b, double c, double Area) { return((2.0 * b * Area) / pow(a, 2) + pow(b, 2) - pow(c, 2)); } // Interior perpendicular bisectors
-//double PerpBisc(double a, double b, double c, double Area) { return((2.0 * c * Area) / pow(a, 2) - pow(b, 2) + pow(c, 2)); } // Interior perpendicular bisectors
+//double TriLghtBis(double a, double b, double c) { double s = (a + b + c) * 0.5; return((2 * sqrt(b * c * s * (s - a))) / (b + c)); } // Lenght of a bisector
+//double TriPerpBisa(double a, double b, double c, double Area) { return((2.0 * a * Area) / pow(a, 2) + pow(b, 2) - pow(c, 2)); } // Interior perpendicular bisectors
+//double TriPerpBisb(double a, double b, double c, double Area) { return((2.0 * b * Area) / pow(a, 2) + pow(b, 2) - pow(c, 2)); } // Interior perpendicular bisectors
+//double TriPerpBisc(double a, double b, double c, double Area) { return((2.0 * c * Area) / pow(a, 2) - pow(b, 2) + pow(c, 2)); } // Interior perpendicular bisectors
 
 // CIRCUMCENTER, INRADIUS, INCENTER AND ETC:
 double TriCircumR(double a, double b, double c) { return(sqrt((pow(a, 2) * pow(b, 2) * pow(c, 2))/((a + b + c) * (- a + b + c) * (a - b + c) * (a + b - c)))); } // Circumradius
@@ -108,7 +109,7 @@ double TriIncenter(double a, double b, double Rad) // Lenght from 'I' to 'B'
 // Suppose two adjacent but non - overlapping triangles share the same side of length f and share the same circumcircle,
 // so that the side of length f is a chord of the circumcircle and the triangles have side lengths(a, b, f) and (c, d, f),
 // with the two triangles together forming a cyclic quadrilateral with side lengths in sequence(a, b, c, d). Then:
-double TriAdj(double a, double b, double c, double d) { return(sqrt((((a * c) + (b * d)) * ((a * d) + (b * c)))/((a * b) + (c * d)))); }
+double TriAdjcnt(double a, double b, double c, double d) { return(sqrt((((a * c) + (b * d)) * ((a * d) + (b * c)))/((a * b) + (c * d)))); }
 
 // #################################################
 // ############## TRIANGLE ##############
@@ -134,7 +135,7 @@ public:
 	// ############################
 	double a, b, c; // Sides
 	double Alpha, Beta, Gamma; // Angles
-	double Alt, Base, Base0; // Height and both bases (divided by the height line, if not right-triangle)
+	double Height, Base, Base0; // Height and both bases (divided by the height line, if not right-triangle)
 	double A, P; // Area and Perimeter
 	double Mediana, Medianb, Medianc; // Angles
 	double Ratios[3]; // Side ratio, based on the bigger side
@@ -166,7 +167,7 @@ public:
 		std::cout << "*** a: " << a << " | Alpha: " << Alpha << " | BisA: " << BisA << " ***\n";
 		std::cout << "*** b: " << b << " | Beta: " << Beta << " | BisB: " << BisB << " ***\n";
 		std::cout << "*** c: " << c << " | Gamma: " << Gamma << " | BisC: " << BisC << " ***\n";
-		std::cout << "# Alt: " << Alt << " | Base: " << Base << " | Base0: " << Base0 << " #\n";
+		std::cout << "# Height: " << Height << " | Base: " << Base << " | Base0: " << Base0 << " #\n";
 		std::cout << "# Area: " << A << " | Perimetro: " << P << " #\n";
 		std::cout << "Incenter: IB: " << IB << " | IA: " << IA << " | IC: " << IC << " | Inradius: " << Inradius << std::endl;
 		std::cout << "Circumcentro: x: " << Circumcenter.x << " | y: " << Circumcenter.y << std::endl;
@@ -208,14 +209,14 @@ public:
 		// Height e width:
 		if (Rad <= HPI)
 		{
-			Alt = b * sin(Rad);
+			Height = b * sin(Rad);
 			if (a >= b * cos(Rad)) { Base = b * cos(Rad); Base0 = fabs(a - (b * cos(Rad))); }
 			else { Base = a; Base0 = fabs(a - (b * cos(Rad))); }
 		}
-		else { Alt = b * sin(PI - Rad); Base = b * cos(PI - Rad); Base0 = a; }
+		else { Height = b * sin(PI - Rad); Base = b * cos(PI - Rad); Base0 = a; }
 		
 		// Coordinates:
-		Coord[0].x = 0; Coord[0].y = 0; Coord[1].x = round(a); Coord[1].y = 0; Coord[2].x = round(b * cos(Rad)); Coord[2].y = round(Alt);
+		Coord[0].x = 0; Coord[0].y = 0; Coord[1].x = round(a); Coord[1].y = 0; Coord[2].x = round(b * cos(Rad)); Coord[2].y = round(Height);
 		if (Rad > HPI) { Coord[0].x = round(b * cos(PI - Rad)); Coord[1].x = round(a + (b * cos(Rad))); Coord[2].x = 0; }
 
 		// Midpts:
@@ -229,7 +230,7 @@ public:
 		// Circumcenter:
 
 		// Area and perimeter:
-		A = a * Alt * 0.5; P = a + b + c;
+		A = a * Height * 0.5; P = a + b + c;
 	}
 };
 

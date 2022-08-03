@@ -25,8 +25,8 @@ public:
 	// #################################################
 	
 	// COORDENADES:
-	const unsigned char Coords = 24;
-	const LinePoint<unsigned char> CoordStamp[24] =
+	const uint8_t Coords = 24;
+	const LinePoint<uint8_t> CoordStamp[24] =
 	{
 		{{0, 0}, {2, 2}}, {{0, 2}, {1, 1}}, // 'y'SPHAx
 		{{3, 1}, {4, 0}}, {{4, 0}, {6, 2}}, {{6, 2}, {3, 4}}, {{3, 4}, {5, 6}}, {{5, 6}, {6, 5}}, // y'S'PHAx
@@ -38,14 +38,14 @@ public:
 
 	// COLOR GRADIENTS (! USE 3 CHANNELS ONLY !):
 	enum Gradients { G2Pink, B2Pink };
-	void Green2Pink(unsigned char* C, unsigned char Coord)
+	void Green2Pink(uint8_t* C, uint8_t Coord)
 	{
 		C[0] = 255.0 * ((double)Coord / Coords);
 		C[1] = 255.0 * (1 - ((double)Coord / Coords));
 		C[2] = 127.0 * ((double)Coord / Coords);
 	}
 
-	void Blue2Pink(unsigned char* C, unsigned char Coord)
+	void Blue2Pink(uint8_t* C, uint8_t Coord)
 	{
 		C[0] = 255.0 * ((double)Coord / Coords);
 		C[1] = 0;
@@ -64,43 +64,43 @@ public:
 
 	// #################################################
 
-	CImg<unsigned char> StampImg(int x, int y, unsigned char ColorGrad)
+	CImg<uint8_t> StampImg(int x, int y, uint8_t ColorGrad)
 	{
-		CImg<unsigned char> I(x, y, 1, 3, 0); 
+		CImg<uint8_t> I(x, y, 1, 3, 0); 
 		double dx = x / 21.0, dy = y / 6.0;
 		for (char n = 0; n < Coords; ++n)
 		{
 			// 127 -> 255 (128), 255 -> 0 (255), 0 -> 127 (127):
-			unsigned char C[3]; if (ColorGrad == G2Pink) { Green2Pink(C, n); } else { Blue2Pink(C, n); }
-			Linexy(I, CoordStamp[n].P0.x * dx, y - CoordStamp[n].P0.y * dy, CoordStamp[n].P1.x * dx, y - CoordStamp[n].P1.y * dy, C, false);
+			uint8_t C[3]; if (ColorGrad == G2Pink) { Green2Pink(C, n); } else { Blue2Pink(C, n); }
+			Linexy(I, CoordStamp[n].P0.x * dx, y - CoordStamp[n].P0.y * dy, CoordStamp[n].P1.x * dx, y - CoordStamp[n].P1.y * dy, C);
 		}
 		return(I);
 	}
 
-	void Print(CImg<unsigned char>& In, unsigned short Offx, unsigned short Offy, unsigned char ColorGrad)
+	void Print(CImg<uint8_t>& In, uint16_t Offx, uint16_t Offy, uint8_t ColorGrad)
 	{
 		double x = In.width(), y = In.height();
 		double dx = x / 21.0, dy = y / 6.0;
 		for (char n = 0; n < Coords; ++n)
 		{
-			unsigned short cx0 = Offx + CoordStamp[n].P0.x * dx;
-			unsigned short cy0 = Offy + CoordStamp[n].P0.y * dy;
-			unsigned short cx1 = Offx + CoordStamp[n].P1.x * dx;
-			unsigned short cy1 = Offy + CoordStamp[n].P1.y * dy;
+			uint16_t cx0 = Offx + CoordStamp[n].P0.x * dx;
+			uint16_t cy0 = Offy + CoordStamp[n].P0.y * dy;
+			uint16_t cx1 = Offx + CoordStamp[n].P1.x * dx;
+			uint16_t cy1 = Offy + CoordStamp[n].P1.y * dy;
 			if (InImg(In, cy0, cx0) && InImg(In, cy1, cx1))
 			{
-				unsigned char C[3];
+				uint8_t C[3];
 				if (ColorGrad == G2Pink) { Green2Pink(C, n); } else { Blue2Pink(C, n); }
 
 				C[0] = (C[0] * 0.5) + In(cx0, cy0, 0, 0) * 0.5;
 				C[1] = (C[1] * 0.5) + In(cx0, cy1, 0, 1) * 0.5;
 				C[2] = (C[2] * 0.5) + In(cx1, cy1, 0, 2) * 0.5;
-				Linexy (In,	cx0, cy0, cx1, cy1, C, false);
+				Linexy (In,	cx0, cy0, cx1, cy1, C);
 			}
 		}
 	}
 
-	void PrintMatrix(CImg<unsigned char>& In, unsigned int i, unsigned int j, unsigned short Offx, unsigned short Offy, unsigned char ColorGrad)
+	void PrintMatrix(CImg<uint8_t>& In, uint32_t i, uint32_t j, uint16_t Offx, uint16_t Offy, uint8_t ColorGrad)
 	{
 		double x = In.width(), y = In.height();
 		double dx = (x / 21.0) / (double)i, dy = (y / 6.0) / (double)j;
@@ -111,20 +111,20 @@ public:
 			{
 				for (char n = 0; n < Coords; ++n)
 				{
-					unsigned short cx0 = round((jj * dj) + Offx + CoordStamp[n].P0.x * dx);
-					unsigned short cy0 = y - round(Offy + ((ii * di) + CoordStamp[n].P0.y * dy));
-					unsigned short cx1 = round((jj * dj) + Offx + CoordStamp[n].P1.x * dx);
-					unsigned short cy1 = y - round(Offy + ((ii * di) + CoordStamp[n].P1.y * dy));
+					uint16_t cx0 = round((jj * dj) + Offx + CoordStamp[n].P0.x * dx);
+					uint16_t cy0 = y - round(Offy + ((ii * di) + CoordStamp[n].P0.y * dy));
+					uint16_t cx1 = round((jj * dj) + Offx + CoordStamp[n].P1.x * dx);
+					uint16_t cy1 = y - round(Offy + ((ii * di) + CoordStamp[n].P1.y * dy));
 					if (InImg(In, cy0, cx0) && InImg(In, cy1, cx1))
 					{
-						unsigned char C[3];
+						uint8_t C[3];
 						if (ColorGrad == G2Pink) { Green2Pink(C, n); }
 						else { Blue2Pink(C, n); }
 
 						C[0] = (C[0] * 0.5) + In(cx0, cy0, 0, 0) * 0.5;
 						C[1] = (C[1] * 0.5) + In(cx1, cy0, 0, 1) * 0.5;
 						C[2] = (C[2] * 0.5) + In(cx1, cy1, 0, 2) * 0.5;
-						Linexy(In, cx0, cy0, cx1, cy1, C, false);
+						Linexy(In, cx0, cy0, cx1, cy1, C);
 					}
 				}
 			}
@@ -145,7 +145,7 @@ public:
 		Pink7, Pink6, Pink5, Pink4, Pink3, Pink2, Pink1, Pink0,
 		PinkD7, PinkD6, PinkD5, PinkD4, PinkD3, PinkD2, PinkD1, PinkD0,
 	};
-	const unsigned char ColorTab[14][3] = // Color Table, check 'enum'
+	const uint8_t ColorTab[14][3] = // Color Table, check 'enum'
 	{
 		{ 255, 163, 228 }, { 255, 140, 214 }, { 255, 116, 199 },
 		{ 255, 93, 185 }, { 255, 70, 170 }, { 255, 47, 156 },
@@ -153,7 +153,7 @@ public:
 		{ 219, 0, 109 }, { 182, 0, 91 }, { 146, 0, 73 },
 		{ 109, 0, 54 }, { 73, 0, 36 }, { 36, 0, 18 }
 	};
-	const unsigned short cSize = 14; // ColorTab.size()
+	const uint16_t cSize = 14; // ColorTab.size()
 
 	// DESIGN BG LIMITS, USE '7 * n' SIDE SIZES (2:1):
 	bool BGLimit(double WIn, double HIn, int x, int y)
@@ -173,10 +173,10 @@ public:
 
 	// #################################################
 
-	void MyColors(CImg<unsigned char>& In)
+	void MyColors(CImg<uint8_t>& In)
 	{
-		unsigned short H = In.height(), W = In.width();
-		unsigned char C[3];
+		uint16_t H = In.height(), W = In.width();
+		uint8_t C[3];
 		for (size_t y = 0; y < H; ++y)
 		{
 			for (size_t x = 0; x < W; ++x)
@@ -189,10 +189,10 @@ public:
 		}
 	}
 
-	void PinkGrad(CImg<unsigned char>& In)
+	void PinkGrad(CImg<uint8_t>& In)
 	{
-		unsigned short H = In.height(), W = In.width();
-		unsigned char C[3];
+		uint16_t H = In.height(), W = In.width();
+		uint8_t C[3];
 		for (size_t y = 0; y < H; ++y)
 		{
 			for (size_t x = 0; x < W; ++x)
@@ -208,15 +208,15 @@ public:
 
 	// #################################################
 
-	void MyTurn(CImg<unsigned char>& In)
+	void MyTurn(CImg<uint8_t>& In)
 	{
-		unsigned short W = In.width(), H = In.height();
+		uint16_t W = In.width(), H = In.height();
 		double y0, x0, y1, x1, y2, x2, y3, x3;
 		double Rad, a, r, k = 7 / 9.0;
 		double Step = PI / (9 * TAU * (W * 0.5));
 		short n = 0;
 		double Div = PI / 48.0;
-		unsigned char C[4][3];
+		uint8_t C[4][3];
 		for (char cn = 0; cn < 4; ++cn)
 		{
 			C[n][0] = ((cn * 3) / 12.0) * 255.0;
@@ -233,7 +233,7 @@ public:
 				for (short m = 0; m < 7 * 2; ++m)
 				{
 					//std::cout << "m " << m << std::endl;
-					unsigned char CC[3];
+					uint8_t CC[3];
 					
 					r = ((W * 0.5) - m - Curve * 7 * 3);
 					a = r * sin(k * (TAU - Rad) * 9); // BOTTOM
@@ -287,21 +287,21 @@ public:
 	// #################################################
 
 	// SHADOWS BY LINE DENSITY:
-	CImg<unsigned char> LineShadowBG(CImg<unsigned char> In, bool Sine)
+	CImg<uint8_t> LineShadowBG(CImg<uint8_t> In, bool Sine)
 	{
-		unsigned short W = In.width(), H = In.height();
-		CImg<unsigned char> Ret(W, H, 1, 3, 0);
-		FillArea(Ret, 1, 1, (unsigned char*)&ColorTab[Pink7]);
+		uint16_t W = In.width(), H = In.height();
+		CImg<uint8_t> Ret(W, H, 1, 3, 0);
+		FillArea(Ret, 1, 1, (uint8_t*)&ColorTab[Pink7]);
 		const double dc = 1.0 / cSize; // Delta Color
 
-		for (unsigned short n = 0; n < H; ++n)
+		for (uint16_t n = 0; n < H; ++n)
 		{
 			std::cout << "H: " << n << std::endl;
-			for (unsigned short m = 0; m < W; ++m)
+			for (uint16_t m = 0; m < W; ++m)
 			{
 				if (BGLimit(W, H, m, n))
 				{
-					unsigned char C[] = { In(m, n, 0, 0), In(m, n, 0, 1), In(m, n, 0, 2) };
+					uint8_t C[] = { In(m, n, 0, 0), In(m, n, 0, 1), In(m, n, 0, 2) };
 					double CAvg = (C[0] + C[1] + C[2]) / 765.0;
 					for (int c = 0; c < cSize; ++c)
 					{
@@ -309,8 +309,8 @@ public:
 						{
 							if (n % (c + 2) == 0)
 							{
-								unsigned short nn = n + sin(((double)m / W) * 1554) * 14;
-								Ret.draw_point(m, nn, (unsigned char*)&ColorTab[c]);
+								uint16_t nn = n + sin(((double)m / W) * 1554) * 14;
+								Ret.draw_point(m, nn, (uint8_t*)&ColorTab[c]);
 							}
 						}
 					}
@@ -322,14 +322,14 @@ public:
 
 	// #################################################
 
-	void MainPrint(CImg<unsigned char>& In)
+	void MainPrint(CImg<uint8_t>& In)
 	{
 		// QUALITY:
 		In.resize((In.width() * 7), (In.height() * 7), 3, 3, 6, 0, 0, 0, 0, 0);
 		std::cout << "RESIZED!\n";
 		// BACKGROUND:
-		unsigned short W = In.width(), H = In.height();
-		CImg<unsigned char> I = In; // MAIN IMAGE
+		uint16_t W = In.width(), H = In.height();
+		CImg<uint8_t> I = In; // MAIN IMAGE
 		/*{
 			YSX_Stamp S; for (char n = 0; n < 7; ++n) { S.PrintMatrix(I, 2, 4, n, n, S.B2Pink); S.Print(I, n, n, S.B2Pink); }
 			std::cout << "STAMPED!\n";
@@ -337,7 +337,7 @@ public:
 			{
 				for (short x = 0; x < In.width(); ++x)
 				{
-					unsigned char C[] =
+					uint8_t C[] =
 					{
 						(I(x, y, 0, 0) + In(x, y, 0, 0)) * 0.5,
 						(I(x, y, 0, 1) + In(x, y, 0, 1)) * 0.5,
@@ -348,7 +348,7 @@ public:
 			}
 		}*/
 		std::cout << "LAYER!\n";
-		CImg<unsigned char> BG(W, H, 1, 3, 255); // BG IMG
+		CImg<uint8_t> BG(W, H, 1, 3, 255); // BG IMG
 		MyTurn(BG);
 		std::cout << "BG DONE!\n";
 		MyColors(BG); PinkGrad(BG);
@@ -358,7 +358,7 @@ public:
 		{
 			for (short x = 0; x < In.width(); ++x)
 			{
-				unsigned char C[] =
+				uint8_t C[] =
 				{
 					(I(x, y, 0, 0) * 0.33 + In(x, y, 0, 0)) * 0.67,
 					0,

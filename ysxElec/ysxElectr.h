@@ -443,8 +443,8 @@ public:
             std::vector<double> S = Signals[Signal];
             double Max = MaxVec(S); MultVecTerms(S, 1.0 / Max); MultVecTerms(S, 64.0);
             uint8_t Color[] = { 47, 127, 47 };
-            if (Neg) { PrintVectorLineOnImg(Print, S, Color, Max / Volts); }
-            else { PrintVectorLineOnImg(Print, S, Color, Max / Volts); }
+            if (Neg) { PrintVectorLineOnImg(Print, S, Max / Volts, Color); }
+            else { PrintVectorLineOnImg(Print, S, Max / Volts, Color); }
         }
     }
 
@@ -459,7 +459,7 @@ public:
             std::vector<double> S = Signals[Signal];
             double Max = MaxVec(S); MultVecTerms(S, 1.0 / Max); MultVecTerms(S, 64.0);
             uint8_t Color[] = { 47, 127, 47 };
-            PrintVectorLineOnImg(Print, S, Color, Max / Volts);
+            PrintVectorLineOnImg(Print, S, Max / Volts, Color);
         }
     }
     // #################################################

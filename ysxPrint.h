@@ -4,6 +4,7 @@
 #define YSXPRINT_H
 
 #include "ysxMath.h"
+#include "ysxText.h"
 
 // #####################
 // ####### By Sophia Cristina
@@ -15,27 +16,22 @@
 
 // PRINT STRING LIKE A TEXT IN A NOTEPAD:
 void PrintString(std::string S) { std::ofstream O("String.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; } else { O << S; } O.close(); }
-void PrintString(char S[])
+void PrintString(char * S, size_t Size)
 {
 	std::ofstream O("String.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
-	else { for (int n = 0; n < sizeof(S); ++n) { O << S[n]; } } O.close();
+	else { for (int n = 0; n < Size; ++n) { O << S[n]; } } O.close();
 }
 
-// PRINT CHAR AS IT NUMBER VALUE:
-void PrintCharAsInt(std::string File, bool Spaces)
+// PRINT CHAR AS IT NUMBER VALUE (MAKE IT WITHOUT PUSH BACK):
+void PrintCharAsInt(std::string inFile, std::string outFile, bool Spaces = 1)
 {
-	std::vector<char> V;
-	std::ifstream In(File); if (!In.is_open()) { std::cout << "File error" << std::endl; }
+	std::ifstream In(inFile); std::ofstream O(outFile);
+	if (!In.is_open() && !O.is_open()) { std::cout << "File error" << std::endl; }
 	else
-	{ while (!In.eof()) { char C; In.read(&C, 1); V.push_back(C); }	}
-	In.close();
-	std::ofstream O("READ INT.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
-	else
-	{
-		if (Spaces) { for (size_t n = 0; n < V.size() - 1; ++n) { O << (short)V[n] << " "; } }
-		else { for (size_t n = 0; n < V.size() - 1; ++n) { O << (short)V[n]; } }
+	{ 
+		while (!In.eof()) { uint8_t C; In.read((char*)&C, 1); O << (short)C; if (Spaces) { O << " "; } }
 	}
-	O.close();
+	In.close(); O.close();
 }
 
 // PRINT A VECTOR PLOT MADE WITH ASCII:
@@ -85,16 +81,18 @@ void PrintMeterSecConvesor(double ms)
 	std::ofstream O("PrintMeterSecConvesor.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
 	else
 	{
-		O << "ms to kmh: " << ms * 3.6 << " | "; O << "ms to mile: " << ms / 0.44704 << " | ";
+		O << "ms to kmh: " << ms * 3.6 << " | "; O << "ms to mile: " << ms / 0.44704 << " |\n";
 		O << "ms to feet per sec: " << ms * 3.28084 << " | "; O << "ms to knot: " << ms * 1.9438444924 << " | ";
 	}
 	O.close();
 }
 
 // #####################################################################################################################################
-// ##################### MATEMÁTICAS #####################
+// ##################### MATHS #####################
 
-// Imprime numero elevado a 'n':
+/* PRINT:
+ 'n^From, ..., n^To; From^n, ..., To^n;'
+ 'n-root(from), ..., n-root(To); From-root(n), ..., To-root(n);'*/
 void PrintPowRoot(double n, int From, int To)
 {
 	if (From > To) { int Tmp = From; From = To; To = Tmp; }
@@ -118,7 +116,8 @@ void PrintPowRoot(double n, int From, int To)
 	O.close();
 }
 
-// Imprime multiplos e divisões:
+// ####### MULTIPLICATIONS AND DIVISIONS #######
+
 void PrintMult(double x, double Ini, double End, double Inc)
 {
 	std::ofstream O("PrintMult.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
@@ -139,22 +138,23 @@ void PrintDiv(double x, double Ini, double End, double Inc)
 		for (double a = Ini; a <= End; a += 1.0 / Inc)
 		{
 			O << x << " / " << a << " = " << x / a << std::endl;
+			O << a << " / " << x << " = " << a / x << std::endl;
 		}
 		O << "####### END!\n";
 	}
 	O.close();
 }
 
-void SmallEquation(double a, double b, double q)
+void PrintSmallEq(double a, double b, double c)
 {
-	std::ofstream O("SimpleEq.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
+	std::ofstream O("!SimpleEq.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
 	else
 	{
 		O << "x =  b / a -> x = " << b << " / " << a << " =\n";
 		O << b / a << std::endl;
 		O << " a / b = " << a / b << std::endl;
-		O << "quantia * x = (b / a) * quantia = " << (b / a) * q << std::endl;
-		O << "(a / b) * quantia = " << (a / b) * q << "\n\n";
+		O << "c * x = (b / a) * c = " << (b / a) * c << std::endl;
+		O << "(a / b) * c = " << (a / b) * c << "\n\n";
 	}
 	O.close();
 }
@@ -178,7 +178,7 @@ void PrtTriInfo(double a, double b, double ang)
 		O << "a: " << Tri.a << " | Alpha: " << Tri.Alpha << " | BisA: " << Tri.BisA << std::endl;
 		O << "b: " << Tri.b << " | Beta: " << Tri.Beta << " | BisB: " << Tri.BisB << std::endl;
 		O << "c: " << Tri.c << " | Gamma: " << Tri.Gamma << " | BisC: " << Tri.BisC << std::endl;
-		O << "Alt: " << Tri.Alt << " | Base: " << Tri.Base << " | Base0: " << Tri.Base0 << std::endl;
+		O << "Alt: " << Tri.Height << " | Base: " << Tri.Base << " | Base0: " << Tri.Base0 << std::endl;
 		O << "Circumcentro: x: " << Tri.Circumcenter.x << " | y: " << Tri.Circumcenter.y << std::endl;
 		O << "0: NoTypeLgt; 1: Equilateral; 2: Isoceles; 3: Scalene;\n";
 		O << "0: NoTypeAng; 1: Right; 2: Acute; 3: Obtuse;\n";

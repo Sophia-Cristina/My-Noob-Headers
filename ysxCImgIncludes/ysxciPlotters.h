@@ -7,15 +7,15 @@ using namespace cimg_library;
 
 // ############################################################################################################################################
 // ################################################# ANOTAÇÕES E ATENÇÕES #################################################
-// !!!!!!!	
-// !!!!!!!	MAKE ALL POSSIBLE PLOTTERS TO WRITE ON AN INPUT IMAGE;
-// !!!!!!!	MAKE ALL POSSIBLE PLOTTERS TO ACCEPT VECTORS AS INPUTS TO STOP REDUNDANCY OF FUNCTIONS, LIKE "POLAR", "CIRCLE" AND "TURN";
-// !!!!!!!	
-// !!!!!!!	LOG (TRY TO MANTAIN ORDER):
-// !!!!!!!	* Functions that had the name 'SaveVector...' are now 'PrintVector...';
-// !!!!!!!	* 'yrto *= 2' removed from lot of functions;
-// !!!!!!!	* Huge changes, take care;
-// !!!!!!!	
+// !!!	
+// !!!	MAKE ALL POSSIBLE PLOTTERS TO WRITE ON AN INPUT IMAGE;
+// !!!	MAKE ALL POSSIBLE PLOTTERS TO ACCEPT VECTORS AS INPUTS TO STOP REDUNDANCY OF FUNCTIONS, LIKE "POLAR", "CIRCLE" AND "TURN";
+// !!!	
+// !!!	LOG (TRY TO MANTAIN ORDER):
+// !!!	* Functions that had the name 'SaveVector...' are now 'PrintVector...';
+// !!!	* 'yrto *= 2' removed from lot of functions;
+// !!!	* Huge changes, take care;
+// !!!	* !!! HUGE: Changing / changed all "uint8_t* C" to "C = nllptr", and if "!C", then use "LinearRGBuc", and delete redundant functions !!!
 // ################################################# ANOTAÇÕES E ATENÇÕES #################################################
 // ############################################################################################################################################
 
@@ -25,59 +25,36 @@ using namespace cimg_library;
 // ############## CIRCULARES:
 
 // PLOT CIRCLE WITH ORIGIN AT X AND Y:
-void Circlexy(CImg<uint8_t>& Img, double r, uint16_t x, uint16_t y, uint8_t* C)
+void Circlexy(CImg<uint8_t>& Img, double r, uint16_t x, uint16_t y, uint8_t* C = nullptr)
 {
 	uint16_t yc, xc;
-	double dt = 1.0 / r;
-	if (!C) { C = new uint8_t[3]; }
-
-	for (double rad = 0; rad <= TAU; rad += dt) // MUDAR SE NESCESSARIO
-	{
-		yc = y + round(sin(rad) * r); xc = x + round(cos(rad) * r);
-		if (InImg(Img, yc, xc)) { Img.draw_point(xc, yc, C); }
-	}
-}
-void Circlexy(CImg<uint8_t>& Img, double r, uint16_t x, uint16_t y)
-{
-	uint16_t yc, xc;
-	double dt = 1.0 / r;
-	uint8_t C[3];
+	double dt = 1.0 / r; bool LC = false;
+	uint8_t Cc[3];
 
 	for (double rad = 0; rad <= TAU; rad += dt) // MUDAR SE NESCESSARIO
 	{
 		yc = y + round(sin(rad) * r); xc = x + round(cos(rad) * r);
 		if (InImg(Img, yc, xc))
 		{
-			LinearRGBuc(rad / TAU, 1, 1, C);
-			Img.draw_point(xc, yc, C);
+			if (!C)	{ LinearRGBuc(rad / TAU, 1, 1, Cc); Img.draw_point(xc, yc, Cc);	}
+			else { Img.draw_point(xc, yc, C); }
 		}
 	}
 }
 
 // PLOT CIRCLE THAT FITS AN IMAGE:
-void Circle(CImg<uint8_t>& Img, uint8_t* C)
+void Circle(CImg<uint8_t>& Img, uint8_t* C = nullptr)
 {
-	double r; Img.width() <= Img.height() ? r = Img.width() : r = Img.height(); r -= 1; r *= 0.5;
+	double r; Img.width() < Img.height() ? r = Img.width() : r = Img.height(); r -= 1; r *= 0.5;
 	double dt = 1.0 / r;
-	uint16_t yc, xc, x = floor(Img.width() * 0.5), y = Img.height() - floor(Img.height() * 0.5);
+	uint16_t yc, xc, x = floor(Img.width() * 0.5), y = floor(Img.height() * 0.5);
+	uint8_t Cc[3];
 
 	for (double rad = 0; rad <= TAU; rad = rad + dt)
 	{
 		yc = y + round(sin(rad) * r); xc = x + round(cos(rad) * r);
-		if (InImg(Img, yc, xc)) { Img.draw_point(xc, yc, C); }
-	}
-}
-void Circle(CImg<uint8_t>& Img)
-{
-	double r; Img.width() <= Img.height() ? r = Img.width() : r = Img.height(); r -= 1; r *= 0.5;
-	double dt = 1.0 / r;
-	uint16_t yc, xc, x = floor(Img.width() * 0.5), y = Img.height() - floor(Img.height() * 0.5);
-	uint8_t C[3];
-
-	for (double rad = 0; rad <= TAU; rad = rad + dt)
-	{
-		yc = y + round(sin(rad) * r); xc = x + round(cos(rad) * r);
-		if (InImg(Img, y, x)) { LinearRGBuc(rad / TAU, 1, 1, C); Img.draw_point(x + xc, y + yc, C); }
+		if (!C) { LinearRGBuc(rad / TAU, 1, 1, Cc); Img.draw_point(xc, yc, Cc); }
+		else { Img.draw_point(xc, yc, C); }
 	}
 }
 
@@ -104,7 +81,7 @@ void MetricLines(CImg<uint8_t>& I, double a1, double a2, double Div, bool VertHo
 			if (VertHori)
 			{
 				x = C * Div * Ratio; ++C;
-				for (y = 0; y < sy; ++y) { I.draw_point(x, y, Clr); }
+				I.draw_line(x, 0, x, sy, Clr);
 				if (Text)
 				{
 					Clr[0] = 255 - Clr[0]; Clr[1] = 255 - Clr[1]; Clr[2] = 255 - Clr[2];
@@ -114,7 +91,7 @@ void MetricLines(CImg<uint8_t>& I, double a1, double a2, double Div, bool VertHo
 			else
 			{
 				y = sy - (C * Div * Ratio); ++C;
-				for (x = 0; x < sx; ++x) { I.draw_point(x, y, Clr); }
+				I.draw_line(0, y, sx, y, Clr);
 				if (Text)
 				{
 					Clr[0] = 255 - Clr[0]; Clr[1] = 255 - Clr[1]; Clr[2] = 255 - Clr[2];
@@ -129,37 +106,22 @@ void MetricLines(CImg<uint8_t>& I, double a1, double a2, double Div, bool VertHo
 
 // POLAR (arrumar, roubei da classe, colocar x e y), fazer um com raio:
 // FAZER UMA VERSÃO COM VECTOR, SEM SER POLIGONAL COMO AQUELE QUE JÁ TEM.
-void Polar(CImg<uint8_t>& I, double r, double x, double y, double t1, double t2, double Omega)
+void Polar(CImg<uint8_t>& I, double r, double x, double y, double t1, double t2, double Omega, uint8_t* C = nullptr)
 {
-	if (t1 < 0) { t1 =  TAU + t1; } if (t2 < t1) { double T = t1; t1 = t2; t2 = T; }
+	if (t1 < 0) { t1 = TAU + t1; } if (t2 < t1) { double T = t1; t1 = t2; t2 = T; }
 	double Amp, dt = (t2 - t1) / (TAU * r); // Ver se no polar vale a pena
 	uint16_t yc, xc; uint8_t c[3];
 	for (double t = t1; t <= t2; t += dt)
 	{
 		Amp = r * MiniForm(t, Omega); // FORMULA
 		yc = y + round(Amp * sin(t)); xc = x + round(Amp * cos(t));
-		if (InImg(I, yc, xc))
-		{
-			LinearRGBuc((t - t1) / (t2 - t1), 1, 1, c);
-			I.draw_point(xc, yc, c);
-		}
-	}
-}
-void Polar(CImg<uint8_t>& I, double r, double x, double y, double t1, double t2, double Omega, uint8_t* C)
-{
-	if (t1 < 0) { t1 = TAU + t1; } if (t2 < t1) { double T = t1; t1 = t2; t2 = T; }
-	double Amp, dt = (t2 - t1) / (TAU * r); // Ver se no polar vale a pena
-	uint16_t yc, xc;
-	for (double t = t1; t <= t2; t += dt)
-	{
-		Amp = r * MiniForm(t, Omega); // FORMULA
-		yc = y + round(Amp * sin(t)); xc = x + round(Amp * cos(t));
-		if (InImg(I, yc, xc)) { I.draw_point(xc, yc, C); }
+		if (!C) { LinearRGBuc((t - t1) / (t2 - t1), 1, 1, c); I.draw_point(xc, yc, c); }
+		else { I.draw_point(xc, yc, C); }
 	}
 }
 
 // HYPOCYCLOID (FIX PERIMETER OR MAYBE THE PROBLEM IS ON THE COORDS):
-void HypoCicl(CImg<uint8_t>& I, double R, double r, double x, double y, double t1, double t2)
+void HypoCicl(CImg<uint8_t>& I, double R, double r, double x, double y, double t1, double t2, uint8_t* C = nullptr)
 {
 	double Arc = (r * 8 * ((R / r) - 1)), dt = (t2 - t1) / Arc;
 	if (t1 < 0) { t1 = TAU + t1; } if (t2 < t1) { double T = t1; t1 = t2; t2 = T; }
@@ -168,28 +130,13 @@ void HypoCicl(CImg<uint8_t>& I, double R, double r, double x, double y, double t
 	{
 		xc = x + ((R - r) * cos(t) + r * cos(t * (R - r) / r));
 		yc = y + ((R - r) * sin(t) - r * sin(t * (R - r) / r));
-		if (InImg(I, yc, xc))
-		{
-			LinearRGBuc((t - t1) / (t2 - t1), 1, 1, c);
-			I.draw_point(xc, yc, c);
-		}
-	}
-}
-void HypoCicl(CImg<uint8_t>& I, double R, double r, double x, double y, double t1, double t2, uint8_t* C)
-{
-	double Arc = (r * 8 * ((R / r) - 1)), dt = (t2 - t1) / Arc;
-	if (t1 < 0) { t1 = TAU + t1; } if (t2 < t1) { double T = t1; t1 = t2; t2 = T; }
-	uint16_t yc, xc;
-	for (double t = t1; t <= t2; t += dt)
-	{
-		xc = x + ((R - r) * cos(t) + r * cos(t * (R - r) / r));
-		yc = y + ((R - r) * sin(t) - r * sin(t * (R - r) / r));
-		if (InImg(I, yc, xc))	{ I.draw_point(xc, yc, C); }
+		if (!C) { LinearRGBuc((t - t1) / (t2 - t1), 1, 1, c); I.draw_point(xc, yc, c); }
+		else { I.draw_point(xc, yc, C); }
 	}
 }
 
 // EPICYCLOID (WIP, PERIMETER AND MORE):
-void EpiCicl(CImg<uint8_t>& I, double R, double r, double x, double y, double t1, double t2)
+void EpiCicl(CImg<uint8_t>& I, double R, double r, double x, double y, double t1, double t2, uint8_t* C = nullptr)
 {
 	if (t1 < 0) { t1 = TAU + t1; } if (t2 < t1) { double T = t1; t1 = t2; t2 = T; }
 	double dt = (t2 - t1) / (TAU * (R + r)); // Não lembro, mudar depois
@@ -200,84 +147,38 @@ void EpiCicl(CImg<uint8_t>& I, double R, double r, double x, double y, double t1
 		xc = x + ((R + r) * cos(t) - r * cos(t * (R + r) / r));
 		if (InImg(I, yc, xc))
 		{
-			LinearRGBuc((t - t1) / (t2 - t1), 1, 1, c);
-			I.draw_point(x, y, c);
+			if (!C) { LinearRGBuc((t - t1) / (t2 - t1), 1, 1, c); I.draw_point(xc, yc, c); }
+			else { I.draw_point(xc, yc, C); }
 		}
-	}
-}
-void EpiCicl(CImg<uint8_t>& I, double R, double r, double x, double y, double t1, double t2, uint8_t* C)
-{
-	if (t1 < 0) { t1 = TAU + t1; } if (t2 < t1) { double T = t1; t1 = t2; t2 = T; }
-	double dt = (t2 - t1) / (TAU * (R + r));
-	uint16_t yc, xc;
-	for (double t = t1; t <= t2; t += dt)
-	{
-		yc = y + ((R + r) * sin(t) - r * sin(t * (R + r) / r));
-		xc = x + ((R + r) * cos(t) - r * cos(t * (R + r) / r));
-		if (InImg(I, yc, xc)) { I.draw_point(xc, yc, C); }
 	}
 }
 
 // TURN:
-void Turn(CImg<uint8_t>& Img, double r, uint16_t x, int16_t y, double Ini, double Turn, uint8_t* C)
+void Turn(CImg<uint8_t>& I, double r, uint16_t x, int16_t y, double Ini, double Turn, uint8_t* C = nullptr)
 {
 	uint16_t yc, xc;
 	double rad, dt = (Turn - Ini) / (TAU * r);
 	if (Ini > Turn) { double Tmp; Tmp = Ini; Ini = Turn; Turn = Tmp; }
+	uint8_t c[3];
 
 	for (rad = Ini; rad <= Turn; rad += dt)
 	{
 		yc = y + round(sin(TAU - rad) * r); xc = x + round(cos(rad) * r);
-		if (InImg(Img, yc, xc)) { Img.draw_point(xc, yc, C); }
-	}
-}
-void Turn(CImg<uint8_t>& Img, double r, uint16_t x, int16_t y, double Ini, double Turn)
-{
-	uint16_t yc, xc;
-	double rad, dt = (Turn - Ini) / (TAU * r);
-	if (Ini > Turn) { double Tmp; Tmp = Ini; Ini = Turn; Turn = Tmp; }
-	uint8_t C[3];
-
-	for (rad = Ini; rad <= Turn; rad += dt)
-	{
-		yc = y + round(sin(TAU - rad) * r); xc = x + round(cos(rad) * r);
-		if (InImg(Img, yc, xc))
+		if (InImg(I, yc, xc))
 		{
-			LinearRGBuc((rad - Ini) / (Turn - Ini), 1, 1, C);
-			Img.draw_point(xc, yc, C);
+			if (!C) { LinearRGBuc((rad - Ini) / (Turn - Ini), 1, 1, c); I.draw_point(xc, yc, c); }
+			else { I.draw_point(xc, yc, C); }
 		}
 	}
 }
 
 // PLOT RADIUS:
-void Radius(CImg<uint8_t>& Img, double r, uint16_t x, int16_t y, double rad, bool Triangle, bool Border)
+void Radius(CImg<uint8_t>& Img, double r, uint16_t x, int16_t y, double rad, bool Triangle, bool Border, uint8_t* C = nullptr)
 {
 	uint16_t xc, yc, rn;
 	double Sin = sin(TAU - rad), Cos = cos(rad);
 	int xend = round(Cos * r);
-	uint8_t C[3], IC[3];
-
-	for (rn = 0; rn <= r; ++rn)
-	{
-		yc = y + round(Sin * rn); xc = x + round(Cos * rn);
-		if (InImg(Img, yc, xc))
-		{
-			LinearRGBuc(rn / r, 1, 1, C); Img.draw_point(xc, yc, C);
-			if (Triangle)
-			{
-				IC[0] = 255 - C[0]; IC[1] = 255 - C[1]; IC[2] = 255 - C[2];
-				Img.draw_point(xc, y, IC); Img.draw_point(x + xend, yc, IC);
-			}
-		}
-	}
-	if (Border) { Circlexy(Img, r, x, y); }
-}
-void Radius(CImg<uint8_t>& Img, double r, uint16_t x, int16_t y, double rad, bool Triangle, bool Border, uint8_t* C)
-{
-	uint16_t xc, yc, rn;
-	double Sin = sin(TAU - rad), Cos = cos(rad);
-	int xend = round(Cos * r);
-	uint8_t IC[3];
+	uint8_t IC[3]; uint8_t c[3];
 
 	for (rn = 0; rn <= r; ++rn)
 	{
@@ -285,16 +186,22 @@ void Radius(CImg<uint8_t>& Img, double r, uint16_t x, int16_t y, double rad, boo
 		xc = x + round(Cos * rn);
 		if (InImg(Img, yc, xc))
 		{
-			Img.draw_point(xc, yc, C);
+			if (!C) 
+			{
+				LinearRGBuc(rn / r, 1, 1, c);
+				Img.draw_point(xc, yc, c);
+			}
+			else { Img.draw_point(xc, yc, C); }
 			if (Triangle)
 			{
-				IC[0] = 255 - C[0]; IC[1] = 255 - C[1]; IC[2] = 255 - C[2];
+				if (!C) { IC[0] = 255 - c[0]; IC[1] = 255 - c[1]; IC[2] = 255 - c[2]; }
+				else { IC[0] = 255 - C[0]; IC[1] = 255 - C[1]; IC[2] = 255 - C[2]; }
 				Img.draw_point(xc, y, IC);
 				Img.draw_point(x + xend, yc, IC);
 			}
 		}
 	}	
-	if (Border) { Circlexy(Img, r, x, y, C); }
+	if (Border) { if (!C) { Circlexy(Img, r, x, y, c); } else { Circlexy(Img, r, x, y, C); } }
 }
 void RadiusQuick(CImg<uint8_t>& Img, double r, uint16_t x, int16_t y, double rad, bool Triangle, bool Border, uint8_t* C)
 {
@@ -305,7 +212,6 @@ void RadiusQuick(CImg<uint8_t>& Img, double r, uint16_t x, int16_t y, double rad
 
 	if (InImg(Img, y, x) && InImg(Img, yend, xend))
 	{
-		//Img.draw_line(x, y, xend, yend, C);
 		Img.draw_line(x, y, x + xend, y + yend, C);
 		if (Triangle)
 		{
@@ -316,15 +222,14 @@ void RadiusQuick(CImg<uint8_t>& Img, double r, uint16_t x, int16_t y, double rad
 	}
 	if (Border) { Circlexy(Img, r, x, y, C); }
 }
-void RadiusPolygon(CImg<uint8_t>& Img, double r, uint16_t x, int16_t y, double OffSet, int Divisions, bool Triangle, bool Border)
-{ double Div = TAU / Divisions; for (double n = OffSet; n < TAU + OffSet; n += Div) { Radius(Img, r, x, y, n, Triangle, Border); } }
-void RadiusPolygon(CImg<uint8_t>& Img, double r, uint16_t x, int16_t y, double OffSet, int Divisions, uint8_t* C, bool Triangle, bool Border)
+
+void RadiusPolygon(CImg<uint8_t>& Img, double r, uint16_t x, int16_t y, double OffSet, int Divisions, bool Triangle, bool Border, uint8_t* C = nullptr)
 {
 	double Div = TAU / Divisions;
 	for (double n = OffSet; n < TAU + OffSet; n += Div)
 	{
-		//std::cout << "n / TAU: " << n / (TAU + OffSet) << "!\n";
-		Radius(Img, r, x, y, n, Triangle, Border, C);
+		if (!C) { Radius(Img, r, x, y, n, Triangle, Border); }
+		else { Radius(Img, r, x, y, n, Triangle, Border, C); }		
 	}
 }
 void RadiusPolygonQuick(CImg<uint8_t>& Img, double r, uint16_t x, int16_t y, double OffSet, int Divisions, uint8_t* C, bool Triangle, bool Border)
@@ -332,7 +237,6 @@ void RadiusPolygonQuick(CImg<uint8_t>& Img, double r, uint16_t x, int16_t y, dou
 	double Div = TAU / Divisions;
 	for (double n = OffSet; n < TAU + OffSet; n += Div)
 	{
-		//std::cout << "n / TAU: " << n / (TAU + OffSet) << "!\n";
 		RadiusQuick(Img, r, x, y, n, Triangle, Border, C);
 	}
 }
@@ -344,10 +248,10 @@ void RadiusPolygonQuick(CImg<uint8_t>& Img, double r, uint16_t x, int16_t y, dou
 // ############## COM LINES:
 
 // PLOT LINE:
-void Line(CImg<uint8_t>& Img, double r, double rad, uint16_t x, uint16_t y, bool Triangle)
+void Line(CImg<uint8_t>& Img, double r, double rad, uint16_t x, uint16_t y, bool Triangle, uint8_t* C = nullptr)
 {
 	uint16_t yc, xc, rn, xend = round(cos(rad) * r), yend = round(sin(rad) * r);
-	uint8_t C[3], IC[3];
+	uint8_t c[3], IC[3];
 
 	for (rn = 0; rn <= r; rn = ++rn)
 	{
@@ -355,69 +259,50 @@ void Line(CImg<uint8_t>& Img, double r, double rad, uint16_t x, uint16_t y, bool
 
 		if (InImg(Img, yc, xc))
 		{
-			LinearRGBuc(rn / r, 1, 1, C);
-			Img.draw_point(xc, yc, C);
+			if (!C) { LinearRGBuc(rn / r, 1, 1, c);	Img.draw_point(xc, yc, c); }
+			else { Img.draw_point(xc, yc, C); }
 			if (Triangle)
 			{
-				IC[0] = 255 - C[0]; IC[1] = 255 - C[1]; IC[2] = 255 - C[2];
+				if (!C) { IC[0] = 255 - c[0]; IC[1] = 255 - c[1]; IC[2] = 255 - c[2]; }
+				else { IC[0] = 255 - C[0]; IC[1] = 255 - C[1]; IC[2] = 255 - C[2]; }
 				Img.draw_point(xc, y, IC); Img.draw_point(x + xend, yc, IC);
-			}
-		}
-	}
-}
-void Line(CImg<uint8_t>& Img, double r, double rad, uint16_t x, uint16_t y, bool Triangle, uint8_t* C)
-{
-	uint16_t yc, xc, rn, xend = round(cos(rad) * r), yend = round(sin(rad) * r);
-	uint8_t IC[3];
-
-	for (rn = 0; rn <= r; rn = ++rn)
-	{
-		yc = y + round(sin(rad) * rn); xc = x + round(cos(rad) * rn);
-
-		if (InImg(Img, yc, xc))
-		{
-			Img.draw_point(xc, yc, C);
-			if (Triangle)
-			{ 
-				IC[0] = 255 - C[0]; IC[1] = 255 - C[1]; IC[2] = 255 - C[2];
-				Img.draw_point(xc, y, IC);
-				Img.draw_point(x + xend, yc, IC);
 			}
 		}
 	}
 }
 
 // BRESENHAM LINE:
-void Linexy(CImg<uint8_t>& Img, int x1, int y1, int x2, int y2, uint8_t* C, bool LRGB)
+void Linexy(CImg<uint8_t>& Img, int x1, int y1, int x2, int y2, uint8_t* C = nullptr)
 {
 	int x, y, dx, dy, dx1, dy1, px, py, xe, ye, i;
 	dx = x2 - x1, dy = y2 - y1;
 	dx1 = fabs(dx), dy1 = fabs(dy);
 	px = 2 * dy1 - dx1, py = 2 * dx1 - dy1;
+	uint8_t c[] = { 255, 0 , 0 };
 	if (dy1 <= dx1)
 	{
 		if (dx >= 0) { x = x1; y = y1; xe = x2; }
 		else { x = x2; y = y2; xe = x1; }
-		Img.draw_point(x, y, C);
+		if (!C) { Img.draw_point(x, y, c); } else { Img.draw_point(x, y, C); }
 		for (i = 0; x < xe; i++)
 		{
 			x += 1;	if (px < 0) { px = px + 2 * dy1; }
 			else { if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) { y = y + 1; } else { y = y - 1; } px = px + 2 * (dy1 - dx1); }
-			if (LRGB) { LinearRGBuc(x / (xe - 1.0), 1, 1, C); } // RE-TEST LRGB!!!
-			Img.draw_point(x, y, C);
+			if (!C) { LinearRGBuc(x / (xe - 1.0), 1, 1, c); Img.draw_point(x, y, c); }
+			else { Img.draw_point(x, y, C); }
 		}
 	}
 	else
 	{
 		if (dy >= 0) { x = x1; y = y1; ye = y2; }
 		else { x = x2; y = y2; ye = y1; }
-		Img.draw_point(x, y, C);
+		if (!C) { Img.draw_point(x, y, c); } else { Img.draw_point(x, y, C); }
 		for (i = 0; y < ye; i++)
 		{
 			y += 1; if (py <= 0) { py = py + 2 * dx1; }
 			else { if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) { x = x + 1; } else { x = x - 1; }	py = py + 2 * (dx1 - dy1); }
-			if (LRGB) { LinearRGBuc(y / (ye - 1.0), 1, 1, C); }
-			Img.draw_point(x, y, C);
+			if (!C) { LinearRGBuc(y / (ye - 1.0), 1, 1, c); Img.draw_point(x, y, c); }
+			else { Img.draw_point(x, y, C); }
 		}
 	}
 }
@@ -430,39 +315,14 @@ void Linexy(CImg<uint8_t>& Img, int x1, int y1, int x2, int y2, uint8_t* C, bool
 // ############## GEOMETRICOS:
 
 // PLOT POLYGON:
-void Polygon(CImg<uint8_t>& Img, int Sides, double r, uint16_t x, uint16_t y, bool Vertex, uint8_t* C)
-{
-	uint16_t xc, yc, Count = 0;
-	if (Sides < 3) { Sides = 3; }
-	std::vector<Point<int>> Coord(Sides);
-	double Div = TAU / Sides;
-
-	for (double n = 0.0; n <= TAU; n = n + Div)
-	{
-		xc = x + round(cos(n) * r);
-		yc = y + round(sin(n) * r);
-		//std::cout << "cosine: " << cos(n) << " | sine: " << sin(n) << " | Angle radians: " << n << " | Degress: " << (n / TAU) * 360 << std::endl;
-		if (Count < Sides) { Coord[Count].x = xc; Coord[Count].y = yc; }
-		++Count;
-		if (Vertex)	{ AddVert(Img, xc, yc, 3, C); }
-	}
-	for (size_t ns = 1; ns < Sides; ++ns)
-	{
-		if (InImg(Img, Coord[ns].y, Coord[ns].x) && InImg(Img, Coord[ns - 1].y, Coord[ns - 1].x))
-		{
-			Linexy(Img, Coord[ns - 1].x, Coord[ns - 1].y, Coord[ns].x, Coord[ns].y, C, false);
-			if (ns == Sides - 1) { Linexy(Img, Coord[ns].x, Coord[ns].y, Coord[0].x, Coord[0].y, C, false); }
-		}
-	}
-}
-void Polygon(CImg<uint8_t>& Img, int Sides, double r, uint16_t x, uint16_t y, bool Vertex)
+void Polygon(CImg<uint8_t>& Img, int Sides, double r, uint16_t x, uint16_t y, bool Vertex, uint8_t* C = nullptr)
 {
 	uint16_t xc, yc, Count = 0;
 	Point3D<uint8_t> RGB = { 255, 0, 127 };
 	if (Sides < 3) { Sides = 3; }
 	std::vector<Point<int>> Coord(Sides);
 	double Div = TAU / Sides;
-	uint8_t C[3];
+	uint8_t c[] = { 255, 0, 0 };
 
 	for (double n = 0.0; n <= TAU; n = n + Div)
 	{
@@ -474,16 +334,17 @@ void Polygon(CImg<uint8_t>& Img, int Sides, double r, uint16_t x, uint16_t y, bo
 
 		if (Vertex)
 		{
-			LinearRGBuc(n / TAU, 1, 1, C);
-			AddVert(Img, xc, yc, 3, C);
+			if (!C) { LinearRGBuc(n / TAU, 1, 1, c); AddVert(Img, xc, yc, 3, c); }
+			else { AddVert(Img, xc, yc, 3, C); }
 		}
 	}
-	for (int ns = 1; ns < Sides; ++ns)
+	for (uint16_t ns = 1; ns < Sides; ++ns)
 	{
 		if (InImg(Img, Coord[ns].y, Coord[ns].x) && InImg(Img, Coord[ns - 1].y, Coord[ns - 1].x))
 		{
-			Linexy(Img, Coord[ns - 1].x, Coord[ns - 1].y, Coord[ns].x, Coord[ns].y, C, true);
-			if (ns == Sides - 1) { Linexy(Img, Coord[ns].x, Coord[ns].y, Coord[0].x, Coord[0].y, C, true); }
+			if (!C) { LinearRGBuc(ns - 1 / Sides, 1, 1, c); Linexy(Img, Coord[ns - 1].x, Coord[ns - 1].y, Coord[ns].x, Coord[ns].y, c); }
+			else { Linexy(Img, Coord[ns - 1].x, Coord[ns - 1].y, Coord[ns].x, Coord[ns].y, C); }
+			if (ns == Sides - 1) { Linexy(Img, Coord[ns].x, Coord[ns].y, Coord[0].x, Coord[0].y, c); }
 		}
 	}
 
@@ -571,7 +432,7 @@ CImg<uint8_t> PrintVectorLine(std::vector<double> V, int SegSize, uint8_t BG, ui
 	CImg<uint8_t> Print(Size * SegSize, MaxMin, 1, 3, BG);
 
 	for (size_t n = 1; n < Size; ++n)
-	{ Linexy(Print, (n - 1)  * SegSize, MaxMin - ((V[n - 1] + Absmn) * SegSize), n * SegSize, MaxMin - ((V[n] + Absmn) * SegSize), C, false); }
+	{ Linexy(Print, (n - 1)  * SegSize, MaxMin - ((V[n - 1] + Absmn) * SegSize), n * SegSize, MaxMin - ((V[n] + Absmn) * SegSize), C); }
 
 	return(Print);
 }
@@ -599,13 +460,14 @@ CImg<uint8_t> PrintVectorPoint(std::vector<double> V, uint8_t BG, uint8_t* C)
 
 // Esse assume que o valor do vetor é a amplitude, então, faz uma linha em cada divisão de um circulo pelo size() de acordo com a amplitude:
 // REDO IT!!!
-CImg<uint8_t> PrintVectorPolygn(std::vector<double> V, uint8_t BG, uint8_t* C, bool LRGB, bool Vertex)
+CImg<uint8_t> PrintVectorPolygn(std::vector<double> V, uint8_t BG, bool Vertex, uint8_t* C = nullptr)
 {
 	uint32_t Sides = V.size();
 	double x, y;	
 	std::vector<Point<int>> xy(Sides); // Coordinates for image
 	double rad, Cos, Sin, Div = TAU / Sides;
 	int m = 0; // Counter
+	uint8_t c[3]; // vertex
 
 	double Max, Min; MaxMinVec(V, Max, Min); // Pixels
 	double Abs = 0;
@@ -627,13 +489,13 @@ CImg<uint8_t> PrintVectorPolygn(std::vector<double> V, uint8_t BG, uint8_t* C, b
 	 // ####### PRINT:
 	for (size_t ns = 1; ns < Sides; ++ns)
 	{
-		Linexy(Ret, xy[ns - 1].x, xy[ns - 1].y, xy[ns].x, xy[ns].y, C, LRGB); // LINES
-		if (ns == Sides - 1) { Linexy(Ret, xy[0].x, xy[0].y, xy[ns].x, xy[ns].y, C, LRGB); } // LAST LINE
+		Linexy(Ret, xy[ns - 1].x, xy[ns - 1].y, xy[ns].x, xy[ns].y, C); // LINES
+		if (ns == Sides - 1) { Linexy(Ret, xy[0].x, xy[0].y, xy[ns].x, xy[ns].y, C); } // LAST LINE
 		if (Vertex) // VERTEXES
 		{
-			if (LRGB) { double Val = ns / Sides; LinearRGBuc(Val, 1, 1, C); }
-			AddVert(Ret, xy[ns].x, xy[ns].y, 3, C);
-			if (ns == 1) { uint8_t C[] = { 255, 0, 0 }; AddVert(Ret, xy[0].x, xy[0].y, 3, C); }
+			if (!C) { double Val = ns / Sides; LinearRGBuc(Val, 1, 1, c); AddVert(Ret, xy[ns].x, xy[ns].y, 3, c); }
+			else { AddVert(Ret, xy[ns].x, xy[ns].y, 3, C); }
+			if (ns == 1) { c[0] = 255; c[1] = 0; c[2] = 0; AddVert(Ret, xy[0].x, xy[0].y, 3, c); }
 		}
 	}
 	return(Ret);
@@ -646,21 +508,35 @@ CImg<uint8_t> PrintVectorPolygn(std::vector<double> V, uint8_t BG, uint8_t* C, b
 // Esse assume que cada pixel de uma imagem corresponde a um dx (PROVAVELMENTE IGUAL O SEM "Norm"):
 // f[n] = y = V[n] * (sy / 255) | V[n] is based in '0 to 255':
 // Ex.: f(x) = sin(x) * (512 / 255) = sin(x) * 2.007843 -> y;
-CImg<uint8_t> PrintVectorPointNorm(std::vector<uint8_t> V, uint32_t sy, double yrto = 1)
+template <class T_>
+CImg<uint8_t> PrintVectorPointNorm(std::vector<T_>& V, uint32_t sy, double yrto = 1)
 {
 	uint32_t Size = V.size(); CImg<uint8_t> R(Size, sy, 1, 3, 0);
-	float ndiv, syd = sy / 255.0;
+	float Min = 0, Max = 0, Total = 0;
+	for (size_t n = 0; n < Size; ++n) { if (V[n] > Max) { Max = V[n]; } if (V[n] < Min) { Min = V[n]; } }
+	Total = fabs(Max) + fabs(Min);
+	float ndiv, syd = sy / (double)(pow(256, sizeof(T_)) - 1);
 	uint8_t C[3];
 
 	for (size_t n = 0; n < Size; ++n)
 	{
 		ndiv = (float)n / (Size - 1);
-		LinearRGBuc(V[n] / 255.0, 1, 1, C);
-		R.draw_point(n, round(sy - V[n] * syd * yrto), C);
+		if (std::is_floating_point<T_>)
+		{
+			LinearRGBuc(V[n], 1, 1, C);
+			// OLD (Wolfram): round(sy - (((V[n] / Max) * sy * 0.5 * yrto) + sy * 0.5));
+			R.draw_point(n, round(0.5 * sy - ((0.5 * yrto * sy * V[n]) / Max)), C);
+		}
+		else
+		{
+			LinearRGBuc(V[n] / (double)(pow(256, sizeof(T_)) - 1), 1, 1, C);
+			R.draw_point(n, round(sy - V[n] * syd * yrto), C);
+		}
 	}
 	return (R);
 }
-CImg<uint8_t> PrintVectorPointNorm(std::vector<float> V)
+template <class T_>
+CImg<uint8_t> PrintVectorPointNorm(std::vector<T_>& V)
 {
 	uint32_t Size = V.size(); float Min = 0, Max = 0, Total, ndiv;
 	for (size_t n = 0; n < Size; ++n) { if (V[n] > Max) { Max = V[n]; } if (V[n] < Min) { Min = V[n]; } }
@@ -671,66 +547,30 @@ CImg<uint8_t> PrintVectorPointNorm(std::vector<float> V)
 	for (size_t n = 0; n < Size; ++n)
 	{
 		ndiv = (float)n / (Size - 1);
-		LinearRGBuc(V[n], 1, 1, C);
+		if (std::is_floating_point<T_>) { LinearRGBuc(V[n], 1, 1, C); }
+		else { LinearRGBuc(V[n] / Max, 1, 1, C); }
 		R.draw_point(n, round(Total - (V[n] - Min)), C);
 	}
 	return (R);
 }
-CImg<uint8_t> PrintVectorPointNorm(std::vector<float> V, uint32_t sy, float yrto = 1)
-{
-	uint32_t Size = V.size(); CImg<uint8_t> R(Size, sy, 1, 3, 0);
-	float Max, Min, ndiv; uint8_t C[3];
-	MaxMinVecAbs(V, Max, Min);
 
-	for (size_t n = 0; n < Size; ++n)
-	{
-		ndiv = (float)n / (Size - 1);
-		LinearRGBuc(V[n], 1, 1, C);
-		R.draw_point(n, round(0.5 * sy - ((0.5 * yrto * sy * V[n]) / Max)), C);
-	}
-	return (R);
-}
-CImg<uint8_t> PrintVectorPointNorm(std::vector<double> V)
-{
-	uint32_t Size = V.size();
-	double Min = 0, Max = 0, Total, ndiv;
-	for (size_t n = 0; n < Size; ++n) { if (V[n] > Max) { Max = V[n]; } if (V[n] < Min) { Min = V[n]; } }
-	Total = fabs(Max) + fabs(Min);
-	CImg<uint8_t> R(Size, ceil(Total), 1, 3, 0); uint8_t C[3];
-	for (size_t n = 0; n < Size; ++n)
-	{
-		ndiv = (double)n / (Size - 1);
-		LinearRGBuc(V[n], 1, 1, C);
-		R.draw_point(n, round(Total - (V[n] - Min)), C);
-	}
-	return (R);
-}
-// f[n] = y = (V[n] * (sy / 2) * yrto) + (sy / 2) | V[n] is normalized to '-1 to 1':
-// Ex.: f(x) = sin(x) * 32 * 1 + 32 = sin(x) * 32 + 32 -> y;
-CImg<uint8_t> PrintVectorPointNorm(std::vector<double> V, uint32_t sy, double yrto = 1)
-{
-	uint32_t Size = V.size(); CImg<uint8_t> R(Size, sy, 1, 3, 0); uint8_t C[3];
-	double Max, Min, ndiv; MaxMinVecAbs(V, Max, Min);
-	for (size_t n = 0; n < Size; ++n)
-	{
-		ndiv = (double)n / (Size - 1);
-		LinearRGBuc(V[n], 1, 1, C);		
-		R.draw_point(n, round(0.5 * sy - ((0.5 * yrto * sy * V[n]) / Max)), C);
-	}
-	return (R);
-}
-CImg<uint8_t> PrintVectorPointNorm(std::vector<double> V, uint32_t sy, uint8_t* C, double yrto = 1)
+template <class T_>
+CImg<uint8_t> PrintVectorPointNorm(std::vector<T_>& V, uint32_t sy, uint8_t* C, double yrto = 1)
 {
 	uint32_t Size = V.size(); CImg<uint8_t> R(Size, sy, 1, 3, 0);
+	float syd = sy / (double)(pow(256, sizeof(T_)) - 1);
 	double Max, Min; MaxMinVecAbs(V, Max, Min);
-	// OLD (Wolfram): round(sy - (((V[n] / Max) * sy * 0.5 * yrto) + sy * 0.5));
-	for (size_t n = 0; n < Size; ++n) { R.draw_point(n, round(0.5 * sy - ((0.5 * yrto * sy * V[n]) / Max)), C); }
+	for (size_t n = 0; n < Size; ++n)
+	{
+		if (std::is_floating_point<T_>) { R.draw_point(n, round(0.5 * sy - ((0.5 * yrto * sy * V[n]) / Max)), C); }
+		else { R.draw_point(n, round(sy - V[n] * syd * yrto), C); }		
+	}
 	return (R);
 }
 
 // ######################################################################
 
-CImg<uint8_t> PrintVectorPointNormFill(std::vector<uint8_t> V, uint32_t sy, double yrto = 1)
+CImg<uint8_t> PrintVectorPointNormFill(std::vector<uint8_t>& V, uint32_t sy, double yrto = 1)
 {
 	uint32_t Size = V.size(); CImg<uint8_t> R(Size, sy, 1, 3, 0); uint8_t C[3];
 	double ndiv, syd = sy / 255.0;
@@ -742,7 +582,7 @@ CImg<uint8_t> PrintVectorPointNormFill(std::vector<uint8_t> V, uint32_t sy, doub
 	}
 	return (R);
 }
-CImg<uint8_t> PrintVectorPointNormFill(std::vector<double> V, uint32_t sy, double yrto = 1)
+CImg<uint8_t> PrintVectorPointNormFill(std::vector<double>& V, uint32_t sy, double yrto = 1)
 {
 	uint32_t Size = V.size(); CImg<uint8_t> R(Size, sy, 1, 3, 0); uint8_t C[3];
 	double Max, Min, ndiv; MaxMinVecAbs(V, Max, Min);
@@ -758,12 +598,12 @@ CImg<uint8_t> PrintVectorPointNormFill(std::vector<double> V, uint32_t sy, doubl
 
 // ######################################################################
 
-void PrintVectorLineOnImg(CImg<uint8_t>& Img, std::vector<double> V, double yrto = 1)
+void PrintVectorLineOnImg(CImg<uint8_t>& Img, std::vector<double>& V, double yrto = 1, uint8_t* C = nullptr)
 {
 	uint32_t Size = V.size(), sy = Img.height(), sx = Img.width();
 	double Max, Min, sig0, sig1; MaxMinVecAbs(V, Max, Min);
 	double dx = sx / (double)Size;
-	uint8_t C[3];
+	uint8_t c[3];
 	uint16_t x0, y0, x1, y1;
 
 	for (size_t n = 1; n < Size; ++n)
@@ -779,55 +619,16 @@ void PrintVectorLineOnImg(CImg<uint8_t>& Img, std::vector<double> V, double yrto
 		if (y0 > sy) { y0 = sy; } if (y0 < 0) { y0 = 0; } if (y1 > sy) { y1 = sy; } if (y1 < 0) { y1 = 0; }
 		if (x0 > sx) { x0 = sx; } if (x0 < 0) { x0 = 0; } if (x1 > sx) { x1 = sx; } if (x1 < 0) { x1 = 0; }
 		
-		LinearRGBuc(V[n], 1, 1, C);
-		Linexy(Img, x0, y0, x1, y1, C, false);
-	}
-}
-void PrintVectorLineOnImg(CImg<uint8_t>& Img, std::vector<double> V, uint8_t* C, double yrto = 1)
-{
-	uint32_t Size = V.size(), sy = Img.height(), sx = Img.width();
-	double Max, Min, sig0, sig1; MaxMinVecAbs(V, Max, Min);
-	double dx = sx / (double)Size;
-	uint16_t x0, y0, x1, y1;
-
-	for (size_t n = 1; n < Size; ++n)
-	{
-		sig0 = (V[n - 1] / Max) * (sy * 0.5) * yrto; // SCALE
-		sig1 = (V[n] / Max) * (sy * 0.5) * yrto;
-
-		// COORDS:
-		x0 = round((n - 1) * dx); y0 = round(sy - (sig0 + sy * 0.5));
-		x1 = round(n * dx); y1 = round(sy - (sig1 + sy * 0.5));
-
-		if (y0 > sy) { y0 = sy; } if (y0 < 0) { y0 = 0; } if (y1 > sy) { y1 = sy; } if (y1 < 0) { y1 = 0; }
-		if (x0 > sx) { x0 = sx; } if (x0 < 0) { x0 = 0; } if (x1 > sx) { x1 = sx; } if (x1 < 0) { x1 = 0; }
-
-		Linexy(Img, x0, y0, x1, y1, C, false);
+		if (!C) { LinearRGBuc(V[n], 1, 1, c); Linexy(Img, x0, y0, x1, y1, c); }
+		else { LinearRGBuc(V[n], 1, 1, c); Linexy(Img, x0, y0, x1, y1, C); }
 	}
 }
 
-void PrintVectorPointOnImg(CImg<uint8_t>& Img, std::vector<double> V, double yrto = 1)
+void PrintVectorPointOnImg(CImg<uint8_t>& Img, std::vector<double>& V, double yrto = 1, uint8_t* C = nullptr)
 {
 
 	uint32_t Size = V.size(), sy = Img.height(), sx = Img.width(), x, y;
-	uint8_t C[3];
-	double Max, Min, Sig; MaxMinVecAbs(V, Max, Min);
-	double dx = sx / (double)Size;
-
-	for (size_t n = 0; n < Size; ++n)
-	{
-		Sig = (V[n] / Max) * (sy * 0.5) * yrto;
-		LinearRGBuc(V[n], 1, 1, C);
-		x = round(n * dx);
-		y = round(sy - (Sig + sy * 0.5));
-		if (y > sy) { y = sy; } if (y < 0) { y = 0; }
-		if (x > sx) { x = sx; } if (x < 0) { x = 0; }
-		Img.draw_point(x, y, C);
-	}
-}
-void PrintVectorPointOnImg(CImg<uint8_t>& Img, std::vector<double> V, uint8_t* C, double yrto = 1)
-{
-	uint32_t Size = V.size(), sy = Img.height(), sx = Img.width(), x, y;
+	uint8_t c[3];
 	double Max, Min, Sig; MaxMinVecAbs(V, Max, Min);
 	double dx = sx / (double)Size;
 
@@ -838,86 +639,54 @@ void PrintVectorPointOnImg(CImg<uint8_t>& Img, std::vector<double> V, uint8_t* C
 		y = round(sy - (Sig + sy * 0.5));
 		if (y > sy) { y = sy; } if (y < 0) { y = 0; }
 		if (x > sx) { x = sx; } if (x < 0) { x = 0; }
-		Img.draw_point(x, y, C);
+		if (!C) { LinearRGBuc(V[n], 1, 1, c); Img.draw_point(x, y, c); }
+		else { Img.draw_point(x, y, C); }
 	}
 }
-void PrintVectorPtOnImgPolar(CImg<uint8_t>& Img, std::vector<double> V, double Ratio)
+void PrintVectorPtOnImgPolar(CImg<uint8_t>& Img, std::vector<double> V, double Ratio, uint8_t* C = nullptr)
 {
 	uint32_t Size = V.size(), sy = Img.height(), sx = Img.width();
 	double Max, Min; MaxMinVecAbs(V, Max, Min);
 	double dx = sx / (double)Size;
 	double t, Cos, Sin, xr = (sx * 0.5), yr = (sy * 0.5);
-	uint8_t C[3]; uint16_t x, y;
+	uint8_t c[3]; uint16_t x, y;
 
 	for (size_t n = 0; n < Size; ++n)
 	{
 		Cos = cos((n / (Size * TAU)) * V[n]); // Trigonometries
 		Sin = sin((n / (Size * TAU)) * V[n]);
 		
-		LinearRGBuc((float)n / Size, 1, 1, C);
 		x = round(Cos * xr * Ratio + xr); y = round(sy - (Sin * yr * Ratio + yr));
 		if (y > sy) { y = sy; } if (y < 0) { y = 0; }
 		if (x > sx) { x = sx; } if (x < 0) { x = 0; }
-		Img.draw_point(x, y, C); // Read comment from function above
-	}
-}
-void PrintVectorPtOnImgPolar(CImg<uint8_t>& Img, std::vector<double> V, double Ratio, uint8_t* C)
-{
-	uint32_t Size = V.size(), sy = Img.height(), sx = Img.width();
-	double Max, Min; MaxMinVecAbs(V, Max, Min);
-	double dx = sx / (double)Size;
-	double t, Cos, Sin, xr = (sx * 0.5), yr = (sy * 0.5);
-	uint16_t x, y;
-
-	for (size_t n = 0; n < Size; ++n)
-	{
-		Cos = cos((n / (Size * TAU)) * V[n]); // Trigonometries
-		Sin = sin((n / (Size * TAU)) * V[n]);
-
-		x = round(Cos * xr * Ratio + xr); y = round(sy - (Sin * yr * Ratio + yr));
-		if (y > sy) { y = sy; } if (y < 0) { y = 0; }
-		if (x > sx) { x = sx; } if (x < 0) { x = 0; }
-		Img.draw_point(x, y, C); // Read comment from function above
+		if (!C) { LinearRGBuc((float)n / Size, 1, 1, c); Img.draw_point(x, y, c); }
+		else { Img.draw_point(x, y, c); }
 	}
 }
 
 // PLOT LINE BETWEEN POINTS IN A COORDINATE VECTOR:
-CImg<uint8_t> PrintPoints(std::vector<Point<int>> Coord, int SegSize, uint8_t BG, bool Abs)
+CImg<uint8_t> PrintPoints(std::vector<Point<int>> Coord, int SegSize, uint8_t BG, bool Abs, uint8_t* C = nullptr)
 {
 	Point<int> max, min;
 	MaxMinVecPoint(Coord, max, min, Abs);
 
 	uint32_t sx = (max.x - min.x + 1) * SegSize, sy = (max.y - min.y + 1) * SegSize, Size = Coord.size();
 	CImg<uint8_t> Print(sx, sy, 1, 3, BG);
-	uint8_t C[] = { 255, 0, 0 };
+	uint8_t c[] = { 255, 0, 0 };
 	for (size_t n = 1; n < Size; ++n)
 	{
-		LinearRGBuc((float)n / Size, 1, 1, C);
+		if (!C) { LinearRGBuc((float)n / Size, 1, 1, c);
 		Linexy(Print, (Coord[n - 1].x - min.x) * SegSize, (Coord[n - 1].y - min.y) * SegSize,
-			(Coord[n].x - min.x) * SegSize, (Coord[n].y - min.y) * SegSize, C, false);
-	}
-
-	return(Print);
-}
-CImg<uint8_t> PrintPoints(std::vector<Point<int>> Coord, int SegSize, uint8_t BG, bool Abs, uint8_t* C)
-{
-	Point<int> max, min;
-	MaxMinVecPoint(Coord, max, min, Abs);
-
-	uint32_t sx = (max.x - min.x + 1) * SegSize, sy = (max.y - min.y + 1) * SegSize;
-	CImg<uint8_t> Print(sx, sy, 1, 3, BG);
-
-	for (size_t n = 1; n < Coord.size(); ++n)
-	{
-		Linexy(Print, (Coord[n - 1].x - min.x) * SegSize, (Coord[n - 1].y - min.y) * SegSize,
-			(Coord[n].x - min.x) * SegSize, (Coord[n].y - min.y) * SegSize, C, false);
+			(Coord[n].x - min.x) * SegSize, (Coord[n].y - min.y) * SegSize, c);	}
+		else { Linexy(Print, (Coord[n - 1].x - min.x) * SegSize, (Coord[n - 1].y - min.y) * SegSize,
+			(Coord[n].x - min.x) * SegSize, (Coord[n].y - min.y) * SegSize, C); }
 	}
 
 	return(Print);
 }
 
 // PLOT LINES IN A VECTOR BY USING THE 'ysxMath.h' OBJECT CALLED 'LinePoint':
-CImg<uint8_t> PrintLinePoints(std::vector<LinePoint<int>> Coord, int SegSize, uint8_t BG, bool Abs, uint8_t* C) // Testar para ver se esta tudo certo
+CImg<uint8_t> PrintLinePoints(std::vector<LinePoint<int>> Coord, int SegSize, uint8_t BG, bool Abs, uint8_t* C = nullptr) // Testar para ver se esta tudo certo
 {
 	LinePoint<int> max, min;
 	MaxMinVecLinePoint(Coord, max, min, Abs);
@@ -928,11 +697,17 @@ CImg<uint8_t> PrintLinePoints(std::vector<LinePoint<int>> Coord, int SegSize, ui
 	uint32_t sy = 0;
 	if (max.P0.y > max.P1.y) { sy = (max.P0.y + 1) * SegSize; }
 	else { sy = (max.P0.y + 1) * SegSize; }
+	uint8_t c[3];
 
 	CImg<uint8_t> Print(sx, sy, 1, 3, BG);
 	for (size_t n = 0; n < Coord.size(); ++n)
 	{
-		Linexy(Print, Coord[n].P0.x * SegSize, Coord[n].P0.y * SegSize, Coord[n].P1.x * SegSize, Coord[n].P1.y * SegSize, C, false);
+		if (!C)
+		{
+			LinearRGBuc((float)n / Coord.size(), 1, 1, c);
+			Linexy(Print, Coord[n].P0.x * SegSize, Coord[n].P0.y * SegSize, Coord[n].P1.x * SegSize, Coord[n].P1.y * SegSize, c);
+		}
+		else { Linexy(Print, Coord[n].P0.x * SegSize, Coord[n].P0.y * SegSize, Coord[n].P1.x * SegSize, Coord[n].P1.y * SegSize, C); }
 	}
 	return(Print);
 }
@@ -1000,21 +775,21 @@ CImg<uint8_t> PrintVectorBarsAbs(std::vector<double> V, int Width, double Ratio,
 
 // IMAGENS DA MATRIZ DOS VETORES:
 // Salva uma imagem 'x' por 'y' usando um vetor com o RGB em double '0 a 1.0':
-CImg<uint8_t> PrintVectorImg(std::vector<Point3D<double>> V, uint16_t x, int16_t y, double Rsize = 1.0)
+template <class T_> CImg<uint8_t> PrintVectorImg(std::vector<Point3D<T_>>& V, uint16_t x, int16_t y, double Rsize = 1.0)
 {
 	uint32_t Size = V.size(); CImg<uint8_t> Ret(x, y, 1, 3, 0);
-	uint8_t R, G, B, C[3];
+	uint8_t C[3];
 
 	for (size_t n = 0; n < Size; ++n)
 	{
-		R = (V[n].x + 1) * 127.5; G = (V[n].y + 1) * 127.5; B = (V[n].z  + 1) * 127.5;
-		C[0] = R; C[1] = G; C[2] = B;
+		if (std::is_floating_point<T_>)	{ C[0] = V[n].x * 255; C[1] = V[n].y * 255; C[2] = V[n].z * 255; }
+		else { C[0] = V[n].x % 255; C[1] = V[n].y % 255; C[2] = V[n].z % 255; }
 		Ret.draw_point(n % x, floor((float)n / x), C);
 	}
 	if (Rsize != 1.0) { Resize(Ret, round(x * Rsize), round(y * Rsize), 6); }
 	return(Ret);
 }
-CImg<uint8_t> PrintVectorImg(std::vector<Point3D<double>> V, double Rsize = 1.0)
+template <class T_> CImg<uint8_t> PrintVectorImg(std::vector<Point3D<T_>>& V, double Rsize = 1.0)
 {
 	uint32_t Size = V.size(); double SqrtVec = sqrt(Size); uint16_t x = round(SqrtVec), y;
 	if (SqrtVec / x == 1) { y = round(SqrtVec); } else { y = ceil(SqrtVec); }
@@ -1022,34 +797,8 @@ CImg<uint8_t> PrintVectorImg(std::vector<Point3D<double>> V, double Rsize = 1.0)
 	
 	for (size_t n = 0; n < Size; ++n)
 	{
-		R = (V[n].x + 1) * 127.5; G = (V[n].y + 1) * 127.5; B = (V[n].z  + 1) * 127.5;
-		C[0] = R; C[1] = G; C[2] = B;
-		Ret.draw_point(n % x, floor((float)n / x), C);
-	}
-	if (Rsize != 1.0) { Resize(Ret, round(x * Rsize), round(y * Rsize), 6); }
-	return(Ret);
-}
-CImg<uint8_t> PrintVectorImg(std::vector<Point3D<uint8_t>> V, uint16_t x, int16_t y, double Rsize = 1.0)
-{
-	uint32_t Size = V.size(); CImg<uint8_t> Ret(x, y, 1, 3, 0);
-
-	for (size_t n = 0; n < Size; ++n)
-	{
-		uint8_t C[] = { V[n].x, V[n].y, V[n].z };
-		Ret.draw_point(n % x, floor((float)n / x), C);
-	}
-	if (Rsize != 1.0) { Resize(Ret, round(x * Rsize), round(y * Rsize), 6); }
-	return(Ret);
-}
-CImg<uint8_t> PrintVectorImg(std::vector<Point3D<uint8_t>> V, double Rsize = 1.0)
-{
-	uint32_t Size = V.size(); double SqrtVec = sqrt(Size); uint16_t x = round(SqrtVec), y;
-	if (SqrtVec / x == 1) { y = round(SqrtVec); } else { y = ceil(SqrtVec); }
-	CImg<uint8_t> Ret(x, y, 1, 3, 0);
-	
-	for (size_t n = 0; n < Size; ++n)
-	{
-		uint8_t C[] = { V[n].x, V[n].y, V[n].z };
+		if (std::is_floating_point<T_>) { C[0] = V[n].x * 255; C[1] = V[n].y * 255; C[2] = V[n].z * 255; }
+		else { C[0] = V[n].x % 255; C[1] = V[n].y % 255; C[2] = V[n].z % 255; }
 		Ret.draw_point(n % x, floor((float)n / x), C);
 	}
 	if (Rsize != 1.0) { Resize(Ret, round(x * Rsize), round(y * Rsize), 6); }
@@ -1057,7 +806,7 @@ CImg<uint8_t> PrintVectorImg(std::vector<Point3D<uint8_t>> V, double Rsize = 1.0
 }
 
 // Salva uma Imagem com a cor sendo função de 'x' e 'y':
-CImg<uint8_t> PrintVectorInfoLRGB(std::vector<double> V, double Rsize = 1.0)
+template <class T_> CImg<uint8_t> PrintVectorInfoLRGB(std::vector<T_>& V, double Rsize = 1.0)
 {
 	uint32_t Size = V.size(); double SqrtVec = sqrt(Size); uint16_t x = round(SqrtVec), y;
 	if (SqrtVec / x == 1) { y = x; } else { y = ceil(SqrtVec); }
@@ -1065,13 +814,14 @@ CImg<uint8_t> PrintVectorInfoLRGB(std::vector<double> V, double Rsize = 1.0)
 
 	for (size_t n = 0; n < Size; ++n)
 	{
-		LinearRGBuc(V[n], 1.0, 1.0, C);
+		if (std::is_floating_point<T_>) { LinearRGBuc(V[n], 1.0, 1.0, C); }
+		else { LinearRGBuc(V[n] / (float)(pow(256, sizeof(T_)) - 1), 1.0, 1.0, C); }
 		R.draw_point(n % x, floor((float)n / x), C);
 	}
 	if (Rsize != 1.0) { Resize(R, round(x * Rsize), round(y * Rsize), 6); }
 	return(R);
 }
-CImg<uint8_t> PrintVectorInfoLRGB(std::vector<double> V, int x, double Rsize = 1.0)
+template <class T_> CImg<uint8_t> PrintVectorInfoLRGB(std::vector<T_>& V, int x, double Rsize = 1.0)
 {
 	uint32_t Size = V.size();
 	if (x > Size) { x = Size; } if (x < 1) { x = 1; }
@@ -1080,76 +830,14 @@ CImg<uint8_t> PrintVectorInfoLRGB(std::vector<double> V, int x, double Rsize = 1
 	
 	for (size_t n = 0; n < Size; ++n)
 	{
-		LinearRGBuc(V[n], 1.0, 1.0, C);
+		if (std::is_floating_point<T_>) { LinearRGBuc(V[n], 1.0, 1.0, C); }
+		else { LinearRGBuc(V[n] / (float)(pow(256, sizeof(T_)) - 1), 1.0, 1.0, C); }
 		R.draw_point(n % x, floor((float)n / x), C);
 	}
 	if (Rsize != 1.0) { Resize(R, round(x * Rsize), round(y * Rsize), 6); }
 	return(R);
 }
-
-CImg<uint8_t> PrintVectorInfoLRGB(std::vector<uint16_t> V, double Rsize = 1.0)
-{
-	uint32_t Size = V.size(); double SqrtVec = sqrt(Size);
-	uint16_t x = round(SqrtVec), y;
-	if (SqrtVec / x == 1) { y = x; } else { y = ceil(SqrtVec); }
-	CImg<uint8_t> R(x, y, 1, 3, 0); uint8_t C[3];
-
-	for (size_t n = 0; n < Size; ++n)
-	{
-		LinearRGBuc(V[n] / 65535.0, 1.0, 1.0, C);
-		R.draw_point(n % x, floor((float)n / x), C);
-	}
-	if (Rsize != 1.0) { Resize(R, round(x * Rsize), round(y * Rsize), 6); }
-	return(R);
-}
-CImg<uint8_t> PrintVectorInfoLRGB(std::vector<uint16_t> V, uint16_t x, double Rsize = 1.0)
-{
-	uint32_t Size = V.size();
-	if (x > Size) { x = Size; } if (x < 1) { x = 1; }
-	uint16_t y = ceil(Size / (x * 1.0));
-	CImg<uint8_t> R(x, y, 1, 3, 0); uint8_t C[3];
-
-	for (size_t n = 0; n < Size; ++n)
-	{
-		LinearRGBuc(V[n] / 65535.0, 1.0, 1.0, C);
-		R.draw_point(n % x, floor((float)n / x), C);
-	}
-	if (Rsize != 1.0) { Resize(R, round(x * Rsize), round(y * Rsize), 6); }
-	return(R);
-}
-
-
-CImg<uint8_t> PrintVectorInfoLRGB(std::vector<uint8_t> V, double Rsize = 1.0)
-{
-	uint32_t Size = V.size(); double SqrtVec = sqrt(Size);
-	uint16_t x = round(SqrtVec), y;
-	if (SqrtVec / x == 1) { y = x; } else { y = ceil(SqrtVec); }
-	CImg<uint8_t> R(x, y, 1, 3, 0); uint8_t C[3];
-	
-	for (size_t n = 0; n < Size; ++n)
-	{
-		LinearRGBuc(V[n] / 255.0, 1.0, 1.0, C);
-		R.draw_point(n % x, floor((float)n / x), C);
-	}
-	if (Rsize != 1.0) { Resize(R, round(x * Rsize), round(y * Rsize), 6); }
-	return(R);
-}
-CImg<uint8_t> PrintVectorInfoLRGB(std::vector<uint8_t> V, uint16_t x, double Rsize = 1.0)
-{
-	uint32_t Size = V.size();
-	if (x > Size) { x = Size; } if (x < 1) { x = 1; }
-	uint16_t y = ceil(Size / (x * 1.0));
-	CImg<uint8_t> R(x, y, 1, 3, 0); uint8_t C[3];
-	
-	for (size_t n = 0; n < Size; ++n)
-	{
-		LinearRGBuc(V[n] / 255.0, 1.0, 1.0, C);
-		R.draw_point(n % x, floor((float)n / x), C);
-	}
-	if (Rsize != 1.0) { Resize(R, round(x * Rsize), round(y * Rsize), 6); }
-	return(R);
-}
-CImg<uint8_t> PrintVectorInfoLRGB(std::string str, double Rsize = 1.0)
+CImg<uint8_t> PrintVectorInfoLRGB(std::string& str, double Rsize = 1.0)
 {
 	uint32_t Size = str.size();
 	double SqrtVec = sqrt(Size); uint16_t x = round(SqrtVec), y;
@@ -1165,7 +853,7 @@ CImg<uint8_t> PrintVectorInfoLRGB(std::string str, double Rsize = 1.0)
 	if (Rsize != 1.0) { Resize(R, round(x * Rsize), round(y * Rsize), 6); }
 	return(R);
 }
-CImg<uint8_t> PrintVectorInfoLRGB(std::string str, int x, double Rsize = 1.0)
+CImg<uint8_t> PrintVectorInfoLRGB(std::string& str, int x, double Rsize = 1.0)
 {
 	uint32_t Size = str.size();
 	if (x > Size) { x = Size; } if (x < 1) { x = 1; }
@@ -1262,7 +950,7 @@ CImg<uint8_t> PrintFileAsBMP(std::string Path, double Multiplier, double Rsize =
 	{
 		for (size_t n = 0; n < Size; ++n)
 		{
-			LinearRGBuc(((uint8_t)V[n] / 256.0) * Multiplier, 1.0, 1.0, c);
+			LinearRGBuc(((uint8_t)V[n] / 255.0) * Multiplier, 1.0, 1.0, c);
 			R.draw_point(n % x, floor((float)n / x), c);
 		}
 		if (Rsize != 1.0) { Resize(R, round(x * Rsize), round(y * Rsize), 6); }
@@ -1453,9 +1141,11 @@ CImg<uint8_t> PrintBinaryWordCircle(uint16_t Size, int r, int Iter, bool GeoAri,
 	double Div, SubDiv, rad, Line, rRatio = 1.0 * r / Size;
 	std::vector<std::string> BinWords = BinaryWordsSeq(Iter); std::vector<long> BinArea = BinaryWordSeqArean(Iter);
 	Point3D<uint8_t> nRGB = RGB;
+	uint8_t cclr[3];
 
 	uint32_t Invc, cSize = 0, MidS, cr, s, s2, Count = 0;
 	uint32_t Wordset, WordSize;
+	std::vector<Point<double>> Scores;
 
 	for (uint32_t c = Iter; c > 0; --c)
 	{
@@ -1463,13 +1153,13 @@ CImg<uint8_t> PrintBinaryWordCircle(uint16_t Size, int r, int Iter, bool GeoAri,
 		GeoAri ? cSize = (Size / Iter) * c : cSize = Size / Invc;
 		MidS = cSize * 0.5; cr = rRatio * cSize; s = BinArea[c - 1]; s2 = pow(2, c);
 		CircI = CImg<uint8_t>::CImg(cSize, cSize, 1, 3, 127);
-		uint8_t cclr[] = { 255, 0, 0 }; CircI.draw_circle(MidS, MidS, cr, cclr, 1, 1);
+		cclr[0] = 255; cclr[1] = 0; cclr[2] = 0; CircI.draw_circle(MidS, MidS, cr, cclr, 1, 1);
 		cclr[1] = 255; if (c > 1) { RadiusPolygonQuick(CircI, cr, MidS, MidS, 0, s, cclr, 0, 0); }
 		cclr[1] = 0; cclr[2] = 127; RadiusPolygonQuick(CircI, cr, MidS, MidS, 0, s2, cclr, 0, 0);
 
 		Div = TAU / s2;
-		rad = 0; std::vector<Point<double>> Scores;
-		for (uint32_t n = 0; n < s2; ++n) { Scores.push_back({ rad, AOScore(rad) }); rad += Div; } QuickSortPty(Scores, 0, Scores.size() - 1);
+		rad = 0; Scores = std::vector<Point<double>>::vector(s2);
+		for (uint32_t n = 0; n < s2; ++n) { Scores[n] = { rad, AOScore(rad) }; rad += Div; } QuickSortPty(Scores, 0, Scores.size() - 1);
 		Wordset = SumntoPowIniEnd(2, 1, c - 1);
 		for (uint32_t Word = Wordset; Word < Wordset + s2; ++Word)
 		{
@@ -1511,13 +1201,13 @@ class TriPrint
 {
 public:
 	// CONFIG:
-	int Border = 25; // Distancia da margem
-	int Width, Heigth; // Medidas da imagem
+	uint16_t Border = 25; // Distancia da margem
+	size_t Width, Heigth; // Medidas da imagem
 	int Offy; // Offset para resumir texto dos calculos
 	int x[3], y[3]; // Coordenadas de acordo com escalas, bordas, altura e largura
 	Point<int> Coord[3], SclCrd[3], Midpoint[3], Circumcenter; // Cordenada dos triangulos, Cordenada com Scale, Coordenada dos midpoints e do Circumcentro
-	uint8_t Color[3]; // Cor
-	uint8_t ClrBiLine[3], ClrhLine[3], ClrIncirc[3]; // Cores: Line Bisetora, Line da Heigth, Incircle
+	uint8_t Color[3];
+	uint8_t ClrBiLine[3], ClrhLine[3], ClrIncirc[3]; // Bisector line, Heigth line, Incircle line
 	double Scale;
 	bool LRGB = false;
 	double a, b, c, h, base, base0, gamma, beta, alpha, area, perimetro, bisa, bisb, bisc, inradius, IA, IB, IC;
@@ -1530,7 +1220,7 @@ public:
 	void EmptyImg() { CImg<uint8_t> T; TriOut = T; } // CLEAN
 	// Fills the image with a single color, but do not clean height and width like the function above
 	void PaintScreen(uint8_t* Color) { CleanImg(TriOut, Color); }
-	void ChangeBorder(int New)
+	void ChangeBorder(uint16_t New)
 	{
 		if (New < 0) { New = 0; } Border = New;
 		Width = ceil(Scale * (base + base0)) + (Border * 2); Heigth = ceil(h * Scale) + (Border * 2);
@@ -1540,57 +1230,49 @@ public:
 	}
 
 	// ##################### CONSTRUTORES #####################
-	TriPrint(Triangle TriInput, double ScaleRto, int BorderImg, uint8_t inColor[3])
+	TriPrint(Triangle TriInput, double ScaleRto, int BorderImg, uint8_t* inColor = nullptr)
 	{
 		Border = BorderImg; base = TriInput.Base; base0 = TriInput.Base0;
-		Width = ceil(ScaleRto * (base + base0)) + (Border * 2); Heigth = ceil(TriInput.Alt * ScaleRto) + (Border * 2);
+		Width = ceil(ScaleRto * (base + base0)) + (Border * 2); Heigth = ceil(TriInput.Height * ScaleRto) + (Border * 2);
 		Offy = Heigth - Border; // O fim vertical da imagem se não contar a borda
 		x[0] = Border + (ScaleRto * TriInput.Coord[0].x); x[1] = Border + (ScaleRto * TriInput.Coord[1].x); x[2] = Border + (ScaleRto * TriInput.Coord[2].x); // CORDENADAS X
 		y[0] = Offy - (ScaleRto * TriInput.Coord[0].y); y[1] = Offy - (ScaleRto * TriInput.Coord[1].y); y[2] = Offy - (ScaleRto * TriInput.Coord[2].y); // CORDENADAS Y
 		CImg<uint8_t> TO(Width, Heigth, 1, 3, 0); TriOut = TO; // Output
+
 		LRGB = false; Scale = ScaleRto; // Graph
-		a = TriInput.a; b = TriInput.b; c = TriInput.c; h = TriInput.Alt; gamma = TriInput.Gamma; beta = TriInput.Beta; alpha = TriInput.Alpha; // GET CLASS INFO
+		a = TriInput.a; b = TriInput.b; c = TriInput.c; h = TriInput.Height; gamma = TriInput.Gamma; beta = TriInput.Beta; alpha = TriInput.Alpha; // GET CLASS INFO
 		area = TriInput.A; perimetro = TriInput.P;
 		bisa = TriInput.BisA; bisb = TriInput.BisB; bisc = TriInput.BisC; inradius = TriInput.Inradius; IA = TriInput.IA; IB = TriInput.IB; IC = TriInput.IC;
+
 		Coord[0].x = TriInput.Coord[0].x; Coord[1].x = TriInput.Coord[1].x; Coord[2].x = TriInput.Coord[2].x;
 		Coord[0].y = TriInput.Coord[0].y; Coord[1].y = TriInput.Coord[1].y; Coord[2].y = TriInput.Coord[2].y;
+		
 		SclCrd[0].x = Scale * Coord[0].x; SclCrd[1].x = Scale * Coord[1].x; SclCrd[2].x = Scale * Coord[2].x;
 		SclCrd[0].y = Scale * Coord[0].y; SclCrd[1].y = Scale * Coord[1].y; SclCrd[2].y = Scale * Coord[2].y;
+		
 		Midpoint[0] = TriInput.Midpts[0]; Midpoint[1] = TriInput.Midpts[1]; Midpoint[2] = TriInput.Midpts[2];
 		Circumcenter.x = TriInput.Circumcenter.x; Circumcenter.y = TriInput.Circumcenter.y;
+		
 		// CORES:
-		Color[0] = inColor[0]; Color[1] = inColor[1]; Color[2] = inColor[2];
-		ClrBiLine[0] = inColor[0] / 2; ClrBiLine[1] = inColor[1] / 2; ClrBiLine[2] = inColor[2];
-		ClrhLine[0] = 127; ClrhLine[1] = 127; ClrhLine[2] = 127;
-		ClrIncirc[0] = (255 - inColor[0]) / 2; ClrIncirc[1] = (255 - inColor[1]) / 2; ClrIncirc[2] = (255 - inColor[2]) / 2;
+		if (inColor)
+		{
+			Color[0] = inColor[0]; Color[1] = inColor[1]; Color[2] = inColor[2];
+			ClrBiLine[0] = inColor[0] / 2; ClrBiLine[1] = inColor[1] / 2; ClrBiLine[2] = inColor[2];
+			ClrhLine[0] = 127; ClrhLine[1] = 127; ClrhLine[2] = 127;
+			ClrIncirc[0] = (255 - inColor[0]) / 2; ClrIncirc[1] = (255 - inColor[1]) / 2; ClrIncirc[2] = (255 - inColor[2]) / 2;
+		}
+		else
+		{
+			Color[0] = 191; Color[1] = 127; Color[2] = 159;
+			ClrBiLine[0] = Color[0] / 2; ClrBiLine[1] = Color[1] / 2; ClrBiLine[2] = Color[2];
+			ClrhLine[0] = 127; ClrhLine[1] = 127; ClrhLine[2] = 127;
+			ClrIncirc[0] = (255 - Color[0]) / 2; ClrIncirc[1] = (255 - Color[1]) / 2; ClrIncirc[2] = (255 - Color[2]) / 2;
+		}
 	}
-	TriPrint(Triangle TriInput, double ScaleRto, int BorderImg)
+	
+	void NewTri(Triangle TriInput) // RE-DO THIS!!!
 	{
-		Border = BorderImg; base = TriInput.Base; base0 = TriInput.Base0;
-		Width = ceil(ScaleRto * (base + base0)) + (Border * 2); Heigth = ceil(TriInput.Alt * ScaleRto) + (Border * 2);
-		Offy = Heigth - Border; // O fim vertical da imagem se não contar a borda
-		x[0] = Border + (ScaleRto * TriInput.Coord[0].x); x[1] = Border + (ScaleRto * TriInput.Coord[1].x); x[2] = Border + (ScaleRto * TriInput.Coord[2].x); // CORDENADAS X
-		y[0] = Offy - (ScaleRto * TriInput.Coord[0].y); y[1] = Offy - (ScaleRto * TriInput.Coord[1].y); y[2] = Offy - (ScaleRto * TriInput.Coord[2].y); // CORDENADAS Y
-		CImg<uint8_t> TO(Width, Heigth, 1, 3, 0); TriOut = TO; // Output
-		LRGB = true; Scale = ScaleRto; // Graph
-		a = TriInput.a; b = TriInput.b; c = TriInput.c; h = TriInput.Alt; gamma = TriInput.Gamma; beta = TriInput.Beta; alpha = TriInput.Alpha; // GET CLASS INFO
-		area = TriInput.A; perimetro = TriInput.P;
-		bisa = TriInput.BisA; bisb = TriInput.BisB; bisc = TriInput.BisC; inradius = TriInput.Inradius; IA = TriInput.IA; IB = TriInput.IB; IC = TriInput.IC;
-		Coord[0].x = TriInput.Coord[0].x; Coord[1].x = TriInput.Coord[1].x; Coord[2].x = TriInput.Coord[2].x;
-		Coord[0].y = TriInput.Coord[0].y; Coord[1].y = TriInput.Coord[1].y; Coord[2].y = TriInput.Coord[2].y;
-		SclCrd[0].x = Scale * Coord[0].x; SclCrd[1].x = Scale * Coord[1].x; SclCrd[2].x = Scale * Coord[2].x;
-		SclCrd[0].y = Scale * Coord[0].y; SclCrd[1].y = Scale * SclCrd[1].y; SclCrd[2].y = Scale * Coord[2].y;
-		Midpoint[0] = TriInput.Midpts[0]; Midpoint[1] = TriInput.Midpts[1]; Midpoint[2] = TriInput.Midpts[2];
-		Circumcenter.x = TriInput.Circumcenter.x; Circumcenter.y = TriInput.Circumcenter.y;
-		// CORES:
-		Color[0] = 191; Color[1] = 127; Color[2] = 159;
-		ClrBiLine[0] = Color[0] / 2; ClrBiLine[1] = Color[1] / 2; ClrBiLine[2] = Color[2];
-		ClrhLine[0] = 127; ClrhLine[1] = 127; ClrhLine[2] = 127;
-		ClrIncirc[0] = (255 - Color[0]) / 2; ClrIncirc[1] = (255 - Color[1]) / 2; ClrIncirc[2] = (255 - Color[2]) / 2;
-	}
-	void NewTri(Triangle TriInput)
-	{
-		Width = ceil(Scale * (TriInput.Base + TriInput.Base0)) + (Border * 2); Heigth = ceil(TriInput.Alt * Scale) + (Border * 2);
+		Width = ceil(Scale * (TriInput.Base + TriInput.Base0)) + (Border * 2); Heigth = ceil(TriInput.Height * Scale) + (Border * 2);
 		Offy = Heigth - Border; // O fim vertical da imagem se não contar a borda
 		x[0] = Border + (Scale * TriInput.Coord[0].x); x[1] = Border + (Scale * TriInput.Coord[1].x); x[2] = Border + (Scale * TriInput.Coord[2].x); // CORDENADAS X
 		y[0] = Offy - (Scale * TriInput.Coord[0].y); y[1] = Offy - (Scale * TriInput.Coord[1].y); y[2] = Offy - (Scale * TriInput.Coord[2].y); // CORDENADAS Y
@@ -1600,7 +1282,7 @@ public:
 		if (Lb && Ab) { if (Width < Heigth) { LbAb = true; } } // 'LbAb' can only be true if we need to expand BOTH width and height
 		if (LbAb || Ab) { TriOut = ExpandImg(TriOut, (Heigth - TriOut.height()) * 0.5, 0); } // Expand image in accord to height
 		else if (Lb) { TriOut = ExpandImg(TriOut, (Width - TriOut.height()) * 0.5, 0); }
-		a = TriInput.a; b = TriInput.b; c = TriInput.c; h = TriInput.Alt; gamma = TriInput.Gamma; beta = TriInput.Beta; alpha = TriInput.Alpha; // GET CLASS INFO
+		a = TriInput.a; b = TriInput.b; c = TriInput.c; h = TriInput.Height; gamma = TriInput.Gamma; beta = TriInput.Beta; alpha = TriInput.Alpha; // GET CLASS INFO
 		area = TriInput.A; perimetro = TriInput.P;
 		bisa = TriInput.BisA; bisb = TriInput.BisB; bisc = TriInput.BisC; inradius = TriInput.Inradius; IA = TriInput.IA; IB = TriInput.IB; IC = TriInput.IC;
 		Coord[0].x = TriInput.Coord[0].x; Coord[1].x = TriInput.Coord[1].x; Coord[2].x = TriInput.Coord[2].x;
@@ -1613,20 +1295,20 @@ public:
 	// ##################### ##################### #####################
 
 	// IMPRIME PERIMETRO DO TRIANGULO:
-	void TriPeriPrint(bool AddVertex, bool Text, bool AddAlt, bool ChangeSidesColor)
+	void TriPeriPrint(bool AddVertex, bool Text, bool AddHeight, bool ChangeSidesColor)
 	{
-		Linexy(TriOut, x[0], y[0], x[1], y[1], Color, LRGB); // a -> "_"
-		if (!ChangeSidesColor) { Linexy(TriOut, x[1], y[1], x[2], y[2], Color, LRGB); }
+		Linexy(TriOut, x[0], y[0], x[1], y[1], Color); // a -> "_"
+		if (!ChangeSidesColor) { Linexy(TriOut, x[1], y[1], x[2], y[2], Color); }
 		else
 		{
 			uint8_t nc[] = { (Color[0] + 85) % 256, (Color[1] + 85) % 256, (Color[2] + 85) % 256 };
-			Linexy(TriOut, x[1], y[1], x[2], y[2], nc, LRGB);
+			Linexy(TriOut, x[1], y[1], x[2], y[2], nc);
 		} // c -> "\"
-		if (!ChangeSidesColor) { Linexy(TriOut, x[2], y[2], x[0], y[0], Color, LRGB); }
+		if (!ChangeSidesColor) { Linexy(TriOut, x[2], y[2], x[0], y[0], Color); }
 		else
 		{
 			uint8_t nc[] = { (Color[0] + 85) % 256, (Color[1] + 85) % 256, (Color[2] + 85) % 256 };
-			Linexy(TriOut, x[2], y[2], x[0], y[0], nc, LRGB);
+			Linexy(TriOut, x[2], y[2], x[0], y[0], nc);
 		}	// b -> "/"
 		if (Text)
 		{
@@ -1651,9 +1333,9 @@ public:
 			nc[1] = 0; nc[2] = 255;
 			AddVert(TriOut, x[2], y[2], 3, nc);
 		}
-		if (AddAlt)
+		if (AddHeight)
 		{
-			Linexy(TriOut, (SclCrd[2].x) + Border, Offy, (SclCrd[2].x) + Border, Offy - round(Scale * h), ClrhLine, false);
+			Linexy(TriOut, (SclCrd[2].x) + Border, Offy, (SclCrd[2].x) + Border, Offy - round(Scale * h), ClrhLine);
 			if (Text)
 			{ int px = x[2] - 64; if (px < Width * 0.33) { px += 80; } AddText(TriOut, px, Offy - round(Scale * h * 0.5) - 8, "Height: " + std::to_string(h), ClrhLine); }
 			if (AddVert) { uint8_t Color[] = { 127, 127, 127 }; AddVert(TriOut, (SclCrd[2].x) + Border, Offy, 3, Color); }
@@ -1711,43 +1393,27 @@ public:
 
 	// ##################### ##################### #####################
 
-	// IMPRIME TRIÂNGULO COM TODAS FUNÇÕES:
-	void TriAllPrint(bool AddVertex, bool AddText, bool ChangeSidesColor)
-	{
-		//int R = Color[0], G = Color[1], B = Color[1]; // Caso um dia fazer um função que nescessite
-		TriPeriPrint(AddVert, AddText, true, ChangeSidesColor);
-		TriBisectorPrint(AddText);
-		TriIncirclePrint(AddVertex);
-		TriMidpointPrint();
-		TriTrigPrint(); // (MANTENHA POR ULTIMO)
-		// ####### Imprime Lines Medians #######		
-		// ####### Circumcentro #######
-		uint8_t CC[] = { 127, 127, 127 };
-		AddVert(TriOut, (Scale * Circumcenter.x) + Border, Offy - (Scale * Circumcenter.y), 3, Color); // Circumcentro
-		// ###################################
-	}
-
-	/* IMPRIME TRIÂNGULO COM SELEÇÃO DE TODAS FUNÇÕES:
-	 * Use a 'bool Swtiches[5]' to turn on/off functions.
-	 * Switches[0] = Print Perimeter;
-	 * Switches[1] = Print Bisector Lines;
-	 * Switches[2] = Print Incircle;
-	 * Switches[3] = Print Midpoints;
-	 * Switches[4] = Print Trig. functions info;
-	*/
-	void TriSwitchPrint(bool AddVertex, bool AddText, bool ChangeSidesColor, bool Switches[5]) // Make 'Switches' a single char and use AND as a way to operate
+	/*PRINT TRIANGLE WITH FLAG OPTIONS:
+	 Flags:
+	 AddVertPeri 128
+	 |AddVertBis 64
+	 ||AddVertInCirc 32
+	 1111 1111
+	    | |||Print Perimeter 1
+	    | ||Print Bisector Lines 2
+	    | |Print Incircle 4
+	    | Print Midpoints 8
+	    Print Trig. functions info 16*/
+	void TriPrintByFlags(bool AddText, bool ChangeSidesColor, uint8_t Flags = 255)
 	{
 		//int R = Color[0], G = Color[1], B = Color[1];
-		if (Switches[0]) { TriPeriPrint(AddVertex, AddText, true, ChangeSidesColor); }
-		if (Switches[1]) { TriBisectorPrint(AddVertex); }
-		if (Switches[2]) { TriIncirclePrint(AddVertex); }
-		if (Switches[3]) { TriMidpointPrint(); }
-		if (Switches[4]) { TriTrigPrint(); } // (MANTENHA POR ULTIMO)
-		// ####### Imprime Lines Medians #######
-		// ####### Circumcentro #######
-		uint8_t CC[] = { 255, 0, 255 };
+		if (Flags & 1) { TriPeriPrint(Flags & 32, AddText, true, ChangeSidesColor); }
+		if (Flags & 2) { TriBisectorPrint(Flags & 64); }
+		if (Flags & 4) { TriIncirclePrint(Flags & 128); }
+		if (Flags & 8) { TriMidpointPrint(); }
+		if (Flags & 16) { TriTrigPrint(); } // (MANTENHA POR ULTIMO)
+		//uint8_t CC[] = { 255, 0, 255 }; // I forgot why i wrote this... ???
 		AddVert(TriOut, (Scale * Circumcenter.x) + Border, Offy - (Scale * Circumcenter.y), 3, Color); // Circumcentro
-		// ###################################
 	}
 };
 

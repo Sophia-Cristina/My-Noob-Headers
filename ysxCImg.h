@@ -3,9 +3,18 @@
 #ifndef YSXCIMG_H
 #define YSXCIMG_H
 
+#pragma comment (lib, "zlib.lib")
+#pragma comment (lib, "zlibstatic.lib")
+//#pragma comment (lib, "zlibd.lib") // DEBUG
+//#pragma comment (lib, "zlibstaticd.lib")
+#pragma comment (lib, "libpng.lib")
+//#pragma comment (lib, "libpngd.lib") // DEBUG
+
 //#define cimg_use_png // unresolved external symbol png_ something something
 //#define cimg_use_zlib // unresolved external symbol uncompress
 //#define cimg_use_jpeg // lot of errors, not even intellisense can deal with
+
+#include "png.h"
 #include "CImg.h"
 
 #include "ysxMath.h"
@@ -27,35 +36,37 @@ using namespace cimg_library; // COMMENT IF YOU ARE HAVING A PROBLEM
 
 // ############################################################################################################################################
 // ################################################# NOTES AND ATTENTIONS #################################################
-// !!!!!!!	
-// !!!!!!!	CATALOGUE ANY CHANGE THAT CAN AFFECT CODE VERSIONS:
-// !!!!!!!	* Functions with names like 'SaveBmp' are now 'SaveBMP';
-// !!!!!!!	* 'VerImg(...)' is 'CIMG(...)' now;
-// !!!!!!!	* 'AdcTexto' is 'AddText' now, and 'AdcBarras' i think is called 'DrawBars' now; ! Everything that is in portuguese is going to be changed !
-// !!!!!!!	* Function 'FillAll' is now called 'CleanImg';
-// !!!!!!!	'OpenImg' removed;
-// !!!!!!!	
+// !!!	CATALOGUE ANY CHANGE THAT CAN AFFECT CODE VERSIONS:
+// !!!	* Functions with names like 'SaveBmp' are now 'SaveBMP';
+// !!!	* 'VerImg(...)' is 'CIMG(...)' now;
+// !!!	* 'AdcTexto' is 'AddText' now, and 'AdcBarras' i think is called 'DrawBars' now; ! Everything that is in portuguese is going to be changed !
+// !!!	* Function 'FillAll' is now called 'CleanImg';
+// !!!	* 'OpenImg' removed;
+// !!!	* BIG CHANGES, TAKE CARE! Templates, references and more! 21/07/22;
 // ################################################# NOTES AND ATTENTIONS #################################################
 // ############################################################################################################################################
 
 // ###################################
 // ############## FORWARD DECLARATIONS:
-CImg<uint8_t> DrawImageIgnClr(CImg<uint8_t>, CImg<uint8_t>, uint32_t, uint32_t, uint8_t*);
-bool InImg(CImg<uint8_t>, int, int);
+CImg<uint8_t> DrawImageIgnClr(CImg<uint8_t>&, CImg<uint8_t>&, uint32_t, uint32_t, uint8_t[3]);
+CImg<uint8_t> JoinImg(CImg<uint8_t>&, CImg<uint8_t>&, bool);
+// Fractal stuffs:
+std::vector<std::string> BinaryWordsSeq(int);
+std::vector<long> BinaryWordSeqArean(int);
+double AOScore(double);
+// 'ysxMath.h' stuffs:
+double GetMag(Point<double>); // ysxciPlotters.h
+double GetVecRad(Point<double>); // ysxciPlotters.h
+double SumntoPowIniEnd(int, int, int);
+
+/*bool InImg(CImg<uint8_t>&, size_t, size_t);
 void AddVert(CImg<uint8_t>&, unsigned short, unsigned short, unsigned short, uint8_t*);
 void AddText(CImg<uint8_t>&, uint32_t , uint32_t , std::string, uint8_t[3]);
 CImg<uint8_t> ValueBarAbs(uint16_t, double, double, uint16_t, uint16_t, bool);
 void Resize(CImg<uint8_t>&, uint16_t, uint16_t, uint8_t);
 void FillArea(CImg<uint8_t>&, uint16_t, uint16_t, uint8_t[3]);
 void CleanImg(CImg<uint8_t>&, uint8_t[3]);
-CImg<uint8_t> ExpandImg(CImg<uint8_t>, uint16_t, char);
-CImg<uint8_t> JoinImg(CImg<uint8_t>, CImg<uint8_t>, bool);
-double GetMag(Point<double>);
-double GetVecRad(Point<double>);
-double SumntoPowIniEnd(int, int, int);
-std::vector<std::string> BinaryWordsSeq(int);
-std::vector<long> BinaryWordSeqArean(int);
-double AOScore(double);
+CImg<uint8_t> ExpandImg(CImg<uint8_t>, uint16_t, char);*/
 // ###################################
 
 // ###################################
@@ -63,11 +74,34 @@ double AOScore(double);
 struct Pixel { unsigned int x; unsigned int y; uint8_t RGB[3]; };
 // ###################################
 
+// ############## GENERALLY USEFUL:
+// CHECK IF PIXEL IS INSIDE IMAGE (MAYBE SOON TO BE OBSOLETE):
+bool InImg(CImg<uint8_t>& Img, size_t y, size_t x) { if (y < Img.height()) { if (x < Img.width()) { return (true); } return (false); } return (false); }
+
+// ADD TEXT ON IMAGE:
+void AddText(CImg<uint8_t>& Img, uint32_t x, uint32_t y, std::string String, uint8_t C[3])
+{
+	Img.draw_text(x, y, String.data(), C);// , 19);
+}
+
+// SAME AS 'AddText', BUT PRINT IN CIRCLE DIVISION WITH A VECTOR OF STRINGS:
+void AddTextCirc(CImg<uint8_t>& Img, double r, uint32_t x, uint32_t y, std::vector<std::string> Strings, uint8_t C[3])
+{
+	double Div = TAU / Strings.size(); uint32_t Count = 0;
+	for (double rad = 0; rad <= TAU; rad += Div) { AddText(Img, x + round(cos(rad) * (r - 8)), y + round(sin(rad) * (r - 8)), Strings[Count], C); ++Count; }
+}
+
+void CleanImg(CImg<uint8_t>& Img, uint8_t* C = nullptr)
+{
+	Img = CImg<uint8_t>::CImg(Img.width(), Img.height(), 1, 3, 0);
+	if (C) { Img.draw_fill(1, 1, C, 1, 1, false); }
+}
+
 // ###################################
 // EXTRA:
 #include "ysxCImgIncludes/ysxciColors.h"
-#include "ysxCImgIncludes/ysxciPlotters.h"
 #include "ysxCImgIncludes/ysxciUtils.h"
+#include "ysxCImgIncludes/ysxciPlotters.h"
 #include "ysxCImgIncludes/ysxciMisc.h"
 // ###################################
 
@@ -86,34 +120,9 @@ void SavePNG(CImg<uint8_t> Image, std::string FileName, int BytesPerPixel) { Ima
 void SaveJPG(CImg<uint8_t> Image, std::string FileName) { Image.save_jpeg(FileName.data(), 100); } // 100% quality
 void SaveJPG(CImg<uint8_t> Image, std::string FileName, int QualityPercent) { Image.save_jpeg(FileName.data(), QualityPercent); }
 
-// VERIFICA SE VALOR ESTA DENTRO DA IMAGEM:
-bool InImg(CImg<uint8_t> Img, int y, int x)
-{
-	if (y < Img.height()) { if (x < Img.width()) { return (true); } else { return (false); } }
-	else { return (false); }
-}
-
 // SEE IMG, LIKE, CIMG, GOTCHA?:
 void CIMG(std::string File, std::string Title = "Art! :3") { CImg<uint8_t> Img(File.data()); CImgDisplay d(Img, Title.data()); while (!d.is_closed()) { d.wait(); } }
 void CIMG(CImg<uint8_t>& Img, std::string Title = "Img") { CImgDisplay d(Img, Title.data()); while (!d.is_closed()) { d.wait(); } }
-
-// ############################################################################################################################################
-// ############################################################################################################################################
-// ############################################################################################################################################
-
-// ############## TEXTOS:
-// ADD TEXT ON IMAGE:
-void AddText(CImg<uint8_t>& Img, uint32_t x, uint32_t y, std::string String, uint8_t Color[3])
-{
-	//CImgList<uint8_t> font(1, Img, 1);
-	Img.draw_text(x, y, String.data(), Color);// , 19);
-}
-// SAME AS 'AddText', BUT PRINT IN CIRCLE DIVISION WITH A VECTOR OF STRINGS:
-void AddTextCirc(CImg<uint8_t>& Img, double r, uint32_t x, uint32_t y, std::vector<std::string> Strings, uint8_t Color[3])
-{
-	double Div = TAU / Strings.size(); uint32_t Count = 0;
-	for (double rad = 0; rad <= TAU; rad += Div) { AddText(Img, x + round(cos(rad) * (r - 8)), y + round(sin(rad) * (r - 8)), Strings[Count], Color); ++Count; }
-}
 
 // ############################################################################################################################################
 // ############################################################################################################################################
@@ -123,49 +132,33 @@ void AddTextCirc(CImg<uint8_t>& Img, double r, uint32_t x, uint32_t y, std::vect
 
 // REDO IMAGE WITH SPECIFIC COLOR (OR ELSE, IT IS BLACK):
 void FillAlpha(CImg<uint8_t>& Img) { Img = CImg<uint8_t>::CImg(Img.width(), Img.height(), 1, 4, 0); uint8_t C[] = { 0, 0, 0, 0 }; Img.draw_fill(1, 1, C, 1, 1); } // Maybe it is already black
-void CleanImg(CImg<uint8_t>& Img) { Img = CImg<uint8_t>::CImg(Img.width(), Img.height(), 1, 3, 0); }
-void CleanImg(CImg<uint8_t>& Img, uint8_t Color[3])
-{
-	Img = CImg<uint8_t>::CImg(Img.width(), Img.height(), 1, 3, 0);
-	Img.draw_fill(1, 1, Color, 1, 1, false);
-}
+
 // Fill / clean entire image, but by drawing a rectangle over it:
 void FillRect(CImg<uint8_t>& Img) { uint8_t c[] = { 0, 0, 0 }; Img.draw_rectangle(0, 0, Img.width() - 1, Img.height() - 1, c); }
-void FillRect(CImg<uint8_t>& Img, uint8_t Color[3]) { Img.draw_rectangle(0, 0, Img.width() - 1, Img.height() - 1, Color); }
+void FillRect(CImg<uint8_t>& Img, uint8_t C[3]) { Img.draw_rectangle(0, 0, Img.width() - 1, Img.height() - 1, C); }
 
 // EZ CREATE NEW IMAGE WITH COLORED BACKGROUND:
-CImg<uint8_t> NewImgBGColor(int Width, int Height, uint8_t Color[3])
+CImg<uint8_t> NewImgBGColor(int Width, int Height, uint8_t C[3])
 {
 	CImg<uint8_t> FilledImg(Width, Height, 1, 3, 0);
-	FilledImg.draw_fill(1, 1, Color, 1, 1, false);
+	FilledImg.draw_fill(1, 1, C, 1, 1, false);
 	return(FilledImg);
 }
-
-
-// ############################################################################################################################################
-// ############################################################################################################################################
-// ############################################################################################################################################
 
 // ###################################
 // ############## CLASSES ##############
 // ###################################
-
-// ############################################################################################################################################
-// ############################################################################################################################################
-// ############################################################################################################################################
 
 // ###################################
 // ############## IMAGENS ##############
 // ###################################
 
 // MIX IMAGES AND CAN ALSO IGNORE COLORS:
-CImg<uint8_t> MixRGB(CImg<uint8_t> Img0, CImg<uint8_t> Img1)
+CImg<uint8_t> MixRGB(CImg<uint8_t>& Img0, CImg<uint8_t>& Img1)
 {
 	uint16_t Width = 1, Height = 1;
-	if (Img0.width() > Img1.width()) { Width = Img1.width(); }
-	else { Width = Img0.width(); } // Maior que (>), pois, ao passar pelo pixel, não vai pedir memória aonde não tem
-	if (Img0.height() > Img1.height()) { Height = Img1.height(); }
-	else { Height = Img0.height(); }
+	Img0.width() > Img1.width() ? Width = Img1.width() : Width = Img0.width();
+	Img0.height() > Img1.height() ? Height = Img1.height() : Height = Img0.height();
 	CImg<uint8_t> Ret(Width, Height, 1, 3, 0);
 	Point3D<uint8_t> RGB0, RGB1;
 	uint8_t Clr[3];
@@ -182,7 +175,7 @@ CImg<uint8_t> MixRGB(CImg<uint8_t> Img0, CImg<uint8_t> Img1)
 	}
 	return (Ret);
 }
-CImg<uint8_t> MixRGB(CImg<uint8_t> Img0, CImg<uint8_t> Img1, bool IgnoreBlack, bool IgnoreWhite)
+CImg<uint8_t> MixRGB(CImg<uint8_t>& Img0, CImg<uint8_t>& Img1, bool IgnoreBlack, bool IgnoreWhite)
 {
 	uint16_t Width = 1, Height = 1;
 	if (Img0.width() > Img1.width()) { Width = Img1.width(); }
@@ -235,7 +228,7 @@ CImg<uint8_t> MixRGB(CImg<uint8_t> Img0, CImg<uint8_t> Img1, bool IgnoreBlack, b
 	}
 	return (Ret);
 }
-CImg<uint8_t> MixRGB(CImg<uint8_t> Img0, CImg<uint8_t> Img1, uint8_t IgnoreColor[3])
+CImg<uint8_t> MixRGB(CImg<uint8_t>& Img0, CImg<uint8_t>& Img1, uint8_t IgnoreColor[3])
 {
 	uint16_t Width = 1, Height = 1;
 	if (Img0.width() > Img1.width()) { Width = Img1.width(); }
@@ -263,7 +256,7 @@ CImg<uint8_t> MixRGB(CImg<uint8_t> Img0, CImg<uint8_t> Img1, uint8_t IgnoreColor
 	}
 	return (Ret);
 }
-CImg<uint8_t> MixRGB(CImg<uint8_t> Img0, CImg<uint8_t> Img1, uint32_t x, uint32_t y, uint8_t IgnoreColor[3])
+CImg<uint8_t> MixRGB(CImg<uint8_t>& Img0, CImg<uint8_t>& Img1, uint32_t x, uint32_t y, uint8_t IgnoreColor[3])
 {
 	if (x < 0) { x = 0; } if (y < 0) { y = 0; }
 	uint16_t Width = 1, Height = 1;
@@ -299,7 +292,7 @@ CImg<uint8_t> MixRGB(CImg<uint8_t> Img0, CImg<uint8_t> Img1, uint32_t x, uint32_
 }
 
 // DRAW IMAGE OVER ANOTHER IMAGE, BUT IGNORE SPECIFIC COLOR:
-CImg<uint8_t> DrawImageIgnClr(CImg<uint8_t> Img0, CImg<uint8_t> Img1, uint32_t x, uint32_t y, uint8_t IgnoreColor[3])
+CImg<uint8_t> DrawImageIgnClr(CImg<uint8_t>& Img0, CImg<uint8_t>& Img1, uint32_t x, uint32_t y, uint8_t IgnoreColor[3])
 {
 	if (x < 0) { x = 0; } if (y < 0) { y = 0; }
 	uint32_t  Width = Img1.width(), Height = Img1.height();
@@ -348,36 +341,31 @@ int main(int argc, char **argv) {
 // ############################################################################################################################################
 
 // ############## MISC:
-// SIEVE OF ERATOSTHENES:
+// SIEVE OF ERATOSTHENES (Modified and not tested):
 CImg<uint8_t> SieveEratosthenes(uint32_t  n)
 {
 	if (n < 10) { n = 10; }
-	std::vector<CImg<uint8_t>> Squares(n);
+	CImg<uint8_t> Ret(320, ceil(n / 10.0) * 32, 1, 3, 0);
+	CImg<uint8_t> Square;
 	std::vector<Point3D<uint8_t>> RGBs(4);
-	uint32_t  Lines = ceil(n / 10.0);
-	CImg<uint8_t> Ret(10 * 32, Lines * 32, 1, 3, 0);
-	Point3D<uint8_t> RGB;
-	for (uint8_t m = 0; m < 4; ++m)
-	{
-		RGB = LinearRGB(m / 4.0, 1, 1);
-		RGBs[m] = RGB;
-	}
-	for (uint8_t m = 1; m <= n; ++m)
+	for (uint8_t m = 0; m < 4; ++m) { RGBs[m] = LinearRGB(m / 4.0, 1, 1); }
+	uint8_t C[] = { 0, 0, 0 };
+
+	for (uint8_t m = 0; m < n; ++m)
 	{
 		// Colors:
-		uint8_t Color[] = { 0, 0, 0 };
-		if (0 == m % 2) { Color[0] = RGBs[0].x; Color[1] = RGBs[0].y; Color[2] = RGBs[0].z; }
-		else if (0 == m % 3) { Color[0] = RGBs[1].x; Color[1] = RGBs[1].y; Color[2] = RGBs[1].z; }
-		else if (0 == m % 5) { Color[0] = RGBs[2].x; Color[1] = RGBs[2].y; Color[2] = RGBs[2].z; }
-		else if (0 == m % 7) { Color[0] = RGBs[3].x; Color[1] = RGBs[3].y; Color[2] = RGBs[3].z; }
-		CImg<uint8_t> Square(31, 31, 1, 3, 0);
-		Color[0] = 255 - Color[0], Color[1] = 255 - Color[1], Color[2] = 255 - Color[2];
-		Square = AddBorder(Square, 1, 1, Color);
-		FillArea(Square, 15, 15, Color);
-		AddText(Square, 7, 15, std::to_string(m), Color);
-		Squares[n] = Square;
+		if (!((m + 1) % 2)) { C[0] = RGBs[0].x; C[1] = RGBs[0].y; C[2] = RGBs[0].z; }
+		else if (!((m + 1) % 3)) { C[0] = RGBs[1].x; C[1] = RGBs[1].y; C[2] = RGBs[1].z; }
+		else if (!((m + 1) % 5)) { C[0] = RGBs[2].x; C[1] = RGBs[2].y; C[2] = RGBs[2].z; }
+		else if (!((m + 1) % 7)) { C[0] = RGBs[3].x; C[1] = RGBs[3].y; C[2] = RGBs[3].z; }
+
+		Square = CImg<uint8_t>::CImg(31, 31, 1, 3, 0);
+		FillArea(Square, 15, 15, C);
+		C[0] = 255 - C[0], C[1] = 255 - C[1], C[2] = 255 - C[2];
+		Square = AddBorder(Square, 1, 1, C);
+		AddText(Square, 7, 15, std::to_string(m + 1), C);
+		Ret.draw_image((n % 10) * 32, floor(n / 10) * 32, Square);
 	}
-	for (uint32_t  m = 0; m < Lines; ++m) { for (uint8_t k = 0; k < 10; ++k) { if (k + (m * 10) < Squares.size()) { Ret.draw_image(k * 32, m * 32, Squares[k + (m * 10)]); } } }
 	return(Ret);
 }
 
@@ -388,34 +376,34 @@ CImg<uint8_t> RayInfo(double Degrees, uint32_t  ImgSize)
 	CImg<uint8_t> I(ImgSize, ImgSize, 1, 3, 0);
 	double Rad = Ang2Rad(Degrees);
 	uint32_t  r = round(0.5 * ImgSize);
-	uint8_t Color[] = { 64, 64, 64 };
+	uint8_t C[] = { 64, 64, 64 };
 	uint32_t  Line = 8, Txtpx = r - 24;
 	std::string Sin = "Sin: " + std::to_string(sin(Rad)), Cos = "Cos: " + std::to_string(cos(Rad)), Tan = "Tan: " + std::to_string(tan(Rad)),
 		Cot = "Cot: " + std::to_string(cot(Rad)), Sec = "Sec: " + std::to_string(sec(Rad)), Csc = "Csc: " + std::to_string(csc(Rad)),
 		Ver = "Versin: " + std::to_string(versin(Rad)), Exsec = "ExSec: " + std::to_string(exsec(Rad)),
 		Excsc = "ExCsc: " + std::to_string(excsc(Rad)), Crd = "Cord: " + std::to_string(crd(Rad));
 
-	Linexy(I, r, 0, r, ImgSize, Color, false); Linexy(I, 0, r, ImgSize, r, Color, false); // Cruz
+	Linexy(I, r, 0, r, ImgSize, C); Linexy(I, 0, r, ImgSize, r, C); // Cruz
 	Circlexy(I, r, r, r);
 	Radius(I, r, r, r, Rad, true, false);
-	Color[0] = 255; Color[1] = 0; Color[2] = 0;
-	Linexy(I, r, r, ceil(cos(Rad) * r) + r, r, Color, false);
-	AddText(I, Txtpx, r + Line * 2, Cos, Color);
-	Linexy(I, r, r - ceil(sin(Rad) * r), ceil(cos(Rad) * r) + r, r - ceil(sin(Rad) * r), Color, false);
-	Color[0] = 0; Color[1] = 255;
-	Linexy(I, r, r, r, r - ceil(sin(Rad) * r), Color, false);
-	AddText(I, Txtpx, r + Line, Sin, Color);
-	Linexy(I, ceil(cos(Rad) * r) + r, r, ceil(cos(Rad) * r) + r, r - ceil(sin(Rad) * r), Color, false);
+	C[0] = 255; C[1] = 0; C[2] = 0;
+	Linexy(I, r, r, ceil(cos(Rad) * r) + r, r, C);
+	AddText(I, Txtpx, r + Line * 2, Cos, C);
+	Linexy(I, r, r - ceil(sin(Rad) * r), ceil(cos(Rad) * r) + r, r - ceil(sin(Rad) * r), C);
+	C[0] = 0; C[1] = 255;
+	Linexy(I, r, r, r, r - ceil(sin(Rad) * r), C);
+	AddText(I, Txtpx, r + Line, Sin, C);
+	Linexy(I, ceil(cos(Rad) * r) + r, r, ceil(cos(Rad) * r) + r, r - ceil(sin(Rad) * r), C);
 		
-	Color[1] = 0; Color[2] = 255; AddText(I, Txtpx, r + Line * 3, Tan, Color);
-	Color[0] = 255; AddText(I, Txtpx, r + Line * 4, Cot, Color);
-	Color[0] = 0; Color[1] = 255; AddText(I, Txtpx, r + Line * 5, Sec, Color);
-	Color[0] = 255; Color[1] = 0; AddText(I, Txtpx, r + Line * 6, Csc, Color);
-	Color[1] = 255;	AddText(I, r + 24, r - Line * 2, "ANGLE: " + std::to_string(Degrees), Color);
-	Color[2] = 127;	AddText(I, Txtpx, r + Line * 10, Crd, Color);
-	Color[0] = 127;	AddText(I, Txtpx, r + Line * 7, Ver, Color);
-	Color[0] = 255; Color[1] = 127;	AddText(I, Txtpx, r + Line * 8, Exsec, Color);
-	Color[0] = 127; Color[2] = 255; AddText(I, Txtpx, r + Line * 9, Excsc, Color);
+	C[1] = 0; C[2] = 255; AddText(I, Txtpx, r + Line * 3, Tan, C);
+	C[0] = 255; AddText(I, Txtpx, r + Line * 4, Cot, C);
+	C[0] = 0; C[1] = 255; AddText(I, Txtpx, r + Line * 5, Sec, C);
+	C[0] = 255; C[1] = 0; AddText(I, Txtpx, r + Line * 6, Csc, C);
+	C[1] = 255;	AddText(I, r + 24, r - Line * 2, "ANGLE: " + std::to_string(Degrees), C);
+	C[2] = 127;	AddText(I, Txtpx, r + Line * 10, Crd, C);
+	C[0] = 127;	AddText(I, Txtpx, r + Line * 7, Ver, C);
+	C[0] = 255; C[1] = 127;	AddText(I, Txtpx, r + Line * 8, Exsec, C);
+	C[0] = 127; C[2] = 255; AddText(I, Txtpx, r + Line * 9, Excsc, C);
 	
 	return(I);
 }

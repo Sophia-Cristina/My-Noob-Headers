@@ -25,7 +25,7 @@
 #include <deque> // Double ended queue deque (usually pronounced like "deck") is an irregular
 				 // acronym of double - ended queue. Double - ended queues are sequence
 				 // containers with dynamic sizes that can be expanded or contracted on both
-				 // ends(either its front or its back).
+				 // ends (either its front or its back).
 #include <forward_list> // Sequence containers that allow constant time insert and erase
 					    // operations anywhere within the sequence.
 #include <list> // Sequence containers that allow constant time insert and erase operations
@@ -57,12 +57,12 @@
 
 // ############################################################################################################################################
 // ################################################# ANOTATIONS AND ALTERATIONS #################################################
-//
 // CHANGES (KEEP ORDER):
 // * Function 'IsNumber' was called 'IsNmbr';
 // * 'Str2cArray' is now 'Str2cPt' and 'Str2ucPt' in 'ysxBytes.h';
 // * Starting to replace 'for' loops with 'int' or something, to 'size_t';
 // * Adding templates to this header and sub-headers. W.I.P;
+// * Future removal of Forward de
 // ################################################# ANOTATIONS AND ALTERATIONS #################################################
 // ############################################################################################################################################
 
@@ -76,6 +76,7 @@ double Derivative(double, double); double Derivative(double, double, double);
 double Derivative(double, double, double, double); double Derivative(double, double, double, double, double);
 double d2xdt2(double, double);
 double LawSinRad(double, double, double);
+double MtoFMini(uint8_t);
 
 // Intern:
 template <class T_> T_ SumVec(std::vector<T_>);
@@ -107,8 +108,8 @@ template <class T_, class T__> struct IdxVal { T_ i; T__ v; }; // Index and Valu
 #include "ysxplg/ysxField.h" // Field arithmetics
 #include "ysxMech/ysxEngn.h" // Engineering stuffs
 #include "ysxElec/ysxElectr.h" // Some trigonomotry in 'ysxGeo.h'. Also #include 'ysxBytes.h' and 'ysxSignal.h'.
-#include "ysxMusic/ysxMusic.h"
 #include "ysxMusic/ysxSynth.h"
+#include "ysxMusic/ysxMusic.h"
 #include "ysxplg/ysxMoney.h" // Things about money and related to economy and etc...
 #include "ysxplg/ysxFractal.h"
 
@@ -144,7 +145,7 @@ int GCD(int a, int b)
 }
 
 // LCM (LEAST COMMON MULTIPLE):
-int LCM(int a, int b) { a = abs(a); b = abs(b); return ((a * b) / GCD(a, b)); }
+int LCM(int a, int b) { a = abs(a); b = abs(b); return (a * b / GCD(a, b)); }
 
 // FACTORS:
 std::vector<int> Factors(int n) { std::vector<int> V; for (size_t m = 1; m <= n; ++m) { if (0 == n % m) { V.push_back(m); } } return (V); }
@@ -153,7 +154,7 @@ std::vector<int> Factors(int n) { std::vector<int> V; for (size_t m = 1; m <= n;
 int DivFunc(int n, int Power) { std::vector<int> Fac = PowVec(Factors(n), Power); int Sum = SumVec(Fac); return(Sum); }
 
 // ####### AVERAGES AND RATIOS:
-// MÉDIA, ARITHMETIC MEAN:
+// ARITHMETIC MEAN:
 double Average(std::vector<double> Vec) { double Sum = 0; if (Vec.size() != 0) { for (size_t n = 0; n < Vec.size(); ++n) { Sum += Vec[n]; } Sum /= Vec.size(); } return (Sum); }
 
 // ROOT MEAN SQUARE:
@@ -167,18 +168,20 @@ double GeoMean(std::vector<double> Vec)
 { double Mul = 0; if (Vec.size() != 0) { for (size_t n = 0; n < Vec.size(); ++n) { Mul *= Vec[n]; } Mul = pow(Mul, 1 / Vec.size()); } return (Mul); }
 
 // ARITHMETIC-GEOMETRIC MEAN:
-Point<double> ArithGeoMean(Point<double> PointDbl, int Iter)
+Point<double> ArithGeoMean(Point<double> P, int Iter)
 {
-	Point<double> Pt; Pt.x = 0.5 * (PointDbl.x + PointDbl.y); Pt.y = sqrt(PointDbl.x * PointDbl.y);
-	for (size_t n = 1; n < Iter; ++n) { double x = Pt.x, y = Pt.y; Pt.x = 0.5 * (x + y); Pt.y = sqrt(x * y); }
+	Point<double> Pt; Pt.x = 0.5 * (P.x + P.y); Pt.y = sqrt(P.x * P.y);
+	double x, y;
+	for (size_t n = 1; n < Iter; ++n) { x = Pt.x, y = Pt.y; Pt.x = 0.5 * (x + y); Pt.y = sqrt(x * y); }
 	return (Pt);
 }
 
 // GEOMETRIC-HARMONIC MEAN:
-Point<double> GeoHarmMean(Point<double> PointDbl, int Iter)
+Point<double> GeoHarmMean(Point<double> P, int Iter)
 {
-	Point<double> Pt; Pt.x = sqrt(PointDbl.x * PointDbl.y); Pt.y = 2.0 / ((1.0 / PointDbl.x) + (1.0 / PointDbl.y));
-	for (size_t n = 1; n < Iter; ++n) { double x = Pt.x, y = Pt.y; Pt.x = sqrt(x * y); Pt.y = 2.0 / ((1.0 / x) + (1.0 / y)); }
+	Point<double> Pt; Pt.x = sqrt(P.x * P.y); Pt.y = 2.0 / ((1.0 / P.x) + (1.0 / P.y));
+	double x, y;
+	for (size_t n = 1; n < Iter; ++n) { x = Pt.x, y = Pt.y; Pt.x = sqrt(x * y); Pt.y = 2.0 / ((1.0 / x) + (1.0 / y)); }
 	return (Pt);
 }
 
@@ -188,9 +191,6 @@ double PowerMean(std::vector<double> Vec, double p)
 
 // RATIO BETWEEN TWO RATIOS '(a * Rta) / (b * Rtb)' : (Ex.: Beer, a = 350ml, Rta = 0.046; Spirit, b = 50ml, Rtb = 0.39; Return = 0.825641...
 double RatioofRatios(double a, double Rta, double b, double Rtb) { return((a * Rta) / (b * Rtb)); }
-
-// RATIO OF THE RATIO '(a * Rto) / a)':
-double RatioofRatio(double a, double Rto) { return((a * Rto) / a); }
 
 // SUM OF POWERS (It keeps summing from 'm' to 'n' to the power of 'p' or  it will be summing 'n' from 'p0' to 'p1'):
 double SumIniEndtoPow(int Ini, int End, int p) { double Sum = 0; for (size_t m = Ini; m <= End; ++m) { Sum += pow(m, p); } return (Sum); }
@@ -235,7 +235,7 @@ std::vector<int> CollatzConj(int n)
 // ############################
 // ####### NUMEROS:
 // IS IT PRIME?:
-bool IsPrime(long long n) { n = abs(n); for (size_t m = 2; m < n - 1; ++m) { if (0 == n % m) { return(false); } } return(true); }
+bool IsPrime(long long n) { n = abs(n); for (size_t m = 2; m < n - 1; ++m) { if (n % m == 0) { return(false); } } return(true); }
 
 // TRIANGULAR NUMBER:
 unsigned int TriNmbr(unsigned int n) { return ((n * (n + 1)) / 2); }
@@ -371,22 +371,26 @@ uint8_t Chr2Int(uint8_t C) { if (C > 47 && C < 58) { return(C - 48); } return(0)
 // GET STRING AS TEXT AND READ AS AN INTEGER:
 int Str2Int(std::string S)
 {
-	int a = 0, Count = 0;
-	char C; bool Oktogo = false, Neg = false;
-	std::vector<uint8_t> Array;
-	for (size_t n = 0; n < S.length(); ++n) { if (S[n] > 47 && S[n] < 58) { Oktogo = true; break; } }
-	if (Oktogo)
+	if (S.size() > 1)
 	{
-		for (size_t n = 0; n < S.length(); ++n)
+		int a = 0, Count = 0;
+		char C; bool Oktogo = false, Neg = false; if (S[0] == '-') { Neg = true; }
+		std::vector<uint8_t> Array;
+		for (size_t n = 0; n < S.length(); ++n) { if (S[n] > 47 && S[n] < 58 || S[n] == '-') { Oktogo = true; break; } }
+		if (Oktogo)
 		{
-			if (S[0] == '-') { Neg = true; }
-			if (S[n] > 48 && S[n] < 58) { Array.push_back(S[n] - 48); ++Count; }
-			else if (S[n] == '0' && n != 0) { Array.push_back(0); ++Count; }
+			for (size_t n = 0; n < S.length(); ++n)
+			{
+				if (S[n] > 48 && S[n] < 58) { Array.push_back(S[n] - 48); ++Count; }
+				else if (S[n] == '0' && n != 0) { Array.push_back(0); ++Count; }
+			}
+			for (size_t n = 0; n < Count; ++n) { if (Array[n] != 0) { a += Array[n] * (pow(10, Count - n - 1)); } else { a *= 10; } }
 		}
-		for (size_t n = 0; n < Count; ++n) { if (Array[n] != 0) { a += Array[n] * (pow(10, (Count - n - 1))); } else { a *= 10; } }
+		else { return(0); }
+		if (Neg) { a *= -1; }
+		return(a);
 	}
-	else { return(0); } if (Neg) { a *= -1; }
-	return(a);
+	return(0);
 }
 
 // GET STRING AS TEXT AND READ AS A DOUBLE:
