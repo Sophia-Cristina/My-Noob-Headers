@@ -12,7 +12,6 @@
 // #######
 // ####### Everything related to emulating some kind of computer
 // ####### or electronic devide akin to it.
-// #######
 // #####################
 
 // UTILS:
@@ -20,6 +19,9 @@
 
 // PROCESSORS:
 #include "ysxComp/Processors/ysxIntel4004.h"
+//#include "ysxComp/NES/ysxRP2A03.h"
+//#include "ysxComp/NES/ysxNESAPU.h"
+//#include "ysxComp/NES/ysxNESPPU.h"
 
 // OLDSCHOOL EMU:
 #include "ysxComp/ysxZXSpec.h"
@@ -29,6 +31,9 @@
 
 // EDUCATIONAL STUFF:
 #include "ysxComp/ysxEMUEdu.h"
+
+// EDUCATIONAL STUFF:
+#include "ysxComp/ysxEMUEsoLang.h"
 
 // #################################################
 /* REFERENCES:
@@ -40,18 +45,36 @@ DECADE COUNTER:
 EPROM DESIGN:
  [E1] https://pdf1.alldatasheet.com/datasheet-pdf/view/27266/TI/PAL16L8.html
 7400-SERIES:
- [T1] https://www.ti.com/lit/ds/symlink/sn74ls00.pdf?ts=1627944918289*/
+ [T1] https://www.ti.com/lit/ds/symlink/sn74ls00.pdf?ts=1627944918289
+ROM / RAM, MICRO-CONTROLLER:
+ [M1] https://pdf1.alldatasheet.com/datasheet-pdf/download/519427/STMICROELECTRONICS/STM8S003F3P6TR.html
+*/
 
  // #################################################
  // ############## ELEC. COMPONENTS ##############
 
  // ####### BASIC CIRCUIT:
 
+// TRANSFER DATA WITH AN EMULATED BUS: !!! WIP !!!
+// Maybe change to something else rather than void!
+// "Bytes", is how much bytes the bus array have...
+// void* Mem[Bytes];
+template <class T_, size_t Bytes>
+class DataBus
+{
+public:
+	void* Mem[Bytes];
+	DataBus() { }
+	// Write; Read:
+	void W(size_t addr, T_* data);
+	T_ R(size_t addr, bool bReadOnly = false);
+};
+
 /* BIPOLAR TRANSISTOR (NPN AND PNP):
 NPN: iC--v->oE | PNP: oC--v-<iE
 		iB	   |		 oB
 Same as an 'AND'*/
-uint8_t TrnsBip(uint8_t In, uint8_t B) { return(In & B); }
+//uint8_t TrnsBip(uint8_t In, uint8_t B) { return(In & B); }
  
 // ####### FLIP-FLOPS: [FF1]
 
@@ -126,7 +149,7 @@ struct JKFF
 
 // ####### COUNTERS:
 
-// DECADE COUNTER:
+// DECADE COUNTER: !!! WIP !!!
 class DecadeCnt
 {
 public:
@@ -152,11 +175,11 @@ public:
 				tmp = ((FFs[Q].Q.x >> n) & 1) * pow(2, Q);
 				Os[n] |= tmp;
 				//Os[n] |= FFs[Q].Q.x << bit;
-				/*  [Q]|  >> n |& 1|pow|Os
-				    b6:|1011011| 0 |1:0| 0
-				    d2:|1101001| 0 |2:0| 0
-				    b1:|1011000| 1 |4:4| 1
-				    4d:|0100110| 1 |8:8| 1 = C = 12
+				/*  [Q]|  >> n |&1|pow|Os
+				    b6:|1011011| 0|1:0|0v
+				    d2:|1101001| 0|2:0|0v
+				    b1:|1011000| 1|4:4|1v
+				    4d:|0100110| 1|8:8|1>> = C = 12 = 1100
 				*/
 			}
 		}
@@ -167,6 +190,7 @@ public:
 // #################################################
 // ############## PORTS & PERIPHERALS ##############
 
+// uint8_t data[7];
 struct USB_C { uint8_t CC, D1, D2, RX1, RX2, TX1, TX2; };
 
 // #################################################
@@ -176,14 +200,14 @@ struct USB_C { uint8_t CC, D1, D2, RX1, RX2, TX1, TX2; };
 
 /* ####### SN7400 FOUR NAND: // [T1]
 https://en.wikipedia.org/wiki/7400-series_integrated_circuits
-	  __________
-1A  -|1 #	  14|- 4Y
-1B  -|2       13|- 4B
-1Y  -|3  SN   12|- 4A
-Vcc -|4	7400  11|- GND
-2Y  -|5		  10|- 3B = 3 In
-2A  -|6        9|- 3A = 3 In
-2B  -|7________8|- 3Y = 3 Out
+	  _________
+1A  -|1 #	 14|- 4Y
+1B  -|2      13|- 4B
+1Y  -|3  SN  12|- 4A
+Vcc -|4	7400 11|- GND
+2Y  -|5		 10|- 3B
+2A  -|6       9|- 3A
+2B  -|7_______8|- 3Y
 
 GATE LOGIC:
 .A.B..Y.
@@ -191,7 +215,7 @@ GATE LOGIC:
 |L|x||H|
 |x|L||H|
 
-MY TEMPLATE, U8 ADDRESS:
+MY TEMPLATE, U8 ADDRESS (OBSOLETE):
 1   1   0   1 |  1   0   0   1 = 217
 4B, 4A, 3B, 3A | 2B, 2A, 1B, 1A
 */
@@ -220,6 +244,16 @@ public:
 		else { std::cout << "\nCouldn't open file!\n"; }
 		O.close();
 	}
+};
+
+/* ####### MICRO-CONTROLLER STM8S003F3P6TR: // [M1]
+The STM8S003x value line 8-bit microcontrollers feature 8 Kbytes Flash program memory,
+plus integrated true data EEPROM.*/
+
+class STM8S003F3P6TR
+{
+public:
+
 };
 
 // ###############################################################################################################################################################################

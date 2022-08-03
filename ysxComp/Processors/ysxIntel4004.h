@@ -7,6 +7,7 @@
 // ####### By Sophia Cristina
 // #######
 // ####### Intel 4004 processor emulator.
+// ####### The processor is not fidel emulation, check reference [1] for it.
 // #######
 // #####################
 
@@ -39,25 +40,24 @@ Clock = 740khz;
 
 struct Intel4002
 {
-    uint8_t RAM[16][4][16]; // Bank | CHIPS | Bytes
+    uint8_t RAM[16][4][16]; // Bank | CHIPS | Bytes !!! TO BE OUT OF HERE !!!
     uint8_t addr = 0, cm = 1;
     uint8_t stat[16][4][4];
     uint8_t out[16];
     uint8_t ph = 0, pm = 0, pl = 0;
 
+    /* DECODE 'addr':
+    0xAC: ph|pm|pl|
+    cm 1:  2| 2|12|
+       2:  6| 2|12|
+       4: 10| 2|12|
+       8: 14| 2|12|*/
     void ramAdrDecoder()
     {
-        /*RAM.addr = 0xAC;
-        RAMCM 1: 2
-        RAMCM 2: 6
-        RAMCM 4: 10
-        RAMCM 8: 14
-        pm: 2
-        pl: 14*/
         switch (cm)
         {
-        case 1:		// RAM bank 0         2; >> 6
-            ph = addr >> 6; // Ex.: AC = 10; 101100
+        case 1:		// RAM bank 0         2; addr >> 6
+            ph = addr >> 6; // Ex.: AC = 10;10.11.00
             break;
         case 2:		// RAM bank 1
             ph = 0x4 | addr >> 6;
@@ -70,7 +70,7 @@ struct Intel4002
             break;
         }
         //if (PROG & testFlag) { ph &= 0x1; }
-        pm = (addr & 0x30) >> 4; // AC -> 2
+        pm = (addr & 48) >> 4; // 10_10_1100 & 48 = 32; >>= 4; = 2;
         pl = addr & 0xf; // AC -> C
     }
 };
@@ -88,13 +88,13 @@ public:
     
     /* ### ROM:
     divided by 16 pages of 256 bytes, totalling 4096 bytes
-    !!! MAKE SURE TO BE 4096 BYTES !!!*/
+    !!! MAKE SURE TO HAVE 4096 BYTES !!!*/
     uint8_t* ROM;
     
     enum ePRG { stepFlag = 0, runFlag = 1, animFlag = 2, testFlag = 4 };
     /* PROG BITMAP *
     Think that it is a debugger, there are 5 bits free
-           testFlag
+           testFlag (use CT[] instead / for now)
            | ePRG
      00000 1 11
            4 21*/
@@ -115,7 +115,7 @@ public:
     // Consists of three 12-bit registers used to hold addresses of program instructions.
     // Since programs are always run in ROM or program RAM, the stack registers will always refer to ROM locations
     // or program RAM locations:
-    unsigned short PCs[4] = { 0, 0, 0, 0 }; // 16 bits, but only 12 bits used; T: 6B
+    uint16_t PCs[4] = { 0, 0, 0, 0 }; // 16 bits, but only 12 bits used; T: 6B
     //uint8_t PCs[6]; // Tenta fazer com ponteiros depois
 
     // CT: "var C_flag, T_flag;" | Ref.: [1]
@@ -126,7 +126,7 @@ public:
     // ### SYSTEM:
     void incPC() { PCs[0]++; PCs[0] &= 0xfff; if (PROG & testFlag) PCs[0] &= 255; }
     /*
-    Faze um BUS no lugar do ROM, fica mais realista. E pode usar outras fontes de BUS.
+    Fazer um BUS no lugar do ROM, fica mais realista. E pode usar outras fontes de BUS.
 
     */
     uint8_t nextCode() { incPC(); if (PCs[0] < 4096) { return(ROM[PCs[0]] & 255); } return(0); }
