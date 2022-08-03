@@ -10,8 +10,8 @@
 // ################################################# ANOTATIONS AND ALTERATIONS #################################################
 // !!!!!!!	
 // !!!!!!!	CHANGES (KEEP ORDER):
-// !!!!!!!	* ATTENTION: Soon i'm going to delete different functions for different data types, since it was just just noobness of my part;
-// !!!!!!!	
+// !!!!!!!	* ATTENTION: I'm going to delete different functions for different data types soon, since it was just just noobness of my part;
+// !!!!!!!	Removed "FileName += ".wav";" from constructor!
 // ################################################# ANOTATIONS AND ALTERATIONS #################################################
 // ############################################################################################################################################
 
@@ -143,41 +143,13 @@ signed: 32767 & -32768 | unsigned: 65535*/
 
 // #####################################################################################################################################
 
-// #####################################################################################################################################
-// #####################################################################################################################################
-// #####################################################################################################################################
-
-// #####################################################################################################################################
-// #####################################################################################################################################
-// #####################################################################################################################################
-// ####### FUNCTIONS #######
-
+// RETURN AN EMPTY HEADER TEMPLATE:
 std::string WAVEHeaderHex()
 {
+	// decimal: 2948802364898608268190755917197372413344555719335282424875914519085364177445035852103193336182040757796864
 	return("52494646a400000057415645666d7420100000000100010044ac000088580100020010006461746180000000"); // A WAVE FILE HEADER IN HEXADECIMAL:
 }
 
-/*std::vector<uint8_t> MemoHeaderChar() // not tested
-{
-	std::vector<uint8_t> Buf(44); uint8_t* p = &Buf[0];
-	uint8_t RIFF[4]; uint8_t * q = (uint8_t*)RIFF; LOOP4{ *p = *q; ++p; ++q; }
-	uint32_t ChunkSize = 36; q = (uint8_t*)&ChunkSize; LOOP4{ *p = *q; ++p; ++q; }
-	uint8_t WAVE[4]; q = (uint8_t*)WAVE; LOOP4{ *p = *q; ++p; ++q; }
-	uint8_t fmt[4]; q = (uint8_t*)fmt; LOOP4{ *p = *q; ++p; ++q; }
-	uint32_t Size = 16; q = (uint8_t*)&Size; LOOP4{ *p = *q; ++p; ++q; }
-	uint16_t AudioFormat = 1; q = (uint8_t*)&AudioFormat; for (uint8_t n = 0; n < 2; ++n) { *p = *q; ++p; ++q; }
-	uint16_t Channels = 1; q = (uint8_t*)&Channels; for (uint8_t n = 0; n < 2; ++n) { *p = *q; ++p; ++q; }
-	uint32_t SRate = 44100; q = (uint8_t*)&SRate; LOOP4{ *p = *q; ++p; ++q; }
-	uint32_t ByteRate = 88200; q = (uint8_t*)&ByteRate; LOOP4{ *p = *q; ++p; ++q; }
-	uint16_t BlockAlign = 2; q = (uint8_t*)&BlockAlign; for (uint8_t n = 0; n < 2; ++n) { *p = *q; ++p; ++q; }
-	uint16_t BitsPerSample = 16; q = (uint8_t*)&BitsPerSample; for (uint8_t n = 0; n < 2; ++n) { *p = *q; ++p; ++q; }
-	uint8_t ID[4]; q = (uint8_t*)ID; LOOP4{ *p = *q; ++p; ++q; }
-	uint32_t Size2 = 0; q = (uint8_t*)&Size2; LOOP4{ *p = *q; ++p; ++q; }
-	return(Buf);
-}*/
-
-// #####################################################################################################################################
-// #####################################################################################################################################
 // #####################################################################################################################################
 // ####### CLASSES #######
 
@@ -187,10 +159,10 @@ public:
 	enum ByteMapping
 	{
 		bRIFF = 0, bChunkSize = 4, bFormat = 8, bSubChunk1ID = 12, bSubChunk1Size = 16, bAudioFormat = 20, bChannels = 22, bSRate = 24,
-		bByteRate = 28, bBlockAlign = 32, bBitsPetSample = 34, bSubChunk2ID = 36, bSubchunk2Size = 40, bDataBegin = 44
+		bByteRate = 28, bBlockAlign = 32, bBitsPetSample = 34, bSubChunk2ID = 36, bSubchunk2Size = 40, bDataBeg = 44
 	};
-	std::string Path; std::fstream wavFile; uint32_t FileSize;
-	wavRIFF RIFF; wavFMT FMT; wavDATA DATA; // Chunks
+	std::string Path; std::fstream wavFile; uint32_t FileSize; // File stuffs
+	wavRIFF RIFF; wavFMT FMT; wavDATA DATA; // Header chunks
 
 	// #################################################
 	// #################################################
@@ -210,9 +182,7 @@ public:
 
 	WAVEFile(std::string FileName, uint32_t SampleRate, uint16_t Channels = 1, uint8_t BitsPerSample = 8)
 	{
-		FileName += ".wav";
-		std::ofstream CREATE(FileName, std::ios::binary);
-		CREATE.close();
+		std::ofstream CREATE(FileName, std::ios::binary); CREATE.close();
 		if (wavFile.is_open()) { wavFile.close(); }
 		wavFile.open(FileName, std::ios::in | std::ios::out | std::ios::binary);
 		Path = FileName;
@@ -265,6 +235,7 @@ public:
 	// GET CHUNK SIZE:
 	//int GetChunkSize() { return(36 + DATA.Size); }
 	uint32_t GetChunkSize() { return(20 + FMT.Size + DATA.Size); }
+	void SetChunkSize() { RIFF.ChunkSize = 20 + FMT.Size + DATA.Size; }
 
 	// CHECK IF THE CHUNK IS SIZED CORRECTLY:
 	bool IsSizeCorrect() { if (RIFF.ChunkSize == 20 + FMT.Size + DATA.Size) { return(true); } return(false); }
@@ -274,7 +245,7 @@ public:
 	// #################################################
 
 	// GET NUMBER OF BYTES:
-	void RefreshFileSize() { wavFile.seekg(0, std::ios::end); FileSize = wavFile.tellg(); wavFile.seekg(0, std::ios::beg); wavFile.seekp(0, std::ios::beg);	}
+	void RefreshFileSize() { wavFile.seekg(0, std::ios::end); FileSize = wavFile.tellg(); wavFile.seekg(0, std::ios::beg); }
 
 	// PREPARE CHUNK STRUCTURES:
 	void ReadHeader()
@@ -285,15 +256,16 @@ public:
 		wavFile.seekg(0, std::ios::beg);
 	}
 
-	// REFRESH THE HEADER VALUES:
+	// REFRESH HEADER VALUES:
 	void RefreshHeader()
 	{
-		if (FileSize <= 44) { DATA.Size = 0; } else { DATA.Size = FileSize - 44; } RIFF.ChunkSize = GetChunkSize();
+		FileSize < 45 ? DATA.Size = 0 : DATA.Size = FileSize - 44;
+		SetChunkSize();
 		FMT.BlockAlign = FMT.Channels * (FMT.BitsPerSample / 8);
 		FMT.ByteRate = FMT.SRate * FMT.BlockAlign;		
 	}
 
-	// CHANGE SAMPLE RATE IN HEADER FILE AND THE OBJECTS THAT DEPENDS ON IT:
+	// CHANGE SAMPLE RATE IN HEADER FILE AND THE OBJECTS THAT DEPENDS OF IT:
 	void ChangeSRate(uint32_t NewSRate)
 	{
 		FMT.SRate = NewSRate;
@@ -301,7 +273,7 @@ public:
 		FMT.ByteRate = FMT.SRate * FMT.BlockAlign;
 	}
 
-	// CHANGE NUMBER OF CHANNELS IN HEADER FILE AND THE OBJECTS THAT DEPENDS ON IT:
+	// CHANGE NUMBER OF CHANNELS IN HEADER FILE AND THE OBJECTS THAT DEPENDS OF IT:
 	void ChangeChannels(uint32_t NumChannels)
 	{
 		FMT.Channels = NumChannels;
@@ -314,14 +286,10 @@ public:
 	{
 		wavFile.seekp(0, std::ios::beg);
 		char Buf[44]; char* p = Buf;
-		RefreshFileSize();
-		RefreshHeader();
-
-		// 12 + 24 + 8
-		char* q = (char*)&RIFF; for (int n = 0; n < 12; ++n) { *p = *q; ++p; ++q; }
-		q = (char*)&FMT; for (int n = 0; n < 24; ++n) { *p = *q; ++p; ++q; }
-		q = (char*)&DATA; for (int n = 0; n < 8; ++n) { *p = *q; ++p; ++q; }
-		wavFile.write((char*)Buf, sizeof(Buf));
+		RefreshFileSize(); RefreshHeader();
+		wavFile.write((char*)&RIFF, sizeof(wavRIFF));
+		wavFile.write((char*)&FMT, sizeof(wavFMT));
+		wavFile.write((char*)&DATA, sizeof(wavDATA));
 		wavFile.seekp(0, std::ios::beg);
 	}
 
@@ -349,7 +317,7 @@ public:
 		wavFile.seekg(0, std::ios::end);
 		FileSize = wavFile.tellg();
 		DATA.Size = (FileSize - 44) / (FMT.BitsPerSample / 8);
-		RIFF.ChunkSize = GetChunkSize();
+		SetChunkSize();
 		wavFile.seekp(4); wavFile.write((char*)&RIFF.ChunkSize, sizeof(uint32_t));
 		wavFile.seekp(40); wavFile.write((char*)&DATA.Size, sizeof(uint32_t));
 		wavFile.seekp(0, std::ios::beg); wavFile.seekg(0, std::ios::beg);
@@ -435,55 +403,49 @@ public:
 
 	// #################################################
 
-	// GET SHORT INT DATA, THIS IS THE STANDARD SIZE OF DATA (2 BYTES):
-	std::vector<uint16_t> GetDataSHINT(int Index, int Size)
+	// GET DATA:
+	template <class T_>
+	std::vector<T_> GetData(size_t Index, size_t Size)
 	{
-		uint8_t Bytes = sizeof(uint16_t);
-		Index *= Bytes; Size *= Bytes;
+		uint8_t B = sizeof(T_);
+		std::vector<T_> GETDATA(Size);
+		Index *= B; Size *= B;
 		wavFile.seekg(0, std::ios::end);
-		int End = wavFile.tellg();
-		int pos = End - DATA.Size;
-		int Begin = pos + Index;
-		if (Index + Size > End) { Size -= Index + Size - End; End = Index + Size; }
+		size_t End = wavFile.tellg();
+		size_t pos = End - DATA.Size;
+		size_t Beg = pos + Index;
+		if (Beg + Size > End) { Size -= Beg + Size - End; End = Beg + Size; }
 		else { End = Index + Size + pos; }
-
-		uint16_t ReadSample;
-
-		wavFile.seekg(Begin);
-		std::vector<uint16_t> GETDATA;
-		for (int n = Begin; n < End; )
-		{
-			wavFile.read((char*)&ReadSample, Bytes);
-			GETDATA.push_back(ReadSample);
-			n = wavFile.tellg();
-		}
+		wavFile.seekg(Beg);
+		wavFile.read((char*)&GETDATA[0], Size);
 		wavFile.seekg(0, std::ios::beg);
 		return(GETDATA);
 	}
 
-	// GET SHORT INT DATA FROM EITHER LEFT OR RIGHT CHANNEL:
-	std::vector<uint16_t> GetDataSHINTChannel(int Index, int Size, bool LeftRight)
+	// GET DATA FROM EITHER LEFT OR RIGHT CHANNEL:
+	template <class T_>
+	std::vector<T_> GetDataByChannel(size_t Index, size_t Size, bool LeftRight = false)
 	{
-		int Bytes = sizeof(uint16_t);
-		Index *= Bytes; Size *= Bytes;
+		uint8_t B = sizeof(T_);
+		std::vector<T_> GETDATA;
+		Index *= B; Size *= B;
 		wavFile.seekg(0, std::ios::end);
-		int End = wavFile.tellg();
-		int pos = End - DATA.Size;
-		int Begin = pos + Index;
-		if (Index + Size > End) { Size -= Index + Size - End; End = Index + Size; }
+		size_t End = wavFile.tellg();
+		size_t pos = End - DATA.Size;
+		size_t Beg = pos + Index;
+		if (Beg + Size > End) { Size -= Beg + Size - End; End = Beg + Size; }
 		else { End = Index + Size + pos; }
-		bool Switch = true;
-		if (LeftRight) { Switch = false; }
+		uint16_t Read;
 
-		uint16_t ReadSample;
-
-		wavFile.seekg(Begin);
-		std::vector<uint16_t> GETDATA;
-		for (int n = Begin; n < End; )
+		wavFile.seekg(Beg);		
+		for (size_t n = Beg; n < End; )
 		{
-			wavFile.read((char*)&ReadSample, Bytes);
-			if (Switch) { GETDATA.push_back(ReadSample); Switch = false; }
-			else { Switch = true; }
+			if (!LeftRight)
+			{
+				wavFile.read((char*)&Read, B);
+				GETDATA.push_back(Read); LeftRight = true;
+			}
+			else { LeftRight = false; }
 			n = wavFile.tellg();
 		}
 		wavFile.seekg(0, std::ios::beg);
@@ -498,36 +460,32 @@ public:
 	template <class T_>
 	std::vector<double> GetDataReadyToUse(uint32_t Index, uint32_t Size, bool LeftRight = false)
 	{
-		std::vector<double> GETDATA;
-		uint8_t Bytes = sizeof(T_);
-		if (Bytes == FMT.BitsPerSample / 8)
+		uint8_t B = sizeof(T_);
+		wavFile.seekg(0, std::ios::end);
+		uint32_t eof = wavFile.tellg();
+		uint32_t Beg = (eof - (DATA.Size * B)) + Index; if (Beg >= eof) { Beg = eof - B; Size = B; }
+		wavFile.seekg(Beg);
+		uint32_t End = Beg + Size; if (End > eof) { End = eof; }
+		std::vector<double> GETDATA(End - Beg);
+		
+		if (B == FMT.BitsPerSample / 8)
 		{
-			if (Bytes == 0) { Bytes = 1; } if (Bytes > 2) { Bytes = 2; } // !!!!!!! POR ENQUANTO SÓ SHORT INT !!!!!!!
-			if (FMT.BitsPerSample % 8 == 0) // !!! PARA GARANTIR O NUMERO DE BYTES PARA OS COMPARADORES !!!
+			if (B == 0) { B = 1; } //if (B > 2) { B = 2; }
+			if (!(FMT.BitsPerSample % 8)) // !!! PARA GARANTIR O NUMERO DE BYTES PARA OS COMPARADORES !!!
 			{
-				Index *= Bytes; Size *= Bytes;
-				wavFile.seekg(0, std::ios::end); uint32_t eof = wavFile.tellg();
-				uint32_t pos = eof - (DATA.Size * Bytes);
-				uint32_t Begin = pos + Index; if (Begin >= eof) { Begin = eof - Bytes; Size = Bytes; }
-				wavFile.seekg(Begin);
-				uint32_t End = Begin + Size; if (End > eof) { End = eof; }
-
-				GETDATA = std::vector<double>::vector(End - Begin);
-				for (uint32_t n = Begin; n < End; )
+				Index *= B; Size *= B;
+				for (uint32_t n = Beg; n < End; )
 				{
 					double Push;
-					T_ Val; wavFile.read((char*)&Val, Bytes); // !!!!!!! POR ENQUANTO SÓ SHORT INT !!!!!!!
-					//cout << "VAL: " << Push <<  " | ";
-					//if (Push > 0) { Push /= (pow(256, Bytes) / 2.0) - 1; } else { Push /= pow(256, Bytes) / 2.0; }
-					if (Val > 0) { Push = (Val / ((pow(256, Bytes) - 1) * 0.5)) - 1; } else { Push = -1; }
-					if (FMT.Channels == 1) { /*cout << "PUSH: " << Push << std::endl;*/ GETDATA[n - Begin] = Push; }
-					else { if (!LeftRight) { /*cout << "PUSH: " << Push << '\n';*/ GETDATA[n - Begin] = Push; LeftRight = true; } else { LeftRight = false; } }
-
+					T_ Val; wavFile.read((char*)&Val, B);
+					Push = (2 * Val / (pow(256, B) - 1)) - 1;
+					if (FMT.Channels == 1) { GETDATA[n - Beg] = Push; }
+					else { if (!LeftRight) { GETDATA[n - Beg] = Push; LeftRight = true; } else { LeftRight = false; } }
 					n = wavFile.tellg();
 				}
 				wavFile.seekg(0, std::ios::beg);
 			}
-			else { std::cerr << "Incompatible 'bits per sample' to 2^n!"; }
+			else { std::cerr << "Bits per sample needs to be equal to 2^n!"; }
 		}
 		else { std::cerr << "size of 'Type' (T_) is different than 'FMT.BitPerSample / 8'!"; }
 		return(GETDATA);
@@ -542,14 +500,14 @@ public:
 	std::vector<T_> PrepareData(std::vector<double> In)
 	{
 		std::vector<T_> Buf(In.size());
-		for (int n = 0; n < In.size(); ++n)	{ Buf[n] = round((In[n] + 1) * 0.5 * (pow(256, sizeof(T_)) - 1)); }
+		for (size_t n = 0; n < In.size(); ++n)	{ Buf[n] = round((In[n] + 1) * 0.5 * (pow(256, sizeof(T_)) - 1)); }
 		return(Buf);
 	}
 	template <class T_>
 	std::vector<T_> PrepareData(std::vector<float> In)
 	{
 		std::vector<T_> Buf(In.size());
-		for (int n = 0; n < In.size(); ++n) { Buf[n] = round((In[n] + 1) * 0.5 * (pow(256, sizeof(T_)) - 1)); }
+		for (size_t n = 0; n < In.size(); ++n) { Buf[n] = round((In[n] + 1) * 0.5 * (pow(256, sizeof(T_)) - 1)); }
 		return(Buf);
 	}
 
@@ -578,9 +536,9 @@ public:
 		size_t Is = In.size();
 		std::array<T_, Is> Buf;
 		wavFile.seekp(44); uint16_t Bs = sizeof(T_);
-		for (int n = 0; n < Buf.size(); ++n)
+		for (size_t n = 0; n < Buf.size(); ++n)
 		{
-			//for (int Channel = 0; Channel < FMT.Channels; ++Channel)
+			//for (size_t Channel = 0; Channel < FMT.Channels; ++Channel)
 			//{
 				if (LeftRight) { wavFile.seekp(wavFile.tellp() + Bs); }
 				Buf[n] = round((In[n] + 1) * 0.5 * (pow(256, sizeof(T_)) - 1));
@@ -592,9 +550,9 @@ public:
 	}
 
 	template <class T_>	void SaveDataT_(std::vector<T_> In)
-	{ wavFile.seekp(44); for (int n = 0; n < In.size(); ++n) { wavFile.write((char*)&In[n], sizeof(T_)); } ReWriteSizes(); ReOpenFile(); }
+	{ wavFile.seekp(44); for (size_t n = 0; n < In.size(); ++n) { wavFile.write((char*)&In[n], sizeof(T_)); } ReWriteSizes(); ReOpenFile(); }
 	template <class T_>	void SaveDataT_(T_* In, uint32_t Size)
-	{ wavFile.seekp(44); for (int n = 0; n < Size; ++n) { wavFile.write((char*)&In[n], sizeof(T_)); } ReWriteSizes(); ReOpenFile(); }
+	{ wavFile.seekp(44); for (size_t n = 0; n < Size; ++n) { wavFile.write((char*)&In[n], sizeof(T_)); } ReWriteSizes(); ReOpenFile(); }
 
 	// #################################################
 	
@@ -603,7 +561,7 @@ public:
 	{
 		size_t Is = In.size();
 		std::array<T_, Is> Buf;
-		int Begin = (Index * sizeof(T_)) + 44; wavFile.seekp(Begin);
+		size_t Beg = (Index * sizeof(T_)) + 44; wavFile.seekp(Beg);
 		for (size_t n = 0; n < Is; ++n)
 		{
 			for (uint8_t Channel = 0; Channel < FMT.Channels; ++Channel)
@@ -620,7 +578,7 @@ public:
 	{
 		size_t Is = In.size();
 		std::array<T_, Is> Buf;
-		int Begin = (Index * sizeof(T_)) + 44; wavFile.seekp(Begin);
+		size_t Beg = (Index * sizeof(T_)) + 44; wavFile.seekp(Beg);
 		for (size_t n = 0; n < Is; ++n)
 		{
 			for (uint8_t Channel = 0; Channel < FMT.Channels; ++Channel)
@@ -635,14 +593,14 @@ public:
 
 	template <class T_> void SaveDataT_Index(std::vector<T_> In, uint32_t Index)
 	{
-		int Begin = (Index * sizeof(T_)) + 44; wavFile.seekp(Begin);
-		for (int n = 0; n < In.size(); ++n) { wavFile.write((char*)&In[n], sizeof(T_)); }
+		size_t Beg = (Index * sizeof(T_)) + 44; wavFile.seekp(Beg);
+		for (size_t n = 0; n < In.size(); ++n) { wavFile.write((char*)&In[n], sizeof(T_)); }
 		ReWriteSizes();	ReOpenFile();
 	}
 	template <class T_> void SaveDataT_Index(T_* In, uint32_t Size, uint32_t Index)
 	{
-		int Begin = (Index * sizeof(T_)) + 44; wavFile.seekp(Begin);
-		for (int n = 0; n < Size; ++n) { wavFile.write((char*)&In[n], sizeof(T_)); }
+		size_t Beg = (Index * sizeof(T_)) + 44; wavFile.seekp(Beg);
+		for (size_t n = 0; n < Size; ++n) { wavFile.write((char*)&In[n], sizeof(T_)); }
 		ReWriteSizes();	ReOpenFile();
 	}
 
@@ -670,7 +628,7 @@ public:
 		size_t Is = In.size();
 		std::array<T_, Is> Buf;
 		wavFile.seekp(0, std::ios::end); uint16_t Bs = sizeof(T_);
-		for (int n = 0; n < Buf.size(); ++n)
+		for (size_t n = 0; n < Buf.size(); ++n)
 		{
 			if (LeftRight) { wavFile.seekp(wavFile.tellp() + Bs); }
 			Buf[n] = round((In[n] + 1) * 0.5 * (pow(256, sizeof(T_)) - 1));
@@ -681,20 +639,9 @@ public:
 	}
 
 	template <class T_>	void AppDataT_(std::vector<T_> In)
-	{ wavFile.seekp(0, std::ios::end); for (int n = 0; n < In.size(); ++n) { wavFile.write((char*)&In[n], sizeof(T_)); } ReWriteSizes(); ReOpenFile(); }
+	{ wavFile.seekp(0, std::ios::end); for (size_t n = 0; n < In.size(); ++n) { wavFile.write((char*)&In[n], sizeof(T_)); } ReWriteSizes(); ReOpenFile(); }
 	template <class T_>	void AppDataT_(T_* In, uint32_t Size)
-	{ wavFile.seekp(0, std::ios::end); for (int n = 0; n < Size; ++n) { wavFile.write((char*)&In[n], sizeof(T_)); } ReWriteSizes(); ReOpenFile(); }
+	{ wavFile.seekp(0, std::ios::end); for (size_t n = 0; n < Size; ++n) { wavFile.write((char*)&In[n], sizeof(T_)); } ReWriteSizes(); ReOpenFile(); }
 };
-
-
-// #####################################################################################################################################
-// #####################################################################################################################################
-// #####################################################################################################################################
-
-// #####################################################################################################################################
-// #######  #######
-
-// #####################################################################################################################################
-// ################################################# FIM ####################################################################################
 
 #endif // SCPARSE_
