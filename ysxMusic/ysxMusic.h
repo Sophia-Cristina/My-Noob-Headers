@@ -16,8 +16,9 @@
 
 // ############################
 // ####### INSTRUMENT AND RELATED:
-template<class Stream, class PatSize, class GainT>
-struct Instr { SigStream<Stream>* S; PatSize Ptrn = 0; GainT g = 0; };
+// POINTS TO A 'SigSynth<Stream>' AND CREATES A BITWISE MUSIC PATTERN (MUSIC BAR):
+template<class Stream, class PatSize>
+struct Instr { SigSynth<Stream>* S; PatSize Ptrn; };
 
 // ############################
 // ####### CLOCK / TIME:

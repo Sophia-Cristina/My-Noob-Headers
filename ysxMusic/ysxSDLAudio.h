@@ -113,16 +113,15 @@ struct SignalData { Uint8* Pos; Uint32 Count; Uint32 Samples; };
 // ~| 0 | 1 | 2 | 3 || 4 | 5 | 6 | 7 |~ BYTES
 //  |Pos| .	| .	| .	|| . |B.S|Set| % |~ SIZE // B.S = Block Size = 6 samples (example)
 //	| _	| _ | _	|B.S||Set| _ | _ | % |
-void SignalCall(void* Data, Uint8* Stream, int StreamSamples)
+void SignalCall(void* Data, Uint8* Stream, uint32_t StreamSamples)
 {
 	SignalData* S = (SignalData*)Data;
 	Uint32 Left = S->Samples - S->Count;
-	Uint16 BS = (Uint32)StreamSamples;
+	Uint16 BS = StreamSamples;
 	Uint32 Samples = BS > Left ? Left : BS; // If 'Block Size' is bigger than the space left...
 	SDL_memcpy(Stream, &S->Pos[S->Count], Samples); // ... For now we add every sample possible.
 	if (Samples < BS) { SDL_memcpy(Stream, &S->Pos[0], BS - Samples); } // And now we add the rest.
 	S->Count += BS; S->Count %= S->Samples; // Loop if needed! Pos. should be seem as a constant, however, you can change.
-	//std::cout << "C: " << S->Count << std::endl;
 }
 
 // CALLBACK FOR WAV FILES:
@@ -162,33 +161,39 @@ SDL_AudioSpec NewAuSpec(Uint32 SampleRate, Uint16 BlockSize, Uint8 BytesPerSampl
 // ####### INFOS #######
 
 // COUT SPEC FORMAT:
-void CoutFormat(Uint16 Format)
+std::string SDLStringFormat(Uint16 Format)
 {
-	std::cout << "# Format #\n";
-	std::cout << "Value: " << Format << std::endl;
-	if (Format & 0x8000) { std::cout << "* Signed\n"; }
-	else { std::cout << "* Unsigned\n"; }
-	if (Format & 0x1000) { std::cout << "* Big Endian\n"; }
-	else { std::cout << "* Little Endian\n"; }
-	Format = Format & 255;
-	std::cout << "* Bits: " << Format << std::endl;
+	std::string s = "# Format #\n"; s += "Value: " + std::to_string(Format) + '\n';
+	Format & 0x8000 ? s += "* Signed\n" : s += "* Unsigned\n";
+	Format & 0x1000 ? s += "* Big Endian\n" : s += "* Little Endian\n";
+	s += "* Bits: " + std::to_string(Format & 255) + '\n';
+	return(s);
 }
 
 // COUT SPECT:
-void CoutSpec(SDL_AudioSpec Spec)
+std::string SDLStringSpec(SDL_AudioSpec& Spec)
 {
-	std::cout << "Sample Rate: " << Spec.freq << std::endl;
-	std::cout << "Channels: " << (int)Spec.channels << std::endl;
-	std::cout << "Samples: " << Spec.samples << std::endl;
-	std::cout << "Size: " << Spec.size << std::endl;
-	CoutFormat(Spec.format);
-
+	std::string s = "Sample Rate: ";
+	s += std::to_string(Spec.freq) + '\n' + "Channels: " + std::to_string((int)Spec.channels) + '\n';
+	s += "Samples: " + std::to_string(Spec.samples) + '\n' + "Size: " + std::to_string(Spec.size) + '\n';
+	SDLStringFormat(Spec.format);
+	return(s);
 }
 
 // COUT DATA:
-void CoutData(AudioData D) { std::cout << "Pos.: " << (Uint32)D.Pos << " | Samples: " << D.Samples << std::endl; }
-void CoutData(LoopData D) { std::cout << "Pos.: " << (Uint32)D.Pos << " | Smp. Left: " << D.SmpLeft << " | Loop Samples: " << D.Size << std::endl; }
-void CoutData(SignalData D) { std::cout << "Ini. Pos.: " << (Uint32)D.Pos << " | Total Samples: " << D.Samples << " | Current pos.: " << D.Count << std::endl; }
+std::string SDLStringData(AudioData& D) { std::string s = "Pos.: "; s += std::to_string((Uint32)D.Pos) + " | Samples: " + std::to_string(D.Samples) + '\n'; return(s); }
+std::string SDLStringData(LoopData& D)
+{
+	std::string s = "Pos.: "; s += std::to_string((Uint32)D.Pos) + " | Smp. Left: " + std::to_string(D.SmpLeft)
+		+ " | Loop Samples: " + std::to_string(D.Size) + '\n';
+	return(s);
+}
+std::string SDLStringData(SignalData& D)
+{
+	std::string s = "Ini. Pos.: "; s += std::to_string((Uint32)D.Pos) + " | Total Samples: " + std::to_string(D.Samples)
+		+ " | Current pos.: " + std::to_string(D.Count) + '\n';
+	return(s);
+}
 
 // ###############################################################################################################################################################################
 
@@ -322,7 +327,6 @@ public:
 class SDLAudioStream // [3]
 {
 public:
-
 	// You put data at Sint16/mono/22050Hz, you get back data at Float32/stereo/48000Hz
 	SDL_AudioStream* Stream;
 	Sint16 *Samples;
