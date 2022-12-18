@@ -3,22 +3,22 @@
 #ifndef YSXMATH_H
 #define YSXMATH_H
 
-// #####################
-// ####### By Sophia Cristina
-// ####### Header made to deal with technical aspects of math stuffs.
-// ####### It also contain some math formulaes...
-// ####### But you should check below some internal includes.
-// #####################
+/*#####################
+####### By Sophia Cristina
+####### Header made to deal with technical aspects of math stuffs.
+####### It also contain some math formulaes...
+####### But you should check below some internal includes.
+#####################*/
 
 #include <string>
-#include <string.h>
 #include <iomanip>
-#include <iostream>
 #include <fstream>
+
 // MATEMATICAS:
 #include <math.h> // #include <cmath>
 #include <functional> // Objects specifically designed to be used with a syntax similar to that of functions
 #include <algorithm> // Collection of functions especially designed to be used on ranges of elements
+#include <complex>
 
 // CONTAINERS:
 #include <array> // Fixed-size sequence containers
@@ -69,20 +69,20 @@
 // #####################################################################################################################################
 // ############## FORWARD DECLARATIONS ##############
 // Extern:
-double SphereSurf(double);
-double WaveLgh(double, double);
-double MiniForm(double, double);
-double Derivative(double, double); double Derivative(double, double, double);
-double Derivative(double, double, double, double); double Derivative(double, double, double, double, double);
-double d2xdt2(double, double);
-double LawSinRad(double, double, double);
-double MtoFMini(uint8_t);
+//double ysxSPHERE_Surf(double);
+//double WaveLgh(double, double);
+//double Deriv(double, double);
+//double Deriv(double, double, double);
+//double Deriv(double, double, double, double);
+//double Deriv(double, double, double, double, double);
+//double d2xdt2(double, double);
+//double LawSinRad(double, double, double);
 
 // Intern:
-template <class T_> T_ SumVec(std::vector<T_>);
-template <class T_> T_ MultVec(std::vector<T_>);
-template <class T_> std::vector<T_> PowVec(std::vector<T_>, T_);
-double Average(std::vector<double>);
+//template <class T_> T_ SumVec(std::vector<T_>);
+//template <class T_> T_ MultVec(std::vector<T_>);
+//template <class T_> std::vector<T_> PowVec(std::vector<T_>, T_);
+//double Average(std::vector<double>);
 
 // #####################################################################################################################################
 // ############## TOOLS ##############
@@ -101,15 +101,16 @@ template <class T_, class T__> struct IdxVal { T_ i; T__ v; }; // Index and Valu
 #include "ysxplg/ysxConst.h"
 #include "ysxplg/ysxTable.h" // Const tables
 #include "ysxplg/ysxConv.h" // Conversors
+#include "ysxplg/ysxTime.h" // Time things, but NOT system clock
 #include "ysxplg/ysxVector.h" // std::vector
-#include "ysxplg/ysxPhys.h" // Physics
 #include "ysxGeo/ysxGeo.h" // Geometry
 #include "ysxplg/ysxCalc.h" // Calculus
+#include "ysxplg/ysxPhys.h" // Physics
 #include "ysxplg/ysxField.h" // Field arithmetics
 #include "ysxMech/ysxEngn.h" // Engineering stuffs
 #include "ysxElec/ysxElectr.h" // Some trigonomotry in 'ysxGeo.h'. Also #include 'ysxBytes.h' and 'ysxSignal.h'.
-#include "ysxMusic/ysxSynth.h"
 #include "ysxMusic/ysxMusic.h"
+#include "ysxMusic/ysxSynth.h"
 #include "ysxplg/ysxMoney.h" // Things about money and related to economy and etc...
 #include "ysxplg/ysxFractal.h"
 
@@ -151,7 +152,7 @@ int LCM(int a, int b) { a = abs(a); b = abs(b); return (a * b / GCD(a, b)); }
 std::vector<int> Factors(int n) { std::vector<int> V; for (size_t m = 1; m <= n; ++m) { if (0 == n % m) { V.push_back(m); } } return (V); }
 
 // DIVISOR FUNCTION (When x is 1, the function is called the sigma function or sum - of - divisors function)
-int DivFunc(int n, int Power) { std::vector<int> Fac = PowVec(Factors(n), Power); int Sum = SumVec(Fac); return(Sum); }
+int DivFunc(int n, int Power) { std::vector<int> Fac = ysxVEC_PowVec(Factors(n), Power); int Sum = ysxVEC_SumVec(Fac); return(Sum); }
 
 // ####### AVERAGES AND RATIOS:
 // ARITHMETIC MEAN:
@@ -202,7 +203,7 @@ double CubeofTwoCubes(double x, double y) { return(pow((x * x * x) + (y * y * y)
 // ############################
 // ####### ALGEBRA:
 // FACTORIAL:
-long long Fact(int a) { int Fact = 1; if (a > 0) { for (size_t n = 1; n <= a; ++n) { Fact *= n; } return (Fact); } else { return (1); } }
+size_t Fact(size_t a) { size_t Fact = 1; if (a > 0) { for (size_t n = 1; n <= a; ++n) { Fact *= n; } return (Fact); } else { return (1); } }
 
 // QUADRATIC EQUATION:
 Point<double> QuadraticEq(double a, double b, double c)
@@ -507,7 +508,7 @@ void CoutText(std::string Filename)
 }
 
 // COUT VECTOR:
-template <class T_> void CoutArray(T_* Ini, unsigned long Size) { for (size_t n = 0; n < Size; ++n) { std::cout << n << ": " << Ini[n] << std::endl; } }
+template <class T_> void CoutArray(T_* Ini, size_t Size) { for (size_t n = 0; n < Size; ++n) { std::cout << n << ": " << Ini[n] << std::endl; } }
 template <class T_> void CoutVector(std::vector<T_> Vec)
 { for (size_t n = 0; n < Vec.size(); ++n) { std::cout << n << ": " << Vec[n] << std::endl; } }
 template <class T_> void CoutVector(std::vector<Point<T_>> Vec)
@@ -539,9 +540,9 @@ template <class T_> void CoutVector(std::vector<Point3D<T_>> Vec, int Cols)
 }
 
 // COUT STRING AS UINT:
-void CoutStringUInt(std::string Str) { unsigned short i; for (size_t n = 0; n < Str.size(); ++n) { i = Str[n]; std::cout << n << ": " << i << std::endl; } }
+void CoutStringUInt(std::string Str) { uint16_t i; for (size_t n = 0; n < Str.size(); ++n) { i = Str[n]; std::cout << n << ": " << i << std::endl; } }
 void CoutStringUInt(std::string Str, int Cols)
-{ unsigned short i; for (size_t n = 0; n < Str.size(); ++n) { i = Str[n]; std::cout << n << ": " << i << " "; if (n % Cols == Cols - 1) { std::cout << std::endl; } } }
+{ uint16_t i; for (size_t n = 0; n < Str.size(); ++n) { i = Str[n]; std::cout << n << ": " << i << " "; if (n % Cols == Cols - 1) { std::cout << std::endl; } } }
 
 // ################################################# FIM ####################################################################################
 
@@ -758,13 +759,21 @@ void CoutProgressBar(double ZeroToOne, int Size, std::string BarName)
 
 // ############## RANDOM ##############
 // RANDOM-N FOR M-TIMES:
-std::vector<int> Randomnm(int n, size_t m) { std::vector<int> v(m); for (size_t a = 0; a < m; ++a) { v[m] = rand() % n; } return(v); }
+std::vector<uint32_t> Randomnm(uint32_t n, size_t m) { std::vector<uint32_t> v(m); for (size_t a = 0; a < m; ++a) { v[m] = rand() % n; } return(v); }
+void CoutRandomnm(uint32_t n, size_t m)
+{
+	for (size_t a = 0; a < m; ++a)
+	{
+		std::cout << m << ": " << rand() % n;
+		if (m % 8 == 7) { std::cout << '\n'; } else { std::cout << ' '; }
+	}
+}
 
 // RANDOM N TIMES:
-std::vector<Point<unsigned short>> RandomDominoes(size_t Tries)
+std::vector<Point<uint8_t>> RandomDominoes(size_t Tries)
 {
-	std::vector<Point<unsigned short>> Pts(Tries);
-	for (size_t a = 0; a < Tries; ++a) { Point<unsigned short> Pt; Pt.x = rand() % 7; Pt.y = rand() % 7; Pts[a] = Pt; }
+	std::vector<Point<uint8_t>> Pts(Tries);
+	for (size_t a = 0; a < Tries; ++a) { Pts[a].x = rand() % 7; Pts[a].y = rand() % 7; }
 	return(Pts);
 }
 
@@ -772,13 +781,14 @@ std::vector<Point<unsigned short>> RandomDominoes(size_t Tries)
 std::vector<NameValue<uint8_t>> RandomCard(size_t Tries)
 {
 	std::vector<NameValue<uint8_t>> Cards(Tries);
-	NameValue<uint8_t> Card;
+	NameValue<uint8_t> Card; uint8_t Naipe;
 	for (size_t a = 0; a < Tries; ++a)
 	{
-		Card.Value = (rand() % 13) + 1;
-		int Naipe = rand() % 4; if (Naipe == 0) { Card.Name = "Hearts"; } else if (Naipe == 1) { Card.Name = "Diamonds"; }
+		Card.Value = (rand() % 13) + 1;	Naipe = rand() % 4;
+		if (!Naipe) { Card.Name = "Hearts"; } else if (Naipe == 1) { Card.Name = "Diamonds"; }
 		else if (Naipe == 2) { Card.Name = "Spades"; } else { Card.Name = "Clubs"; }
-		if (Card.Value == 13) { Card.Name += " - King"; } if (Card.Value == 12) { Card.Name += " - Queen"; } if (Card.Value == 11) { Card.Name += " - Jack"; }
+		if (Card.Value == 13) { Card.Name += " - King"; } if (Card.Value == 12) { Card.Name += " - Queen"; }
+		if (Card.Value == 11) { Card.Name += " - Jack"; }
 		Cards[a] = Card;
 	}
 	return(Cards);
@@ -790,15 +800,16 @@ std::vector<NameValue<uint8_t>> RandomTarot(size_t Tries)
 	std::vector<NameValue<uint8_t>>Cards (Tries);
 	NameValue<uint8_t> Card;
 	std::vector<std::string> CardNames = TAROTMAJORS;
+	uint8_t Rnd; bool MinMaj; uint8_t Naipe;
 	for (size_t a = 0; a < Tries; ++a)
 	{
-		uint8_t Rnd = rand() % 78;
-		bool MinMaj = Rnd > 21 ? false : true; // Minor or Major Arcana?
+		Rnd = rand() % 78;
+		MinMaj = Rnd > 21 ? false : true; // Minor or Major Arcana?
 		if (MinMaj) { Card.Name = CardNames[Rnd - 1]; Card.Value = Rnd; Cards[a] = Card; }
 		else
 		{
 			Card.Value = (rand() % 14) + 1;
-			uint8_t Naipe = rand() % 4; if (Naipe == 0) { Card.Name = "Cups"; }
+			Naipe = rand() % 4; if (!Naipe) { Card.Name = "Cups"; }
 			else if (Naipe == 1) { Card.Name = "Pentacles"; }
 			else if (Naipe == 2) { Card.Name = "Spades"; }
 			else { Card.Name = "Wand"; }
@@ -813,17 +824,27 @@ std::vector<NameValue<uint8_t>> RandomTarot(size_t Tries)
 }
 
 // RANDOM PSALM:
-std::vector<unsigned short> RandomPSalm(size_t Tries)
+std::vector<uint8_t> RandomPSalm(size_t Tries)
 {
-	std::vector<unsigned short> PSs(Tries); unsigned short PS;
-	for (size_t a = 0; a < Tries; ++a) { PS = (rand() % 150) + 1; PSs.push_back(PS); } return(PSs);
+	std::vector<uint8_t> PSs(Tries); uint16_t PS;
+	for (size_t a = 0; a < Tries; ++a) { PSs[a] = (rand() % 150) + 1; } return(PSs);
 }
 
 // RANDOM ICHING:
-std::vector<unsigned short> RandomIChing(size_t Tries)
+// Ignore . |::||: - IChing18 - Mountain / Wind, Wood
+//     00 . 100110 <- Byte
+std::vector<uint8_t> RandomIChing(size_t Tries)
 {
-	std::vector<unsigned short> ICs(Tries); unsigned short IC;
-	for (size_t a = 0; a < Tries; ++a) { IC = (rand() % 64) + 1; ICs.push_back(IC); } return(ICs);
+	std::vector<uint8_t> ICs(Tries);
+	for (size_t a = 0; a < Tries; ++a)
+	{
+		ICs[a] = 0;
+		for (size_t s = 0; s < 6; ++s)
+		{
+			ICs[a] |= (rand() % 2) << s;
+		}
+	}
+	return(ICs);
 }
 
 // ################################################# FIM ####################################################################################

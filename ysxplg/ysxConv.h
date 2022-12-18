@@ -129,7 +129,7 @@ double pa2atm(double Pa) { return(Pa / 101325); }
 
 // #################################################
 // ####### SOUND:
-// !!! VEJA SE ESTOU CERTO SOBRE ANULAR DB < 0 !!!
+// !!! IT NULLS IT IF DB < 0 !!!
 // Sound Intensity to Decibels for propper sound intesity level
 // https://en.wikipedia.org/wiki/Sound_intensity#Sound_intensity_level:
 double SndInt2db(double I) { double Result = 10 * log10(I / 1.0e-12); if (Result < 0) { Result = 0; } return(Result); }

@@ -13,8 +13,8 @@
 // #################################################
 
 // VOLUME AND AREA:
-double CylinSurf(double r, double h) { return(TAU * r * h); }
-double CylinVol(double r, double h) { return(PI * r * r * h); }
+double ysxCYLIN_Surf(double r, double h) { return(TAU * r * h); }
+double ysxCYLIN_Vol(double r, double h) { return(PI * r * r * h); }
 
 // ###############################################################################################################################################################################
 

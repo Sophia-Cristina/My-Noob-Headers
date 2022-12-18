@@ -72,7 +72,7 @@ public:
 		{
 			// 127 -> 255 (128), 255 -> 0 (255), 0 -> 127 (127):
 			uint8_t C[3]; if (ColorGrad == G2Pink) { Green2Pink(C, n); } else { Blue2Pink(C, n); }
-			Linexy(I, CoordStamp[n].P0.x * dx, y - CoordStamp[n].P0.y * dy, CoordStamp[n].P1.x * dx, y - CoordStamp[n].P1.y * dy, C);
+			ysxCIMG_DRAW_Linexy(I, CoordStamp[n].P0.x * dx, y - CoordStamp[n].P0.y * dy, CoordStamp[n].P1.x * dx, y - CoordStamp[n].P1.y * dy, C);
 		}
 		return(I);
 	}
@@ -95,7 +95,7 @@ public:
 				C[0] = (C[0] * 0.5) + In(cx0, cy0, 0, 0) * 0.5;
 				C[1] = (C[1] * 0.5) + In(cx0, cy1, 0, 1) * 0.5;
 				C[2] = (C[2] * 0.5) + In(cx1, cy1, 0, 2) * 0.5;
-				Linexy (In,	cx0, cy0, cx1, cy1, C);
+				ysxCIMG_DRAW_Linexy (In,	cx0, cy0, cx1, cy1, C);
 			}
 		}
 	}
@@ -124,7 +124,7 @@ public:
 						C[0] = (C[0] * 0.5) + In(cx0, cy0, 0, 0) * 0.5;
 						C[1] = (C[1] * 0.5) + In(cx1, cy0, 0, 1) * 0.5;
 						C[2] = (C[2] * 0.5) + In(cx1, cy1, 0, 2) * 0.5;
-						Linexy(In, cx0, cy0, cx1, cy1, C);
+						ysxCIMG_DRAW_Linexy(In, cx0, cy0, cx1, cy1, C);
 					}
 				}
 			}
@@ -164,7 +164,7 @@ public:
 		// Every division of 56, '7 * 8':
 		double a = 0.625, b = 0.375;// , h = 0.625; // 7 * 5, 7 * 3, 7 * 5
 		double H = 0.5;//, W = 1; // 7 / 14 | 7 * 4
-		double t = LawSinRad(H, b, HPI);
+		double t = ysxGEO_LawSinRad(H, b, HPI);
 		//double ATri = (H * b) / 2, AStamp = a * H, A = H * W;
 		double dx = (y / cos(t)) * sin(t);
 		if (x <= (WIn * a) + dx && x >= dx)

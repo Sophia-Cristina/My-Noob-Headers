@@ -2,14 +2,19 @@
 
 #ifndef YSXSDLAUDIO_H
 #define YSXSDLAUDIO_H
-#include <time.h>
 
+#pragma once
+
+#include <time.h>
+#include "ysxSDL.h"
 #include "SDL_Audio.h"
 
 // #####################
 // ####### By Sophia Cristina
 // ####### Audio programming using SDL2
 // #####################
+
+// LATER TO ADD PREFIX: "ysxSDL_"
 
 // #################################################
 // REFERENCES:
@@ -105,15 +110,19 @@ void LoopCall(void* Data, Uint8* Stream, int StreamSamples)
 	S->Pos += Samples; S->SmpLeft -= Samples;
 }
 
-// THIS DATA LOOPS THE BUFFER WITH A MODULO:
+// THIS DATA LOOPS THE BUFFER WITH A MODULO :
 // Check the callback function! Pos = &array[0], Samples = array.size();
-struct SignalData { Uint8* Pos; Uint32 Count; Uint32 Samples; };
-// CALLBACK FOR A SIGNAL BUFFER LOOPED BY A MODULO:
-// Changes are to be done in the buffer index which is going to be played!
-// ~| 0 | 1 | 2 | 3 || 4 | 5 | 6 | 7 |~ BYTES
-//  |Pos| .	| .	| .	|| . |B.S|Set| % |~ SIZE // B.S = Block Size = 6 samples (example)
-//	| _	| _ | _	|B.S||Set| _ | _ | % |
-void SignalCall(void* Data, Uint8* Stream, uint32_t StreamSamples)
+struct SignalData { Uint8* Pos; Uint32 Count; int Samples; };
+/*CALLBACK FOR A SIGNAL BUFFER LOOPED BY A MODULO:
+I named "Signal" because it is a buffer that constantly outputs itself, like a signal cable connection.
+But it is just a call that goes to the first sample position after it reaches the last sample.
+I have not named "loop" because the "LoopCall" is based on looping the buffer after reaching the end,
+but it does it abruptly and not by a modulo!
+Changes are to be done in the buffer index which is going to be played or before playing!
+~| 0 | 1 | 2 | 3 || 4 | 5 | 6 | 7 |~ BYTES
+ |Pos| . | . | . || . |B.S|Set| % |~ SIZE // B.S = Block Size = 6 samples (example)
+ | _ | _ | _ |B.S||Set| _ | _ | % |*/
+void SignalCall(void* Data, Uint8* Stream, int StreamSamples)
 {
 	SignalData* S = (SignalData*)Data;
 	Uint32 Left = S->Samples - S->Count;

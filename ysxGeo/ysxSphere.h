@@ -13,10 +13,16 @@
 // #################################################
 
 // VOLUME AND AREA:
-double SphereSurf(double r) { return (4 * PI * pow(r, 2)); }
-double SphereVol(double r) { return ((4.0 / 3) * PI * pow(r, 3)); }
-double SphericalSegV(double h, double r1, double r2) { return(((PI * h) / 6) * (3 * r1 * r1 + 3 * r2 * r2 + h * h)); }
-double SphericalSegA(double R, double h) { return(2 * PI * R * h); }
+double ysxSPHERE_Surf(double r) { return (4 * PI * pow(r, 2)); }
+double ysxSPHERE_Vol(double r) { return ((4.0 / 3) * PI * pow(r, 3)); }
+double ysxSPHERE_SphericalSegV(double h, double r1, double r2) { return(((PI * h) / 6) * (3 * r1 * r1 + 3 * r2 * r2 + h * h)); }
+double ysxSPHERE_SphericalSegA(double R, double h) { return(2 * PI * R * h); }
+
+class ysxSPHERE_Sphere
+{
+public:
+
+};
 
 // ###############################################################################################################################################################################
 

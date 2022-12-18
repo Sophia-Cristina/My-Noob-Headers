@@ -5,7 +5,7 @@
 // Time for some synths should be included from 'ysxSDLAudio.h'
 // UNCOMMENT IF YOU NEED, BUT YOU SHOULD INCLUDE IT BY YOURSELF
 // TO AVOID MISTAKES WITH OTHER HEADERS:
-//#include "ysxplg/ysxSignal.h"
+ #include "ysxplg/ysxSignal.h"
 
 // #####################
 // ####### By Sophia Cristina
@@ -48,35 +48,35 @@ BS = B.lock S.ize;
 // KICK SAMPLE, Kick(x), HEHE:
 // sin(x*Freq*TAU*((1 - x)^PF)) * (1 - x)^PA
 // You can use bigger frequencies and changes in curves to make a hit or click sound.
-double ysxSIG_KickSmpD(double x, double Freq, double pFreq, double pAmp, double Atk, double sec = 1)
+double KickSmpD(double x, double Freq, double pFreq, double pAmp, double Atk, double sec = 1)
 {
 	if (sec <= 0) { sec = 1; } if (x < 0) { x *= -1; }
 	if (x > sec) { x = (x - floor(x)) - (sec - floor(sec)); }
 	float g = x < Atk ? x / Atk : 1;
 	return(sin(x * (Freq * TAU * pow(1 - x / sec, pFreq))) * pow(1 - x / sec, pAmp) * g);
 }
-float ysxSIG_KickSmpF(float x, float Freq, float pFreq, float pAmp, float Atk, double sec = 1)
+float KickSmpF(float x, float Freq, float pFreq, float pAmp, float Atk, double sec = 1)
 {
 	if (sec <= 0) { sec = 1; } if (x < 0) { x *= -1; }
 	if (x > sec) { x = (x - floor(x)) - (sec - floor(sec)); }
 	float g = x < Atk ? x / Atk : 1;
 	return(sin(x * (Freq * TAU * pow(1 - x / sec, pFreq))) * pow(1 - x / sec, pAmp) * g);
 }
-uint8_t ysxSIG_KickSmpU8(float x, float Freq, float pFreq, float pAmp, float Atk, double sec = 1)
+uint8_t KickSmpU8(float x, float Freq, float pFreq, float pAmp, float Atk, double sec = 1)
 {
 	if (sec <= 0) { sec = 1; } if (x < 0) { x *= -1; }
 	if (x > sec) { x = (x - floor(x)) - (sec - floor(sec)); }
 	float g = x < Atk ? x / Atk : 1;
 	return(((sin(x * (Freq * TAU * pow(1 - x / sec, pFreq))) * pow(1 - x / sec, pAmp)) + 1) * 127.5 * g);
 }
-uint16_t ysxSIG_KickSmpU16(float x, float Freq, float pFreq, float pAmp, float Atk, double sec = 1)
+uint16_t KickSmpU16(float x, float Freq, float pFreq, float pAmp, float Atk, double sec = 1)
 {
 	if (sec <= 0) { sec = 1; } if (x < 0) { x *= -1; }
 	if (x > sec) { x = (x - floor(x)) - (sec - floor(sec)); }
 	float g = x < Atk ? x / Atk : 1;
 	return(((sin(x * (Freq * TAU * pow(1 - x / sec, pFreq))) * pow(1 - x / sec, pAmp)) + 1) * 32767.5 * g);
 }
-uint32_t ysxSIG_KickSmpU32(float x, float Freq, float pFreq, float pAmp, float Atk, double sec = 1)
+uint32_t KickSmpU32(float x, float Freq, float pFreq, float pAmp, float Atk, double sec = 1)
 {
 	if (sec <= 0) { sec = 1; } if (x < 0) { x *= -1; }
 	if (x > sec) { x = (x - floor(x)) - (sec - floor(sec)); }
@@ -84,24 +84,26 @@ uint32_t ysxSIG_KickSmpU32(float x, float Freq, float pFreq, float pAmp, float A
 	return(((sin(x * (Freq * TAU * pow(1 - x / sec, pFreq))) * pow(1 - x / sec, pAmp)) + 1) * 2147483647.5 * g);
 }
 
-// GENERATE A KICK BUFFER:
-template <class T_> std::vector<uint8_t> ysxSIG_KickSmpBuf(uint32_t Size, uint32_t SRate, float Freq, float pFreq, float pAmp, float Atk)
+// GENERATE A KICK BUFFER, USE BYTES 1, 2 OR 4:
+std::vector<uint8_t> KickSmpBuf(uint32_t Size, uint32_t SRate, uint8_t Bytes, float Freq, float pFreq, float pAmp, float Atk)
 {
 	if (Atk > 1) { Atk = 1; } if (Atk < 0) { Atk = 0; }
-	uint8_t Bytes = sizeof(T_);
 	uint32_t BSize = Size * Bytes, ASize = BSize * Atk;
 	std::vector<uint8_t> B(BSize);
-	double x, y;
-	size_t a;
-
-	for (size_t n = 0; n < BSize; n += Bytes)
+	
+	if (Bytes == 4 || Bytes == 2 || Bytes == 1)
 	{
-		x = (double)n / SRate;
-		y = sin(x * Freq * TAU * pow(1 - x, pFreq)) * pow(1 - x, pAmp);
-		if (n < ASize) { y *= ((double)n / ASize); }
-		if (Bytes == 1) { B[n] = (y + 1) * 127.5; }
-		else { a = round((y + 1) * 0.5 * (pow(256, Bytes) - 1)); memcpy(&B[n], &a, Bytes); }
+		for (int n = 0; n < BSize; n += Bytes)
+		{
+			double x = (double)n / SRate;
+			double b = sin(x * Freq * TAU * pow(1 - x, pFreq)) * pow(1 - x, pAmp);
+			if (n < ASize) { b *= ((double)n / ASize); }
+			if (Bytes == 4)	{ uint32_t a = (b + 1) * 2147483647.5; memcpy(&B[0], &a, Bytes); }
+			else if (Bytes == 2) { uint16_t a = (b + 1) * 32767.5; memcpy(&B[0], &a, Bytes); }
+			else { B[n] = (b + 1) * 127.5; }
+		}
 	}
+	else { std::cout << "Sorry, for now, this only supports '1', '2' and '4' bytes format!\n"; }
 	return(B);
 }
 
@@ -109,43 +111,26 @@ template <class T_> std::vector<uint8_t> ysxSIG_KickSmpBuf(uint32_t Size, uint32
 // ####### INSTRUMENTS FOR 'SYNTH SIGNAL' INHERITANCE
 // #################################################
 
-// SYNTH SIGNAL CLASS, CHECK 'ysxSIG_Stream' FOR MORE INFORMATION:
-template<class T_> class ysxSIG_Synth : public ysxSIG_Stream<T_>
+// SYNTH SIGNAL CLASS, CHECK 'SigStream' FOR MORE INFORMATION:
+template<class T_, uint8_t Voices> class SigSynth : public SigStream<T_, Voices>
 {
 public:
 	// It is public, so you can do crazy tricks with this, BUT this might be dangerous if you don't reset every place that uses 'Voices'!
 	// x = note; y = velocity
-	std::vector<Point<uint8_t>> MIDI;
+	std::vector<Point<uint8_t>> MIDI = std::vector<Point<uint8_t>>::vector(Voices);
 	uint8_t V = 0; // Voice for the counter, ex.: C[V]; MIDI[V].x;
 	float Freq = 1;
-	//ysxSIG_Synth() { }
-	//~ysxSIG_Synth() { }
+	//SigSynth() { }
+	//~SigSynth() { }
 };
 
-template<class T_> void ysxSIG_SynthSetVoices(ysxSIG_Synth<T_>& Synth, uint8_t Voices)
-{
-	Synth.MIDI = std::vector<Point<uint8_t>>::vector(Voices);
-	Synth.C = std::vector<uint32_t>::vector(Voices);
-}
-template<class T_> void ysxSIG_SynthSetVoices(ysxSIG_Synth<T_>& Synth, uint8_t Voices, uint8_t Note, uint8_t Vel)
-{
-	Synth.MIDI = std::vector<Point<uint8_t>>::vector(Voices);
-	Synth.C = std::vector<uint32_t>::vector(Voices);
-	for (uint8_t n = 0; n < Voices; ++n) { Synth.MIDI[n].x = Note; Synth.MIDI[n].y = Vel; }
-}
-
-// PROMPT FOR INSTRUMENT:
-// POINTS TO A 'ysxSIG_Synth<Stream>' AND CREATES A BITWISE MUSIC PATTERN (MUSIC BAR):
-template<class SigType, class PatSize, uint8_t Voices>
-struct ysxSIG_Instr { ysxSIG_Synth<SigType>* S; PatSize Ptrn; };
-
 // EASY VELOCITY FORMULA (VEL_VOICE / 127):
-#define ysxSIG_MIDI_V (MIDI[V].y * 0.007874015748031496)
+#define IO_MIDI_V (MIDI[V].y * 0.007874015748031496)
 
 // #################################################
 
 // KICK IO:
-class ysxSIG_Kick : public ysxSIG_Synth<float>
+template<uint8_t Voices> class IO_Kick : public SigSynth<float, Voices>
 {
 public:
 	float g = 1, pFreq = 0.75, pAmp = 0.33, Atk = 0.05;
@@ -154,16 +139,16 @@ public:
 	{
 		//if (std::is_floating_point<T_>::value)
 		//{
-		if ((float)(Size - C[V]) / Size < Atk && Atk != 0) { g = ysxSIG_MIDI_V * (float)(Size - C[V]) / (Atk * Size); }
-		else { g = ysxSIG_MIDI_V; }
-		x = sin(x * Freq * TAU * pow(1 - (float)(Size - C[V]) / Size, pFreq)) * pow(1 - (float)(Size - C[V]) / Size, pAmp) * g;
+			if (x < Atk && Atk != 0) { g = (MIDI[V].y * 0.007874015748031496) * x / Atk; }
+			x = sin(x * Freq * TAU * pow(1 - (float)(Size - C[V]) / Size, pFreq)) * pow(1 - (float)(Size - C[V]) / Size, pAmp) * g;
 		//}
+		
 		return(x);
 	}
 };
 
 // KICK THAT USES FEW BYTES:
-class ysxSIG_KickMini : public ysxSIG_Synth<float>
+template<uint8_t Voices> class IO_KickMini : public SigSynth<float, Voices>
 {
 private:
 	float g = 0;
@@ -176,9 +161,9 @@ public:
 	{
 		if ((AtkSec & 15) == 0) { ++AtkSec; } if (x < 0) { x *= -1; }
 		if (x > (AtkSec & 15) / 45.0) { x = (x - floor(x)) - ((AtkSec & 15) / 45.0 - floor((AtkSec & 15) / 45.0)); }
-		if (x < (AtkSec >> 4) / 15.0 && (AtkSec >> 4) / 15.0 != 0) { g = ysxSIG_MIDI_V * (float)(Size - C[V]) / ((AtkSec >> 4) / 15.0); }
+		if (x < (AtkSec >> 4) / 15.0 && (AtkSec >> 4) / 15.0 != 0) { g =  IO_MIDI_V * x / ((AtkSec >> 4) / 15.0); }
 		x = sin(x * Freq * TAU * pow(1 - x / ((AtkSec & 15) / 45.0), (PFPA >> 4) / 15.0)) * pow(1 - x / ((AtkSec & 15) / 45.0), (PFPA & 15) / 15.0) * g;
-
+		
 		return(x);
 	}
 };
@@ -186,7 +171,7 @@ public:
 // KICK THAT USES EVEN FEWER BYTES (WORK IN PROGRESS):
 // 'x' = '0 to 255' is '0 to 2*PI'.
 // 'g'ain '0 to 255' is as '0 to 1'.
-class ysxSIG_KickMicro : public ysxSIG_Stream<uint8_t> // !!! WIP !!!
+template<uint8_t Voices> class IO_KickMicro : public SigStream<uint8_t, Voices> // !!! WIP !!!
 {
 private:
 	uint8_t g = 0;
@@ -204,14 +189,15 @@ public:
 		if (ui8 < (AtkSec >> 4) * 17 && AtkSec >> 4 != 0) { g = (AtkSec >> 4) * 17; }
 		//ui8 = sin((ui8 / 255.0) * MtoFMini(MIDI) * TAU * pow(1 - (ui8 / 255.0) / ((AtkSec & 15) / 45.0), (PFPA >> 4) / 15.0))
 		//	* pow(1 - (ui8 / 255.0) / ((AtkSec & 15) / 45.0), (PFPA & 15) / 15.0) * (g / 255.0);
-		ui8 = sin(0.0246399 * ysxMUS_MtoFMini(MIDI) * ui8 * pow(1 - 0.176471 * ui8 / (AtkSec & 15), 0.0666667 * (PFPA >> 4))) // WOLFRAM ALPHA
+		ui8 = sin(0.0246399 * MtoFMini(MIDI) * ui8 * pow(1 - 0.176471 * ui8 / (AtkSec & 15), 0.0666667 * (PFPA >> 4))) // WOLFRAM ALPHA
 			* 0.00392157 * g * pow(1 - 0.176471 * ui8 / (AtkSec & 15), 0.0666667 * (PFPA & 15));
 		return(ui8);
 	}
 };
 
+
 // KICK INSTRUMENT, SIN-TRI-RECT:
-class ysxSIG_KickSTR : public ysxSIG_Synth<float>
+template<uint8_t Voices> class IO_KickSTR : public SigSynth<float, Voices>// : public iopSec
 {
 private:
 	float g = 0;
@@ -221,8 +207,7 @@ public:
 	// USE TURNS! Preferably 32b:
 	float IO(float x) override
 	{
-		if ((float)(Size - C[V]) < Atk * Size && Atk > 0) { g = ysxSIG_MIDI_V * (float)(Size - C[V]) / (Atk * Size); }
-		else { g = ysxSIG_MIDI_V; }
+		if ((float)(Size - C[V]) < Atk * Size && Atk > 0) { g = IO_MIDI_V * (float)(Size - C[V]) / (Atk * Size); } else { g = IO_MIDI_V; }
 		x = (sin(x * Freq * TAU * pow(1 - (float)(Size - C[V]) / Size, pFreq)) * pow(1 - (float)(Size - C[V]) / Size, pAmp) * 0.3 +
 			tri(x * Freq * RatioT * TAU * pow(1 - (float)(Size - C[V]) / Size, pFreq)) * pow(1 - (float)(Size - C[V]) / Size, pAmp) * 0.3 +
 			rect(x * Freq * RatioR * TAU * pow(1 - (float)(Size - C[V]) / Size, pFreq)) * pow(1 - (float)(Size - C[V]) / Size, pAmp) * 0.3) * g;
@@ -235,12 +220,8 @@ public:
 // #################################################
 // ####### OSCILLATORS #######
 
-// #####################
-// SIMPLE OSCS:
-// #####################
-
 // SIMPLE OSCILLATOR:
-class ysxSIG_SimpleOSC : public ysxSIG_Synth<float>
+template<uint8_t Voices> class IO_SimpleOSC : public SigSynth<float, Voices>
 {
 public:
 	float y = 0;
@@ -258,19 +239,19 @@ public:
 		if (F & 8) { y += saw(Freq * x + 6.283185 * (F >> 4) / 15.0); ++n; }
 		if (n == 0) { n = 1; } // Just for safety
 		y /= n;
-		return(y * ysxSIG_MIDI_V);
+		return(y * IO_MIDI_V);
 	}
 };
 
 // OSCILLATOR WITH 15 LEVELS OF ATTACK AND DECAY:
-class ysxSIG_OSC_AD : public ysxSIG_Synth<float>
+template<uint8_t Voices> class IO_OSC_AD : public SigSynth<float, Voices>
 {
 private:
 	float y = 0; uint8_t n = 0;
 public:
 	uint8_t AD = 0; // AD >> 4 = Attack; AD & 15 = Decay;
 	uint8_t F = 1; // Flags, 1111 15-levels PW or phase for non-rect | 1111 saw, rect, tri, sine
-
+	
 	// USE TURNS! Preferably 32b:
 	float IO(float x) override
 	{
@@ -297,124 +278,12 @@ public:
 				y *= 0.5;
 			}
 		}
-		return(y * ysxSIG_MIDI_V);
+		return(y * IO_MIDI_V);
 	}
 };
 
-class ysxSIG_OSC_PULSE_AD : public ysxSIG_Synth<float>
-{
-private:
-	float y = 0;
-public:
-	uint8_t AD = 0; // AD >> 4 = Attack; AD & 15 = Decay;
-	float pFreq = 0.75, pAmp = 0.33;
-	float FloorFreq = 110;
-
-	float IO(float x) override
-	{
-		y = 0;
-		y = sin(x * Freq * TAU - ((Freq - FloorFreq) * pow(1 - (float)(Size - C[V]) / Size, pFreq))) * pow(1 - (float)(Size - C[V]) / Size, pAmp);
-		if (Size)
-		{
-			if ((float)(Size - C[V]) < Size * (AD >> 4) / 15.0 && Size * (AD >> 4) / 15.0 != 0)
-			{
-				y *= (float)(Size - C[V]) / (Size * (AD >> 4) / 15.0);
-			}
-			else
-			{
-				y = (y * (AD & 15) * 0.066667) * (((float)(Size - C[V]) - Size * (AD >> 4) * 0.066667) / (Size - (Size * (AD >> 4) * 0.066667))) + y;
-				y *= 0.5;
-			}
-		}
-		return(y * ysxSIG_MIDI_V);		
-	}
-};
-
-// #####################
-// AM OSCS:
-// #####################
-
-// #####################
-// FM OSCS:
-// #####################
-
-// OSCILLATOR WITH 15 LEVELS OF ATTACK AND DECAY, USING GENERAL FM FORMULA (WHICH IS IN FACT A PHASE MODULATOR):
-// FORM.: sin(sin(freq_m * x) + freq_c * x)
-class ysxSIG_OSC_AD_PhaseFM : public ysxSIG_Synth<float>
-{
-private:
-	float y = 0; uint8_t n = 0;
-public:
-	uint8_t AD = 0; // AD >> 4 = Attack; AD & 15 = Decay;
-	uint8_t F = 1; // Flags, 1111 15-levels PW or phase for non-rect | 1111 saw, rect, tri, sine
-	float FMFreq = 1, FMAmp = 1;
-
-	// USE TURNS! Preferably 32b:
-	float IO(float x) override
-	{
-		if (F & 15 == 0) { F += 1; }
-		y = 0; n = 0;
-		if (F & 1) { y += sin(sin(x * 6.283185 * FMFreq) * FMAmp + Freq * x * 6.283185 + 6.283185 * (F >> 4) / 15.0); ++n; }
-		if (F & 2) { y += tri(sin(x * 6.283185 * FMFreq) * FMAmp + Freq * x * 6.283185 + 6.283185 * (F >> 4) / 15.0); ++n; }
-		if (F & 4) { y += rect(sin(x * 6.283185 * FMFreq) * FMAmp + Freq * x * 6.283185, (F >> 4) / 15.0); ++n; }
-		if (F & 8) { y += saw(sin(x * 6.283185 * FMFreq) * FMAmp + Freq * x * 6.283185 + 6.283185 * (F >> 4) / 15.0); ++n; }
-		if (!n) { ++n; } y /= n;
-		if (Size)
-		{
-			if ((float)(Size - C[V]) < Size * (AD >> 4) / 15.0 && Size * (AD >> 4) / 15.0 != 0)
-			{
-				y *= (float)(Size - C[V]) / (Size * (AD >> 4) / 15.0);
-			}
-			else
-			{
-				y = (y * (AD & 15) * 0.066667) * (((float)(Size - C[V]) - Size * (AD >> 4) * 0.066667) / (Size - (Size * (AD >> 4) * 0.066667))) + y;
-				y *= 0.5;
-			}
-		}
-		return(y * ysxSIG_MIDI_V);
-	}
-};
-
-// OSCILLATOR WITH 15 LEVELS OF ATTACK AND DECAY:
-// FORM.: sin(sin(freq_m * x) * freq_c * 2 * PI)
-class ysxSIG_OSC_AD_FM_Mult : public ysxSIG_Synth<float>
-{
-private:
-	float y = 0; uint8_t n = 0;
-public:
-	uint8_t AD = 0; // AD >> 4 = Attack; AD & 15 = Decay;
-	uint8_t F = 1; // Flags, 1111 15-levels PW or phase for non-rect | 1111 saw, rect, tri, sine
-	float FMFreq = 1, FMAmp = 1;
-
-	// USE TURNS! Preferably 32b:
-	float IO(float x) override
-	{
-		if (F & 15 == 0) { F += 1; }
-		y = 0; n = 0;
-		if (F & 1) { y += sin(sin(x * 6.283185 * FMFreq) * FMAmp * Freq * 6.283185 + 6.283185 * (F >> 4) / 15.0); ++n; }
-		if (F & 2) { y += tri(sin(x * 6.283185 * FMFreq) * FMAmp * Freq * 6.283185 + 6.283185 * (F >> 4) / 15.0); ++n; }
-		if (F & 4) { y += rect(sin(x * 6.283185 * FMFreq) * FMAmp * Freq * 6.283185, (F >> 4) / 15.0); ++n; }
-		if (F & 8) { y += saw(sin(x * 6.283185 * FMFreq) * FMAmp * Freq * 6.283185 + 6.283185 * (F >> 4) / 15.0); ++n; }
-		if (!n) { ++n; } y /= n;
-		if (Size)
-		{
-			if ((float)(Size - C[V]) < Size * (AD >> 4) / 15.0 && Size * (AD >> 4) / 15.0 != 0)
-			{
-				y *= (float)(Size - C[V]) / (Size * (AD >> 4) / 15.0);
-			}
-			else
-			{
-				y = (y * (AD & 15) * 0.066667) * (((float)(Size - C[V]) - Size * (AD >> 4) * 0.066667) / (Size - (Size * (AD >> 4) * 0.066667))) + y;
-				y *= 0.5;
-			}
-		}
-		return(y * ysxSIG_MIDI_V);
-	}
-};
-
-// OSCILLATOR WITH 15 LEVELS OF ATTACK AND DECAY, AND A FM INCREASES FREQ. BY TIME:
-// FORM.: sin(sin(freq_m * x) * x * 2 * PI)
-class ysxSIG_OSC_AD_Mult_FMMult : public ysxSIG_Synth<float>
+// OSCILLATOR WITH 15 LEVELS OF ATTACK AND DECAY, AND A FM THAT MULTIPLIES THE FREQUENCY:
+template<uint8_t Voices> class IO_OSC_AD_FMMult : public SigSynth<float, Voices>
 {
 private:
 	float y = 0; uint8_t n = 0;
@@ -446,12 +315,12 @@ public:
 				y *= 0.5;
 			}
 		}
-		return(y * ysxSIG_MIDI_V);
+		return(y * IO_MIDI_V);
 	}
 };
 
 // OSCILLATOR WITH 15 LEVELS OF ATTACK AND DECAY, AND A FM THAT SUMS WITH THE FREQUENCY:
-class ysxSIG_OSC_AD_Mult_FMSum : public ysxSIG_Synth<float>
+template<uint8_t Voices> class IO_OSC_AD_FMSum : public SigSynth<float, Voices>
 {
 private:
 	float y = 0; uint8_t n = 0;
@@ -482,20 +351,15 @@ public:
 				y *= 0.5;
 			}
 		}
-		return(y * ysxSIG_MIDI_V);
+		return(y * IO_MIDI_V);
 	}
 };
-
-// #####################
-// SPECIAL OSCS:
-// Special experimentations with signals!
-// #####################
 
 // CIRCLES BY CHORD SYNTH:
 // 'D' (diameter of the first circle) should be the MIDI note.
 // 'Cs' means "Circles", and it should have at least 1, which in fact means three circles,
 // it is the amount of circles that will create the chord circle, and it is an 'ui8'.
-class ysxSIG_CCRDSYNTH : public ysxSIG_Synth<float>
+template<uint8_t Voices> class IO_CCRDSYNTH : public SigSynth<float, Voices>
 {
 private:
 	float D1 = 1, D2 = 1;
@@ -505,7 +369,7 @@ public:
 	float Ratio = 0.9;
 	uint8_t AD = 0;
 
-	ysxSIG_CCRDSYNTH(uint8_t SetCs = 1, bool SetType = false, float SetRatio = 0.9, uint8_t SetAD = 0)
+	IO_CCRDSYNTH(uint8_t SetCs = 1, bool SetType = false, float SetRatio = 0.9, uint8_t SetAD = 0)
 	{
 		Cs = SetCs; Type = SetType; Ratio = SetRatio; AD = SetAD;
 	}
@@ -524,7 +388,7 @@ public:
 			else { y *= sin((D1 - D2) * sin(TAU * x) - D2 * sin(TAU * x * ((D1 - D2) / D2))); }
 			D1 = 2 * sqrt(h * (D1 - h));
 		}
-		//y /= (Cs + 1) * 0.5;// * 2.0;
+		y /= (Cs + 1) * 0.5;// * 2.0;
 
 		// Envelope:
 		if (Size)
@@ -539,15 +403,9 @@ public:
 				y *= 0.5;
 			}
 		}
-		return(y * ysxSIG_MIDI_V);
+		return(y * IO_MIDI_V);
 	}
 };
-
-// #####################
-// COMPLETE OSCS:
-// What i mean with complete? Is that those are oscs trying to be alike one you would buy.
-// Like a music equip or a VSTi.
-// #####################
 
 // ###############################################################################################################################################################################
 // ###############################################################################################################################################################################

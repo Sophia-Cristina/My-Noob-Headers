@@ -15,12 +15,6 @@
 // #####################################################################################################################################
 
 // ############################
-// ####### INSTRUMENT AND RELATED:
-// POINTS TO A 'SigSynth<Stream>' AND CREATES A BITWISE MUSIC PATTERN (MUSIC BAR):
-template<class Stream, class PatSize>
-struct Instr { SigSynth<Stream>* S; PatSize Ptrn; };
-
-// ############################
 // ####### CLOCK / TIME:
 
 double BPM2ms(double BPM) { return(60000.0 / BPM); } // Quantos 'ms' tem em cada beat
@@ -36,11 +30,10 @@ double TAU2Samples(uint32_t SampleRate) { return(SampleRate / TAU); } // Samples
 double Samplen2Rad(uint32_t n, uint32_t SampleRate) { return(TAU * (n / SampleRate)); } // Sample 'n' in '44100hz' to '2 * PI' | TAU * (22050 / 44100)  = TAU * 0.5 = PI radians
 double Rad2Samplen(double theta, uint32_t SampleRate) { return((theta / TAU) * SampleRate); } // Sample position based on a sine wave of 1hz | (PI / TAU) * 44100 = 0.5 * 44100 = 22050 samples
 
-// TIME IN SECONDS MEASURES EITHER BY CONVERTING UCHAR SAMPLES OR BY SAMPLES COUNT:
-// Depois multiplique os dois lados para não precisar ser por bytes.
-double Samples2Sec(uint32_t nSamplesbyByte, uint32_t SampRate, uint8_t BitsPerSamp) { return((double)nSamplesbyByte / (SampRate * 0.125 * BitsPerSamp)); }
-double Samples2Sec(uint32_t nSamplesbyByte, uint32_t SampRate, uint8_t BitsPerSamp, uint8_t Channels)
-{ return((double)nSamplesbyByte / (SampRate * 0.125 * BitsPerSamp * Channels)); }
+// TIME IN SECONDS MEASURES EITHER BY CONVERTING UCHAR SAMPLES OR BY SAMPLE COUNT:
+double Samples2Sec(uint32_t nBytes, uint32_t SampRate, uint8_t BitsPerSamp) { return((double)nBytes / (SampRate * 0.125 * BitsPerSamp)); }
+double Samples2Sec(uint32_t nBytes, uint32_t SampRate, uint8_t BitsPerSamp, uint8_t Channels)
+{ return((double)nBytes / (SampRate * 0.125 * BitsPerSamp * Channels)); }
 double Samples2Sec(uint32_t Samples, uint32_t SampRate) { return((double)Samples / SampRate); }
 
 // ############################
@@ -48,31 +41,38 @@ double Samples2Sec(uint32_t Samples, uint32_t SampRate) { return((double)Samples
 
 // # FREQUENCIES:
 //double MIDItoFreq(int MIDI, int Temper, double BaseFreq) { return(pow(2.0, (MIDI - (Temper * 5.75)) / Temper) * BaseFreq); } // A3 = 57; C3 = 48;
-double MIDItoFreq(uint8_t MIDI, uint16_t Temper, double BaseFreq) { return(pow(2.0, ((double)MIDI / Temper)) * BaseFreq * 0.0185814); } // Modo Reduzido, mas fixo em 'A3 = 57'
-double MtoFMini(uint8_t MIDI) { return(pow(2.0, (MIDI / 12.0)) * 440 * 0.0185814); }
-double FreqtoMIDI(double Freq, uint16_t Temper, double BaseFreq) { return(81 * log2(Freq / BaseFreq)); }
+double ysxMUS_MIDItoFreq(float MIDI, uint16_t Temper, double BaseFreq) { return(pow(2.0, ((double)MIDI / Temper)) * BaseFreq * 0.0185814); } // Modo Reduzido, mas fixo em 'A3 = 57'
+double ysxMUS_MtoFMini(float MIDI) { return(pow(2.0, (MIDI / 12.0)) * 440 * 0.0185814); }
+double ysxMUS_FreqtoMIDI(double Freq, uint16_t Temper, double BaseFreq) { return(81 * log2(Freq / BaseFreq)); }
 
 // ############################
 // ####### SPECIAL:
 
 // Find a periodic value from 'sine' through a 'margin_b' of 'frequencies' multiplied by 'a' on the line of specific 'Radian'; (use 'Value' in set { -1 <= Value <= 1) }:
 // The math is just 'if (sin(Radian * a * b) == Value)'
-std::vector<int> FindValueInSine(double a, int b0, int b1, double Value, double Radian)
-{ std::vector<int> Return; for (int b = b0; b < b1; ++b) { if (sin(Radian * a * b) == Value) { Return.push_back(b); } } return(Return); }
+std::vector<int> ysxMUS_FindValueInSine(double a, int b0, int b1, double Value, double Radian)
+{ std::vector<int> V; for (int b = b0; b < b1; ++b) { if (sin(Radian * a * b) == Value) { V.push_back(b); } } return(V); }
 
 // The same, but based on a music scale (MIDI):
-std::vector<int> FindValueInSineinMIDI(double a, uint8_t MIDIini, uint8_t MIDIend, double Value, double Radian, uint16_t Temper, double BaseFreq)
-{ std::vector<int> Return; for (int M = MIDIini; M < MIDIend; ++M) { if (sin(Radian * a * MIDItoFreq(M, Temper, BaseFreq)) == Value) { Return.push_back(M); } } return(Return); }
+std::vector<int> ysxMUS_FindValueInSineinMIDI(double a, uint8_t MIDIini, uint8_t MIDIend, double Value, double Radian, uint16_t Temper, double BaseFreq)
+{
+	std::vector<int> V;
+	for (int M = MIDIini; M < MIDIend; ++M)
+	{
+		if (sin(Radian * a * ysxMUS_MIDItoFreq(M, Temper, BaseFreq)) == Value) { V.push_back(M); }
+	}
+	return(V);
+}
 
 // The same, but based on a music scale (Frequency):
-std::vector<double> FindValueInSineinFreq(double a, int FreqIni, int FreqEnd, double Increment, double Value, double Radian, int Temper, double BaseFreq)
+std::vector<double> ysxMUS_FindValueInSineinFreq(double a, int FreqIni, int FreqEnd, double Increment, double Value, double Radian, int Temper, double BaseFreq)
 {
-	std::vector<double> Return;
+	std::vector<double> V;
 	for (int f = FreqIni; f < FreqEnd; f += Increment)
 	{
-		if (sin(Radian * a * f) == Value) { Return.push_back(FreqtoMIDI(f, Temper, BaseFreq)); }
+		if (sin(Radian * a * f) == Value) { V.push_back(ysxMUS_FreqtoMIDI(f, Temper, BaseFreq)); }
 	}
-	return(Return);
+	return(V);
 }
 
 // ################################################# FIM ####################################################################################

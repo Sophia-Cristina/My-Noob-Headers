@@ -48,72 +48,74 @@ CHANGES:
 // ###############################################################################################################################################################################
 
 // ANGLES:
-double TriAng(double a, double b) { return(PI - (a + b)); } // Return last triangle angle by subtraction
-double TriAng(double a, double b, double c) { return(acos((pow(b, 2) + pow(c, 2) - pow(a, 2)) / (2.0 * b * c))); } // Angulo função de tres medidas | Alpha = bc, Beta = ac, Gama = ab
+double ysxTRI_Ang(double a, double b) { return(PI - (a + b)); } // Return last triangle angle by subtraction
+double ysxTRI_Ang(double a, double b, double c) { return(acos((pow(b, 2) + pow(c, 2) - pow(a, 2)) / (2.0 * b * c))); } // Angulo função de tres medidas | Alpha = bc, Beta = ac, Gama = ab
 
 // SIZES:
-double RetTri2RetIsoTri(double a, double b) { return(sqrt(((a * a) + (b * b))) / sqrt(2)); } // Make an 'a & b' Triangle to an 'a & a' Triangle
-double TriSide(double hip, double Length) { return(sqrt((hip * hip) - (Length * Length))); } // Height or Width
-double TriHghtsS(double a, double Rad) { return(a * sin(Rad)); } // Length * sin().
-double TriBaseC(double a, double Rad) { return(a * cos(Rad)); } // Length * cos().
+double ysxTRI_Ret2TriRetIso(double a, double b) { return(sqrt(((a * a) + (b * b))) / sqrt(2)); } // Make an 'a & b' Triangle to an 'a & a' Triangle
+double ysxTRI_Side(double hip, double Length) { return(sqrt((hip * hip) - (Length * Length))); } // Height or Width
+double ysxTRI_HghtsS(double a, double Rad) { return(a * sin(Rad)); } // Length * sin().
+double ysxTRI_BaseC(double a, double Rad) { return(a * cos(Rad)); } // Length * cos().
 
 // https://en.wikipedia.org/wiki/Triangle#Medians,_angle_bisectors,_perpendicular_side_bisectors,_and_altitudes:
 // The altitude from, for example, the side of length a
 // Altitude of a right triangle is 'h^2 = pq; h = sqrt(pq)", 'h' is altitude and 'p + q' is the 'hipotenuse' divided by the Altitude line.
-double TriAlt(double Area, double a) { return((2.0 * Area) / a); }
+double ysxTRI_Alt(double Area, double a) { return((2.0 * Area) / a); }
 
 // PERIMETERS AND AREAS:
-double PerimTri(double a, double b, double c) { return(a + b + c); } // Perimeter
-double TriAr(double a, double b) { return(0.5 * a * b); } // Area
-double TriAr(double a, double b, double Rad) { return(0.5 * a * b * sin(Rad)); } // Area
-double TriArAAS(double b, double Alpha, double Beta) { return((pow(b, 2) * sin(Alpha) * sin(Alpha + Beta)) / 2.0 * sin(Beta)); } // Area
-double TriArASA(double a, double Beta, double Gama) { return((pow(a, 2) * sin(Beta) * sin(Gama)) / 2.0 * sin(Beta + Gama)); } // Area
-double TriArHeron(double a, double b, double c) { double s = (a + b + c) * 0.5; return(sqrt(s * (s - a) * (s - b) * (s - c))); } // Area
+double ysxTRI_Perim(double a, double b, double c) { return(a + b + c); } // Perimeter
+double ysxTRI_Ar(double a, double b) { return(0.5 * a * b); } // Area
+double ysxTRI_Ar(double a, double b, double Rad) { return(0.5 * a * b * sin(Rad)); } // Area
+double ysxTRI_ArAAS(double b, double Alpha, double Beta) { return((pow(b, 2) * sin(Alpha) * sin(Alpha + Beta)) / 2.0 * sin(Beta)); } // Area
+double ysxTRI_ArASA(double a, double Beta, double Gama) { return((pow(a, 2) * sin(Beta) * sin(Gama)) / 2.0 * sin(Beta + Gama)); } // Area
+double ysxTRI_ArHeron(double a, double b, double c) { double s = (a + b + c) * 0.5; return(sqrt(s * (s - a) * (s - b) * (s - c))); } // Area
 
 // MEDIANS:
 // https://en.wikipedia.org/wiki/Triangle#Medians,_angle_bisectors,_perpendicular_side_bisectors,_and_altitudes:
-double MedianSideRelation(double a, double b, double c) { return((3.0 / 4) * (a * a + b * b + c * c)); }
-double TriMedian(double a, double b, double c) { return(0.5 * sqrt((2 * pow(b, 2)) + (2 * pow(c, 2)) - pow(a, 2))); }
-double TriSideMedian(double a, double b, double c) { return(sqrt((2 * (b * b) + 2 * (c * c) - (a * a)) / 4.0)); } // Formula to 'Median a', to 'Median b', use this input order "b, c, a" and "c, a, b" to 'Median c'
+double ysxTRI_MedianSideRelation(double a, double b, double c) { return((3.0 / 4) * (a * a + b * b + c * c)); }
+double ysxTRI_Median(double a, double b, double c) { return(0.5 * sqrt((2 * pow(b, 2)) + (2 * pow(c, 2)) - pow(a, 2))); }
+double ysxTRI_SideMedian(double a, double b, double c) { return(sqrt((2 * (b * b) + 2 * (c * c) - (a * a)) / 4.0)); } // Formula to 'Median a', to 'Median b', use this input order "b, c, a" and "c, a, b" to 'Median c'
 
 /* BISECTORS:
 Use 'Rad BC'and 'Lgth a' for 'AC' bis.,
 use 'Rad AC'and 'Lgth b' for 'BC' bis..*/
-double TriBisAC(double Lgth, double Rad) { return(Lgth / sin(PI - PI - Rad + (PI - HPI + Rad) * 0.5)); }
-double TriBisAct(double a, double b, double Rad) // For 'c' shorter than 'b', else, make 'c' the new 'b'
+double ysxTRI_BisAC(double Lgth, double Rad) { return(Lgth / sin(PI - PI - Rad + (PI - HPI + Rad) * 0.5)); }
+double ysxTRI_BisAct(double a, double b, double Rad) // For 'c' shorter than 'b', else, make 'c' the new 'b'
 {
-	double Beta = LawSinRad(a, b, Rad);	if (a < cos(Rad) * b) { Beta = PI - Beta; }
+	double Beta = ysxGEO_LawSinRad(a, b, Rad);	if (a < cos(Rad) * b) { Beta = PI - Beta; }
 	double R = 0.5 * (Beta - Rad); // Changed in accord to Wolfram A.
-	double Alt;	if (Rad <= HPI) { Alt = b * sin(Rad); } else { Alt = b * sin(PI - Rad); }
+	double Alt; if (Rad <= HPI) { Alt = b * sin(Rad); } else { Alt = b * sin(PI - Rad); }
 	return(Alt / cos(R));
 }
 
 // https://en.wikipedia.org/wiki/Bisection:
 // If the side lengths of a triangle are 'a,b,c', the semiperimeter 's = (a + b + c) / 2', and A is the angle opposite side 'a',
 // then the length of the internal bisector of angle A is: "(2 * sqrt(b * c * s * (s - a))) / (b + c)":
-//double TriLghtBis(double a, double b, double c) { double s = (a + b + c) * 0.5; return((2 * sqrt(b * c * s * (s - a))) / (b + c)); } // Lenght of a bisector
-//double TriPerpBisa(double a, double b, double c, double Area) { return((2.0 * a * Area) / pow(a, 2) + pow(b, 2) - pow(c, 2)); } // Interior perpendicular bisectors
-//double TriPerpBisb(double a, double b, double c, double Area) { return((2.0 * b * Area) / pow(a, 2) + pow(b, 2) - pow(c, 2)); } // Interior perpendicular bisectors
-//double TriPerpBisc(double a, double b, double c, double Area) { return((2.0 * c * Area) / pow(a, 2) - pow(b, 2) + pow(c, 2)); } // Interior perpendicular bisectors
+//double ysxTRI_LghtBis(double a, double b, double c) { double s = (a + b + c) * 0.5; return((2 * sqrt(b * c * s * (s - a))) / (b + c)); } // Lenght of a bisector
+//double ysxTRI_PerpBisa(double a, double b, double c, double Area) { return((2.0 * a * Area) / pow(a, 2) + pow(b, 2) - pow(c, 2)); } // Interior perpendicular bisectors
+//double ysxTRI_PerpBisb(double a, double b, double c, double Area) { return((2.0 * b * Area) / pow(a, 2) + pow(b, 2) - pow(c, 2)); } // Interior perpendicular bisectors
+//double ysxTRI_PerpBisc(double a, double b, double c, double Area) { return((2.0 * c * Area) / pow(a, 2) - pow(b, 2) + pow(c, 2)); } // Interior perpendicular bisectors
 
 // CIRCUMCENTER, INRADIUS, INCENTER AND ETC:
-double TriCircumR(double a, double b, double c) { return(sqrt((pow(a, 2) * pow(b, 2) * pow(c, 2))/((a + b + c) * (- a + b + c) * (a - b + c) * (a + b - c)))); } // Circumradius
-double TriInrad(double a, double b, double c) { double s = (a + b + c) * 0.5; return(sqrt(s * (s - a) * (s - b) * (s - c)) / s); } // Inradius
-double TriIncenter(double a, double b, double Rad) // Lenght from 'I' to 'B'
+double ysxTRI_CircumR(double a, double b, double c) { return(sqrt((pow(a, 2) * pow(b, 2) * pow(c, 2))/((a + b + c) * (- a + b + c) * (a - b + c) * (a + b - c)))); } // Circumradius
+double ysxTRI_Inrad(double a, double b, double c) { double s = (a + b + c) * 0.5; return(sqrt(((s - a) * (s - b) * (s - c)) / s)); } // Inradius
+// double ysxTRI_Inrad(double a, double b, double c) { double s = (a + b + c) * 0.5; return(sqrt(s * (s - a) * (s - b) * (s - c)) / s); } // Inradius
+double ysxTRI_Incenter(double a, double b, double Rad) // Lenght from 'I' to 'B'
 {
-	double C = Rad, B = LawSinRad(a, b, C); if (a < cos(C) * b) { B = PI - B; };
-	return(TriBisAct(TriBisAct(a, b, Rad), LawCos(a, b, C), PI - (C + B) * 0.5));
+	double B = ysxGEO_LawSinRad(a, b, Rad); if (a < cos(Rad) * b) { B = PI - B; };
+
+	return(ysxTRI_BisAct(ysxTRI_BisAct(a, b, Rad), ysxGEO_LawCos(a, b, Rad), PI - (Rad + B) * 0.5));
 }
 
 // ADJACENT TRIANGLE:
 // Suppose two adjacent but non - overlapping triangles share the same side of length f and share the same circumcircle,
 // so that the side of length f is a chord of the circumcircle and the triangles have side lengths(a, b, f) and (c, d, f),
 // with the two triangles together forming a cyclic quadrilateral with side lengths in sequence(a, b, c, d). Then:
-double TriAdjcnt(double a, double b, double c, double d) { return(sqrt((((a * c) + (b * d)) * ((a * d) + (b * c)))/((a * b) + (c * d)))); }
+double ysxTRI_Adjcnt(double a, double b, double c, double d) { return(sqrt((((a * c) + (b * d)) * ((a * d) + (b * c)))/((a * b) + (c * d)))); }
 
 // #################################################
 // ############## TRIANGLE ##############
-class Triangle
+class ysxTRI_Triangle
 {
 public:
 	// ############################
@@ -121,7 +123,7 @@ public:
 	uint8_t GetBigger(double a, double b, double c)
 	{ uint8_t Ret = 'n'; if (c > b && c > a) { Ret = 'c'; } else if (b > c && b > a) { Ret = 'b'; } else if (a > b && a > c) { Ret = 'a'; } return (Ret); }
 	// ############################
-	std::vector<double> GetRatios(double a, double b, double c)
+	std::vector<double> GetRatios(double a, double b, double c) // Make for array
 	{
 		std::vector<double> TRatios(3);
 		uint8_t Big = GetBigger(a, b, c);
@@ -180,10 +182,12 @@ public:
 		std::cout << "Ratios: a: " << Ratios[0] << " | b: " << Ratios[1] << " | c: " << Ratios[2] << std::endl;
 		std::cout << "\n############## END TRI ##############\n\n";
 	}
+	
 	// ############################
-	Triangle(double asize, double bsize, double Rad)
+	
+	ysxTRI_Triangle(double asize, double bsize, double Rad)
 	{
-		a = asize; b = bsize; c = LawCos(a, b, Rad);
+		a = asize; b = bsize; c = ysxGEO_LawCos(a, b, Rad);
 		// Razões:
 		Bigger = GetBigger(a, b, c);
 		Ratios[0] = GetRatios(a, b, c)[0]; Ratios[1] = GetRatios(a, b, c)[1]; Ratios[2] = GetRatios(a, b, c)[2];
@@ -191,7 +195,7 @@ public:
 		else if (Ratios[0] != Ratios[1] && Ratios[0] != Ratios[2] && Ratios[1] != Ratios[2]) { LnghtType = Scalene; }
 		else { LnghtType = Isoceles; }
 		// Angles:
-		Beta = LawSinRad(a, b, Rad); if (a < cos(Rad) * b) { Beta = PI - Beta; AngType = Obtuse; }
+		Beta = ysxGEO_LawSinRad(a, b, Rad); if (a < cos(Rad) * b) { Beta = PI - Beta; AngType = Obtuse; }
 		Gamma = Rad;
 		Alpha = PI - (Gamma + Beta);
 		if (Alpha == HPI || Beta == HPI || Gamma == HPI) { AngType = Right; }
@@ -199,12 +203,12 @@ public:
 		if (Alpha > HPI || Beta > HPI || Gamma > HPI) { AngType = Obtuse; }
 
 		// Bisectors:
-		BisA = TriBisAct(a, b, Gamma); BisB = TriBisAct(b, c, Alpha); BisC = TriBisAct(c, a, Beta);
-		if (Rad > HPI) { BisA = TriBisAct(b, a, Gamma); BisB = TriBisAct(c, a, Alpha); BisC = TriBisAct(c, b, Beta); }
+		BisA = ysxTRI_BisAct(a, b, Gamma); BisB = ysxTRI_BisAct(b, c, Alpha); BisC = ysxTRI_BisAct(c, a, Beta);
+		if (Rad > HPI) { BisA = ysxTRI_BisAct(b, a, Gamma); BisB = ysxTRI_BisAct(c, a, Alpha); BisC = ysxTRI_BisAct(c, b, Beta); }
 		// Incenter:
-		IB = TriIncenter(a, b, Gamma); IC = TriIncenter(b, c, Alpha); IA = TriIncenter(c, b, Beta); Inradius = TriInrad(a, b, c);
+		IB = ysxTRI_Incenter(a, b, Gamma); IC = ysxTRI_Incenter(b, c, Alpha); IA = ysxTRI_Incenter(c, b, Beta); Inradius = ysxTRI_Inrad(a, b, c);
 		// Medians:
-		Mediana = TriSideMedian(a, b, c); Medianb = TriSideMedian(b, a, c); Medianc = TriSideMedian(c, a, b);
+		Mediana = ysxTRI_SideMedian(a, b, c); Medianb = ysxTRI_SideMedian(b, a, c); Medianc = ysxTRI_SideMedian(c, a, b);
 
 		// Height e width:
 		if (Rad <= HPI)

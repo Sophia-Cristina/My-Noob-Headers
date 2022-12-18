@@ -13,8 +13,8 @@
 // #################################################
 
 // VOLUME AND AREA:
-double ConeSurf(double lenght, double r) { return(PI * r * (lenght + r)); }
-double ConeVol(double r, double h) { return((PI * r * r * h) / 3); }
+double ysxCONE_Surf(double lenght, double r) { return(PI * r * (lenght + r)); }
+double ysxCONE_Vol(double r, double h) { return((PI * r * r * h) / 3); }
 
 // ###############################################################################################################################################################################
 

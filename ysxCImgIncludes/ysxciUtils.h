@@ -49,11 +49,23 @@ void Invert(CImg<uint8_t>& Img)
 	{
 		for (uint16_t m = 0; m < W; ++m)
 		{
-			Point3D<uint8_t> RGB = BitmapRGB(Img, m, n);
+			Point3D<uint8_t> RGB = ysxCIMG_CLR_BitmapRGB(Img, m, n);
 			uint8_t C[] = { 255 - RGB.x, 255 - RGB.y, 255 - RGB.z }; Img.draw_point(m, n, C);
 		}
 	}
 }
+
+// REDO IMAGE WITH SPECIFIC COLOR (OR ELSE, IT IS BLACK):
+void FillAlpha(CImg<uint8_t>& Img, uint8_t* Clr = nullptr)
+{
+	Img = CImg<uint8_t>::CImg(Img.width(), Img.height(), 1, 4, 0);
+	if (!Clr) { uint8_t C[] = { 0, 0, 0, 0 }; Img.draw_fill(1, 1, C, 1, 1); }
+	else { Img.draw_fill(1, 1, Clr, 1, 1); }
+} // Maybe it is already black
+
+// Fill / clean entire image, but by drawing a rectangle over it:
+void FillRect(CImg<uint8_t>& Img) { uint8_t c[] = { 0, 0, 0 }; Img.draw_rectangle(0, 0, Img.width() - 1, Img.height() - 1, c); }
+void FillRect(CImg<uint8_t>& Img, uint8_t C[3]) { Img.draw_rectangle(0, 0, Img.width() - 1, Img.height() - 1, C); }
 
 // FILL (PAINT BUCKET) SOME PLACE:
 void FillArea(CImg<uint8_t>& Img, uint16_t x, uint16_t y, uint8_t* C) { Img.draw_fill(x, y, C, 1, 1, false); }
@@ -174,7 +186,7 @@ CImg<uint8_t> ValueBarAbs(uint16_t Width, double Value, double Ratio, uint16_t B
 		if (Width <= Borderx) { Width = Borderx + 1; } if (Value <= Bordery) { Value = Bordery + 1; }
 		if (xAxis) { Bar = CImg<uint8_t>::CImg(Value - Bordery, Width - Borderx, 1, 3, 0); }
 		else { Bar = CImg<uint8_t>::CImg(Width - Bordery, Value - Borderx, 1, 3, 0); }
-		LinearRGBuc(Value / Ratio, 1, 1, C);
+		ysxCIMG_CLR_LinearRGBuc(Value / Ratio, 1, 1, C);
 		FillArea(Bar, Bar.width() * 0.5, Bar.height() * 0.5, C);
 		C[0] = 255 - C[0]; C[1] = 255 - C[1]; C[2] = 255 - C[2];
 		if (Borderx > 0 && Bordery > 0) { Bar = AddBorder(Bar, Borderx, Bordery, C); }		
@@ -191,7 +203,7 @@ CImg<uint8_t> ValueBar(uint16_t Width, double Value, double Ratio, uint16_t Bord
 		if (Width <= Borderx) { Width = Borderx + 1; } if (Value <= Bordery) { Value = Bordery + 1; }
 		if (xAxis) { Bar = CImg<uint8_t>::CImg(Value - Bordery, Width - Borderx, 1, 3, 0); }
 		else { Bar = CImg<uint8_t>::CImg(Width - Bordery, Value - Borderx, 1, 3, 0); }
-		uint8_t C[3]; LinearRGBuc(Value / Ratio, 1, 1, C);
+		uint8_t C[3]; ysxCIMG_CLR_LinearRGBuc(Value / Ratio, 1, 1, C);
 		CImg<uint8_t> BarFill = Bar;
 		FillArea(BarFill, Bar.width() * 0.5, Bar.height() * 0.5, C);
 		C[0] = 255 - C[0]; C[1] = 255 - C[1]; C[2] = 255 - C[2];
@@ -233,8 +245,8 @@ CImg<uint8_t> SqrMatrix(std::vector<T_>& V, uint16_t x, uint16_t y, bool Text = 
 	for (uint32_t m = 0; m < S; ++m)
 	{
 		if (Text) { Txt = std::to_string(m) + ":\n" + std::to_string(V[m]); }
-		if (std::is_floating_point<T_>) { LinearRGBuc(V[m], 1, 1, C); }
-		else { LinearRGBuc(V[m] / (float)(pow(256, sizeof(T_)) - 1), 1, 1, C);	}
+		if (std::is_floating_point<T_>) { ysxCIMG_CLR_LinearRGBuc(V[m], 1, 1, C); }
+		else { ysxCIMG_CLR_LinearRGBuc(V[m] / (float)(pow(256, sizeof(T_)) - 1), 1, 1, C);	}
 		Squares.draw_image((m % j) * x, floor((float)m / j) * y, RetCell(x, y, 1, 1, Txt, C));
 	}
 	return(Squares);
@@ -251,8 +263,8 @@ CImg<uint8_t> SqrMatrix(std::vector<T_>& V, uint16_t x, uint16_t y, uint16_t j, 
 	for (uint32_t m = 0; m < S; ++m)
 	{
 		if (Text) { Txt = std::to_string(m) + ":\n" + std::to_string(V[m]); }
-		if (std::is_floating_point<T_>) { LinearRGBuc(V[m], 1, 1, C); }
-		else { LinearRGBuc(V[m] / (float)(pow(256, sizeof(T_)) - 1), 1, 1, C); }
+		if (std::is_floating_point<T_>) { ysxCIMG_CLR_LinearRGBuc(V[m], 1, 1, C); }
+		else { ysxCIMG_CLR_LinearRGBuc(V[m] / (float)(pow(256, sizeof(T_)) - 1), 1, 1, C); }
 		Squares.draw_image((m % j) * x, floor((float)m / j) * y, RetCell(x, y, 1, 1, Txt, C));
 	}
 	return(Squares);
@@ -305,7 +317,7 @@ CImg<uint8_t> SqrMatrix(CImg<uint8_t>& V, uint16_t x, uint16_t y, bool Text = 0)
 	{
 		for (uint32_t n = 0; n < i; ++n)
 		{
-			BitmapRGBuc(V, n, m, C);
+			ysxCIMG_CLR_BitmapRGBuc(V, n, m, C);
 			if (Text) { Txt = std::to_string(n + (j * m)) + ":\n" + std::to_string((C[0] + C[1] + C[2]) / 3.0); }
 			Squares.draw_image(n * x, m * y, RetCell(x, y, 1, 1, Txt, C));
 		}
@@ -313,7 +325,7 @@ CImg<uint8_t> SqrMatrix(CImg<uint8_t>& V, uint16_t x, uint16_t y, bool Text = 0)
 	return(Squares);
 }
 
-// ADD VERTICE:
+// ADD VERTEX:
 void AddVert(CImg<uint8_t>& Img, uint16_t x, uint16_t y, uint16_t Size, uint8_t* C)
 {
 	uint16_t px, py;
@@ -322,7 +334,7 @@ void AddVert(CImg<uint8_t>& Img, uint16_t x, uint16_t y, uint16_t Size, uint8_t*
 		for (int Col = floor((Size * 0.5) - Size); Col < Size * 0.5; ++Col)
 		{
 			px = Col + x, py = Row + y;
-			if (InImg(Img, px, py)) { Img.draw_point(px, py, C); }
+			Img.draw_point(px, py, C);
 		}
 	}
 }

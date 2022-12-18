@@ -16,7 +16,7 @@
 // #####################################################################################################################################
 
 // REED-SOLOMON ERROR CODE CLASS:
-class ReedSolomon
+class ysx_ReedSolomon
 {
 public:
 	unsigned char MSG_CNT = 3, POLY_CNT = 14;
@@ -46,7 +46,7 @@ public:
 	
 	// #################################################
 
-	GaloisBase2<unsigned char> GF; // GALOIS MATH
+	ysxFIELD_GaloisBase2<unsigned char> GF; // GALOIS MATH
 
 	// #################################################
 	// #################################################
@@ -447,7 +447,7 @@ public:
 
 	// Set your message vector (overwrite), pick a vector to buffer ECC (overwrite), set a vector to get your message out (overwrite):
 	// * MSGOut is going to have ''.size()' = MSGIn + ECCIn', so you may need a vector with slots to start up this class *
-	ReedSolomon(std::vector<unsigned char>* SetMSG, std::vector<unsigned char>* SetECC)
+	ysx_ReedSolomon(std::vector<unsigned char>* SetMSG, std::vector<unsigned char>* SetECC)
 	{
 		MSG = SetMSG; ECC = SetECC;		
 		msg_length = SetMSG->size(); ecc_length = SetECC->size();
@@ -474,7 +474,7 @@ public:
 		e_eval = std::vector<unsigned char>::vector(poly_len); // ID_ERR_EVAL // i < ID_ERR_EVAL + 2; ++i)
 		//offset += enc_len;
 	}
-	~ReedSolomon() { } // Dummy destructor, gcc-generated one crashes programm
+	~ysx_ReedSolomon() { } // Dummy destructor, gcc-generated one crashes programm
 };
 
 // #####################################################################################################################################

@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef YSXCIRCLE_H
-#define YSXCIRCLE_H
+#ifndef YSXQUADRI_H
+#define YSXQUADRI_H
 
 // #####################
 // ####### By Sophia Cristina
@@ -12,15 +12,15 @@
 // REFERENCES:
 // #################################################
 
-double QuadriArBret(double a, double b, double c, double d, double alpha, double gamma)
+double ysxQUADRI_ArBret(double a, double b, double c, double d, double alpha, double gamma)
 { double s = 0.5 * (a + b + c + d); return (sqrt((s - a) * (s - b) * (s - c) * (s - d) - (a * b * c * d * cos2((alpha + gamma) / 2)))); }
 
 // RECTANGLE OF EQUAL AREA AND PERIMETER:
-double EqPeriArRect(double Width) { if (Width <= 2) { Width = 2.000000001; } return((2 * Width) / ( Width - 2)); }
+double ysxQUADRI_EqPeriArRect(double Width) { if (Width <= 2) { Width = 2.000000001; } return((2 * Width) / ( Width - 2)); }
 
 // #################################################
 
-class Quadrilateral
+class ysxQUADRI_Quadrilateral // W.I.P
 {
 public:
 	// ############################

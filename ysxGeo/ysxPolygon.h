@@ -12,8 +12,8 @@
 // REFERENCES:
 // #################################################
 
-double Perim(double Sides, double Size) { return(Sides * Size); }
-double Inradius(double Sides, double Size) { return(Size * 0.5 * cot(PI / Sides)); } // Inradius regular polygon
+double ysxPOLYGN_Perim(double Sides, double Size) { return(Sides * Size); }
+double ysxPOLYGN_Inradius(double Sides, double Size) { return(Size * 0.5 * cot(PI / Sides)); } // Inradius regular polygon
 
 // ###############################################################################################################################################################################
 

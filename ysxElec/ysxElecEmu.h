@@ -50,16 +50,16 @@ https://en.wikipedia.org/wiki/7400-series_integrated_circuits
 	//  1   1   0   1 |  1   0   0   1 = 217
 	// 4B, 4A, 3B, 3A | 2B, 2A, 1B, 1A
 */
-class TTL_SN7400_IC : public Component
+class ysxELEC_TTL_SN7400 : public ysxELEC_Component
 {
 public:
 
-	CompConfig* Config;
+	ysxELEC_CompConfig* Config;
 	enum Pins { A1, B1, A2, B2, A3, B3, A4, B4, Vcc }; // Work on Vcc yet to be done!
-	Wire* Y; // Outputs are in numerial order. IDEAL that you add 4 signals!
-	Wire* GND; // You can point GND wire signal to its own input
+	ysxELEC_Wire* Y; // Outputs are in numerial order. IDEAL that you add 4 signals!
+	ysxELEC_Wire* GND; // You can point GND wire signal to its own input
 
-	TTL_SN7400_IC(CompConfig& InConfig)
+	ysxELEC_TTL_SN7400(ysxELEC_CompConfig& InConfig)
 	{
 		Config = &InConfig;
 		if (Config->Volts > 5.5) { Config->Volts = 5.5; } // !!! THIS IS THE INPUT VOLT, MAX IS 5.5v !!!
@@ -76,23 +76,23 @@ public:
 			if (Sigs > 0)
 			{
 				//  		 nA						 nB											    16mA
-				if ((Signals[A1][n] > 2) && (Signals[B1][n] > 2)) { Y->Signals[0][n] = NoiseSample(0.016, 0.006); }
-				else { Y->Signals[0][n] = NoiseSample(5.125, Config->NoiseGain); }
+				if ((Signals[A1][n] > 2) && (Signals[B1][n] > 2)) { Y->Signals[0][n] = ysxSIG_NoiseSample(0.016, 0.006); }
+				else { Y->Signals[0][n] = ysxSIG_NoiseSample(5.125, Config->NoiseGain); }
 			}
 			if (Sigs > 1)
 			{
-				if ((Signals[A2][n] > 2) && (Signals[B2][n] > 2)) { Y->Signals[1][n] = NoiseSample(0.016, 0.006); }
-				else { Y->Signals[1][n] = NoiseSample(5.125, Config->NoiseGain); }
+				if ((Signals[A2][n] > 2) && (Signals[B2][n] > 2)) { Y->Signals[1][n] = ysxSIG_NoiseSample(0.016, 0.006); }
+				else { Y->Signals[1][n] = ysxSIG_NoiseSample(5.125, Config->NoiseGain); }
 			}
 			if (Sigs > 2)
 			{
-				if ((Signals[A3][n] > 2) && (Signals[B3][n] > 2)) { Y->Signals[2][n] = NoiseSample(0.016, 0.006); }
-				else { Y->Signals[2][n] = NoiseSample(5.125, Config->NoiseGain); }
+				if ((Signals[A3][n] > 2) && (Signals[B3][n] > 2)) { Y->Signals[2][n] = ysxSIG_NoiseSample(0.016, 0.006); }
+				else { Y->Signals[2][n] = ysxSIG_NoiseSample(5.125, Config->NoiseGain); }
 			}
 			if (Sigs > 3)
 			{
-				if ((Signals[A4][n] > 2) && (Signals[B4][n] > 2)) { Y->Signals[3][n] = NoiseSample(0.016, 0.006); }
-				else { Y->Signals[3][n] = NoiseSample(5.125, Config->NoiseGain); }
+				if ((Signals[A4][n] > 2) && (Signals[B4][n] > 2)) { Y->Signals[3][n] = ysxSIG_NoiseSample(0.016, 0.006); }
+				else { Y->Signals[3][n] = ysxSIG_NoiseSample(5.125, Config->NoiseGain); }
 			}
 		}
 		Y->ProcessSignal();

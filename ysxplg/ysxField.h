@@ -22,7 +22,7 @@
 // GALOIS BASE 2, USED IN REED-SOLOMON CODE CORRECTOR [2]:
 // It is maybe not optimized, because i took from a tutorial. Maybe later i study it better and optimize.
 template<class T_>
-class GaloisBase2
+class ysxFIELD_GaloisBase2
 {
 public:
 
@@ -245,11 +245,11 @@ public:
 
 	// prim is the primitive (binary) polynomial. Since it's a polynomial in the binary sense,
 	// it's only in fact a single galois field value between 0 and 255, and not a list of gf values.
-	GaloisBase2(unsigned short prim = 0x11d)
+	ysxFIELD_GaloisBase2(unsigned short prim = 0x11d)
 	{
 	}
 
-	~GaloisBase2()
+	~ysxFIELD_GaloisBase2()
 	{
 	}
 };

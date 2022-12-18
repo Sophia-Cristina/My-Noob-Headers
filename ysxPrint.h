@@ -15,18 +15,28 @@
 // ##################### TEXTOS #####################
 
 // PRINT STRING LIKE A TEXT IN A NOTEPAD:
-void PrintString(std::string S) { std::ofstream O("String.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; } else { O << S; } O.close(); }
+void PrintString(std::string S) { std::ofstream O("String.txt"); if (!O.is_open()) { std::cerr << "File error" << std::endl; } else { O << S; } O.close(); }
 void PrintString(char * S, size_t Size)
 {
-	std::ofstream O("String.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
+	std::ofstream O("String.txt"); if (!O.is_open()) { std::cerr << "File error" << std::endl; }
 	else { for (int n = 0; n < Size; ++n) { O << S[n]; } } O.close();
 }
 
 // PRINT CHAR AS IT NUMBER VALUE (MAKE IT WITHOUT PUSH BACK):
-void PrintCharAsInt(std::string inFile, std::string outFile, bool Spaces = 1)
+void PrintCharAsInt(std::string S, std::string outFile, bool Spaces = 1)
+{
+	std::ofstream O(outFile);
+	if (!O.is_open()) { std::cerr << "File error" << std::endl; }
+	else
+	{
+		for (size_t n = 0; n < S.size(); ++n) { O << (short)S[n]; if (Spaces) { O << " "; } }
+	}
+	O.close();
+}
+void PrintCharAsIntFromFile(std::string inFile, std::string outFile, bool Spaces = 1)
 {
 	std::ifstream In(inFile); std::ofstream O(outFile);
-	if (!In.is_open() && !O.is_open()) { std::cout << "File error" << std::endl; }
+	if (!In.is_open() && !O.is_open()) { std::cerr << "File error" << std::endl; }
 	else
 	{ 
 		while (!In.eof()) { uint8_t C; In.read((char*)&C, 1); O << (short)C; if (Spaces) { O << " "; } }
@@ -37,11 +47,11 @@ void PrintCharAsInt(std::string inFile, std::string outFile, bool Spaces = 1)
 // PRINT A VECTOR PLOT MADE WITH ASCII:
 void PrintCharPlotter(char C, std::vector<double> V, int L)
 {
-	std::ofstream O("PrintVector.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
+	std::ofstream O("PrintVector.txt"); if (!O.is_open()) { std::cerr << "File error" << std::endl; }
 	else
 	{
-		double MaxAbs, MinAbs, Max = MaxVec(V), Min = MinVec(V);
-		MaxMinVecAbs(V, MaxAbs, MinAbs);
+		double MaxAbs, MinAbs, Max = ysxVEC_MaxVec(V), Min = ysxVEC_MinVec(V);
+		ysxVEC_MaxMinVecAbs(V, MaxAbs, MinAbs);
 
 		O << "MAX AND MIN: " << Max << " | " << Min << "\n\n";
 		std::cout << "MAX AND MIN: " << Max << " | " << Min << "\n\n";
@@ -75,10 +85,10 @@ void PrintCharPlotter(char C, std::vector<double> V, int L)
 // ##################### MÉTRICA #####################
 
 // Print.open("Print.txt");
-// if (!Print.is_open()) { std::cout << "File error" << std::endl; }
+// if (!Print.is_open()) { std::cerr << "File error" << std::endl; }
 void PrintMeterSecConvesor(double ms)
 {
-	std::ofstream O("PrintMeterSecConvesor.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
+	std::ofstream O("PrintMeterSecConvesor.txt"); if (!O.is_open()) { std::cerr << "File error" << std::endl; }
 	else
 	{
 		O << "ms to kmh: " << ms * 3.6 << " | "; O << "ms to mile: " << ms / 0.44704 << " |\n";
@@ -93,25 +103,25 @@ void PrintMeterSecConvesor(double ms)
 /* PRINT:
  'n^From, ..., n^To; From^n, ..., To^n;'
  'n-root(from), ..., n-root(To); From-root(n), ..., To-root(n);'*/
-void PrintPowRoot(double n, int From, int To)
+void PrintPowRoot(double x, int From, int To)
 {
 	if (From > To) { int Tmp = From; From = To; To = Tmp; }
-	std::ofstream O("PowerRoot.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
+	std::ofstream O("PowerRoot.txt"); if (!O.is_open()) { std::cerr << "File error" << std::endl; }
 	else
 	{
-		std::vector<long> pn = PowerOfn<long>(n, From, To);
 		O << "#####################\n";
-		for (int m = 0; m < pn.size(); ++m) { O << n << "^" << From + m << " = " << pn[m] << std::endl; }
-		pn = PowerByn<long>(n, From, To);
+		std::vector<double> pn = ysxVEC_PowerOfn<double>(x, From, To);
+		for (size_t n = 0; n < pn.size(); ++n) { O << x << "^" << From + n << " = " << pn[n] << std::endl; }
 		O << "#####################\n";
-		for (int m = 0; m < pn.size(); ++m) { O << From + m << "^" << n << " = " << pn[m] << std::endl;	}
+		pn = ysxVEC_PowerByn<double>(x, From, To);
+		for (size_t n = 0; n < pn.size(); ++n) { O << From + n << "^" << x << " = " << pn[n] << std::endl;	}
 		
-		std::vector<double> rn = nRootOfm<double>(n, From, To);
 		O << "#####################\n";
-		for (int m = 0; m < pn.size(); ++m)	{ O << n << "root(" << From + m << ") = " << rn[m] << std::endl; }
-		rn = mRootOfn<double>(n, From, To);
+		std::vector<double> rn = ysxVEC_nRootOfm<double>(x, From, To);
+		for (size_t n = 0; n < pn.size(); ++n)	{ O << x << "-root(" << From + n << ") = " << rn[n] << std::endl; }
 		O << "#####################\n";
-		for (int m = 0; m < pn.size(); ++m) { O << From + m << "root(" << n << ") = " << rn[m] << std::endl; }
+		rn = ysxVEC_mRootOfn<double>(x, From, To);
+		for (size_t n = 0; n < pn.size(); ++n) { O << From + n << "-root(" << x << ") = " << rn[n] << std::endl; }
 	}
 	O.close();
 }
@@ -120,7 +130,7 @@ void PrintPowRoot(double n, int From, int To)
 
 void PrintMult(double x, double Ini, double End, double Inc)
 {
-	std::ofstream O("PrintMult.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
+	std::ofstream O("PrintMult.txt"); if (!O.is_open()) { std::cerr << "File error" << std::endl; }
 	else
 	{
 		O << "####### MULTIPLICATIONS:\n\n";
@@ -131,7 +141,7 @@ void PrintMult(double x, double Ini, double End, double Inc)
 }
 void PrintDiv(double x, double Ini, double End, double Inc)
 {
-	std::ofstream O("PrintDiv.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
+	std::ofstream O("PrintDiv.txt"); if (!O.is_open()) { std::cerr << "File error" << std::endl; }
 	else
 	{
 		O << "####### DIVISIONS:\n\n";
@@ -147,14 +157,14 @@ void PrintDiv(double x, double Ini, double End, double Inc)
 
 void PrintSmallEq(double a, double b, double c)
 {
-	std::ofstream O("!SimpleEq.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
+	std::ofstream O("!SimpleEq.txt"); if (!O.is_open()) { std::cerr << "File error" << std::endl; }
 	else
 	{
 		O << "x =  b / a -> x = " << b << " / " << a << " =\n";
 		O << b / a << std::endl;
 		O << " a / b = " << a / b << std::endl;
-		O << "c * x = (b / a) * c = " << (b / a) * c << std::endl;
-		O << "(a / b) * c = " << (a / b) * c << "\n\n";
+		O << "c * x = c * b / a = " << c * b / a << std::endl;
+		O << "c * a / b = " << c * a / b << "\n\n";
 	}
 	O.close();
 }
@@ -168,10 +178,10 @@ void PrintSmallEq(double a, double b, double c)
 // Imprime Informações que possam ser adiquiridas atravéz de um lado 'a' e outro 'b', e com o 'c' baseado na hipotenusa destes:
 void PrtTriInfo(double a, double b, double ang)
 {
-	std::ofstream O("Print.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
+	std::ofstream O("Print.txt"); if (!O.is_open()) { std::cerr << "File error" << std::endl; }
 	else
 	{
-		Triangle Tri(a, b, ang);
+		ysxTRI_Triangle Tri(a, b, ang);
 		O << "0: NoTypeLgt; 1: Equilateral; 2: Isoceles; 3: Scalene;\n";
 		O << "0: NoTypeAng; 1: Right; 2: Acute; 3: Obtuse;\n";
 		O << "Tipo triangulo = " << (int)Tri.LnghtType << " & " << (int)Tri.AngType << std::endl;
@@ -200,7 +210,7 @@ void PrtTriInfo(double a, double b, double ang)
 template <class T_>
 void PrintVector(std::vector<T_> Vec)
 {
-	std::ofstream O("PrintVector.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
+	std::ofstream O("PrintVector.txt"); if (!O.is_open()) { std::cerr << "File error" << std::endl; }
 	else { O << "VECTOR: \n\n"; for (int n = 0; n < Vec.size(); ++n) { O << n << ": " << Vec[n] << std::endl; } } O.close();
 }
 
@@ -214,7 +224,7 @@ void PrintVector(std::vector<T_> Vec)
 // Imprime Informações que possam ser adiquiridas atravéz de um BPM:
 void PrtBPMInfo(double BPM, double Div, double Div0, double Inc, double Inc0)
 {
-	std::ofstream O("BPMInfo.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
+	std::ofstream O("BPMInfo.txt"); if (!O.is_open()) { std::cerr << "File error" << std::endl; }
 	else
 	{
 		double Beatms = BPM2ms(BPM);
@@ -257,7 +267,7 @@ void PrtBPMInfo(double BPM, double Div, double Div0, double Inc, double Inc0)
 // Imprime Informações que possam ser adiquiridas atravéz de milisegundos:
 void PrtmsInfo(double ms, double Div, double Div0, double Inc, double Inc0)
 {
-	std::ofstream O("PrtmsInfo.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
+	std::ofstream O("PrtmsInfo.txt"); if (!O.is_open()) { std::cerr << "File error" << std::endl; }
 	else
 	{
 		O << "ms as minutes: " << ms2Min(ms) << " | ms as BPM: " << ms2BPM(ms) << " | ms as freq.: " << ms2Freq(ms) << std::endl;
@@ -296,7 +306,7 @@ void PrtmsInfo(double ms, double Div, double Div0, double Inc, double Inc0)
 // Imprime informações sobre sample rate:
 void SampleRateInfo()
 {
-	std::ofstream O("SampleRateInfo.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
+	std::ofstream O("SampleRateInfo.txt"); if (!O.is_open()) { std::cerr << "File error" << std::endl; }
 	else
 	{
 		unsigned int List[21] = SAMPLERATES;
@@ -311,7 +321,7 @@ void SampleRateInfo()
 // Print MTOF:
 void MtoFPrint(int MIDImin, int MIDImax, int Temperament, double BaseFreq)
 {
-	std::ofstream O("MtoFPrint.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
+	std::ofstream O("MtoFPrint.txt"); if (!O.is_open()) { std::cerr << "File error" << std::endl; }
 	else
 	{
 		O << "####### MIDI to Frequency #######\n\n";
@@ -319,7 +329,7 @@ void MtoFPrint(int MIDImin, int MIDImax, int Temperament, double BaseFreq)
 		uint8_t Oct = 0;
 		for (int MIDI = MIDImin; MIDI <= MIDImax; ++MIDI)
 		{
-			O << "MIDI: " << MIDI << " | FREQ.: " << MIDItoFreq(MIDI, Temperament, BaseFreq);
+			O << "MIDI: " << MIDI << " | FREQ.: " << ysxMUS_MIDItoFreq(MIDI, Temperament, BaseFreq);
 			if (MIDI == Temperament * Oct) { O << " <- NOTE 'A'!\n"; ++Oct; }
 			else { O << std::endl; }
 		}
@@ -338,7 +348,7 @@ void Vec2RenoiseAuto(std::vector<double> V, int Type, int LenghtInPatternLines, 
 {
 	if (V.size() > 0)
 	{
-		std::ofstream O(FileName + ".txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
+		std::ofstream O(FileName + ".txt"); if (!O.is_open()) { std::cerr << "File error" << std::endl; }
 		else
 		{
 			// HEADER:
@@ -395,10 +405,10 @@ void Vec2RenoiseAuto(std::vector<std::vector<double>> Vv, int Type, int LenghtIn
 // FibonacciWord binary into coll:
 void FiboWord2Coll(int Iter, bool CollMsn, int Line)
 {
-	std::ofstream O("FiboWord.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
+	std::ofstream O("FiboWord.txt"); if (!O.is_open()) { std::cerr << "File error" << std::endl; }
 	else
 	{
-		std::string Word = FiboWord(Iter);
+		std::string Word = ysxFRACTAL_FibonacciWord(Iter);
 		if (!CollMsn) { O << Line << ","; }
 		for (int n = 0; n < Word.size(); ++n)
 		{
@@ -412,13 +422,13 @@ void FiboWord2Coll(int Iter, bool CollMsn, int Line)
 // FibonacciWord steps into coll
 void FiboWordFrac2Coll(int Iter, bool CollMsn, int Line)
 {
-	std::ofstream O("FiboFrac.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
+	std::ofstream O("FiboFrac.txt"); if (!O.is_open()) { std::cerr << "File error" << std::endl; }
 	else
 	{
 		enum { Up, Down, Left, Right };
 		static int nextDir[2][4] = { { Left,  Right, Down,  Up }, { Right, Left,  Up, Down } };
 		int dir = Up;
-		std::string Word = FiboWord(Iter);
+		std::string Word = ysxFRACTAL_FibonacciWord(Iter);
 		if (!CollMsn) { O << Line << ","; }
 		for (size_t n = 1; n < Word.size(); ++n)
 		{
@@ -437,10 +447,10 @@ void FiboWordFrac2Coll(int Iter, bool CollMsn, int Line)
 // Coordinates of FibonacciWord into coll:
 void FiboWordFracCoord2Coll(int Iter, bool CollMsn, int Line, float Dist, bool xory, std::string Name)
 {
-	std::ofstream O(Name); if (!O.is_open()) { std::cout << "File error" << std::endl; }
+	std::ofstream O(Name); if (!O.is_open()) { std::cerr << "File error" << std::endl; }
 	else
 	{
-		std::vector<Point<int>> Pt = FiboWordFrac(FiboWord(Iter));
+		std::vector<Point<int>> Pt = ysxFRACTAL_FiboWordFrac(ysxFRACTAL_FibonacciWord(Iter));
 		if (!CollMsn) { O << Line << ","; }
 		for (size_t n = 0; n < Pt.size(); ++n)
 		{
@@ -457,7 +467,7 @@ void FiboWordFracCoord2Coll(int Iter, bool CollMsn, int Line, float Dist, bool x
 // Any Vector to coll:
 void Vec2Coll(std::vector<float> Coll, bool CollMsn, int Line)
 {
-	std::ofstream O("Vector.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
+	std::ofstream O("Vector.txt"); if (!O.is_open()) { std::cerr << "File error" << std::endl; }
 	else
 	{
 		if (!CollMsn) { O << Line << ","; }
@@ -474,7 +484,7 @@ void Vec2Coll(std::vector<float> Coll, bool CollMsn, int Line)
 // Print Vector of Vectors into 'Line + n':
 void VecOfVec2Coll(std::vector<std::vector<float>> Coll, int Line)
 {
-	std::ofstream O("Vector.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
+	std::ofstream O("Vector.txt"); if (!O.is_open()) { std::cerr << "File error" << std::endl; }
 	else
 	{
 		for (int n = 0; n < Coll.size(); ++n)
@@ -507,7 +517,7 @@ void VecOfVec2Coll(std::vector<std::vector<float>> Coll, int Line)
 // PRINT SOMETHING A NUMBER OF TIMES:
 void PrintitNtimes()
 {
-	std::ofstream O("PrintVector.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
+	std::ofstream O("PrintVector.txt"); if (!O.is_open()) { std::cerr << "File error" << std::endl; }
 	else
 	{
 	}
@@ -517,10 +527,10 @@ void PrintitNtimes()
 void PrintVecPlot(std::vector<float> V, int Lines)
 {
 	if (Lines < 2) { Lines = 2; }
-	std::ofstream O("PrintVector.txt"); if (!O.is_open()) { std::cout << "File error" << std::endl; }
+	std::ofstream O("PrintVector.txt"); if (!O.is_open()) { std::cerr << "File error" << std::endl; }
 	else
 	{
-		float Max, Min; MaxMinVec(V, Max, Min);
+		float Max, Min; ysxVEC_MaxMinVec(V, Max, Min);
 		double d = (Max - Min) / Lines;
 
 		for (int n = 0; n < Lines; ++n)
