@@ -10,12 +10,15 @@ There is nothing advanced and since I use those codes since the beginning of my 
 I love to do music and I began to learn programming because music. Since "music is math", I'm enjoying using c++ to make small silly programs to use in other softwares for music.
 
 
+UPDATES:
 
 ! I took the "using namespace std" from it, it now works correctly and won't have conflicts with other codes.
 
 ! I translated some of my header (which were in Brazilian Portuguese), and soon i'm going to make it all in english.
 
 ! Now i'm using templates. Hope i have not missed anything.
+
+! Now headers have prefix for the type of code inside: "ysxCODETYPE_Something". Ex.: "ysxVEC_" for anything that uses "std::vector".
 
 
 
