@@ -228,7 +228,7 @@ struct ysxMSENG_RAM_Map
 	// Consider that on hardware, there would NOT have SDL, consequently, this data structure would
 	// be slightly different:
 	SDL_AudioSpec Spec; // Specifications for SDL
-	SignalData sD; // Callback function data structure
+	ysxSDL_AU_SignalData sD; // Callback function data structure
 };
 
 template <class PATSIZE, uint32_t SRATE>
@@ -593,7 +593,7 @@ public:
 	{
 		Device = SDL_OpenAudio(&RAM->Spec, NULL);
 		RAM->sD.Pos = &RAM->BUF[0]; RAM->sD.Samples = BUFSIZE; RAM->sD.Count = 0; RAM->Spec.userdata = &RAM->sD;
-		RAM->Spec.callback = SignalCall;
+		RAM->Spec.callback = ysxSDL_AU_SignalCall;
 		memset(&RAM->BUF[0], 127, RAM->BUF.size()); // Signal
 		for (RAM->n = 0; RAM->n < INSTR; ++RAM->n) { SigPins[RAM->n] = nullptr; } RAM->n = 0; // Start with clean pointers
 		PatPins = nullptr;
