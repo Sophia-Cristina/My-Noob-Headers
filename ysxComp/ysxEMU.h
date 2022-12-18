@@ -55,19 +55,25 @@ ROM / RAM, MICRO-CONTROLLER:
 
  // ####### BASIC CIRCUIT:
 
-// TRANSFER DATA WITH AN EMULATED BUS: !!! WIP !!!
-// Maybe change to something else rather than void!
-// "Bytes", is how much bytes the bus array have...
-// void* Mem[Bytes];
-template <class T_, size_t Bytes>
+/* TRANSFER DATA WITH AN EMULATED BUS :
+!!! ATTENTION, UNSAFE CODE !!!
+This code assumes you know what memory you are accessing!
+It constructs with 'BusOffSet' as the initial position of an array of 'T_' with constant size:
+		uint8_t ARRAY[SIZE]; DataBus<uint_8, SIZE> DB(ARRAY) { p = ARRAY; }
+WRITE or READ assumes that 'ARRAY[addr % Size]' is accessible and doesn't mind if your computer explodes!
+		 W(addr, 123) = p[addr % Size]     = 123;
+SAME AS: W(addr, 123) = ARRAY[addr % Size] = 123;
+SO YOU MUST be sure the address you are using inside the bus is inside the array size!
+*/
+template <class T_, size_t Size>
 class DataBus
 {
 public:
-	void* Mem[Bytes];
-	DataBus() { }
+	T_* p = nullptr;
+	DataBus(T_* BusOffSet) { p = BusOffSet; }
 	// Write; Read:
-	void W(size_t addr, T_* data);
-	T_ R(size_t addr, bool bReadOnly = false);
+	void W(size_t addr, T_ data) { if (p) { p[addr] = data; } };
+	T_ R(size_t addr, bool bReadOnly = false) { if (p) { return(p[addr]); } return(0); };
 };
 
 /* BIPOLAR TRANSISTOR (NPN AND PNP):
@@ -109,26 +115,34 @@ Not allowed:
 */
 struct SRNORFF
 {
-	Point<uint8_t> Q = { 0, 0 };
+	Point<uint8_t>* Q = nullptr;
+	Point<uint8_t> NOR;	uint8_t X;
 	void FF(uint8_t S, uint8_t R = 0)
 	{
-		uint8_t X = S ^ R; S &= X; R &= X;
-		Point<uint8_t> NOR = { ~(Q.y | S), ~(Q.x | R) };
-		Q.x = NOR.y; Q.y = NOR.x;
+		if (Q)
+		{
+			X = S ^ R; S &= X; R &= X;
+			NOR.x = ~(Q->y | S); NOR.y = ~(Q->x | R);
+			Q->x = NOR.y; Q->y = NOR.x;
+		}
 	}
 };
 
 // D-LATCH, USE CLOCK ON 'EN' TO FLIP-FLOP:
 struct DLatch
 {
-	Point<uint8_t> Q = { 0, 0 };
+	Point<uint8_t>* Q = nullptr;
+	Point<uint8_t> AND, NOR; uint8_t iD, X;
 	void FF(uint8_t D, uint8_t EN)
 	{
-		uint8_t iD = ~D;
-		Point<uint8_t> AND = { iD & EN, D & EN };
-		uint8_t X = AND.x ^ AND.y; AND.x &= X; AND.y &= X;
-		Point<uint8_t> NOR = { ~(Q.y | AND.x), ~(Q.x | AND.y) };
-		Q.x = NOR.y; Q.y = NOR.x;
+		if (Q)
+		{
+			iD = ~D;
+			AND.x = iD & EN; AND.y = D & EN;
+			X = AND.x ^ AND.y; AND.x &= X; AND.y &= X;
+			NOR.x = ~(Q->y | AND.x); NOR.y = ~(Q->x | AND.y);
+			Q->x = NOR.y; Q->y = NOR.x;
+		}
 	}
 };
 
@@ -136,13 +150,17 @@ struct DLatch
 struct JKFF
 {
 	uint8_t J = 0, K = 0;
-	Point<uint8_t> Q = { 0, 0 };
+	Point<uint8_t>* Q = nullptr;
+	Point<uint8_t> AND, NOR;
 	void FF(uint8_t CLK)
 	{
-		Point<uint8_t> AND = { Q.y & CLK & J, Q.x & CLK & K };
-		//uint8_t X = AND.x ^ AND.y; AND.x &= X; AND.y &= X; // Maybe i don't need that anymore, since it have the "toggle" option
-		Point<uint8_t> NOR = { ~(Q.y | AND.x), ~(Q.x | AND.y) };
-		Q.x = NOR.y; Q.y = NOR.x;
+		if (Q)
+		{
+			AND.x = Q->y & CLK & J; AND.y = Q->x & CLK & K;
+			//uint8_t X = AND.x ^ AND.y; AND.x &= X; AND.y &= X; // Maybe i don't need that anymore, since it have the "toggle" option
+			NOR.x = ~(Q->y | AND.x); NOR.y = ~(Q->x | AND.y);
+			Q->x = NOR.y; Q->y = NOR.x;
+		}
 	}
 
 };
@@ -153,15 +171,25 @@ struct JKFF
 class DecadeCnt
 {
 public:
-	std::array<SRNORFF, 4> FFs;
-	std::array<uint8_t, 8> Os; // Parallel outs (overwrite by function)
+	SRNORFF FFs[4];
+	Point<uint8_t> Qs[4];
+	uint8_t Os[8]; // Parallel outs (overwrite by function)
 	uint8_t cnt = 0;
+	DecadeCnt()
+	{
+		FFs[0].Q = &Qs[0]; FFs[1].Q = &Qs[1];
+		FFs[2].Q = &Qs[2]; FFs[3].Q = &Qs[3];
+	}
 	void FF(uint8_t CLK)
 	{
-		FFs[0].FF(CLK, ~CLK);
-		FFs[1].FF(FFs[0].Q.x, ~FFs[0].Q.x);
-		FFs[2].FF(FFs[1].Q.x, ~FFs[1].Q.x);
-		FFs[3].FF(FFs[2].Q.x, ~FFs[2].Q.x);
+		/*FFs[0].FF(CLK, CLK);
+		FFs[1].FF(FFs[0].Q->x, ~FFs[0].Q->x);
+		FFs[2].FF(FFs[1].Q->x, ~FFs[1].Q->x);
+		FFs[3].FF(FFs[2].Q->x, ~FFs[2].Q->x);*/
+		FFs[0].FF(CLK, 0);
+		FFs[1].FF(FFs[0].Q->x, 0);
+		FFs[2].FF(FFs[1].Q->x, 0);
+		FFs[3].FF(FFs[2].Q->x, 0);
 		GetPrllOut();
 	}
 	// GET PARALLEL OUT TO 'Os' ARRAY:
@@ -172,7 +200,7 @@ public:
 			Os[n] = 0; uint8_t tmp;
 			for (uint8_t Q = 0; Q < 4; ++Q)
 			{
-				tmp = ((FFs[Q].Q.x >> n) & 1) * pow(2, Q);
+				tmp = ((FFs[Q].Q->x >> n) & 1) * pow(2, Q);
 				Os[n] |= tmp;
 				//Os[n] |= FFs[Q].Q.x << bit;
 				/*  [Q]|  >> n |&1|pow|Os
