@@ -552,7 +552,9 @@ public:
 		}
 		else
 		{
-			if (bLOG) { LOG += SDLStringSpec(RAM->Spec); LOG += SDLStringData(RAM->sD); LOG += "Total samples: " + std::to_string(RAM->Samples) + "\n\n~*~ AUDIO OPEN:\n\n"; }
+			if (bLOG) { LOG += ysxSDL_AU_GetSpecInfo(RAM->Spec);
+			LOG += ysxSDL_AU_GetDataInfo(RAM->sD);
+			LOG += "Total samples: " + std::to_string(RAM->Samples) + "\n\n~*~ AUDIO OPEN:\n\n"; }
 			SDL_PauseAudio(0);
 		}
 	}
