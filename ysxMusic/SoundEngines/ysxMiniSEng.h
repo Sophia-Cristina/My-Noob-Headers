@@ -19,7 +19,7 @@
 /*~*~ ~*~ ~*~ MINI SOUND ENGINE ~*~ ~*~ ~*~
 * this comment section is an introduction to the code idea *
 * However, i also made another comment section for the class that is an 'emulator-like' of what would be
-* a hardware version of this engine: "class MSENG_PCB_ALPHA1".
+* a hardware version of this engine: "class ysxMSENG_PCB_ALPHA1".
 
 The engine originally was smaller, but i decided to code it aiming to look more hardware-like.
 But it can use pretty small kilobytes with certain setups, or skewing the codes here.
@@ -74,7 +74,7 @@ the '.wav' file.
 
 ~*~ PATTERN ~*~
 Is based on the bit positions. Meaning that you can change the pattern at will.
-If you set PATSIZE, for example, to uint16_t, you are going to have two bytes (MSENG_DATA_Time::PatBits = 16):
+If you set PATSIZE, for example, to uint16_t, you are going to have two bytes (ysxMSENG_DATA_Time::PatBits = 16):
 	0x0000
 It is four bits per beat, then ui16 can compose four beats per pattern.
 In case you want a note in each beat, you can set the pattern to:
@@ -133,7 +133,7 @@ you use it on c++!
 
 // OUTPUT TO BUFFER (!!! VERY CAREFUL WITH DATA TYPE !!!):
 template <class SIGTYPE, const uint16_t BUFSIZE>
-struct MSENG_DATA_O
+struct ysxMSENG_DATA_O
 {
 	void* SigO = nullptr;
 	size_t C = 0; // Buffer data counter
@@ -159,15 +159,15 @@ struct MSENG_DATA_O
 };
 
 // Insert 5 bytes of data for signal sources:
-void MSENG_DATA_Encod(uint8_t DATA[5], uint8_t Voice, uint32_t data) { DATA[0] = Voice; *(uint32_t*)&DATA[1] = data; }
+void ysxMSENG_DATA_Encod(uint8_t DATA[5], uint8_t Voice, uint32_t data) { DATA[0] = Voice; *(uint32_t*)&DATA[1] = data; }
 
 // Get 5 bytes of data from signal sources into different variables:
-void MSENG_DATA_Decod(uint8_t* DATA, uint8_t& Voice, uint32_t& data) { Voice = DATA[0]; data = *(uint32_t*)&DATA[1]; }
+void ysxMSENG_DATA_Decod(uint8_t* DATA, uint8_t& Voice, uint32_t& data) { Voice = DATA[0]; data = *(uint32_t*)&DATA[1]; }
 
 
 /* TIME DATA STRUCTURE:
 This is a data structure with everything the engine needs to understand the playback.
-You can use it however you want, but it is preferably to use the structure 'MSENG_ROM_Map',
+You can use it however you want, but it is preferably to use the structure 'ysxMSENG_ROM_Map',
 because it contains a MtoF look-up-table, and if i'm to add features to this engine, i'm going to
 add on that class preferably!
 
@@ -175,7 +175,7 @@ Sure size:
 1 + 8 + 4 + 4 + 4 + 4 + 4 = 29 BYTES;
 */
 template <class PATSIZE, uint32_t SRATE>
-struct MSENG_DATA_Time
+struct ysxMSENG_DATA_Time
 {
 	const uint8_t PatBits = sizeof(PATSIZE) * 8; // Number of bits per pattern
 	const double t = 1.0 / SRATE; // t = 1.0 / SRATE;
@@ -187,7 +187,7 @@ struct MSENG_DATA_Time
 // ROM MAP V.1:
 // Yes, it is only the time data and a look-up-table.
 template <class PATSIZE, uint32_t SRATE>
-struct MSENG_ROM_Map : public MSENG_DATA_Time<PATSIZE, SRATE>
+struct ysxMSENG_ROM_Map : public ysxMSENG_DATA_Time<PATSIZE, SRATE>
 { std::array<float, 128> MtoF; };
 
 /* RAM MAP V.1:
@@ -200,7 +200,7 @@ played with SDL! This would work different if this project is made as hardware!
 Take in mind that SIGTYPE and BUFSIZE makes this struct have ambiguous size!
 */
 template <class SIGTYPE, const uint16_t BUFSIZE>
-struct MSENG_RAM_Map
+struct ysxMSENG_RAM_Map
 {
 	std::array<uint8_t, BUFSIZE * (std::is_floating_point<SIGTYPE>::value ? 1 : sizeof(SIGTYPE))> BUF; // BUFFER / SIGNAL
 	
@@ -232,7 +232,7 @@ struct MSENG_RAM_Map
 };
 
 template <class PATSIZE, uint32_t SRATE>
-void MSENG_RAM_Set_Timing(MSENG_RAM_Map<PATSIZE, SRATE>* D, float SetMin = 0, float SetSec = 59, float SetBPM = 120)
+void ysxMSENG_RAM_Set_Timing(ysxMSENG_RAM_Map<PATSIZE, SRATE>* D, float SetMin = 0, float SetSec = 59, float SetBPM = 120)
 {
 	D->Min = SetMin; D->Sec = SetSec; D->Samples = (SetSec + SetMin * 60) * SRATE;
 	D->BPM = SetBPM; D->Beat = 60000.0 / SetBPM; D->BeatSmp = (D->Beat / 1000.0) * SRATE;
@@ -245,7 +245,7 @@ Check how those work at 'ysxSignal.h' and 'ysxSynth.h'.
 THE CLASS DON'T USE THIS STRUCT, THIS IS HERE AS EXAMPLE!
 The class is using:
 "std::array<SigSynth<SIGTYPE>*, INSTR> SigPins"*/
-template <uint8_t VOICES> struct MSENG_INSTR_RAM_Data
+template <uint8_t VOICES> struct ysxMSENG_INSTR_RAM_Data
 {
 	uint32_t Size = 0; uint8_t V = 0; float Freq = 1;
 	uint32_t C[VOICES]; Point<uint8_t> MIDI[VOICES];
@@ -376,7 +376,7 @@ to avoid interruptions in the audio or other artifacts.
 |[DATAOUT]###:           :###:DSP:##[SPEAKER]| // Raw audio data output and outputs DAC audio to speaker!
 */
 template <class PATSIZE, class SIGTYPE, uint32_t SRATE,	const uint16_t BUFSIZE, const uint8_t INSTR, const uint8_t VOICES>
-class MSENG_PCB_ALPHA1
+class ysxMSENG_PCB_ALPHA1
 {
 public:
 	// SDL stuff, but a DSP would be here if on a PCB:
@@ -407,12 +407,12 @@ public:
 
 	// #################################################
 	// ### MEMORY ###
-	MSENG_ROM_Map<PATSIZE, SRATE>* ROM;
-	MSENG_RAM_Map<SIGTYPE, BUFSIZE>* RAM;
+	ysxMSENG_ROM_Map<PATSIZE, SRATE>* ROM;
+	ysxMSENG_RAM_Map<SIGTYPE, BUFSIZE>* RAM;
 	//STM8S003F3P6TR MC; // Micro-controller with 8kb Flash, 128b EEPROM and 1kb RAM
 	// #################################################
 	
-	MSENG_DATA_O<SIGTYPE, BUFSIZE> Out; // Output
+	ysxMSENG_DATA_O<SIGTYPE, BUFSIZE> Out; // Output
 
 	// #################################################
 	
@@ -601,12 +601,12 @@ public:
 		WAVFileName = wavf->Path;
 	}
 
-	MSENG_PCB_ALPHA1(MSENG_ROM_Map<PATSIZE, SRATE>* SetROM, MSENG_RAM_Map<SIGTYPE, BUFSIZE>* SetRAM, ysxWAV_File* WAV)
+	ysxMSENG_PCB_ALPHA1(ysxMSENG_ROM_Map<PATSIZE, SRATE>* SetROM, ysxMSENG_RAM_Map<SIGTYPE, BUFSIZE>* SetRAM, ysxWAV_File* WAV)
 	{
 		wavf = WAV;	ROM = SetROM; RAM = SetRAM; INIT();
 	}
 		
-	~MSENG_PCB_ALPHA1()
+	~ysxMSENG_PCB_ALPHA1()
 	{
 		RESET(); // Don't forget to clean your pointers!
 		SDL_CloseAudio();
