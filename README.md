@@ -1,5 +1,5 @@
 # My-Noob-Headers
-Those are headers i made since i began to use c++.
+These are headers i made since i began to use c++.
 Consequently, expect to find some utter noob coding from the first days i began messing with C++ mixed with things i'm doing currently.
 I'm constantly messing up with the codes, so you may find lot of codes that aren't working because it is a W.I.P yet.
 
