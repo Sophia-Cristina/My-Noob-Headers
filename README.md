@@ -106,9 +106,11 @@ Regardless of the name computer, it stands for all headers based on emulating el
 * * ysxQRCode.h: W.I.P, the name says it all.
 
 * Emulation
+
 There is lot of folders inside it for me to explain each one, the name of the folders should be self-explanatory.
 You may find very useful documents, like, references or schematics.
 The folder "MyFantasies" are fantasy systems i'm currently doing, for now i'm only trying to make a gaming console out of an Intel 4k4 using only compenents from below 1980 (unless i surrender and decide to jump a decade).
+
 * * ysxEMU.h: Header to include other headers.
 * * ysxEMUEdu.h: Emulation of educational stuffs related to computing, like my emulator of a WDR paper computer.
 * * ysxEMUEsoLang.h: Emulation of esolang machines, or compiler.
