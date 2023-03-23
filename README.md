@@ -1,25 +1,27 @@
 # My-Noob-Headers
 Those are headers i made since i began to use c++.
+Consequently, expect to find some utter noob coding from the first days i began messing with C++ mixed with things i'm doing currently.
+I'm constantly messing up with the codes, so you may find lot of codes that aren't working because it is a W.I.P yet.
 
-My philosophy for those headers are to maintain those pretty simple, that any noob can read and understand. I have been using this since i was super noob in c++ and i think it is pretty useful to use it in such way.
+My philosophy for those headers are to maintain those pretty simple, that any noob can read and understand. I have been using this since i was super noob in c++ and i think it is pretty useful to use it in such way. I also used CImg as my first lib and i loved the fact it uses only header files and no aditional cpp files. I prefer this way.
 
-This repository is made to share with friends, but feel free to enjoy whatever you can with it.
+This repository is made to share with friends, but feel free to enjoy whatever you can from it.
 
-There is nothing advanced and since I use those codes since the beginning of my programming journey, it have lot of rubbish that I'm lazy to fix.
 
 I love to do music and I began to learn programming because music. Since "music is math", I'm enjoying using c++ to make small silly programs to use in other softwares for music.
 
 
 UPDATES:
 
-! I took the "using namespace std" from it, it now works correctly and won't have conflicts with other codes.
+! I translated some of my headers (which were in Brazilian Portuguese), and soon i'm going to make it all in english.
 
-! I translated some of my header (which were in Brazilian Portuguese), and soon i'm going to make it all in english.
-
-! Now i'm using templates. Hope i have not missed anything.
+! Now i'm using templates. Hope i have not missed anything. It was also a pain to write "constexpr" in a lot of functions, wish people have taught about this since i began learning.
 
 ! Now headers have prefix for the type of code inside: "ysxCODETYPE_Something". Ex.: "ysxVEC_" for anything that uses "std::vector".
 
+! It may work on Linux now with G++ if you use "fpermissive".
+
+! Big change in the directories for better organization. When making more and more headers, i noticed i had to do it sooner or later and would be better to do it sooner.
 
 
 * ysxBytes.h:
@@ -65,150 +67,6 @@ To make simple to write programs that uses windows library.
 ##################### FOLDERS #####################
 
 
-####### ysxplg #######
-
-
-I should have named it ysxPlg, too lazy to fix it now...
-
-It is basically header to "Plug" to some of my main headers.
-
-Majority are included (#include) inside ysxMath.h.
-
-This is what i consider the most important folder of this repository, so it is going to be the first i'm going to detail, the rest is going to be in alphabetical order.
-
-
-
-* ysxCalc.h:
-
-Header to things related to calculus or alike.
-
-
-* ysxConst.h:
-
-Constants. I changed from objects to macros...
-
-
-* ysxConv.h:
-
-Converting... I want it to be international, i'm going to separate units by continents.
-
-Some codes here used to be on ysxCalc.h.
-
-
-* ysxElectr.h:
-
-To simulate electronic devices or electronic signals (using std::vector<double> as discrete time samples).
-  
-I'm made a class called "Component" and "Wire", those may be use to simulate REAL electronic equipments.
-  
-I have intention to be able to simulate ANY electronic device, from resistors to processors.
-  
-It may have "Component" inhered from ysxEMU.h (folder: ysxComp).
-
-
-* ysxFractal.h:
-  
-Fractals... There is few ones there, ones that I made by the way (which don't works)... :p
-  
-But I pretend to fill this header one day, as I love fractals and I can make arts with it or even put on musics.
-  
-Long time i don't use it, so there may be lot of rubbish code.
-
-
-* ysxGeo.h:
-  
-Header related to Geometry;
-
-  
-* ysxMoney.h:
-  
-Tools to deal with economic related maths.
-  
-Pretty empty for now, and nothing working.
-  
-
-* ysxMusic.h:
-  
-Functions normally used in music and related areas.
-  
-Ex.: MIDI to Frequency.
-  
-
-* ysxPhys.h:
-  
-Header related to physics... And I suck at physics, so, don't joke me for being noob at it.
-
-  
-* ysxSignal.h:
-
-Related to discrete time representation of signals.
-  
-
-* ysxVector.h:
-  
-Functions to work with std::vector, not Euclidean Vectors.
-  
-
-####### ysxCImgIncludes #######
-
-  
-'ysxCImg.h' header was becoming too big, and then i separated the code by areas.
-
-  
-  
-* ysxciColors.h:
-  
-Self-explanatory, it mess with color related functions, like, hue (Linear RGB, no gamut YET, since i do pretend to learn all those crazy color math).
-
-  
-* ysxciMisc.h:
-  
-Pretty empty right now, but i made it after i made a program which needed a function and i thought that would be cool that this function was included in other CImg projects that i may use later.
-  
-
-* ysxciPlotters.h:
-  
-Self-explanatory, and maybe my most important CImg header... At least i use those functions A LOT!
-  
-Needs translations.
-  
-Since Bresenham lines to Polar and Cartesian plots.
-  
-Some of those functions are already disponible by CImg (and the native CImg codes work faster), but i wanted to learn and have more control of it.
-  
-
-* ysxciUtils.h:
-  
-You may be asking, why do you have a "misc" and a "utils" header?!
-  
-Well, misc is kinda abstract, utils are tools we normally use in images when we use softwares like photoshop or ms paint.
-  
-Things like 'Fill', 'Resize' and etc...
-  
-
-####### ysxComp #######
-
-  
-Stands for ySPHAx Computer.
-  
-I'm going to use my "Component" class to simulate computer devices, like, integrated circuits.
-  
-But it is not only "Component" objects, there is going to have classes to emulate certain computer devices.
-  
-There are PDFs and other stuffs on the folder for reference.
-  
-
-  
-* ysxEMU.h:
-  
-"Component" and emulation classes, this is going to be my main class for that, probably i'm going to separate the codes inside it later in other headers.
-
-  
-* ysxALU.h:
-  
-Same thing as 'ysxEMU.h', but focused on ALU electronic components. Empty for now.
-
-  
 ####### YSXDOS #######
 
   
@@ -269,140 +127,131 @@ I also may use it to generate audio, but probably i'm going to create a specific
 * YSXIMGPLOTTER.HPP:
   
 Does not work yet. Copy-Paste of 'ysxciPlotters.h', however, i'm going to "port" it to DOS OS.
-  
 
-####### ysxFiles #######
-
-  
-Header related to reading and writting binary files.
-  
-I'm going to delete the file in the folder "utils", i'm using as a learning resource.
-  
-There are some reference files.
-  
+####### ysxComputer #######
 
   
-* MyWAVEGuide.cpp:
+Stands for ySPHAx Computer.
   
-Stupid file for noobs to understand '.wav' header, you may find and test it here:
-  
-https://www.onlinegdb.com/HyavW4JBD
-  
-It is not optimal, however, a learning tool. '.wav' is one of the easiet binary files to read, so it is a good introduction to binary files reading / writting.
+Regardless of the name computer, it stands for all headers based on emulating electronic components, ICs and other computer related stuffs like sorting algorithms and logic stuffs.
   
 
-* ysxBMP.h:
-  
-Pretty empty header. Going to use it in the future for reding '.bmp' files.
+* Algorithms
+* * ysxAlgos.h: Just a header to include all you need. I may add small things on it eventually (or not).
+* * ysxSortSearch.h: The name says it all. Algorithms for sorting and searching. For now, there is only for sorting.
 
-  
-* ysxFileInspec.h:
-  
-Tools related to binary file reading / writting. Like getting a buffer and etc...
+* Communications
+* * ysxCommunications.h: Things related to communication. Morse, braile, barcode, qr-code and etc... This header probably will be used only to include other headers.
+* * ysxQRCode.h: W.I.P, the name says it all.
 
-  
-* ysxMIDI.h:
-  
-W.I.P... Self-explanatory, read / write '.mid' files, which uses the communication protocol called MIDI.
-  
-https://en.wikipedia.org/wiki/MIDI
-  
-"Musical Instrument Digital Interface".
-  
+* Emulation
+There is lot of folders inside it for me to explain each one, the name of the folders should be self-explanatory.
+You may find very useful documents, like, references or schematics.
+The folder "MyFantasies" are fantasy systems i'm currently doing, for now i'm only trying to make a gaming console out of an Intel 4k4 using only compenents from below 1980 (unless i surrender and decide to jump a decade).
+* * ysxEMU.h: Header to include other headers.
+* * ysxEMUEdu.h: Emulation of educational stuffs related to computing, like my emulator of a WDR paper computer.
+* * ysxEMUEsoLang.h: Emulation of esolang machines, or compiler.
+* * ysxEMUHist.h: Historical computers, however, nothing here works yet.
+* * ysxEMUICs.h: Emulating small and simple ICs, if the emulation gets complex, it is going inside "ICs" folder.
+* * ysxEMULowLevel.h: Emulating small electronic components or contraptions. It also hosts the most important class for inheritance "ysxEMU_Component".
+There is a DataBus class, flip-flops, counters and etc...
 
-* ysxnes.h:
-  
-Empty file. Going to use in the future to hack the binary data inside nes ROM image files.
-  
-
-* ysxWAVE.h:
-  
-'.wav' write and read. I need to clean some noob old codes...
+* Logic
+* * ysxLogic.h: Related to logic gates and logic chores. Empty for now.
   
 
-####### ysxGen #######
+####### ysxCryp #######
+
+* ysxCrypto.h: Cryptography algorithms. But i got bored and paused and i have still not finished it yet.
+
+####### ysxData #######
 
   
-Going to add header to manipulate Genesis / Mega-Drive ROM Images.
+Headers related to reading and writting binary files, ports, peripheral and protocols.
+  
+* Files
+Some images to understand WAVE files.
+* * ysxWAVE.h: I use this a lot. A class to manage ".wav" files. There is probably some vestiges of noobness here, the class is big.
+* ysxBytes.h: Utils to manage bytes and bitwise stuffs
+* ysxData.h: Ports, peripheral and protocols. Pretty empty for now...  
 
-  
-  
-* ysxGenROM.h:
-  
-For now it have only a 68k map, z80 map and a class to get the ROM header (however, this class is going to receive codes to manipulate and hack ROM images).
-  
+####### ysxDocuments #######
+
+* ysxDoc.h: Empty. For documents organization, i'm going to use to make easy to for things like CSV files and etc.
+* ysxPrintTxt.h: Print text to a ".txt" file or uses "std::cout". Lot of noobness here that i'm very lazy to fix. It prints a variety of information.
+* ysxText.h: Manages text, like verify if a char is a number, convert text to an object and etc...
+
+####### ysxElec #######
+
+* ysxElecEmu.h: Same as "ysxEMU" stuffs, but tried to simulate it in an electrical level.
+* ysxElectr.h: Same as "ysxEMULowLevel" stuffs, but tried to simulate it in an electrical level.
+
+####### ysxLibsUtils #######
+
+The name says it all. Would be hard to describe each folder and file.
+However, these are headers to make simpler (or at least simpler to me) or in my style (OOP that loves classes).
+It also contains algorithms to avoid making chore, for example, a class that creates a SDL window (with ifdef to change between SDL2 or 3) or to play audio in a simple way with SDL.
+The headers i was using for making my colourful plots for CImg are all here now.
+! ATTENTION: SDL is migratting to SDL3, i have never messed with SDL3, i just added some ifdef for it, but not sure if the code is working. I just changed the code so i could stop receiving compiler errors, lol... But i have not tested. Define "USE_SDL2" to avoid errors.
+
+####### ysxMath #######
+* GEO  
+Headers related to Geometry. The header names are intuitive.
+* * ysxGEO.h: Include all other headers to avoid such chore. You should include this header, since the geometry headers are dependent of the trigonometric functions inside this header.
+It also comes with a glossary so you can understand my naming convention.
+* Physics
+* * ysxPhys.h: Header related to physics... And I suck at physics, so, don't joke me for being noob at it.
+Also, this headre is one of the first headers i made. It is filled with nasty noobness and it is a pain to even watch it. You may extract good stuffs from it, like, acoustic waves, and the force class.
+
+* ysxArith.: For arithmetic. Note, Fraction class is W.I.P.
+* ysxCalc.h: Header to things related to calculus or alike.
+* ysxConst.h: Constants macros.
+* ysxConv.h: Converting... I want it to be international, i'm going to separate units by continents.
+* ysxEucVector.h: Euclidean vector. Due to noobness of the time, i just made functions, i'll make a class with overloads in the future.
+* ysxField.h: Field math, for now, there is only GaloisBase2. And i'm not even sure if it works correctly.
+* ysxFractal.h: There is few ones here, ones that I made by the way (which doesn't works)... :p
+But I pretend to fill this header one day, as I love fractals and I can make arts with it or even put on musics.  
+This header was one of the first ones i made and it is filled with noobness and incomplete prototypes of fractals i tried to invent. I'm lazy to fix and it is a mine field. I also once made a maldebrot for C++, but i think i added to the "CImg" folder inside the "ysxLibsUtils" folder.
+* ysxMath.h: The main file of this folder, it includes all other files and special STL headers dependencies.
+* ysxMoney.h: Tools to deal with economy related maths. Pretty empty for now.
+It have structures / classes for trading orders and i'll add trading indicators.
+* ysxNumbers.h: Prime, fibonnaci sequence and etc...
+* ysxPolyNom.h: For now, there is only a stupid quadratic function solver.
+* ysxReedSolo.h: I think this is not working. But it is used to encode / decode a QR Code or other things i never touched.
+* ysxSignal.h: Related to discrete time representation of signals. NOTE: It have the class "ysxSIG_Stream" that is inherited by my synths.
+* ysxTable.h: Mathematical tables, it uses macros with scopes, ex.:
+#define TWOPOWERS16B { 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536 }.
+* ysxTime.h: Things related to time, pretty empty, but it have ms converters or hours & minutes and etc. It also can cout a double in the format mm:ss.
+* ysxVector.h: Functions to work with std::vector, not Euclidean Vectors. ATTENTION: I'll add this header to the folder ysxComputer/Algorithms. For now it is here because it was always here and i'm lazy to change old projects i made using it.
+
+####### ysxMech #######
+
+Related to mechanical things.
+
+* ysxEngn.h: functions for engineering. For now it have only one function for the headloss of the grate of a culvert.
+* ysxMechPieces.h: Semi-old header that i barely messed with, so it may be filled with trash, i don't even remember. But it is mechanical pieces, like gears.
 
 ####### ysxMusic #######
 
-  
-I may add the header 'ysxMusic.h' inside 'ysxplg' folder in this folder.
-  
-I dislike my old and noob approach in the formatting of the code for some music related stuffs here, so i may change A LOT the headers inside this folder.
-  
+* SoundEngines
+* * README MiniSENG Instruments.h: Header with a template so you can see how i set up the intruments to play my engine.
+* * ysxMiniSEng.h: My mini sound engine that uses few bytes and i pretend to make it look more low-level, since one day i dream to make it into a real circuit board. And i hope it is as small as a watch screen.
+* VST
+* * ysxVST2.h: C cultists, get out! This is a header to mess with VST2 in an OOP way. I'm also not usin the convetion of "pointers to pointers", but instead using an array of pointers and a 2D array. It have a class that can load a VST, it is working. However, the editor window is not working yet, i just copy pasted a window (from Windows OS) code but i have not messed with it.
+As the name says, it is not a class for VST3.
 
-  
-* ysxJUCE.h:
-  
-I'm going to remove this header from this folder. Those are functions i intended to use for UI in the making of VSTs. But since those may be used in any UI in any application i make in JUCE, i'm going to add it somewhere else.
-  
-However, i can't pay for JUCE license, so i'm thinking about abandoning JUCE and learn something else. In the future i may use it for VST (probably only personal projects). But for audio, i may use other free or open-source tools.
-  
-
-* ysxmPattern.h:
-  
-Pattern normally are references to music's bar ( https://en.wikipedia.org/wiki/Bar_(music) ), however, in computer they are normally under a standard.
-  
-Since i use Renoise (DAW) and Max/MSP (visual programming), the codes are made based on those, however, may work in any tool.
-  
-I was pretty noob in c++ when i made this, so, there is a lot to fix and i'm trully lazy.
-  
-However, i'm going to be forced to fix those, since i do music.
-  
-
-* ysxmSaveVector.h:
-  
-This suffers from the same "i was noob in c++" problem. There is a lot to fix, oh, shit...
-  
-I totally dislike the codes here, but i may need some of the stuffs here.
-  
-I began this header for a specific project to write text for the object "coll" (object that reads '.txt' file and operates by line, comma and semi-colon) and "message" in Max/MSP. It may be compatible with PureData.
-  
-
-* ysxSDLAudio.h:
-  
-Audio DSP related stuffs... You may open and play "any" buffer using a class.
-  
-!!! Here comes a little rant from me. Whenever i search for tutorials to mess up with audio and etc, THERE IS NO FUCKING INFORMATION! Wtf, i hate this in the programming community! Lot of things that should be simple have absolutely no information. Windows API for audio? YEAH! GOOD FUCKING LUCKY finding simple tutorials online, you are going to have to read 3000000000000 lines of useless information in the microsoft documentation website to learn (not complaining about the ammount of lines, because it is pretty clear about every function and etc, but if you want a simple approach, it is a pain in the ass that you have to read lot of things you don't need 'for now' jsut to make some noise). Asking for help? Stackoverflow? "gEt JUCE dUdE", ok, and how JUCE programmers programmed JUCE? I bet lot people have doubts about audio-programming and they learn NOWHERE!
+* ysxMusic.h: Functions normally used in music and related areas. 
+Ex.: MIDI to Frequency.
+It also have lot of converter for BPM, frequency, beat, time, samples and etc.
+* ysxSynth.h: My synths... :3
+It also have synths that use "ysxSIG_Stream", so it work in my sound engine.
 
 
-* ysxSDLAudioData.h
+  
 
-For everything related to how SDL handles samples and other kind of data.
+####### ysxNeural #######
 
-
-* ysxSDLPattern.h
-
-Same as 'ysxPattern.h', but focused on how SDL Lib works.  
-
-
-* ysxSDLSynth.h:
-  
-Header to synthesize sound by DSP with SDL Library.
-  
-  
-####### ysxWinplg #######
-
-  
-Headers to use with the header 'ysxWin.h'.
-
-  
-  
-* ysxWinAudio.h:
-  
-Tools for windows' API for DSP.
-  
-Stuffs like WAVEFORMATEX and bla bla bla...
-  
+* ysxNeural.h: Don't even touch that shit, i made it based on a tutorial and i was super noob in c++ and super noob in Neural Network things. This header is a pain to read. Opening this file my hurt your eyes!
 
 ##################################################################################################
 
