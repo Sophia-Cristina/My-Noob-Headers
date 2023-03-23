@@ -3,7 +3,7 @@ These are headers i made since i began to use c++.
 Consequently, expect to find some utter noob coding from the first days i began messing with C++ mixed with things i'm doing currently.
 I'm constantly messing up with the codes, so you may find lot of codes that aren't working because it is a W.I.P yet.
 
-My philosophy for those headers are to maintain those pretty simple, that any noob can read and understand. I have been using this since i was super noob in c++ and i think it is pretty useful to use it in such way. I also used CImg as my first lib and i loved the fact it uses only header files and no aditional cpp files. I prefer this way.
+My philosophy for these headers are to maintain these pretty simple, that any noob can read and understand. I have been using this since i was super noob in c++ and i think it is pretty useful to use it in such way. I also used CImg as my first lib and i loved the fact it uses only header files and no aditional cpp files. I prefer this way.
 
 This repository is made to share with friends, but feel free to enjoy whatever you can from it.
 
