@@ -133,7 +133,9 @@ There is a DataBus class, flip-flops, counters and etc...
 Headers related to reading and writting binary files, ports, peripheral and protocols.
   
 * Files
+
 Some images to understand WAVE files.
+
 * * ysxWAVE.h: I use this a lot. A class to manage ".wav" files. There is probably some vestiges of noobness here, the class is big.
 * ysxBytes.h: Utils to manage bytes and bitwise stuffs
 * ysxData.h: Ports, peripheral and protocols. Pretty empty for now...  
@@ -155,16 +157,21 @@ The name says it all. Would be hard to describe each folder and file.
 However, these are headers to make simpler (or at least simpler to me) or in my style (OOP that loves classes).
 It also contains algorithms to avoid making chore, for example, a class that creates a SDL window (with ifdef to change between SDL2 or 3) or to play audio in a simple way with SDL.
 The headers i was using for making my colourful plots for CImg are all here now.
+
+
 ! ATTENTION: SDL is migratting to SDL3, i have never messed with SDL3, i just added some ifdef for it, but not sure if the code is working. I just changed the code so i could stop receiving compiler errors, lol... But i have not tested. Define "USE_SDL2" to avoid errors.
 
 ####### ysxMath #######
-* GEO  
+* GEO
+
 Headers related to Geometry. The header names are intuitive.
+
 * * ysxGEO.h: Include all other headers to avoid such chore. You should include this header, since the geometry headers are dependent of the trigonometric functions inside this header.
 It also comes with a glossary so you can understand my naming convention.
+
 * Physics
 * * ysxPhys.h: Header related to physics... And I suck at physics, so, don't joke me for being noob at it.
-Also, this headre is one of the first headers i made. It is filled with nasty noobness and it is a pain to even watch it. You may extract good stuffs from it, like, acoustic waves, and the force class.
+Also, this header is one of the first headers i made. It is filled with nasty noobness and it is a pain to even watch it. You may extract good stuffs from it, like, acoustic waves, and the force class.
 
 * ysxArith.: For arithmetic. Note, Fraction class is W.I.P.
 * ysxCalc.h: Header to things related to calculus or alike.
@@ -208,9 +215,6 @@ Ex.: MIDI to Frequency.
 It also have lot of converter for BPM, frequency, beat, time, samples and etc.
 * ysxSynth.h: My synths... :3
 It also have synths that use "ysxSIG_Stream", so it work in my sound engine.
-
-
-  
 
 ####### ysxNeural #######
 
