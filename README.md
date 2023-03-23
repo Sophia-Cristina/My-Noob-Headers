@@ -24,45 +24,6 @@ UPDATES:
 ! Big change in the directories for better organization. When making more and more headers, i noticed i had to do it sooner or later and would be better to do it sooner.
 
 
-* ysxBytes.h:
-
-Anything that i may use to operate objects by bytes or bits;
-
-* ysxCImg.h:
-
-Uses the header "CImg" (cimg.eu) to do useful things, some that uses other headers I made;
-There is functions that "CImg" header already have, that the "CImg" header do better, but I used to learn;
-
-* ysxDoc.h:
-
-Almost empty file I found useful after I had to catalog stuffs, maybe it will become more useful by time;
-
-* ysxMath.h:
-
-A math header I made. I'm not a math pro, there is things I know is wrong on this file, yet, I'm either lazy to fix or i'm going to do it later.
-I think it is useful enough already;
-Don't joke me, at least I'm learning and trying... :p
-
-* ysxNeural.h:
-
-I saw a video on youtube that taugh how to do a very simple c++ neural net;
-Long time I don't mess with this file, there is lot of rubbish, but enjoy it if you can...
-
-* ysxPrint.h:
-
-Print in ".txt" useful information. I use this to copy-paste stuffs or to add data to other kind of softwares...
-
-* ysxText.h:
-
-Pretty new, i made no good use for this yet.
-The objective is to use functions to read text files and to generate std::string objects readable for human (not for bytes).
-I'm going to delete the code that is in FOR NOW inside it because i'm going to move it to ysxplg/ysxMoney.h
-
-* ysxWin.h:
-
-To make simple to write programs that uses windows library.
-
-
 ##################################################################################################
 ##################### FOLDERS #####################
 
