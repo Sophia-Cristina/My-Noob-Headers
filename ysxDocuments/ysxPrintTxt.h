@@ -10,6 +10,8 @@
 // ####### Header made to print useful '.txt' files and to std::cout.
 // #####################
 
+// ATTENTION: There is a lot of very old bad code here!
+
 // #####################################################################################################################################
 // ##################### COUT #####################
 
@@ -71,6 +73,7 @@ void ysxCOUT_StringUInt(std::string Str, size_t Cols)
 
 // PRINT STRING LIKE A TEXT IN A NOTEPAD:
 void ysxPRNTTXT_String(std::string S) { std::ofstream O("String.txt"); if (!O.is_open()) { std::cerr << "File error" << std::endl; } else { O << S; } O.close(); }
+void ysxPRNTTXT_String(std::string S, std::string File) { std::ofstream O(File); if (!O.is_open()) { std::cerr << "File error" << std::endl; } else { O << S; } O.close(); }
 void ysxPRNTTXT_String(char * S, size_t Size)
 {
 	std::ofstream O("String.txt"); if (!O.is_open()) { std::cerr << "File error" << std::endl; }
@@ -137,11 +140,11 @@ void ysxPRNTTXT_CharPlotter(char C, std::vector<double> V, size_t L)
 // #####################################################################################################################################
 // #####################################################################################################################################
 
-// ##################### MÉTRICA #####################
+// ##################### METRICS #####################
 
 void ysxPRNTTXT_MeterSecConvesor(double ms)
 {
-	std::ofstream O("PrintMeterSecConvesor.txt"); if (!O.is_open()) { std::cerr << "File error" << std::endl; }
+	std::ofstream O("PrintMeterSecConversor.txt"); if (!O.is_open()) { std::cerr << "File error" << std::endl; }
 	else
 	{
 		O << "ms to kmh: " << ms * 3.6 << " | "; O << "ms to mile: " << ms / 0.44704 << " |\n";
@@ -187,7 +190,7 @@ void ysxPRNTTXT_Mult(double x, double Ini, double End, double Inc)
 	else
 	{
 		O << "####### MULTIPLICATIONS:\n\n";
-		for (double a = Ini; a <= End; a += 1.0 / Inc) { O << x << " * " << a << " = " << x * a << std::endl; }
+		for (double a = Ini; a <= End; a += Inc) { O << x << " * " << a << " = " << x * a << std::endl; }
 		O << "####### END!\n";
 	}
 	O.close();
@@ -198,10 +201,10 @@ void ysxPRNTTXT_Div(double x, double Ini, double End, double Inc)
 	else
 	{
 		O << "####### DIVISIONS:\n\n";
-		for (double a = Ini; a <= End; a += 1.0 / Inc)
+		for (double a = Ini; a <= End; a += Inc)
 		{
-			O << x << " / " << a << " = " << x / a << std::endl;
-			O << a << " / " << x << " = " << a / x << std::endl;
+			O << x << " / " << a << " = " << x / a << '\n';
+			O << a << " / " << x << " = " << a / x << '\n';
 		}
 		O << "####### END!\n";
 	}
@@ -214,9 +217,9 @@ void ysxPRNTTXT_SmallEq(double a, double b, double c)
 	else
 	{
 		O << "x =  b / a -> x = " << b << " / " << a << " =\n";
-		O << b / a << std::endl;
-		O << " a / b = " << a / b << std::endl;
-		O << "c * x = c * b / a = " << c * b / a << std::endl;
+		O << b / a << '\n';
+		O << " a / b = " << a / b << '\n';
+		O << "c * x = c * b / a = " << c * b / a << '\n';
 		O << "c * a / b = " << c * a / b << "\n\n";
 	}
 	O.close();
@@ -269,11 +272,12 @@ void ysxPRNTTXT_Vector(std::vector<T_> Vec)
 // #####################################################################################################################################
 // #####################################################################################################################################
 
-// ##################### MUSICA #####################
+// ##################### MUSIC #####################
 
-// "Prt" significa "Print"
-// Imprime Informações que possam ser adiquiridas atravéz de um BPM:
-void PrtBPMInfo(double BPM, double Div, double Div0, double Inc, double Inc0)
+/*Print information from a given BPM.
+It have two numbers for division and multiplication, each number begins at '1' and end at "< End".
+Each loop the numbers are incremented by "+= Inc".*/
+void ysxPRNTTXT_BPMInfo(double BPM, double End0, double End1, double Inc0, double Inc1)
 {
 	std::ofstream O("BPMInfo.txt"); if (!O.is_open()) { std::cerr << "File error" << std::endl; }
 	else
@@ -287,27 +291,27 @@ void PrtBPMInfo(double BPM, double Div, double Div0, double Inc, double Inc0)
 		O << " | 8 * (4/4) : " << Dec2Sec(ms2Min((Beatms * 4) * 8) - floor(ms2Min((Beatms * 4) * 8))) << std::endl;
 		O << "16 * 4/4: " << Dec2Sec(ms2Min((Beatms * 4) * 16) - floor(ms2Min((Beatms * 4) * 16))) << std::endl;
 		O << "Freq.: " << ms2Freq(Beatms) << "hz;\n";
-		O << "-------\nDivisions:\n";
-		for (double n = 1; n <= Div; n += Inc) { double b = Beatms / n;  O << "Beat: " << Beatms << " / " << n << " = " << b << " || " << ms2Freq(b) << "hz;\n"; }
+		O << "\n\n---------------------\n\nDivisions:\n";
+		for (double x = 1; x <= End0; x += Inc0) { double b = Beatms / x;  O << "Beat: " << Beatms << " / " << x << " = " << b << " || " << ms2Freq(b) << "hz;\n"; }
 		O << "!!!!!!!\n";
-		for (double m = 1; m < Div0; m += Inc0)
+		for (double y = 1; y < End1; y += Inc1)
 		{
-			for (double n = 1; n <= 10; n += Inc)
+			for (double x = 1; x < End0; x += Inc0)
 			{
-				double b = (Beatms / n) + (Beatms / m);
-				O << "(" << Beatms << " / " << n << ") + Beat / " << m << " = " << b << " || " << ms2Freq(b) << "hz;\n";
+				double b = (Beatms / x) + (Beatms / y);
+				O << "(" << Beatms << " / " << x << ") + Beat / " << y << " = " << b << " || " << ms2Freq(b) << "hz;\n";
 			}
 			O << std::endl;
 		}
-		O << "-------\nMultiplications:\n";
-		for (double n = 1; n <= Div; n += Inc) { double b = Beatms * n;  O << "Beat: " << Beatms << " * " << n << " = " << b << " || " << ms2Freq(b) << "hz;\n"; }
+		O << "\n\n---------------------\n\nMultiplications:\n";
+		for (double x = 1; x <= End0; x += Inc0) { double b = Beatms * x;  O << "Beat: " << Beatms << " * " << x << " = " << b << " || " << ms2Freq(b) << "hz;\n"; }
 		O << "!!!!!!!\n";
-		for (double m = 1; m < Div0; m += Inc0)
+		for (double y = 1; y < End1; y += Inc1)
 		{
-			for (double n = 1; n <= 10; n += Inc)
+			for (double x = 1; x < End0; x += Inc0)
 			{
-				double b = (Beatms / n) + (Beatms * m);
-				O << "(" << Beatms << " / " << n << ") + (Beat * " << m << ") = " << b << " || " << ms2Freq(b) << "hz;\n";
+				double b = (Beatms / x) + (Beatms * y);
+				O << "(" << Beatms << " / " << x << ") + (Beat * " << y << ") = " << b << " || " << ms2Freq(b) << "hz;\n";
 			}
 			O << std::endl;
 		}
@@ -316,7 +320,7 @@ void PrtBPMInfo(double BPM, double Div, double Div0, double Inc, double Inc0)
 }
 
 // Imprime Informações que possam ser adiquiridas atravéz de milisegundos:
-void PrtmsInfo(double ms, double Div, double Div0, double Inc, double Inc0)
+void ysxPRNTTXT_PrtmsInfo(double ms, double Div, double Div0, double Inc, double Inc0)
 {
 	std::ofstream O("PrtmsInfo.txt"); if (!O.is_open()) { std::cerr << "File error" << std::endl; }
 	else
@@ -360,7 +364,7 @@ void ysxPRNTTXT_SampleRateInfo()
 	std::ofstream O("SampleRateInfo.txt"); if (!O.is_open()) { std::cerr << "File error" << std::endl; }
 	else
 	{
-		unsigned int List[21] = SAMPLERATES;
+		unsigned int List[21] = YSXTABLE_SAMPLERATES;
 		int Count = 0;
 		for (int n = 0; n < 21; ++n) { int Rate = List[n]; O << "hz: " << Rate; ++Count; if (Count >= 5) { O << std::endl; Count = 0; } }
 		for (int n = 0; n < 21; ++n) { int Rate = List[n]; O << "ms per sample: " << 1000.0 / Rate; ++Count; if (Count >= 5) { O << std::endl; Count = 0; } }

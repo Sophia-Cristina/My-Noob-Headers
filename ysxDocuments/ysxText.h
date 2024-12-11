@@ -7,7 +7,7 @@
 // ####### By Sophia Cristina
 // ####### Header made to handle text, not binary.
 // ####### It also deals with 'strings'.
-// ####### This file is included in 'ysxPrint.h'.
+// ####### This file is included in 'ysxPrintTxt.h'.
 // #####################
 
 
@@ -41,7 +41,7 @@ std::string ysxTEXT_Char2Str(std::vector<uint8_t> C) { std::string Str; for (siz
 // CHAR TO STRING:
 std::string ysxTEXT_Char2Str(uint8_t* C, int Size) { std::string Str; for (size_t n = 0; n < Size; ++n) { Str.push_back(C[n]); } return (Str); }
 
-// GET A CHAR AS TEXT AND RETURN INTEGER:
+// GET A NUMBER CHAR (48 TO 57) AND RETURN AN INTEGER CHAR:
 uint8_t ysxTEXT_Chr2Int(uint8_t C) { if (C > 47 && C < 58) { return(C - 48); } return(0); }
 
 // GET STRING AS TEXT AND READ AS AN INTEGER:

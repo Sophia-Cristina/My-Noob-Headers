@@ -1,0 +1,10 @@
+Things in this directory are directly related to text, human-readable documents, strings and things like that.
+It does not deal with parsers, even if parsers are also human-readable, parsers in most time are not read
+by humans and it is more like an autonomous proccess.
+Parsers, programming languages and things like that have a special way to deal with that are not exactly
+related to things in this directory, BUT may use some functions and classes found here!
+
+If you want things related to coding, you may want to check headers at:
+'ysxCode'.
+
+Some stuffs here are very old, when i began coding, and so, some codes are very likely horrible to see!
