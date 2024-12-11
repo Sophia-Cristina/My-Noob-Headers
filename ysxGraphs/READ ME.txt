@@ -1,0 +1,5 @@
+I started coding graphs using 'CImg' single header lib.
+Consequently, most of my graphics codes were in the: 'ysxLibsUtils/CImg/' directory.
+
+I removed the one that aren't related to 'CImg' from there to here, and now those are to be
+considered universally useful for anything related to graphics.

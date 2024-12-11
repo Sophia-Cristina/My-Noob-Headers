@@ -1,0 +1,29 @@
+'Data' is not directly related to computer and coding, even if nowadays it is pretty much used almost
+generally by computers, but it can also be used in direct electronic devices that requires no computations,
+radio transmission and things like that.
+It is also a very expansive field and requires a special attention, and so, things related to data, like:
+bytes, byte manipulation, protocols, ports & peripherals, trees, files and etc; are to be found at directory:
+'ysxData'.
+
+'Coding' may not be only for computers and data, but also a logical parsing and semantical approach for axioms
+and tokens and its functionability, and so, i would not consider it "directly" related to computer and data.
+Codings stuffs like, parsers, piping, languages, transpiler and etc can be found here.
+But things directly related to computer, like, logic, algorithms, emulations and etc are at:
+'ysxComputer' directory.
+The same for Op code utils for an specific system, even if such header would include header of this directory.
+Ex.: You may find 6502 Op Code Utils in 'ysxComputer/Emulation/ICs/Processors/6502' instead of the file named
+'ysxOpCodeUtils' in this directory.
+This may sound counter-intuitive, but if you are messing with 6502 emulator, maybe you are already inside the
+6502 directory, and it is simpler to access everything you need for 6502 from there, the same way i let media
+related to it in the same directory.
+
+Logic and algorithm not being here may look counter-intuitive, but it is not if consider that this directory
+deals with things related with the superficial approach of a code, like, semantic, axioms and syntax.
+Logic and algorithm are the subproduct of coding and are structured code, while this directory may contain
+things related to the basic concepts of coding.
+A good way to think and make it intuitive is to think like:
+logic and algorithm are the building;
+But things in this directory are about bricks, cement, hammer and etc...
+Logic and algorithm isn't a matter in terms of hard or software level;
+Coding is almost generally about what construct softwares.
+Algorithm requires coding, but does not mess with the fundamental functionability of codes.
