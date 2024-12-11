@@ -6,7 +6,7 @@
 // #####################
 // ####### By Sophia Cristina
 // #######
-// ####### For whatever kind of engineering
+// ####### For whatever kind of engineering but electrical engineering.
 // #####################
 
 // #################################################

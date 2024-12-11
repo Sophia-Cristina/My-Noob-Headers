@@ -1,0 +1,3 @@
+Things here are related to mechanical stuffs.
+Like, machinery and civil engineering.
+It can contain useful mathematical functions, or simulation of mechanical devices, ex.: gears and levers.
