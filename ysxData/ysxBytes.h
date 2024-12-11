@@ -40,9 +40,9 @@ Buf = Buffer = Buff;
 #define HEXCHARS { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' }
 
 // Pointer mapping, tricks, hacks:
-template <class T_> struct ysxBYTE_PointAndValue { *void p = nullptr; T_ v = 0; }; // A pointer and a value
-template <class T_> struct ysxBYTE_PointAndVector { *void p = nullptr; std::vector<T_> Vec; }; // A pointer and multiple values
-template <class T_, size_t N> struct ysxBYTE_PointAndArray { *void p = nullptr; <T_> Array[N]; }; // A pointer and multiple values
+template <class T_> struct ysxBYTE_PointAndValue { void* p = nullptr; T_ v = 0; }; // A pointer and a value
+template <class T_> struct ysxBYTE_PointAndVector { void* p = nullptr; std::vector<T_> Vec; }; // A pointer and multiple values
+template <class T_, size_t N> struct ysxBYTE_PointAndArray { void* p = nullptr; T_ Array[N]; }; // A pointer and multiple values
 
 // #####################################################################################################################################
 // #####################################################################################################################################
