@@ -1,0 +1,11 @@
+Things here can be used in modern IDE, but [very likely] wont work and neither be compiled.
+Documents here were made (and included) when i was programming in 'Borland C++' for MS-DOS.
+This is not for Windows or Unix, however, for practical reasons, like, the need for syntax highlight,
+i also open such headers in IDEs from other OSs.
+
+Unlike some other directories i make for other systems, where the headers have codes to output useful
+things for such systems (ex.: a header that outputs opcodes for a game console), this directory is to be
+used by MD-DOS system. This may be intuitive when you use things in this directory, but looks counter-intuitive
+in comparison to how i organize other directories.
+One example is the extension '.HPP', since Borland C++ identifies it is a C++ code instead of opening the file
+in a C environment.
