@@ -132,7 +132,8 @@ std::vector<SIGTYPE> ysxSIG_TriWaveVec(uint32_t Size, double x0, double x1, doub
 // ####### FORMULA:
 
 // Pointed function vector (phase in radians):
-std::vector<double> ysxSIG_FuncVec(uint32_t Size, double x0, double x1, double Amp, double Freq, double (*f)(double, double)
+template <class SIGTYPE>
+std::vector<double> ysxSIG_FuncVec(uint32_t Size, double x0, double x1, double Amp, double Freq, double Phase, double (*f)(double, double))
 {
     std::vector<SIGTYPE> R(Size);
     if (x0 > x1) { double t = x0; x0 = x1; x1 = t; } double Delta = (x1 - x0) / Size;
