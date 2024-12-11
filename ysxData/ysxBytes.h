@@ -35,9 +35,14 @@ Buf = Buffer = Buff;
 #define DIV127 0.0078740157480315 // 0.00787401574803149606299212598425
 #define DIV190 0.0052631578947368 // 0.00526315789473684210526315789474
 #define DIV255 0.003921568627451 // 0.0039215686274509803921568627451
-#define DIV65535 1.0 / 65535 // 1.5259021896696421759365224689097e-5
+#define DIV65535 (1.0 / 65535) // 1.5259021896696421759365224689097e-5
 
 #define HEXCHARS { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' }
+
+// Pointer mapping, tricks, hacks:
+template <class T_> struct ysxBYTE_PointAndValue { *void p = nullptr; T_ v = 0; }; // A pointer and a value
+template <class T_> struct ysxBYTE_PointAndVector { *void p = nullptr; std::vector<T_> Vec; }; // A pointer and multiple values
+template <class T_, size_t N> struct ysxBYTE_PointAndArray { *void p = nullptr; <T_> Array[N]; }; // A pointer and multiple values
 
 // #####################################################################################################################################
 // #####################################################################################################################################
@@ -77,7 +82,7 @@ template <class T_, size_t size> std::array<T_, size> ysxBYTE_NOT(std::array<T_,
 template <class T_, size_t size> std::array<T_, size> ysxBYTE_RSHF(std::array<T_, size> A, uint8_t i) { for (size_t n = 0; n < A.size(); ++n) { A[n] >>= i; } return(A); }
 template <class T_, size_t size> std::array<T_, size> ysxBYTE_LSHF(std::array<T_, size> A, uint8_t i) { for (size_t n = 0; n < A.size(); ++n) { A[n] <<= i; } return(A); }
 
-// A is going to be the return:
+// 'A' is going to be the return:
 void ysxBYTE_ANDuc(uint8_t* A, uint8_t* B,const size_t Size) { for (size_t n = 0; n < Size; ++n) { A[n] &= B[n]; } }
 void ysxBYTE_ORuc(uint8_t* A, uint8_t* B,const size_t Size) { for (size_t n = 0; n < Size; ++n) { A[n] |= B[n]; } }
 void ysxBYTE_XORuc(uint8_t* A, uint8_t* B,const size_t Size) { for (size_t n = 0; n < Size; ++n) { A[n] ^= B[n]; } }
@@ -155,12 +160,12 @@ uint64_t ysxBYTE_Hex2Dec(std::string Hex)
 	return(Sum);
 }
 
-// GET AN UCHAR ARRAY AND ADDS STRING BYTES ON IT:
-//		Array[n % Size]
+// GET AN UCHAR ARRAY AND ADD STRING BYTES ON IT:
+//		Array[n % Size] = s[n];
 // Anyway, those functions are pretty useless...
-void ysxBYTE_StrInUChar(std::string s, uint8_t* Array,const size_t Size) { for (size_t n = 0; n < s.size(); ++n) { Array[n % Size] = s[n]; } }
-void ysxBYTE_StrInChar(std::string s, char* Array,const size_t Size) { for (size_t n = 0; n < s.size(); ++n) { Array[n % Size] = s[n]; } }
-void ysxBYTE_StrInwChar(std::string s, wchar_t* Array,const size_t Size) { for (size_t n = 0; n < s.size(); ++n) { Array[n % Size] = s[n]; } }  // Never tested
+void ysxBYTE_StrInUChar(std::string s, uint8_t* Array, const size_t Size) { for (size_t n = 0; n < s.size(); ++n) { Array[n % Size] = s[n]; } }
+void ysxBYTE_StrInChar(std::string s, char* Array, const size_t Size) { for (size_t n = 0; n < s.size(); ++n) { Array[n % Size] = s[n]; } }
+void ysxBYTE_StrInwChar(std::string s, wchar_t* Array, const size_t Size) { for (size_t n = 0; n < s.size(); ++n) { Array[n % Size] = s[n]; } }  // Never tested
 
 // GET AN UCHAR ARRAY AND ADD BYTES TO A NEW STRING:
 std::string ysxBYTE_uchar2str(uint8_t* Array,const size_t Size) { std::string s; for (size_t n = 0; n < Size; ++n) { s.push_back(Array[n]); } return(s); }
@@ -172,7 +177,7 @@ void ysxBYTE_StringOut(const std::string& I, uint8_t* O, const size_t Size) { I.
 // #####################################################################################################################################
 // ####### VECTOR CONVERTERS #######
 
-// NORMALIZE FLOAT VALUE TO '-1 TO 1':
+// NORMALIZE FLOAT VALUES TO INTEGER (RANGE: '-1 TO 1'; GOING TO FIX THIS LATER):
 // * In the future i'm going to use template *
 std::vector<uint16_t> ysxBYTE_ScaleUI16(std::vector<float> V)
 {

@@ -1,0 +1,12 @@
+'Data' is not directly related to computer, even if nowadays it is pretty much used almost generally by
+computers, but it can also be used in direct electronic devices that requires no computations, radio
+transmission and things like that.
+It is also a very expansive field and requires a special attention, and so, things related to data, like:
+bytes, protocols, ports & peripherals, Trees, files and etc; are to be found here.
+But things directly related to logic, algorithms, emulation and etc are on the directory
+'ysxComputer'.
+
+'Coding' may not be only for computers and data, but also a logical parsing and semantical approach for axioms
+and tokens and its functionability, and so, i would not consider it "directly" related to computer and data.
+Codings stuffs like, parsers, piping, languages, transpiler and etc can be found at:
+'ysxCode' directory.
