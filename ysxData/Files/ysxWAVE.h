@@ -60,7 +60,7 @@ The "fmt " subchunk describes the sound data's format:
 20        2   AudioFormat      PCM = 1 (i.e. Linear quantization)
 							   Values other than 1 indicate some
 							   form of compression.
-22        2   Channels      Mono = 1, Stereo = 2, etc.
+22        2   Channels         Mono = 1, Stereo = 2, etc.
 24        4   SampleRate       8000, 44100, etc.
 28        4   ByteRate         = SampleRate * Channels * BitsPerSample/8
 32        2   BlockAlign       = Channels * BitsPerSample/8
