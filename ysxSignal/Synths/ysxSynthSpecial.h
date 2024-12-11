@@ -27,7 +27,7 @@ public:
 	std::vector<float> Freqs = std::vector<float>::vector(1);
 	ysxSIG_Synth<float>* Synth = nullptr;
 	float y = 0;
-	uint8_t n = 0;
+	size_t n = 0;
 
 	void FreqReGenVector(uint16_t TotalFreqs) { Freqs = std::vector<float>::vector(TotalFreqs); } // New clean array
 
@@ -58,7 +58,7 @@ public:
 	std::vector<ysxBYTE_PointAndVector<T_>> Configs;
 	ysxSIG_Synth<float>* Synth = nullptr;
 	float y = 0;
-	uint8_t n = 0;
+	size_t n = 0, m = 0;
 
 	void FreqReGenVector(uint16_t TotalFreqs) { Freqs = std::vector<float>::vector(TotalFreqs); } // New clean array
 
@@ -85,7 +85,7 @@ public:
 					}
 					if (n < Freqs.size())
 					{
-						*Synth->Freq = Freqs[n];
+						Synth->Freq = Freqs[n];
 					}
 					y += Synth->IO(x);
 				}
