@@ -5,7 +5,7 @@
 
 #include "ysxMath/ysxConst.h"
 #include "ysxData/ysxBytes.h"
-#include "ysxMath/ysxSignal.h"
+#include "ysxSignal/ysxSignal.h"
 
 // #####################
 // ####### By Sophia Cristina

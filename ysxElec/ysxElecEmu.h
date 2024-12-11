@@ -3,6 +3,8 @@
 #ifndef YSXELECEMU_H
 #define YSXELECEMU_H
 
+#include "ysxElectr.h"
+
 // #####################
 // ####### By Sophia Cristina
 // ####### Electrical components emulation, like IC
@@ -23,12 +25,12 @@
 // #################################################
 /* ############## SN7400 FOUR NAND ############## // [T1]
 https://en.wikipedia.org/wiki/7400-series_integrated_circuits
-		  __________
-	1A  -|1 #	  14|- 4Y
+	      __________
+	1A  -|1 #     14|- 4Y
 	1B  -|2       13|- 4B
 	1Y  -|3  SN   12|- 4A
 	Vcc -|4	7400  11|- GND
-	2Y  -|5		  10|- 3B = 3 In
+	2Y  -|5	      10|- 3B = 3 In
 	2A  -|6        9|- 3A = 3 In
 	2B  -|7________8|- 3Y = 3 Out
 
@@ -56,7 +58,7 @@ public:
 
 	ysxELEC_CompConfig* Config;
 	enum Pins { A1, B1, A2, B2, A3, B3, A4, B4, Vcc }; // Work on Vcc yet to be done!
-	ysxELEC_Wire* Y; // Outputs are in numerial order. IDEAL that you add 4 signals!
+	ysxELEC_Wire* Y; // Outputs are in numerical order. IDEAL that you add 4 signals!
 	ysxELEC_Wire* GND; // You can point GND wire signal to its own input
 
 	ysxELEC_TTL_SN7400(ysxELEC_CompConfig& InConfig)

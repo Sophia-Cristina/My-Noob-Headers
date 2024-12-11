@@ -1,0 +1,23 @@
+This is for electronic simulations, systems, maths and etc.
+Those may have more precise connection to the field of electrical enginering instead of an approach to the
+logical aspects of a computer or alike systems.
+For example: in certain headers here (not all), the voltage and voltage noise may be simulated,
+in a computer emulation it can be a mere unsigned byte, because in a computer emulation, the emulation
+of the logic is what matter most.
+And so, in this directory what matter is the fundamental electronic aspects.
+
+If you want related from thigs that are subproducts of electronic devices, you may want to see
+those directories:
+ysxComputer
+ysxData
+ysxCode
+
+Since 'Signal Processing' is a special area, and not all signals are necessarily electronic, things related
+to it may be found in the 'ysxSignal' directory.
+However, this was complex for me to decide and i decided that way because, some useful formulaes for Sig. Proc.
+may also be used in electrical engineering, and i don't want to repeat the same codes, and so, if you need
+some useful electronic functions that is also used in Sig. Proc., you may find at:
+'ysxSignal/ysxSigElec.h'.
+However, i highly doubt there are any other useful thing related in the 'ysxSignal' directory.
+Unless you may need a signal stream or something in your electronic system, but that would be the same as
+needing to use a header in 'ysxComputer' for a system that needs an IC or something like that.
