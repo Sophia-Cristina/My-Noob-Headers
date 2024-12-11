@@ -1,0 +1,28 @@
+Since 'Signal Processing' is a special area, and not all signals are necessarily electronic, things related
+to it may be found here, but things related to electronic things and electrical engineering may be found at:
+ysxElec.
+
+This was complex for me to decide and i decided that way because, some useful formulaes for Sig. Proc.
+may also be used in electrical engineering, and i don't want to repeat the same codes, and so, if you need
+some useful electronic functions that is also used in Sig. Proc., you may find at:
+'ysxSignal/ysxSigElec.h'.
+But if you need some useful electronic functions that may be useful for some Sig. Proc, system, you may
+need to look at some 'ysxElec' headers.
+However, i highly doubt there are any other useful thing related in the 'ysxSignal' directory.
+Unless you may need a signal stream or something in your electronic system, but that would be the same as
+needing to use a header in 'ysxComputer' for a system that needs an IC or something like that.
+
+Sig. Proc. is not the same as data structures, even if it may use it, if you want things related to that,
+those are at:
+ysxData.
+
+The same for things related to codes, even if you can transmit code using Sig. Proc., code is not directly
+related to it, neither things that deals with codes, like, compilers, parsers and etc, those utils can be
+found here instead:
+ysxCode.
+
+Even most systems for Sig. Proc. are computadorized, it is not directly related to computer, as computers
+can also deal with other logics. Sig. Proc. is also not directly related to electronical components used in
+computers, like, ROMs, RAMs and etc, even if a system may use it. If you need things like that, those can
+be found at:
+ysxComputer.
