@@ -1,0 +1,32 @@
+Since mathematic is "infinite", things here may grown exponentially and i may then create a especial
+directory for things inside a math area, a good example is the 'Geo[metry]' and 'Physics' directory,
+both started as a mere single header.
+The same may happen to other headers. So be aware of changes, old source codes may get errors when looking for
+files included here.
+If you don't mind about bloating up with headers, just add the 'ysxMath.h' header that it includes other
+headers and will be modified in accord.
+
+'ysxMoney.h' seems to be obsolete, i may add economic math and functions here, but in fact i think i may not
+because most things related to such things are also related to trading and may be found at 'ysxTrade'
+directory.
+
+There may have special personal things here, maths i made myself, like, attempts at making fractals and etc.
+
+Also, ironically, some math things may not be here.
+Some math stuffs may be used in especial areas and may be on other directories.
+Also, things related to plotting and graphical stuffs are very likely in the 'ysxLibsUtils' directory,
+inside lib directories related to graphics.
+Ex.: Mandelbrot fractal is not found at 'ysxFractal.h', but at 'ysxLibsUtils/CImg/Plotters/ysxciFractals.h'.
+However, i'm thinking about adding at least the mathematical function of Mandelbrot in 'ysxFractal', and then
+it may break some codes that uses it.
+
+---
+
+Since this was one of my first directories ('ysxMath.h' was the first header here and was the sole one),
+there is a lot of mess and old conventions that i had.
+There are very likely functions and classes i may change or swap from header to header.
+Using headers here may ocasionally make you have your code "broken". Take that in mind.
+One example is some functions that required variables and i made it that it now uses function pointers.
+I'm going to try to maintain as much functions as possible in the way it is and change only the internal stuffs
+from it. However, most problems would be dealt by simple including another header.
+
