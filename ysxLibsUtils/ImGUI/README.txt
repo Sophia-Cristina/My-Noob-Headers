@@ -1,2 +1,0 @@
-Don't worry about SDL stuffs, use "ysxLibsUtils/SDL". Ex.: Audio, there is my audio headers on SDL folder, so there
-is no need to make another for ImGUI. If i end up adding a "ysxigAudio", it wont be because of SDL.
