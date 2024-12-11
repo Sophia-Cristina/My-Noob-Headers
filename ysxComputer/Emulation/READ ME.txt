@@ -1,0 +1,19 @@
+In:
+ysxElec/ysxElecConsts.h
+or:
+ysxElec/ysxElecDevicesConsts.h
+You may find useful constants to devices that certain emulators can use.
+The later have NTSC and PAL information.
+Never forget the most famous header 'ysxMath/ysxConst.h' for mathematical constant if you need
+to simulate some stuffs that needs certain maths in your ROM programming or whatever.
+
+Emulations of devices, like: Game Consoles, Computers and etc; wont have their ICs emulated in
+their respective directories.
+Instead, those components are going to be emulated on headers at 'ICs' directory or at the 'Emulation'
+directory, like: 'ysxEMULowLevel.h'.
+This is because there are multiple systems that uses the same ICs, like the 6502 CPU or Z80, and so,
+instead of making an emulator for thos components for each system, the systems are going to have a
+standardized functionality for those to be able to use the same ICs classes.
+The point of that is because my codes are a compilation (in terms of 'a set of') of useful programming
+utensils, and so, every header, functions, classes and etc should work by itself for higher degree of freedom.
+
