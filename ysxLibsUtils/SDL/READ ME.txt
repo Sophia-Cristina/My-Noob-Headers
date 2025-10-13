@@ -1,0 +1,12 @@
+Helping tools for SDL lib.
+It uses:
+#ifdef USE_SDL2
+or
+#ifdef USE_SDL3
+In some of the codes, but not all.
+Consequently, there is space for codes to use legacy coding.
+
+'Audio' is where my main signal callback function is, those who found my repo from my music may know this already, so, well, there is where you find it!
+
+'Graph' have tools to aid in making graphs, the main header may call other header and have universal tools.
+the 'ysxSDLTrade.h' have tools to deal with market related information, for example, a class to plot market candles.

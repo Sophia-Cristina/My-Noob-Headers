@@ -1,0 +1,10 @@
+Things that are for multiple OSs are just inside their own directories and that is it, like 'SDL'.
+Things exclusively for a system is inside the directories with the system name, ex.:
+Linux's X Window System is insider 'Linux' directory (ysxLinuxX.h).
+Very likely the directory names are going to be the same name of the lib to avoid needing to make a
+'READ ME' file just to explain that. Unless, one day, by some strange reason, i find two libs that have the
+same name.
+
+Main Windows API stuff is inside 'Windows' directory, that is obvious and intuitive, but i should point out
+that in case that Linux X is not a Linux API, yet, it is inside the 'Linux' directory.
+The same would be if there is a lib exclusive for 'Windows'.
