@@ -1,0 +1,6 @@
+Things here are related to cryptography in all senses, that means, it is not just cryptographed hashes, but all other algorithms
+that can be used togheter to make such hashes useful.
+It is also about things that requires cryptography, like, cryptocurrencies, which is mostly not cryptographed besides the user's wallet.
+It may deal with other types of hashing that are not exactly cryptographed, like, "check sums" and etc, but i may in fact add these to
+my "ysxData" directory.
+That being said, i may also add here algorithms about communicating with something that requires cryptography, like, HMCA.
