@@ -77,6 +77,22 @@ Point<double> ysxARITH_GeoHarmMean(Point<double> P, size_t Iter)
 	return (Pt);
 }
 
+// STANDARD DEVIATION:
+double ysxARITH_StdDev(const std::vector<double>& Values)
+{
+	const size_t N = Values.size();
+	if (N == 0) { return(0); }
+
+	double Mean = 0;
+	for (size_t n = 0; n < N; ++n) { Mean += Values[n]; }
+	Mean /= (double)N;
+
+	double Var = 0.0;
+	for (size_t n = 0; n < N; ++n) { double Diff = (Values[n] - Mean); Var += Diff * Diff; }
+	Var /= (double)N;
+	return(std::sqrt(Var));
+}
+
 // POWER MEAN OR GENERALIZED MEAN:
 double ysxARITH_PowerMean(std::vector<double> Vec, double p)
 {

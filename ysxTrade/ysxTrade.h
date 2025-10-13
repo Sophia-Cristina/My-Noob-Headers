@@ -19,6 +19,12 @@ REFERENCES:
 // ####### TRADE RELATED
 // ############################
 
+/* Get a candle with all basic informations, high, low, open and close.
+'TimeFrame' are two chars, ex.: '5m' means a time frame of 5 minutes; while '4h' mean 4 hours.
+'Date' are two 'uint8_t' numbers, month and day, user must know the year he is getting the values.
+'TimeStamp' are two 'uint8_t' numbers, hour and minutes.*/
+struct ysxTRADE_Candle { double Open, High, Low, Close, Volume; uint8_t TimeFrame[2]; uint8_t Date[2]; uint8_t TimeStamp[2]; };
+
 class ysxTRADE_Order
 {
 public:
@@ -91,13 +97,13 @@ public:
 	    }
 	    if (!Found)
 	    {
-		ysxTRADE_Coins NewCoin;
-		NewCoin.Ticker = Order.Ticker[1];
-		NewCoin.BankIni = Order.AmntReceived;
-		NewCoin.BankActual = Order.AmntReceived;
-		NewCoin.ValueIni = CoinBuyVal;
-		NewCoin.ValueActual = CoinBuyVal;
-		Coins.push_back(NewCoin);
+			ysxTRADE_Coins NewCoin;
+			NewCoin.Ticker = Order.Ticker[1];
+			NewCoin.BankIni = Order.AmntReceived;
+			NewCoin.BankActual = Order.AmntReceived;
+			NewCoin.ValueIni = CoinBuyVal;
+			NewCoin.ValueActual = CoinBuyVal;
+			Coins.push_back(NewCoin);
 	    }
 	    // SELLING:
 	    Found = false;
@@ -113,21 +119,21 @@ public:
 	    }
 	    if (!Found)
 	    {
-		ysxTRADE_Coins NewCoin;
-		NewCoin.Ticker = Order.Ticker[0];
-		//NewCoin.BankIni = -Order.AmntPaid;
-		//NewCoin.BankActual = -Order.AmntPaid;
-		NewCoin.BankIni = 0; // I decided that any new coin that is sold should be '0', so, when bought back, would get the correct profit
-		NewCoin.BankActual = 0;
-		NewCoin.ValueIni = CoinSellVal;
-		NewCoin.ValueActual = CoinSellVal;
-		Coins.push_back(NewCoin);
+			ysxTRADE_Coins NewCoin;
+			NewCoin.Ticker = Order.Ticker[0];
+			//NewCoin.BankIni = -Order.AmntPaid;
+			//NewCoin.BankActual = -Order.AmntPaid;
+			NewCoin.BankIni = 0; // I decided that any new coin that is sold should be '0', so, when bought back, would get the correct profit
+			NewCoin.BankActual = 0;
+			NewCoin.ValueIni = CoinSellVal;
+			NewCoin.ValueActual = CoinSellVal;
+			Coins.push_back(NewCoin);
 	    }
 	}
 
+
 	// #################################################
-	// #################################################
-	// #################################################5
+
 
 	void SetWalletValue()
 	{
@@ -138,30 +144,30 @@ public:
 	    }
 	}
 
+
 	// #################################################
-	// #################################################
-	// #################################################
+
 
 	void CoutCoins(size_t Start, size_t End)
 	{
 	    if (End > Coins.size()) { End = Coins.size(); }
-	    if (Size > End) { size_t t = Size; Size = End; End = t; }
+	    if (Start > End) { size_t t = Start; Start = End; End = t; }
 	    for (size_t n = Start; n < End; ++n)
 	    {
-		std::cout << "####### n: " << n << " << " | " << Coins[n].Ticker << " #######\n";
-		std::cout << "INITIAL BANK: " << Coins[n].BankIni << " | ACTUAL BANK: " << Coins[n].BankActual << '\n';
-		std::cout << "INITIAL VALUE: " << Coins[n].ValueIni << " | ACTUAL VALUE: " << Coins[n].ValueActual << '\n';
-		std::cout << "####### ####### #######\n\n";
+			std::cout << "####### n: " << n << " | " << Coins[n].Ticker << " #######\n";
+			std::cout << "INITIAL BANK: " << Coins[n].BankIni << " | ACTUAL BANK: " << Coins[n].BankActual << '\n';
+			std::cout << "INITIAL VALUE: " << Coins[n].ValueIni << " | ACTUAL VALUE: " << Coins[n].ValueActual << '\n';
+			std::cout << "####### ####### #######\n\n";
 	    }
 	}
 
 	void CoutOrders(size_t Start, size_t End)
 	{
 	    if (End > Coins.size()) { End = Orders.size(); }
-	    if (Size > End) { size_t t = Size; Size = End; End = t; }
+	    if (Start > End) { size_t t = Start; Start = End; End = t; }
 	    for (size_t n = Start; n < End; ++n)
 	    {
-		std::cout << "####### n: " << n << " << " | " << Orders[n].Ticker[1] << Orders[n].Ticker[0] << " #######\n";
+		std::cout << "####### n: " << n << " | " << Orders[n].Ticker[1] << Orders[n].Ticker[0] << " #######\n";
 		std::cout << "AMOUNT PAID: " << Orders[n].AmntPaid << " | AMOUNT RECEIVED: " << Orders[n].AmntReceived << '\n';
 		std::cout << "####### ####### #######\n\n";
 	    }
@@ -215,6 +221,7 @@ void ysxTRADE_SaveWallet(ysxTRADE_Wallet Wallet, std::string File = "Wallet.dat"
 		    O.write((char*)&Wallet.Orders[n].AmntReceived, sizeof(double));
 		}
 	}
+	O.close();
 }
 
 // ATTENTION: This function does not validate the quality of the file (ex.: corrupted).
@@ -267,6 +274,7 @@ ysxTRADE_Wallet ysxTRADE_LoadWallet(std::string File = "Wallet.dat")
 		    I.read((char*)&Wallet.Orders[n].AmntReceived, sizeof(double));
 		}
 	}
+	I.close();
 	return(Wallet);
 }
 

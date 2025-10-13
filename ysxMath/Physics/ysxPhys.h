@@ -47,29 +47,29 @@ struct ysxPHYS_Friction { double mus, muk, kg; }; // mus or muk * Fnormal = muk 
 struct ysxPHYS_Force { double Fx, Fy, N, Angle, kg, Accel; };
 struct ysxPHYS_Particle { double Force, Momentum, Velocity, Mass, DirectionRad, x, y; };
 
-ysxPHYS_Friction ysxPHYS_MakeFriction(double CoeffS, double CoeffK, double kg)
+ysxPHYS_Friction ysxPHYS_FrictionMake(double CoeffS, double CoeffK, double kg)
 { ysxPHYS_Friction F; F.mus = CoeffS * kg * GRAVITY; F.muk = CoeffK * kg * GRAVITY; F.kg = kg; return(F); } // Make structure
-ysxPHYS_Friction ysxPHYS_MakeFriction(double CoeffS, double CoeffK, double kg, double Grav)
+ysxPHYS_Friction ysxPHYS_FrictionMake(double CoeffS, double CoeffK, double kg, double Grav)
 { ysxPHYS_Friction F; F.mus = CoeffS * kg * Grav; F.muk = CoeffK * kg * Grav; F.kg = kg; return(F); }
 ysxPHYS_Force ysxPHYS_ForceGravity(ysxPHYS_Force Frc) { ysxPHYS_Force F; F.Fy = Frc.kg * -GRAVITY; F.Fx = 0; F.Angle = sin(1.5 * PI); return(F); }
-ysxPHYS_Force ysxPHYS_MakeForce(double Frc, double Ang, double Mass)
+ysxPHYS_Force ysxPHYS_ForceMake(double Frc, double Ang, double Mass)
 {
 	ysxPHYS_Force F; F.Fx = Frc * cos(Ang); F.Fy = Frc * sin(Ang); F.N = Frc; F.Angle = Ang; F.kg = Mass; F.Accel = Frc / Mass;
 	if (Ang > PI * 0.5 && Ang < PI * 1.5) { F.Fx *= -1; } if (Ang > PI && Ang < 2 * PI) { F.Fy *= -1; }	return(F);
 }
 
-double ysxPHYS_FnetFriction(ysxPHYS_Friction Strct, double N)
+double ysxPHYS_FrictionFnet(ysxPHYS_Friction Strct, double N)
 { double Fs = Strct.mus * Strct.kg * GRAVITY, Fk = Strct.muk * Strct.kg * GRAVITY; if (N <= Fs) { return(0); } return(N - Fk); }
-double ysxPHYS_FnetFriction(ysxPHYS_Friction Strct, double N, double Grav)
+double ysxPHYS_FrictionFnet(ysxPHYS_Friction Strct, double N, double Grav)
 { double Fs = Strct.mus * Strct.kg * Grav, Fk = Strct.muk * Strct.kg * Grav; if (N <= Fs) { return(0); } return(N - Fk); }
 
-void ysxPHYS_CoutFriction(ysxPHYS_Friction Fric) { std::cout << "mus: " << Fric.mus << " | muk: " << Fric.muk << " | kg: " << Fric.kg << std::endl; }
-void ysxPHYS_CoutFriction(std::vector<ysxPHYS_Friction> Vec)
-{ std::cout << std::endl; for (size_t n = 0; n < Vec.size(); ++n) { std::cout << n << ": "; ysxPHYS_CoutFriction(Vec[n]); } }
-void ysxPHYS_CoutFrc(ysxPHYS_Force Frc)
+void ysxPHYS_FrictionCout(ysxPHYS_Friction Fric) { std::cout << "mus: " << Fric.mus << " | muk: " << Fric.muk << " | kg: " << Fric.kg << std::endl; }
+void ysxPHYS_FrictionCout(std::vector<ysxPHYS_Friction> Vec)
+{ std::cout << std::endl; for (size_t n = 0; n < Vec.size(); ++n) { std::cout << n << ": "; ysxPHYS_FrictionCout(Vec[n]); } }
+void ysxPHYS_ForceCout(ysxPHYS_Force Frc)
 { std::cout << "Fx: " << Frc.Fx << " | Fy: " << Frc.Fy << " | kg: " << Frc.kg << " | Angle: " << Frc.Angle << " | Accel.: " << Frc.Accel << std::endl; }
-void ysxPHYS_CoutFrc(std::vector<ysxPHYS_Force> Vec)
-{ std::cout << std::endl; for (size_t n = 0; n < Vec.size(); ++n) { std::cout << n << ": "; ysxPHYS_CoutFrc(Vec[n]); } }
+void ysxPHYS_ForceCout(std::vector<ysxPHYS_Force> Vec)
+{ std::cout << std::endl; for (size_t n = 0; n < Vec.size(); ++n) { std::cout << n << ": "; ysxPHYS_ForceCout(Vec[n]); } }
 
 // Class to calc the Force Net, but it uses only a single Friction:
 class ysxPHYS_ForceNet

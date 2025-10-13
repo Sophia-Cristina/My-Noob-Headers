@@ -36,7 +36,6 @@ Gamma @###|###@ Beta
 #################################################
 
 CHANGES:
- * Function 'hip(,)' removed, use 'cmath' 'hypot' instead;
  * Triangle class now uses only 'rad';
 
  #################################################
@@ -54,8 +53,8 @@ constexpr double ysxTRI_Ang(double a, double b) { return(PI - (a + b)); } // Ret
 double ysxTRI_Ang(double a, double b, double c) { return(acos((pow(b, 2) + pow(c, 2) - pow(a, 2)) / (2.0 * b * c))); }
 
 // SIZES:
-double ysxTRI_Ret2TriRetIso(double a, double b) { return(sqrt(((a * a) + (b * b))) / ROOT2); } // Make an 'a & b' Triangle to an 'a & a' Triangle
-double ysxTRI_Side(double hip, double Length) { return(sqrt((hip * hip) - (Length * Length))); } // Height or Width
+double ysxTRI_Ret2TriRetIso(double a, double b) { return(sqrt((a * a + b * b)) / ROOT2); } // Make an 'a & b' Triangle to an 'a & a' Triangle
+double ysxTRI_Side(double hip, double Length) { return(sqrt(hip * hip - Length * Length)); } // Height or Width
 double ysxTRI_HghtsS(double a, double Rad) { return(a * sin(Rad)); } // Length * sin().
 double ysxTRI_BaseC(double a, double Rad) { return(a * cos(Rad)); } // Length * cos().
 

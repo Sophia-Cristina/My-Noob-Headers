@@ -24,9 +24,10 @@
 // SIMPLE OSCILLATOR:
 class ysxSIG_OSC : public ysxSIG_Synth<float>
 {
-public:
+private:
 	float y = 0;
 	uint8_t n = 0;
+public:
 	uint8_t F = 1; // Flags, 1111 15-levels PW, or phase for others than rect | 1111 saw, rect, tri, sine
 
 	float IO(float x) override
@@ -47,7 +48,8 @@ public:
 class ysxSIG_OSC_AD : public ysxSIG_Synth<float>
 {
 private:
-	float y = 0; uint8_t n = 0;
+	float y = 0;
+	uint8_t n = 0;
 public:
 	uint8_t AD = 0; // AD >> 4 = Attack; AD & 15 = Decay;
 	uint8_t F = 1; // Flags, 1111 15-levels PW or phase for non-rect | 1111 saw, rect, tri, sine
@@ -81,7 +83,7 @@ public:
 	}
 };
 
-class ysxSIG_OSC_SINEPULSE_AD : public ysxSIG_Synth<float>
+class ysxSIG_OSC_SinePulse_AD : public ysxSIG_Synth<float>
 {
 private:
 	float y = 0;
@@ -106,7 +108,7 @@ public:
 				y *= 0.5;
 			}
 		}
-		return(y * ysxSIG_MIDI_V);		
+		return(y * ysxSIG_MIDI_V);
 	}
 };
 

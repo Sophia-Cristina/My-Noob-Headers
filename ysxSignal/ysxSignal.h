@@ -27,14 +27,13 @@ on 'Size' and 'C'ounter.
 template<class T_> class ysxSIG_Stream
 {
 public:
-    // Maybe make an option to choose the bit of the 'Size' and 'C'
-    uint32_t Size = 0; // As samples
-    // 'C'ount (iterator), use vector index as different voices, careful with changes:
-    std::vector<uint32_t> C;
+    size_t Size = 0; // As samples
+    size_t V = 0; // Voice for the counter, ex.: C[V]; it can also be seem as 'channel'
+    std::vector<size_t> C; // 'C'ount samples, use vector index as different voices, careful with changes
 
     // INPUT, FOR INHERITANCE:
     // * Think about the input as 'void', but limited to n-bits, use casts.
-    virtual T_ IO(T_ data) { return(data); }
+    virtual T_ IO(T_ Data) { return(Data); }
 
     //ysxSIG_Stream(uint8_t Voices) { }
     //~ysxSIG_Stream() { }
@@ -47,7 +46,7 @@ Use a object type as 'time' or 'x' (in a 'f(x)') and enjoy the magic returned fr
 template<class T_> class ysxSIG_IO
 {
 public:
-    virtual T_ IO(T_* Type) { return(*Type); }
+    virtual T_ IO(T_* Data) { return(*Data); }
 
     //ysxSIG_IO() { }
     //~ysxSIG_IO() { }
@@ -61,8 +60,10 @@ public:
 
 #include "ysxSigElec.h"
 #include "ysxDSPTools.h"
+//#include "ysxSigMath.h"
 #include "ysxSigTransform.h"
 #include "ysxSigVectors.h"
+#include "ysxSigEfx.h"
 
 // ####################################################################################
 // ####################################################################################

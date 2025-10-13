@@ -57,7 +57,7 @@ double ysxSIG_AvrgPowerFundPeriod(std::vector<double> V)
 
 // CAPACITANCE, PARALLEL AND SERIES:
 double ysxSIG_CapacitancePara(std::vector<double> Farad) { double F = 0; for (size_t n = 0; n < Farad.size(); ++n) { F += Farad[n]; } return(F); }
-double ysxSIG_CapacitanceSer(std::vector<double> Farad) { double F = 0; for (size_t n = 0; n < Farad.size(); ++n) { F += 1 / Farad[n]; } return(1 / F); }
+double ysxSIG_CapacitanceSerial(std::vector<double> Farad) { double F = 0; for (size_t n = 0; n < Farad.size(); ++n) { F += 1 / Farad[n]; } return(1 / F); }
 
 // TIME CONSTANT:
 // Resis * Farad;

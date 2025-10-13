@@ -23,7 +23,7 @@ public:
 	{
 		if ((float)(Size - C[V]) / Size < Atk && Atk != 0) { g = ysxSIG_MIDI_V * (float)(Size - C[V]) / (Atk * Size); }
 		else { g = ysxSIG_MIDI_V; }
-		y = sin(x * Freq * TAU * pow(1 - (float)(Size - C[V]) / Size, pFreq)) * pow(1 - (float)(Size - C[V]) / Size, pAmp) * g;
+		y = sin(x * Freq * TAU * pow((float)C[V] / Size, pFreq)) * pow((float)C[V] / Size, pAmp) * g;
 		return(y);
 	}
 };
@@ -89,9 +89,9 @@ public:
 	{
 		if ((float)(Size - C[V]) < Atk * Size && Atk > 0) { g = ysxSIG_MIDI_V * (float)(Size - C[V]) / (Atk * Size); }
 		else { g = ysxSIG_MIDI_V; }
-		y = (sin(x * Freq * TAU * pow(1 - (float)(Size - C[V]) / Size, pFreq)) * pow(1 - (float)(Size - C[V]) / Size, pAmp) * 0.3 +
-			tri(x * Freq * RatioT * TAU * pow(1 - (float)(Size - C[V]) / Size, pFreq)) * pow(1 - (float)(Size - C[V]) / Size, pAmp) * 0.3 +
-			rect(x * Freq * RatioR * TAU * pow(1 - (float)(Size - C[V]) / Size, pFreq)) * pow(1 - (float)(Size - C[V]) / Size, pAmp) * 0.3) * g;
+		y = (sin(x * Freq * TAU * pow((float)C[V] / Size, pFreq)) * pow((float)C[V] / Size, pAmp) * 0.3 +
+			tri(x * Freq * RatioT * TAU * pow((float)C[V] / Size, pFreq)) * pow((float)C[V] / Size, pAmp) * 0.3 +
+			rect(x * Freq * RatioR * TAU * pow((float)C[V] / Size, pFreq)) * pow((float)C[V] / Size, pAmp) * 0.3) * g;
 		//std::cout << "Y: " << y << '\n';
 		//std::cout << "PFREQ: " << pow(1 - (float)(Size - C[V]) / Size, pFreq) << '\n';
 		return(y);

@@ -3,6 +3,8 @@
 #ifndef YSXVECTOR_H
 #define YSXVECTOR_H
 
+// ATTENTION: This files assumes that it is being included by 'ysxMath.h', and so, it should already have 'vector.h' included!
+
 /*############################################################################################################################################
   ################################################# ANOTATIONS AND ALTERATIONS #################################################
 
@@ -23,13 +25,14 @@ CHANGES (KEEP ORDER):
 
 // CONVERTERS:
 template <class _T1, class _T2>
-std::vector<float> ysxVEC_Convert(std::vector<_T1> T1) { std::vector<_T2> V(T1.size()); for (size_t n = 0; n < T1.size(); ++n) { V[n] = T1[n]; } return(V); }
+std::vector<_T2> ysxVEC_Convert(std::vector<_T1> T1) { std::vector<_T2> V(T1.size()); for (size_t n = 0; n < T1.size(); ++n) { V[n] = T1[n]; } return(V); }
 std::vector<uint8_t> ysxVEC_Double2uChar(std::vector<double> Double)
 { std::vector<uint8_t> V(Double.size()); for (size_t n = 0; n < Double.size(); ++n) { V[n] = round(Double[n] * 255); } return(V); }
 std::vector<uint8_t> ysxVEC_Float2uChar(std::vector<float> Float)
 { std::vector<uint8_t> V(Float.size()); for (size_t n = 0; n < Float.size(); ++n) { V[n] = round(Float[n] * 255); } return(V); }
 std::vector<double> ysxVEC_String2double(std::string S)
 { std::vector<double> V(S.size()); for (size_t n = 0; n < S.size(); ++n) { V[n] = S[n] / 255.0; } return(V); }
+
 // Use values from '0' to '1.0', it multiplies by '255.0'
 std::string ysxVEC_Double2String(std::vector<double> Double)
 { std::string V; for (size_t n = 0; n < Double.size(); ++n) { V.push_back(round(Double[n] * 255.0)); } return(V); }
@@ -37,12 +40,25 @@ std::string ysxVEC_Float2String(std::vector<double> Float)
 { std::string V; for (size_t n = 0; n < Float.size(); ++n) { V.push_back(round(Float[n] * 255.0)); } return(V); }
 std::vector<float> ysxVEC_String2Float(std::string S)
 { std::vector<float> V(S.size()); for (size_t n = 0; n < S.size(); ++n) { V[n] = S[n] / 255.0; } return(V); }
-// (Int[n] / 4294967295) * 255 = Int[n] / 16843099:
-std::string ysxVEC_UI322String(std::vector<uint32_t> Int)
+
+// Gets the bytes and make it into a string:
+std::string ysxVEC_DoubleBytes2String(std::vector<double> Double)
+{ std::string V; uint8_t* p = (uint8_t)&Double[0]; for (size_t n = 0; n < Double.size() * sizeof(double); ++n) { V.push_back(*p); ++p; } return(V); }
+std::string ysxVEC_FloatBytes2String(std::vector<double> Float)
+{ std::string V; uint8_t* p = (uint8_t)&Float[0]; for (size_t n = 0; n < Float.size() * sizeof(float); ++n) { V.push_back(*p); ++p; } return(V); }
+
+// Divides the Int value to fit '255' range ((Int[n] / 4294967295) * 255 = Int[n] / 16843099):
+std::string ysxVEC_UI32Div2String(std::vector<uint32_t> Int)
 { std::string V; for (size_t n = 0; n < Int.size(); ++n) { V.push_back(round(Int[n] / 16843099.0)); } return(V); }
-// (Int[n] / 65535) * 255 = Int[n] / 257:
-std::string ysxVEC_UI162String(std::vector<uint16_t> Int)
+// Divides the Int value to fit '255' range ((Int[n] / 65535) * 255 = Int[n] / 257):
+std::string ysxVEC_UI16Div2String(std::vector<uint16_t> Int)
 { std::string V; for (size_t n = 0; n < Int.size(); ++n) { V.push_back(round(Int[n] / 257.0)); } return(V); }
+
+// Each byte of Int becomes a char in the string (it uses pointers, make sure everything is fine):
+std::string ysxVEC_UI322String(std::vector<uint32_t> Int)
+{ std::string V; uint8_t* p = (uint8_t)&Int[0]; for (size_t n = 0; n < Int.size() * 4; ++n) { V.push_back(*p); ++p; } return(V); }
+std::string ysxVEC_UI322String(std::vector<uint16_t> Int)
+{ std::string V; uint8_t* p = (uint8_t)&Int[0]; for (size_t n = 0; n < Int.size() * 2; ++n) { V.push_back(*p); ++p; } return(V); }
 
 // JOIN VECTORS:
 // At the end of VPre, it will be pushed back VSuf
@@ -64,7 +80,7 @@ std::vector<T_> ysxVEC_MergeVecs(std::vector<T_> a, std::vector<T_> b)
 }
 
 // BREAK VECTOR INTO SUB-BLOCK:
-std::vector<std::vector<double>> ysxVEC_VecSubBlocks(std::vector<double> In, uint32_t Div)
+std::vector<std::vector<double>> ysxVEC_VecSubBlocks(const std::vector<double>& In, uint32_t Div)
 {
 	std::vector<double> v;
 	std::vector<std::vector<double>> V;
@@ -80,6 +96,35 @@ std::vector<std::vector<double>> ysxVEC_VecSubBlocks(std::vector<double> In, uin
 		else if (n == Size - 1) { V.push_back(v); }
 	}
 	return(V);
+}
+
+// SHUFFLE BY MOVING BOTH CARDS (OF A SWAP) ONLY ONCE (W.I.P):
+template <class T_> void ysxVEC_VecShuffleSwap(std::vector<T_>& V)
+{
+	size_t Size = V.size();
+	size_t a = 0;//, b = 0;
+	std::vector<T_> T = V;
+	std::vector<Point<size_t>> Moved;
+	/*if (Size > 1)
+	{
+		a = std::rand() % Size, b = std::rand() % Size;
+		if (a == b) { while (a == b) { b = std::rand() % Size; } }
+		T_ t = V[a]; V[a] = T[b]; T[b] = t; // Swap
+		Moved.push_back({ a, b });
+	}
+	for (size_t n = 1; n < Size; ++n)
+	{
+		a = std::rand() % Size, b = std::rand() % Size;
+		for (size_t m = 0; m < Moved.size(); ++m)
+		{
+			if (a == Moved[m].x) { while (a == Moved[m].x) { a = std::rand() % Size; } }
+			if (a == Moved[m].y) { while (a == Moved[m].y) { a = std::rand() % Size; } }
+			if (b == Moved[m].x) { while (b == Moved[m].x) { b = std::rand() % Size; } }
+			if (b == Moved[m].y) { while (b == Moved[m].y) { b = std::rand() % Size; } }
+		}
+		T_ t = V[a]; V[a] = T[b]; T[b] = t; // Swap
+		Moved.push_back({ a, b });
+	}*/
 }
 
 // ############################
@@ -268,7 +313,8 @@ void ysxVEC_MaxMinVec(std::vector<T_> V, T_& Max, T_& Min)
 // ** Ex 2: f(x) results in 'min = 0.0001' and 'max = 1'. 'min > 0', so:
 //			Result: min = 0.0001; max = 1;
 // * If a number goes '< 0', you can normalize to '1' if you divide any index of input vector by 'max'
-void ysxVEC_MaxMinVecAbs(std::vector<int>& V, int& Max, int& Min)
+template<class T_>
+void ysxVEC_MaxMinVecAbs(const std::vector<T_>& V, T_& Max, T_& Min)
 {
 	int max = V[0], min = V[0];
 	for (size_t n = 1; n < V.size(); ++n)
@@ -276,39 +322,23 @@ void ysxVEC_MaxMinVecAbs(std::vector<int>& V, int& Max, int& Min)
 		if (V[n] > max) max = V[n];
 		if (V[n] < min) min = V[n];
 	}
-	if (max < 0) { min += abs(max); max = 0; }
-	if (min < 0) { max += abs(min); min = 0; }
-	Max = max; Min = min;
-}
-void ysxVEC_MaxMinVecAbs(std::vector<double>& V, double& Max, double& Min)
-{
-	double max = V[0], min = V[0];
-	for (size_t n = 1; n < V.size(); ++n)
+	if (std::is_floating_point<T_>::value)
 	{
-		if (V[n] > max) max = V[n];
-		if (V[n] < min) min = V[n];
+		if (max < 0) { min += fabs(max); max = 0; }
+		if (min < 0) { max += fabs(min); min = 0; }
 	}
-	if (max < 0) { min += fabs(max); max = 0; }
-	if (min < 0) { max += fabs(min); min = 0; }
-	Max = max; Min = min;
-}
-void ysxVEC_MaxMinVecAbs(std::vector<float>& V, float& Max, float& Min)
-{
-	float max = V[0], min = V[0];
-	for (size_t n = 1; n < V.size(); ++n)
+	else
 	{
-		if (V[n] > max) max = V[n];
-		if (V[n] < min) min = V[n];
+		if (max < 0) { min += abs(max); max = 0; }
+		if (min < 0) { max += abs(min); min = 0; }
 	}
-	if (max < 0) { min += fabs(max); max = 0; }
-	if (min < 0) { max += fabs(min); min = 0; }
 	Max = max; Min = min;
 }
 
 // ####### SPECIAL:
 
 // Delta between max and min. The minimum will always be at ZERO (that means if 'min > 0', then 'max -= min'):
-int ysxVEC_VecDelta(std::vector<int> V)
+int ysxVEC_VecDelta(const std::vector<int>& V)
 {
 	int max = V[0], min = V[0];
 	for (size_t n = 1; n < V.size(); ++n)
@@ -322,7 +352,7 @@ int ysxVEC_VecDelta(std::vector<int> V)
 	if (min > 0) { max -= min; }//min = 0; }
 	return(max);
 }
-float ysxVEC_VecDelta(std::vector<float> V)
+float ysxVEC_VecDelta(const std::vector<float>& V)
 {
 	float max = V[0], min = V[0];
 	for (size_t n = 1; n < V.size(); ++n)
@@ -336,7 +366,7 @@ float ysxVEC_VecDelta(std::vector<float> V)
 	if (min > 0) { max -= min; }
 	return(max);
 }
-double ysxVEC_VecDelta(std::vector<double> V)
+double ysxVEC_VecDelta(const std::vector<double> V)
 {
 	double max = V[0], min = V[0];
 	for (size_t n = 1; n < V.size(); ++n)
@@ -353,7 +383,7 @@ double ysxVEC_VecDelta(std::vector<double> V)
 
 // MAX OF BOTH 'y' AND 'x':
 // 'bool Abs'modifies VPoint! For now, i'm going to modify this later, since it was a noobish from me to do that!
-void ysxVEC_MaxMinVecPoint(std::vector<Point<int>>& VPoint, Point<int>& Max, Point<int>& Min, bool Abs)
+void ysxVEC_MaxMinVecPoint(/*const*/ std::vector<Point<int>>& VPoint, Point<int>& Max, Point<int>& Min, bool Abs)
 {
 	Point<int> oMax(VPoint[0]), oMin(VPoint[0]);
 	for (size_t n = 1; n < VPoint.size(); ++n)
@@ -383,7 +413,7 @@ void ysxVEC_MaxMinVecPoint(std::vector<Point<int>>& VPoint, Point<int>& Max, Poi
 }
 
 // MAX OF 'x', 'y' AND 'z':
-void ysxVEC_MaxMinVecPoint3D(std::vector<Point3D<int>>& VPoint, Point3D<int>& Max, Point3D<int>& Min, bool Abs)
+void ysxVEC_MaxMinVecPoint3D(/*const*/ std::vector<Point3D<int>>& VPoint, Point3D<int>& Max, Point3D<int>& Min, bool Abs)
 {
 	Point3D<int> oMax(VPoint[0]), oMin(VPoint[0]);
 	for (size_t n = 1; n < VPoint.size(); ++n)
@@ -416,7 +446,7 @@ void ysxVEC_MaxMinVecPoint3D(std::vector<Point3D<int>>& VPoint, Point3D<int>& Ma
 }
 
 // MAX COORD FROM A LINE STRUCT:
-void ysxVEC_MaxMinVecLinePoint(std::vector<LinePoint<int>>& VLinePoint, LinePoint<int>& Max, LinePoint<int>& Min, bool Abs)
+void ysxVEC_MaxMinVecLinePoint(/*const*/ std::vector<LinePoint<int>>& VLinePoint, LinePoint<int>& Max, LinePoint<int>& Min, bool Abs)
 {
 	LinePoint<int> oMax(VLinePoint[0]), oMin(VLinePoint[0]);
 	for (size_t n = 1; n < VLinePoint.size(); ++n)
@@ -461,24 +491,24 @@ void ysxVEC_MaxMinVecLinePoint(std::vector<LinePoint<int>>& VLinePoint, LinePoin
 
 // SUM DATA:
 template <class T_>
-T_ ysxVEC_SumVec(std::vector<T_> V) { size_t Size = V.size(); T_ Sum = V[0]; for (size_t n = 1; n < Size; ++n) { Sum += V[n]; } return(Sum); }
+T_ ysxVEC_SumVec(const std::vector<T_>& V) { size_t Size = V.size(); T_ Sum = V[0]; for (size_t n = 1; n < Size; ++n) { Sum += V[n]; } return(Sum); }
 // MULTIPLY DATA, ANY '0' RETURN IN '0':
 template <class T_>
-T_ ysxVEC_MultVec(std::vector<T_> V) { size_t Size = V.size(); T_ Mult = V[0]; for (size_t n = 1; n < Size; ++n) { Mult *= V[n]; } return(Mult); }
+T_ ysxVEC_MultVec(const std::vector<T_>& V) { size_t Size = V.size(); T_ Mult = V[0]; for (size_t n = 1; n < Size; ++n) { Mult *= V[n]; } return(Mult); }
 
 // POWER VECTOR TERMS:
 template <class T_>
-std::vector<T_> ysxVEC_PowVec(std::vector<T_> V, T_ Pow)
+std::vector<T_> ysxVEC_PowVec(const std::vector<T_>& V, T_ Pow)
 { size_t Size = V.size(); std::vector<T_> R(Size); for (size_t n = 0; n < Size; ++n) { R[n] = pow(V[n], Pow); } return(R); }
 
 // N-ROOT VECTOR TERMS:
 template <class T_>
-std::vector<T_> ysxVEC_nRootVec(std::vector<T_> V, T_ nRoot)
+std::vector<T_> ysxVEC_nRootVec(const std::vector<T_>& V, T_ nRoot)
 { size_t Size = V.size(); std::vector<T_> R(Size); for (size_t n = 0; n < Size; ++n) { R[n] = pow(V[n], 1 / nRoot); } return(R); }
 
 // SUM / MULTIPLY TWO VECTORS VALUES:
 template <class T_>
-std::vector<T_> ysxVEC_SumTwoVec(std::vector<T_>& V0, std::vector<T_>& V1)
+std::vector<T_> ysxVEC_SumTwoVec(const std::vector<T_>& V0, std::vector<T_>& V1)
 {
 	bool v0v1 = false;
 	std::vector<T_> V;
@@ -491,7 +521,7 @@ std::vector<T_> ysxVEC_SumTwoVec(std::vector<T_>& V0, std::vector<T_>& V1)
 	return(V);
 }
 template <class T_>
-std::vector<T_> ysxVEC_MultiTwoVec(std::vector<T_>& V0, std::vector<T_>& V1)
+std::vector<T_> ysxVEC_MultiTwoVec(const std::vector<T_>& V0, std::vector<T_>& V1)
 {
 	bool v0v1 = false;
 	std::vector<T_> V;
@@ -516,7 +546,7 @@ template <class T_> std::vector<T_> ysxVEC_mRootOfn(double n, int m1, int m2)
 { std::vector<T_> V(m2 - m1); for (size_t m = m1; m <= m2; ++m) { V[n - m1] = pow(n, 1.0 / m); } return(V); }
 
 // CREATE VECTOR THAT IS DERIVATIVE OF ANOTHER VECTOR:
-std::vector<double> ysxVEC_VecDeriv(std::vector<double> VecData, double dt)
+std::vector<double> ysxVEC_VecDeriv(const std::vector<double>& VecData, double dt)
 {
 	std::vector<double> Derivs(VecData.size()); for (size_t n = 1; n < VecData.size(); ++n) { Derivs[n] = ((VecData[n] - VecData[n - 1]) / dt); } return(Derivs);
 }

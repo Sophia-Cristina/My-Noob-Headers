@@ -3,3 +3,4 @@ Consequently, most of my graphics codes were in the: 'ysxLibsUtils/CImg/' direct
 
 I removed the one that aren't related to 'CImg' from there to here, and now those are to be
 considered universally useful for anything related to graphics.
+Soon i'll get the plotters in that directory and make functions here that returns an array of points.

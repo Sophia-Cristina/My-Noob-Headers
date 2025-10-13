@@ -204,18 +204,24 @@ struct ysxMSENG_RAM_Map
 	float nEnd = 8 * L; // Total samples in a pattern
 
 	// music(x):
-	uint32_t n = 0; // Actual sample. But it can be used for other things (glitches may happen if you modify to a bad number)
+	uint32_t n = 0; // Actual sample. But it can be used for other stuff (glitches may happen if you modify to a bad number)
 	uint8_t b = 0; // Bit of the byte (or bytes) that represents the music pattern
 	uint8_t Cc = 0; // Main counter. Remember to set it back to '0'
-	float Gg = 1; // Total gain, for 'n = 0' to 'n < INSTR', do 'y += f(x) / Gg'
-	float Max = 0; // Comment (or somewhere else that uses it) to stop saving the peaks of a playback (may reduce lag)
-	void* ptr = nullptr; // General use pointer! Consequently, NEVER trust it! DELETE allocations before using 'RESET()'!
-	double x = 0; // Music is a 'f(x)', and 't' are metrics on the x's axis
+
+	// Gain averager, should let it at 'Gg = INSTR' to normalize gain to '1' when sampling
+	// then at 'for (n = 0; n < INSTR; ++n)', add the line: 'y += IO(x) / Gg', and remove potential clipping
 	uint8_t g = 255; // Gain: y *= g / 255.0
+	float Gg = 1;
+
+	float Max = 0; // Save peaks detected in a playback. Comment (or somewhere else that uses it) to stop (may reduce lag)
+	void* ptr = nullptr; // General use pointer! Consequently, NEVER trust it! DELETE allocations before using 'RESET()'!
+
 	
-	// 'y' is the number which will be send to the signal block and then to DAC.
-	// Be sure to make your instruments the same type!
-	SIGTYPE y = 0;
+	// Music is a 'f(x)':
+	double x = 0; // and 't' are metrics on the x's axis
+	SIGTYPE y = 0; // 'y' is the number which will be sent to the signal block and then to DAC.
+	// Your instruments should be 'SIGTYPE', it may lead to loud noises if not!
+
 
 	// Consider that on hardware, there would NOT have SDL, consequently, this data structure would
 	// be slightly different:
@@ -383,7 +389,7 @@ public:
 	SDL_AudioDeviceID DeviceID;
 	char Device[512]; // Maybe it should be bigger is segfault happens, this is what happens when you use C...
 
-	/*There are some I pins and some O pins, this array pretends to be both :
+	/*There are some I pins and some O pins, this array pretends to be both:
 	Some future versions of the hardware may accept different types of cables to
 	connect guitars, keyboards and MIDI, but 'ALPHA1' accepts only small electronics
 	signals, like, chiptune. The oscillators can be done with a ROM	with a look-up
@@ -483,22 +489,21 @@ public:
 	Take care with low 'Gg', the main formula is that:
 	RAM->y += SigPins[I]->IO(RAM->x) / (float)RAM->Gg;
 	*/
-	virtual void Sampling(bool IgnoreMtoF = false)
+	virtual void Sampling()
 	{
 		if (!RAM->Gg) { RAM->Gg = 1; } // No zero division for you!
-		for (uint8_t I = 0; I < INSTR; ++I)
+		for (uint8_t Instr = 0; Instr < INSTR; ++Instr)
 		{
-			if (SigPins[I])
+			if (SigPins[Instr])
 			{
 				// This loop can accept instruments with different amount of voices, so take care of how you design your instrument:
-				for (uint8_t C = 0; C < SigPins[I]->C.size(); ++C)
+				for (uint8_t Voice = 0; Voice < SigPins[Instr]->C.size(); ++Voice)
 				{
-					if (SigPins[I]->C[C])
+					if (SigPins[Instr]->C[Voice])
 					{
-						if (!IgnoreMtoF) { SigPins[I]->Freq = ROM->MtoF[SigPins[I]->MIDI[C].x]; }
-						SigPins[I]->V = C; // Send the number of the voice in use
-						RAM->y += SigPins[I]->IO(RAM->x) / (float)RAM->Gg; // Gets audio sample and divide by the gain
-						--SigPins[I]->C[C]; //++RAM->Cc; // Decrement the number of samples left to play, and increses general counter (which is not vital)
+						SigPins[Instr]->V = Voice;
+						RAM->y += SigPins[Instr]->IO(RAM->x) / (float)RAM->Gg; // Gets audio sample and divide by 'Gg' (somewhat of a normalizer / autogain)
+						--SigPins[Instr]->C[Voice]; // Decrement the number of samples left to play
 					}
 				}
 			}
@@ -515,9 +520,8 @@ public:
 		if (RAM->Cc == 0) { RAM->Cc = 1; } RAM->y /= RAM->Cc; // Gain stuffs
 		if (std::is_floating_point<SIGTYPE>::value)
 		{			
-			if (RAM->y > 1) { RAM->y = 1; } if (RAM->y < -1) { RAM->y = -1; } // Normalize
-			// (y + 1) * 127.5 * g * 0.00392156862745098: // This giant number is: '1/255'
-			RAM->BUF[RAM->n % BUFSIZE] = 0.5 * RAM->g * (RAM->y + 1); // Create another DAC function if you want more than 8 bits per sample
+			if (RAM->y > 1) { RAM->y = 1; } if (RAM->y < -1) { RAM->y = -1; } // Clip
+			RAM->BUF[RAM->n % BUFSIZE] = 0.5 * RAM->g * (RAM->y + 1); // Normalize and apply gain. 8-bit fow now, you can write your own function anyway.
 			if (wavf) { wavf->wavFile.write((char*)&RAM->BUF[RAM->n % BUFSIZE], 1); }
 			if (RAM->n % BUFSIZE == BUFSIZE - 1) { SDL_Delay(1000.0 * BUFSIZE / SRATE); } // Playback after sample block is filled
 			//std::cout << "RAM->BUF[] = " << (short)RAM->BUF[RAM->n % BUFSIZE] << "\n ";
@@ -593,7 +597,6 @@ public:
 			{
 				for (uint8_t m = 0; m < INSTR; ++m)
 				{
-					// COMPOSE PER INSTRUMENT HERE!
 					SmpInit(m); // Initializes instrument data
 				}
 				BitCount();
@@ -651,4 +654,4 @@ public:
 	}
 };
 
-#endif // SCPARSE_
+#endif

@@ -13,10 +13,12 @@
 
 // ############################################################################################################################################
 // ################################################# NOTES AND ATTENTIONS #################################################
-// !!!!!!!	
+// !!!!!!!
 // !!!!!!!	CATALOGUE ANY CHANGE THAT CAN AFFECT CODE VERSIONS:
 // !!!!!!!	* PAY ATTENTION to any change that may affect 'ysxElectr.h' classes, since electronic devices normally have alike terms to music devices;
 // !!!!!!!	* HUGE: SOON TO ADD TEMPLATE TO LOT OF FUNCTIONS HERE! And it might break old codes!
+// !!!!!!!  * 'V' is now on 'ysxSIG_Stream' and not on 'ysxSIG_Synth' anymore!
+// !!!!!!!
 // ################################################# NOTES AND ATTENTIONS #################################################
 // ############################################################################################################################################
 
@@ -95,10 +97,7 @@ hardware would be fixed in place!*/
 template<class T_> class ysxSIG_Synth : public ysxSIG_Stream<T_>
 {
 public:
-	// It is public, so you can do crazy tricks with this, BUT this might be dangerous if you don't reset every place that uses 'Voices'!
-	// x = note; y = velocity
-	std::vector<Point<uint8_t>> MIDI;
-	uint8_t V = 0; // Voice for the counter, ex.: C[V]; MIDI[V].x;
+	std::vector<Point<uint8_t>> MIDI; // x = note; y = velocity
 	float Freq = 1;
 	//ysxSIG_Synth() { }
 	//~ysxSIG_Synth() { }
@@ -107,12 +106,12 @@ public:
 template<class T_> void ysxSIG_SynthSetVoices(ysxSIG_Synth<T_>& Synth, uint8_t Voices)
 {
 	Synth.MIDI = std::vector<Point<uint8_t>>::vector(Voices);
-	Synth.C = std::vector<uint32_t>::vector(Voices);
+	Synth.C = std::vector<size_t>::vector(Voices);
 }
 template<class T_> void ysxSIG_SynthSetVoices(ysxSIG_Synth<T_>& Synth, uint8_t Voices, uint8_t Note, uint8_t Vel)
 {
 	Synth.MIDI = std::vector<Point<uint8_t>>::vector(Voices);
-	Synth.C = std::vector<uint32_t>::vector(Voices);
+	Synth.C = std::vector<size_t>::vector(Voices);
 	for (uint8_t n = 0; n < Voices; ++n) { Synth.MIDI[n].x = Note; Synth.MIDI[n].y = Vel; }
 }
 
@@ -124,7 +123,11 @@ struct ysxSIG_Instr { ysxSIG_Synth<SigType>* S; PatSize Ptrn; };
 // EASY VELOCITY FORMULA (VEL_VOICE / 127):
 #define ysxSIG_MIDI_V (MIDI[V].y * 0.007874015748031496)
 
+
 // #################################################
+// #################################################
+// #################################################
+
 
 // VST UTILS:
 #ifdef YSXVST2_H
@@ -221,11 +224,11 @@ public:
 
 // ############################
 // ####### SYNTHS #######
-#include "ysxSynthMath.h"
-#include "ysxSynthKicks.h"
-#include "ysxSynthOSC.h"
-#include "ysxSynthMisc.h"
 #include "ysxSynthData.h"
+#include "ysxSynthMod.h"
+#include "ysxSynthOSC.h"
+#include "ysxSynthKicks.h"
+#include "ysxSynthMisc.h"
 #include "ysxSynthEmu.h"
 #include "Projects/ysxSynthProjects.h"
 #include "ysxSynthSpecial.h" // Should always be the last
