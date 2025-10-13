@@ -1,0 +1,6 @@
+Utils for 'Cimg' library:
+https://www.cimg.eu/
+
+Since 'CImg' was my first library, there is lot of very bad code here.
+Lot of things here, especially in the plotter headers, will be changed to simple call a mathematical
+function that returns a vector of points instead of it being a special function for 'Cimg'.
