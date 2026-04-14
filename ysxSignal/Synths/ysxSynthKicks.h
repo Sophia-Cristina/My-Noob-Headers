@@ -89,11 +89,29 @@ public:
 	{
 		if ((float)(Size - C[V]) < Atk * Size && Atk > 0) { g = ysxSIG_MIDI_V * (float)(Size - C[V]) / (Atk * Size); }
 		else { g = ysxSIG_MIDI_V; }
+		y = (sin(((float)C[V] / Size) * Freq * TAU * pow((float)C[V] / Size, pFreq)) * pow((float)C[V] / Size, pAmp) * 0.3 +
+			tri(((float)C[V] / Size) * Freq * RatioT * TAU * pow((float)C[V] / Size, pFreq)) * pow((float)C[V] / Size, pAmp) * 0.3 +
+			rect(((float)C[V] / Size) * Freq * RatioR * TAU * pow((float)C[V] / Size, pFreq)) * pow((float)C[V] / Size, pAmp) * 0.3) * g;
+		return(y);
+	}
+};
+
+// SAME AS 'ysxSIG_KickSTR', but pitch changes by time as it uses 'x' instead of voice samples:
+class ysxSIG_KickSTRPitch : public ysxSIG_Synth<float>
+{
+private:
+	float y = 0, g = 0;
+public:
+	float RatioT = 1, RatioR = 1, pFreq = 1, pAmp = 1, Atk = 0.05;
+
+	// USE TURNS! Preferably 32b:
+	float IO(float x) override
+	{
+		if ((float)(Size - C[V]) < Atk * Size && Atk > 0) { g = ysxSIG_MIDI_V * (float)(Size - C[V]) / (Atk * Size); }
+		else { g = ysxSIG_MIDI_V; }
 		y = (sin(x * Freq * TAU * pow((float)C[V] / Size, pFreq)) * pow((float)C[V] / Size, pAmp) * 0.3 +
 			tri(x * Freq * RatioT * TAU * pow((float)C[V] / Size, pFreq)) * pow((float)C[V] / Size, pAmp) * 0.3 +
 			rect(x * Freq * RatioR * TAU * pow((float)C[V] / Size, pFreq)) * pow((float)C[V] / Size, pAmp) * 0.3) * g;
-		//std::cout << "Y: " << y << '\n';
-		//std::cout << "PFREQ: " << pow(1 - (float)(Size - C[V]) / Size, pFreq) << '\n';
 		return(y);
 	}
 };

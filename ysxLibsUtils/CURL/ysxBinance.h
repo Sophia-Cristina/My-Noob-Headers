@@ -20,7 +20,7 @@
 #include "../../ysxCryp/ysxCrypto.h"
 #include "../../ysxTrade/ysxTrade.h"
 #include "../../ysxTrade/ysxIndicators.h"
-#define USE_SDL3
+#define USE_SDL2
 #include "../SDL/Graph/ysxSDLTrade.h"
 
 
@@ -166,7 +166,7 @@ public:
 // #################################################
 
 
-// Class to deal with balance operations, like, accounting, converstions and etc.
+// Class to deal with balance operations, like, accounting, conversions and etc.
 // This class is not about trading or other operations.
 class ysxCURL_BinanceAPIBalanceOps
 {
@@ -371,7 +371,7 @@ public:
     // You shouldn't edit this object, since functions overwrite it. However, this is the object you check after using a function:
     std::vector<ysxTRADE_Candle> Candles;
     std::vector<double> Prices, Volumes;
-    std::vector<std::vector<double>> IndicatorsLine; // Indicators that are lines and usually plotted over the candles (ex.: MA and Bollinger)
+    std::vector<std::vector<double>> IndicatorsLines; // Indicators that are lines and usually plotted over the candles (ex.: MA and Bollinger)
     std::vector<std::vector<double>> IndicatorsIsolated; // Indicators that have their own drawings that does not match the graphs (ex.: RSI and MACD)
 
 
@@ -382,7 +382,7 @@ public:
     Usage: Get 1000 candles of 5 minutes for SOLUSDT: '.GetCandles("SOLUSDT", "5m", 1000)'.
     Just use 'limit = 1' for a single candle, however, the API have a resquest for 'ticker'.
     CandlePriceType: 0 = Open; 1 = High; 2 = Low; 3 = Close; this will be the value inserted on the 'Prices' vector, the candles will have ALL values anyway if you need.*/
-    bool GetCandles(const std::string& symbol, const std::string& interval, std::size_t limit, uint8_t CandlePriceType = 3)
+    bool GetCandles(const std::string& symbol, const std::string& interval, const std::size_t limit, const uint8_t CandlePriceType = 3)
     {
         std::string BaseURL = "https://api.binance.com";
         std::string Endpoint = "/api/v3/klines";
@@ -424,21 +424,11 @@ public:
                 VolTmp.push_back(c.Volume);
                 switch (CandlePriceType)
                 {
-                    case 0:
-                        PricesTmp.push_back(c.Open);
-                        break;
-                    case 1:
-                        PricesTmp.push_back(c.High);
-                        break;
-                    case 2:
-                        PricesTmp.push_back(c.Low);
-                        break;
-                    case 3:
-                        PricesTmp.push_back(c.Close);
-                        break;
-                    default:
-                        PricesTmp.push_back(c.Close);
-                        break;
+                    case 0: PricesTmp.push_back(c.Open); break;
+                    case 1: PricesTmp.push_back(c.High); break;
+                    case 2: PricesTmp.push_back(c.Low); break;
+                    case 3: PricesTmp.push_back(c.Close); break;
+                    default: PricesTmp.push_back(c.Close); break;
                 }
             }
             Prices = PricesTmp;
@@ -467,7 +457,8 @@ public:
         O.close();
     }
 
-    void CandlesLoad(const std::string FileName = "Candles.sav")
+    // Load binary file with same data structure as 'CandlesSave()', the price type is the same as the 'GetCandles()' function:
+    void CandlesLoad(const std::string FileName = "Candles.sav", const uint8_t CandlePriceType = 3)
     {
         std::ifstream I(FileName, std::ios::binary);
         if (!I.is_open()) { std::cerr << "Couldn't open file (" << FileName << ")!" << std::endl; }
@@ -475,10 +466,84 @@ public:
         {
             uint32_t Size = 0; I.read((char*)&Size, 4);
             std::vector<ysxTRADE_Candle> Load;
-            for (size_t n = 0; n < Size; ++n) { ysxTRADE_Candle c; I.read((char*)&c, sizeof(ysxTRADE_Candle)); Load.push_back(c); }
+            std::vector<double> PricesTmp, VolTmp;
+            for (size_t n = 0; n < Size; ++n)
+            {
+                ysxTRADE_Candle c; I.read((char*)&c, sizeof(ysxTRADE_Candle)); Load.push_back(c);
+                switch (CandlePriceType)
+                {
+                    case 0: PricesTmp.push_back(c.Open); break;
+                    case 1: PricesTmp.push_back(c.High); break;
+                    case 2: PricesTmp.push_back(c.Low); break;
+                    case 3: PricesTmp.push_back(c.Close); break;
+                    default: PricesTmp.push_back(c.Close); break;
+                }
+                VolTmp.push_back(c.Volume);
+            }
             Candles = Load;
+            Prices = PricesTmp;
+            Volumes = VolTmp;
         }
         I.close();
+    }
+
+    /* Load CSV candle data into memory:
+    CSV Format: OpenTime, Open, High, Low, Close, Volume, CloseTime...
+    (as provided by Binance Vision):*/
+    bool CandlesLoadCSV(const std::string& FileName, const uint8_t CandlePriceType = 3)
+    {
+        std::ifstream I(FileName);
+        if (!I.is_open()) { std::cerr << "Couldn't open CSV file (" << FileName << ")!" << std::endl; return(false); }
+
+        std::vector<ysxTRADE_Candle> Load;
+        std::vector<double> PricesTmp, VolTmp;
+        std::string Line;
+
+        // Skip header if exists
+        std::getline(I, Line);
+        if (Line.find("open") != std::string::npos || Line.find("Open") != std::string::npos) { /*skip header line*/ }
+        else { I.seekg(0); } // rewind if it’s actual data
+
+        while (std::getline(I, Line))
+        {
+            std::stringstream SS(Line);
+            std::string Token;
+            ysxTRADE_Candle c;
+
+            std::getline(SS, Token, ','); // open time
+            std::getline(SS, Token, ','); c.Open = std::stod(Token);
+            std::getline(SS, Token, ','); c.High = std::stod(Token);
+            std::getline(SS, Token, ','); c.Low = std::stod(Token);
+            std::getline(SS, Token, ','); c.Close = std::stod(Token);
+            std::getline(SS, Token, ','); c.Volume = std::stod(Token);
+
+            Load.push_back(c);
+            VolTmp.push_back(c.Volume);
+
+            switch (CandlePriceType)
+            {
+                case 0: PricesTmp.push_back(c.Open); break;
+                case 1: PricesTmp.push_back(c.High); break;
+                case 2: PricesTmp.push_back(c.Low); break;
+                case 3:
+                default: PricesTmp.push_back(c.Close); break;
+            }
+        }
+
+        Candles = Load;
+        Prices = PricesTmp;
+        Volumes = VolTmp;
+
+        I.close();
+        return(true);
+    }
+
+
+    // Append more candles to the vector:
+    void CandlesAppend(const std::vector<ysxTRADE_Candle>& More)
+    {
+        Candles.insert(Candles.end(), More.begin(), More.end());
+        for (size_t n = 0; n < More.size(); ++n) { Prices.push_back(More[n].Close); Volumes.push_back(More[n].Volume); }
     }
 
 

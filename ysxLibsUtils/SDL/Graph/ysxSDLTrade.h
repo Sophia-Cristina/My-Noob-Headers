@@ -7,16 +7,10 @@
 // SDL STUFFS:
 // Uncomment if you have that directory tree:
 #ifdef USE_SDL3
-//#include "include/SDL3/SDL.h"
-//#include "include/SDL3/SDL_syswm.h"
 #include "SDL3/SDL.h"
-//#include "SDL3/SDL_syswm.h"
 #endif
 #ifdef USE_SDL2
-//#include "SDL-SDL2/include/SDL.h"
-//#include "SDL-SDL2/include/SDL_syswm.h"
 #include "SDL2/SDL.h"
-//#include "SDL2/SDL_syswm.h"
 #endif
 
 
@@ -27,6 +21,7 @@
 
 #include "../../../ysxMath/ysxMath.h"
 #include "ysxSDLGraphs.h"
+#include "../Text/ysxSDLText.h"
 
 // #################################################
 // REFERENCES:
@@ -48,9 +43,9 @@ class ysxSDL_CandleGraphPlot
 private:
     SDL_Window* Window = nullptr;
     SDL_Renderer* Renderer = nullptr;
+    TTF_Font* Font = nullptr;
 
     uint16_t Width, Height;
-
 
 public:
     // Draw candlesticks and indicator lines:
@@ -60,14 +55,17 @@ public:
 
         SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 255);
         SDL_RenderClear(Renderer);
+        Font = TTF_OpenFont("Ac437_IBM_DOS_ISO9-2x.ttf", 8);
+        if (!Font) { std::cerr << "Failed to load font: " << TTF_GetError() << '\n'; }
 
         // Determine price range for vertical scaling:
         double MinPrice = Candles.front().Low;
         double MaxPrice = Candles.front().High;
+        uint16_t HigherCandle, LowerCandle;
         for (size_t n = 0; n < Candles.size(); ++n)
         {
-            if (Candles[n].Low < MinPrice) { MinPrice = Candles[n].Low; }
-            if (Candles[n].High > MaxPrice) { MaxPrice = Candles[n].High; }
+            if (Candles[n].Low < MinPrice) { MinPrice = Candles[n].Low; LowerCandle = n; }
+            if (Candles[n].High > MaxPrice) { MaxPrice = Candles[n].High; HigherCandle = n; }
         }
 
         double Range = MaxPrice - MinPrice;
@@ -81,9 +79,42 @@ public:
 
         // Division lines:
         uint16_t HDiv = Height / HeightDivs, WDiv = Width / WidthDivs;
+        std::string Text;
         SDL_SetRenderDrawColor(Renderer, 95, 95, 95, 255);
-        for (uint16_t n = 0; n < HDiv; ++n) { SDL_RenderDrawLine(Renderer, 0, HDiv * n, Width, HDiv * n); }
-        for (uint16_t n = 0; n < WDiv; ++n) { SDL_RenderDrawLine(Renderer, WDiv * n, 0, WDiv * n, Height); }
+        SDL_Color WhiteColor = {255, 255, 255, 255};
+        for (uint16_t n = 0; n < HDiv; ++n)
+        {
+            SDL_RenderDrawLine(Renderer, 0, HDiv * n, Width, HDiv * n);
+            Text = std::to_string(MinPrice + (Range / HeightDivs) * n);
+            SDL_Surface* TextSurface = TTF_RenderText_Blended(Font, Text.c_str(), WhiteColor);
+            if (TextSurface)
+            {
+                SDL_Texture* TextTexture = SDL_CreateTextureFromSurface(Renderer, TextSurface);
+                SDL_Rect DestRect = {(short)(Width - 80), (short)(Height - n * HDiv - 15), (uint16_t)TextSurface->w, (uint16_t)TextSurface->h};
+                SDL_RenderCopy(Renderer, TextTexture, nullptr, &DestRect);
+                DestRect = {7, (short)(Height - n * HDiv - 15), (uint16_t)TextSurface->w, (uint16_t)TextSurface->h};
+                SDL_RenderCopy(Renderer, TextTexture, nullptr, &DestRect);
+                SDL_DestroyTexture(TextTexture);
+                SDL_FreeSurface(TextSurface);
+            }
+            else { std::cerr << "No TextSurface\n"; }
+        }
+        for (uint16_t n = 0; n < WDiv; ++n)
+        {
+            SDL_RenderDrawLine(Renderer, WDiv * n, 0, WDiv * n, Height);
+            Text = std::to_string(n * Candles.size() / WidthDivs);
+            SDL_Surface* TextSurface = TTF_RenderText_Blended(Font, Text.c_str(), WhiteColor);
+            if (TextSurface)
+            {
+                SDL_Texture* TextTexture = SDL_CreateTextureFromSurface(Renderer, TextSurface);
+                SDL_Rect DestRect = {(short)(n * WDiv + 7), (short)(Height - 10), (uint16_t)TextSurface->w, (uint16_t)TextSurface->h};
+                SDL_RenderCopy(Renderer, TextTexture, nullptr, &DestRect);
+                SDL_DestroyTexture(TextTexture);
+                SDL_FreeSurface(TextSurface);
+            }
+            else { std::cerr << "No TextSurface\n"; }
+
+        }
 
 
         // Draw candles:
@@ -122,9 +153,30 @@ public:
         size_t Lines = IndicatorsLines.size();
         for (size_t n = 0; n < Lines; ++n)
         {
+            SDL_Color TextClr;
             if (IndicatorsLines[n].size() < 2) { continue; }
-            if (Colors.empty()) { SDL_SetRenderDrawColor(Renderer, 255, 255, 0, 255); }
-            else { SDL_SetRenderDrawColor(Renderer, Colors[n % Lines].x, Colors[n % Lines].y, Colors[n % Lines].z, 255); }
+            if (Colors.empty())
+            {
+                SDL_SetRenderDrawColor(Renderer, 255, 255, 0, 255);
+                TextClr = {255, 255, 0, 255};
+            }
+            else
+            {
+                SDL_SetRenderDrawColor(Renderer, Colors[n % Lines].x, Colors[n % Lines].y, Colors[n % Lines].z, 255);
+                TextClr = {Colors[n % Lines].x, Colors[n % Lines].y, Colors[n % Lines].z, 255};
+            }
+
+            Text = std::to_string(IndicatorsLines[n].back());
+            SDL_Surface* TextSurface = TTF_RenderText_Blended(Font, Text.c_str(), TextClr);
+            if (TextSurface)
+            {
+                SDL_Texture* TextTexture = SDL_CreateTextureFromSurface(Renderer, TextSurface);
+                SDL_Rect DestRect = {84, (short)(10 * n + 10), (uint16_t)TextSurface->w, (uint16_t)TextSurface->h};
+                SDL_RenderCopy(Renderer, TextTexture, nullptr, &DestRect);
+                SDL_DestroyTexture(TextTexture);
+                SDL_FreeSurface(TextSurface);
+            }
+            else { std::cerr << "No TextSurface\n"; }
 
             size_t Offset = Candles.size() - IndicatorsLines[n].size();
             for (size_t m = 1; m < IndicatorsLines[n].size(); ++m)
@@ -144,15 +196,34 @@ public:
                     {
                         for (size_t Thick = 1; Thick < LineThickness[n]; ++Thick)
                         {
-                            if (y1 + Thick < Height && y2 + Thick < Height) { SDL_RenderDrawLine(Renderer, x1, y1 + Thick, x2, y2); }
-                            if (y1 - Thick > 0 && y2 - Thick > 0) { SDL_RenderDrawLine(Renderer, x1, y1 - Thick, x2, y2); }
+                            if (y1 + Thick < Height && y2 + Thick < Height) { SDL_RenderDrawLine(Renderer, x1, y1 + Thick, x2, y2 + Thick); }
+                            if (y1 - Thick > 0 && y2 - Thick > 0) { SDL_RenderDrawLine(Renderer, x1, y1 - Thick, x2, y2 - Thick); }
                         }
                     }
                 }
             }
         }
 
+
+        // Max / Min prices text:
+        std::cout << "DRAW TEXT\n";
+        Text = "LOWER CANDLE: Close: " + std::to_string(Candles[LowerCandle].Close) + " | Low: " + std::to_string(MinPrice);
+        SDL_Surface* TextSurface = TTF_RenderText_Blended(Font, Text.c_str(), WhiteColor);
+        SDL_Texture* TextTexture = SDL_CreateTextureFromSurface(Renderer, TextSurface);
+        SDL_Rect DestRect = {(short)(Width * 0.5), (short)(Height - 20), (uint16_t)TextSurface->w, (uint16_t)TextSurface->h};
+        SDL_RenderCopy(Renderer, TextTexture, nullptr, &DestRect);
+        SDL_DestroyTexture(TextTexture); SDL_FreeSurface(TextSurface);
+
+        Text = "HIGHER CANDLE: Close: " + std::to_string(Candles[HigherCandle].Close) + " | High: " + std::to_string(MaxPrice);
+        TextSurface = TTF_RenderText_Blended(Font, Text.c_str(), WhiteColor);
+        TextTexture = SDL_CreateTextureFromSurface(Renderer, TextSurface);
+        DestRect = {(short)(Width * 0.5), (short)(Height - 30), (uint16_t)TextSurface->w, (uint16_t)TextSurface->h};
+        SDL_RenderCopy(Renderer, TextTexture, nullptr, &DestRect);
+        SDL_DestroyTexture(TextTexture); SDL_FreeSurface(TextSurface);
+        std::cout << "DRAW TEXT DONE\n";
+
         SDL_RenderPresent(Renderer);
+        if (Font) { TTF_CloseFont(Font); Font = nullptr; }
     }
 
 
@@ -169,6 +240,8 @@ public:
             {
                 if (e.type == SDL_QUIT) { running = false; }
             }
+            //SDL_RenderPresent(Renderer);
+            //SDL_UpdateWindowSurface(Window);
             SDL_Delay(16);
         }
     }
@@ -181,20 +254,10 @@ public:
     {
         Width = W; Height = H;
         if (SDL_Init(SDL_INIT_VIDEO) < 0) { std::cerr << "SDL could not initialize: " << SDL_GetError() << '\n'; return; }
-
         Window = SDL_CreateWindow("Candle Chart", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, Width, Height, SDL_WINDOW_SHOWN);
-        if (!Window)
-        {
-            std::cerr << "SDL_CreateWindow failed: " << SDL_GetError() << '\n';
-            return;
-        }
-
-        Renderer = SDL_CreateRenderer(Window, -1, SDL_RENDERER_ACCELERATED);
-        if (!Renderer)
-        {
-            std::cerr << "SDL_CreateRenderer failed: " << SDL_GetError() << '\n';
-            return;
-        }
+        if (!Window) { std::cerr << "SDL_CreateWindow failed: " << SDL_GetError() << '\n'; return; }
+        Renderer = SDL_CreateRenderer(Window, -1, SDL_RENDERER_ACCELERATED); if (!Renderer) { std::cerr << "SDL_CreateRenderer failed: " << SDL_GetError() << '\n'; return; }
+        if (TTF_Init() == -1) { std::cerr << "TTF_Init failed: " << TTF_GetError() << '\n'; return; }
     }
 
     ~ysxSDL_CandleGraphPlot()
@@ -202,6 +265,7 @@ public:
         if (Renderer) { SDL_DestroyRenderer(Renderer); }
         if (Window) { SDL_DestroyWindow(Window); }
         SDL_Quit();
+        TTF_Quit();
     }
 };
 

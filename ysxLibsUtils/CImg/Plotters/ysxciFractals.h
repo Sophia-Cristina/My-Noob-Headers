@@ -45,7 +45,9 @@ public:
 	void SetSclPanx(double px) { if (px < 0) { px = 0; } if (px > 1) { px = 1; } Panx = 2.47 * px - 2; }
 	void SetSclPany(double py) { if (py < 0) { py = 0; } if (py > 1) { py = 1; } Pany = 2.24 * py - 1.12; }
 
+
 	// #################################################
+
 
 	// CHECK IF INSIDE SET, RETURN A VALUE BASED ON THE ITERATION:
 	double CheckInSet(double x, double y)
@@ -62,9 +64,9 @@ public:
 		return (0); // Return zero if in set
 	}
 
+
 	// #################################################
-	// #################################################
-	// #################################################
+
 
 	// DRAW FRACTAL:
 	void Draw(CImg<uint8_t>& Canvas)
@@ -89,7 +91,9 @@ public:
 		}
 	}
 
+
 	// #################################################
+
 
 	// DRAW FRACTAL ANIMATION:
 	// Prefer to use vectors of same size!
