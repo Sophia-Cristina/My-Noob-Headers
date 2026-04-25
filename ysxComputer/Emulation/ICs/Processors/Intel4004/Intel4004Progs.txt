@@ -1,4 +1,4 @@
-;https://www.youtube.com/watch?v=cuUJhtd2oGc&list=PLrIwy5Fq_HiMLKBmFMjoFcd_ZR9UXehys&index=2
+;https://www.youtube.com/watch?v=cuUJhtd2oGc
  CLB ;Clear A & Carry
  DCL ;Switching to RAM bank (A)
 beg,

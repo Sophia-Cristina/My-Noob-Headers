@@ -33,7 +33,9 @@ A1,A2,A3,M1,M2,X1,X2,X3;*/
 
 struct ysxEMU_MSC_4_Bus
 {   
-    uint8_t Data;
+    uint8_t Data; // 4-bits
+    uint8_t ControlStrobe;
+    uint8_t ControlParam;
     uint8_t CLK1;
     uint8_t CLK2;
     uint8_t SYNC;
@@ -117,20 +119,19 @@ public:
 
     // ####### UTILS:
     std::string* LOG;
-    bool LOG_On = false;
-    bool LOG_PlotMemASCII = false;
+    bool LOG_Mem = false;
 
     void LogState()
     {
 	if (LOG)
 	{
             *LOG += "\n### ROM 4001:\n";
-            *LOG += "# PINS:\nIO: " + std::to_string((short)(*Pins & 0xf)) + " | CM: " + std::to_string((short)(*Pins & CM)) + " | CL: " + std::to_string((short)(*Pins & CL) ) + '\n';
-            *LOG += "# SYSTEM:\nReg: " + std::to_string((short)O_Regs) + " | FF: " + std::to_string((short)FF) + " | O Port: " + std::to_string((short)IOPorts) + '\n';
-            *LOG += "# CLOCK:\nSYNC: " + std::to_string((short)Bus->SYNC) + " | CLK1: " + std::to_string((short)Bus->CLK1) + " | CLK2: " + std::to_string((short)Bus->CLK2) + '\n';
-            *LOG += "# DATA '" + std::to_string((short)Bus->Data) + "':\n";
-            *LOG += "BUF: " + std::to_string((short)Buf) + ":\n";
-            if (LOG_PlotMemASCII) { for (uint16_t n = 0; n < 256; ++n) { if (!(n % 16)) { *LOG += '\n'; } *LOG += ROM[n]; } }
+            *LOG += "# PINS:\nIO: " + std::to_string((uint16_t)(*Pins & 0xf)) + " | CM: " + std::to_string((uint16_t)(*Pins & CM)) + " | CL: " + std::to_string((uint16_t)(*Pins & CL) ) + '\n';
+            *LOG += "# SYSTEM:\nReg: " + std::to_string((uint16_t)O_Regs) + " | FF: " + std::to_string((uint16_t)FF) + " | O Port: " + std::to_string((uint16_t)IOPorts) + '\n';
+            *LOG += "# CLOCK:\nSYNC: " + std::to_string((uint16_t)Bus->SYNC) + " | CLK1: " + std::to_string((uint16_t)Bus->CLK1) + " | CLK2: " + std::to_string((uint16_t)Bus->CLK2) + '\n';
+            *LOG += "# DATA '" + std::to_string((uint16_t)Bus->Data) + "':\n";
+            *LOG += "BUF: " + std::to_string((uint16_t)Buf) + ":\n";
+            if (LOG_Mem) { *LOG += "\n### ROM MEM ###"; for (uint16_t n = 0; n < 256; ++n) { if (!(n % 16)) { *LOG += '\n'; } *LOG += std::to_string((uint16_t)ROM[n]) + " | "; } }
             *LOG += "\n\n";
 	}
     }
@@ -208,17 +209,16 @@ public:
 
     // ####### UTILS:
     std::string* LOG;
-    bool LOG_On = false;
     void LogState()
     {
 	if (LOG)
 	{
             *LOG += "\n### RAM 4002:\n";
-            *LOG += "# PINS:\nO: " + std::to_string((short)*Pins & 0xf) + " | CM: " + std::to_string((short)*CM) + " | P: " + std::to_string((short)*P) + '\n';
-            *LOG += "# SYSTEM:\nReg: " + std::to_string((short)Reg) + " | FF: " + std::to_string((short)FF) + " | O Port: " + std::to_string((short)OPort) + '\n';
-            *LOG += "# CLOCK:\nSYNC: " + std::to_string((short)Bus->SYNC) + " | CLK1: " + std::to_string((short)Bus->CLK1) + " | CLK2: " + std::to_string((short)Bus->CLK2) + '\n';
-            *LOG += "# DATA '" + std::to_string((short)Bus->Data) + "':\n";
-            *LOG += "UI4: " + std::to_string((short)RAM[Reg][Bus->Data > 19 ? Bus->Data % 20 : Bus->Data]) + "';\n\n";
+            *LOG += "# PINS:\nO: " + std::to_string((uint16_t)*Pins & 0xf) + " | CM: " + std::to_string((uint16_t)*CM) + " | P: " + std::to_string((uint16_t)*P) + '\n';
+            *LOG += "# SYSTEM:\nReg: " + std::to_string((uint16_t)Reg) + " | FF: " + std::to_string((uint16_t)FF) + " | O Port: " + std::to_string((uint16_t)OPort) + '\n';
+            *LOG += "# CLOCK:\nSYNC: " + std::to_string((uint16_t)Bus->SYNC) + " | CLK1: " + std::to_string((uint16_t)Bus->CLK1) + " | CLK2: " + std::to_string((uint16_t)Bus->CLK2) + '\n';
+            *LOG += "# DATA '" + std::to_string((uint16_t)Bus->Data) + "':\n";
+            *LOG += "UI4: " + std::to_string((uint16_t)RAM[Reg][Bus->Data > 19 ? Bus->Data % 20 : Bus->Data]) + "';\n\n";
 	}
     }
 };
@@ -269,8 +269,8 @@ class ysxEMU_Intel4004CPU : public ysxEMU_MSC_4
 {
 public:
     // ####### PINS:
-    // ####### PINS:
     enum Pinning { CM_RAM0 = 1, CM_RAM1 = 2, CM_RAM2 = 4, CM_RAM3 = 8, CM = 16, TEST = 32, RESET = 64 };
+    enum ControlStrobe {  STROBE_NONE = 0, STROBE_WRM = 1, STROBE_WMP = 2, STROBE_WRx = 4, STROBE_RDM = 8, STROBE_RDx = 16, STROBE_RDR = 32, STROBE_ADM = 64, STROBE_SBM = 128 };
     uint8_t* Pins;
     // ####### SYSTEM:
     uint8_t Count = 0;
@@ -281,15 +281,21 @@ public:
     ACC & 48 = OP | ACC & 15 = Registers*/
     uint8_t ACC = 0;
     
+    uint8_t StackP = 0; // Stack pointer
+    uint8_t Regs[8]; // 16 4-bit index regs. R0R1... [2] P. 11
+    uint8_t CMReg = 0; // Register Selector
+
     uint8_t Temp = 0;
+
+    // Instructions buffer:
     uint8_t Instr = 0; // Instruction
-    uint8_t OPR_OPA = 0; // 0xf0 = OPR; oxf = OPA;
-    uint8_t BufAddr = 0; // CM Logic buffer
+    uint8_t OPR_OPA = 0; // 0xf0 = OPR; 0xf = OPA;
     uint8_t Cycle = 0; // If an opcode needs two cycles, it activates this
 
-    uint8_t sp = 0; // Stack pointer
-    uint8_t Regs[8]; // 16 4-bit index regs. R0R1... [2] P. 11
-    uint8_t RegSel = 0; // Register Selector
+    // Memory latches:
+    uint8_t SRCRegPair = 0; // Chip and RAM Register mux: D3 D2 = Chip; D1 D0 = Register
+    uint8_t MemOpCall = 0; // Control Strobe for the type of memory operation called for X3
+    uint8_t MemOpParam = 0; // Status character defined by OPA
     
     // Consists of three 12-bit registers used to hold addresses of program instructions.
     // Since programs are always run in ROM or program RAM, the stack registers will always refer to ROM locations
@@ -304,14 +310,14 @@ public:
     
     // #################################################
 
-    ysxEMU_Intel4004CPU() { }
+    ysxEMU_Intel4004CPU() {}
     ~ysxEMU_Intel4004CPU() {}
 
     void ResetCPU()
     {
         ACC = 0; C = 0;
         memset(PCs, 0, sizeof(uint16_t) * 4); // PCs must always be declared with 4 "size", else, change it here
-        sp = 0;
+        StackP = 0;
         memset(Regs, 0, 8); // Regs have 8 bytes as size
         *Pins &= 0x60;
         Count = 0; Temp = 0; Instr = 0;
@@ -319,21 +325,20 @@ public:
     
     // #################################################
     // UTILS:
-    std::string* LOG; // = "LOG BEG:\n";
-    bool LOG_On = false;
+    std::string* LOG = nullptr; // = "LOG BEG:\n";
     void LogState()
     {
         if (LOG)
-	{
+        {
             *LOG += "\n### Intel 4004 CPU:\n# Registers:\n";
-            *LOG += std::to_string((short)Regs[0]) + " " + std::to_string((short)Regs[1]) + " " + std::to_string((short)Regs[2]) + " " + std::to_string((short)Regs[3]) + '\n';
-            *LOG += std::to_string((short)Regs[4]) + " " + std::to_string((short)Regs[5]) + " " + std::to_string((short)Regs[6]) + " " + std::to_string((short)Regs[7]) + '\n';
-            *LOG += "# Data: " + std::to_string((short)Bus->Data) + '\n';
-            *LOG += "# SYNC: " + std::to_string((short)Bus->SYNC) + " | CLK1: " + std::to_string((short)Bus->CLK1) + " | CLK2: " + std::to_string((short)Bus->CLK2);
-            *LOG += "# CM: " + std::to_string((short)(*Pins & CM)) + " | CM_RAM: " + std::to_string((short)*Pins & 0xf) + " | STACK PT.: " + std::to_string((short)sp) + '\n';
-            *LOG += "# ACC: " + std::to_string((short)ACC) + " | Carry: " + std::to_string((short)C) + " | T: " + std::to_string((short)*Pins & TEST) + '\n';        
-            *LOG += "# PCs: " + std::to_string((short)PCs[0]) + " " + std::to_string((short)PCs[1]) + " " + std::to_string((short)PCs[2]) + " " + std::to_string((short)PCs[3]) + "\n\n";
-	}
+            *LOG += std::to_string((uint16_t)Regs[0]) + " " + std::to_string((uint16_t)Regs[1]) + " " + std::to_string((uint16_t)Regs[2]) + " " + std::to_string((uint16_t)Regs[3]) + '\n';
+            *LOG += std::to_string((uint16_t)Regs[4]) + " " + std::to_string((uint16_t)Regs[5]) + " " + std::to_string((uint16_t)Regs[6]) + " " + std::to_string((uint16_t)Regs[7]) + '\n';
+            *LOG += "# Data: " + std::to_string((uint16_t)Bus->Data) + '\n';
+            *LOG += "# SYNC: " + std::to_string((uint16_t)Bus->SYNC) + " | CLK1: " + std::to_string((uint16_t)Bus->CLK1) + " | CLK2: " + std::to_string((uint16_t)Bus->CLK2);
+            *LOG += "# CM: " + std::to_string((uint16_t)(*Pins & CM)) + " | CM_RAM: " + std::to_string((uint16_t)*Pins & 0xf) + " | STACK PT.: " + std::to_string((uint16_t)StackP) + '\n';
+            *LOG += "# ACC: " + std::to_string((uint16_t)ACC) + " | Carry: " + std::to_string((uint16_t)C) + " | T: " + std::to_string((uint16_t)*Pins & TEST) + '\n';
+            *LOG += "# PCs: " + std::to_string((uint16_t)PCs[0]) + " " + std::to_string((uint16_t)PCs[1]) + " " + std::to_string((uint16_t)PCs[2]) + " " + std::to_string((uint16_t)PCs[3]) + "\n\n";
+        }
     }
 
     // #################################################
@@ -344,65 +349,86 @@ public:
 
     void Tick() override
     {
-        //if () // Flipflop
-        if (Count == 0)      // A1: Turn SYNC low; Select ROM IC
+        if (Pins && Bus)
         {
-            Bus->SYNC = true;
-            Bus->Data = (PCs[0] >> 8) & 0xf;
-            Instr = 0;
-        }
-        else if (Count == 1) // A2: Send the 1st ROM address nibble
-        {
-            if (FINFetch && Cycle) { Bus->Data = (GetRegPair() >> 4) & 0xf; }
-            else
+            if (Count == 0) // A0: Lower 4-bits to ROM's; Select ROM
             {
-                Bus->Data = (PCs[0] >> 4) & 0xf;
+                Bus->SYNC = true;
+                Bus->ControlStrobe = STROBE_NONE;
+                Bus->ControlParam = 0;
+                Bus->Data = (PCs[0] >> 8) & 0xf;
+                if (!Cycle) { Instr = 0; }
             }
-            
-        }
-        else if (Count == 2) // A3: Send the 2nd ROM address nibble
-        {
-            if (FINFetch && Cycle) { Bus->Data = GetRegPair() & 0xf; }
-            else
+            else if (Count == 2) // A1: Send the 1st ROM address nibble
             {
-                Bus->Data = PCs[0] & 0xf;
-            }
-        }
-        else if (Count == 3) // M1: Read instruction
-        {
-            OPR_OPA = Bus->Data & 0xf0;
-        }
-        else if (Count == 4) // M2: Send instruction
-        {
-            OPR_OPA |= Bus->Data & 0xf;
-            if (!Cycle) { Instr = OPR_OPA; }
-            InstrDecoder(Instr);
-        }
-        else if (Count == 5) // X1: Select RAM
-        {
-            // CM Pins:
-            *Pins = (Regs[BufAddr] >> 6) | (*Pins & 0xf0);
+                if (FINFetch && Cycle) { Bus->Data = (GetRegPair() >> 4) & 0xf; }
+                else
+                {
+                    Bus->Data = (PCs[0] >> 4) & 0xf;
+                }
 
-            // RAM Register:
-            Bus->Data = (Regs[BufAddr] >> 4) & 3;
+            }
+            else if (Count == 4) // A2: Send the 2nd ROM address nibble
+            {
+                if (FINFetch && Cycle) { Bus->Data = GetRegPair() & 0xf; FINFetch = 0; }
+                else
+                {
+                    Bus->Data = PCs[0] & 0xf;
+                }
+            }
+            else if (Count == 6) // M1: Read instruction
+            {
+                OPR_OPA = ((Bus->Data & 0xf) << 4) & 0xf0;
+            }
+            else if (Count == 8) // M2: Send instruction
+            {
+                OPR_OPA |= Bus->Data & 0xf;
+                if (!Cycle) { Instr = OPR_OPA; }
+            }
+            else if (Count == 10) // X1
+            {
+                InstrDecoder(Instr); // When in 'Cycle', it calls the same previous instruction, only with a different 'OPR_OPA'
+            }
+            else if (Count == 12) // X2: Select RAM
+            {
+                Bus->Data = (SRCRegPair >> 4) & 0xf;
+            }
+            else if (Count == 14) // X3, phase 1: RAM selection
+            {
+                Bus->Data = SRCRegPair & 0xf;
+                Bus->SYNC = false;
+
+                Bus->ControlStrobe = MemOpCall;
+                Bus->ControlParam = MemOpParam & 0x3;
+            }
+            else if (Count == 15) // X3: RAM action
+            {
+                if (MemOpCall == STROBE_WRM || MemOpCall == STROBE_WMP || MemOpCall == STROBE_WRx)
+                {
+                    Bus->Data = ACC & 0xf;
+                }
+                else if (MemOpCall == STROBE_RDM)
+                {
+                    ACC = Bus->Data & 0xf;
+                }
+
+                MemOpCall = 0; MemOpParam = 0;
+                if (Cycle) { Cycle = 0; }
+            }
+            ++Count;
+            Count &= 15;
         }
-        else if (Count == 6) // X2: Use RAM
+        else
         {
-            Bus->Data = Regs[BufAddr] & 0xf;
+            std::cerr << "ERROR: 'if (Pins && Bus)' failed / nullptr! Before running 4004, you should connect the pins and the bus!\n";
+            if (LOG) { *LOG += "ERROR: 'if (Pins && Bus)' failed / nullptr! Before running 4004, you should connect the pins and the bus!\n"; }
         }
-        else if (Count == 7) // X3
-        {
-            if (Cycle) { Cycle = 0; }
-            Bus->SYNC = false;
-        }
-        ++Count; // One day to be substituted by flip-flop counters
-        Count &= 7;
     }
 
     void IncPC() { ++PCs[0]; PCs[0] &= 0xfff; if (*Pins & TEST) PCs[0] &= 255; }
     //uint8_t activeCode() { if (PCs[0] < 4096) { return(ROM[PCs[0]] & 255); } return(0); }
-    void SetRegPair() { if (RegSel < 8) { Regs[RegSel] = OPR_OPA & 255; } } // Set Register Pair value
-    uint8_t GetRegPair() { return(((Regs[RegSel] << 4) & 0xf0) | ((Regs[RegSel] >> 4) & 0xf)); } // Get Register Pair as one number
+    void SetRegPair() { if (CMReg < 8) { Regs[CMReg] = OPR_OPA & 255; } } // Set Register Pair value
+    uint8_t GetRegPair() { return(((Regs[CMReg] << 4) & 0xf0) | ((Regs[CMReg] >> 4) & 0xf)); } // Get Register Pair as one number
 
     // #################################################
     // ####### 4004 FUNCTIONS:
@@ -426,18 +452,18 @@ public:
     }
 
     // FIM Fetch Immediate
-    void FIM(uint8_t rpar) { if (!Cycle) { RegSel = rpar; Cycle = 1; } else { SetRegPair(); IncPC(); } }
+    void FIM(uint8_t rpar) { if (!Cycle) { CMReg = rpar; Cycle = 1; } else { SetRegPair(); IncPC(); } }
     
     // SRC Send Register Control
-    void SRC(uint8_t rpar) { RegSel = rpar; BufAddr = GetRegPair(); IncPC(); }
+    // JS: function opSRC(rpar) { ramaddr=getRpar(rpar); incPC(); }
+    void SRC(uint8_t rpar) { CMReg = rpar; SRCRegPair = GetRegPair(); IncPC(); }
         
     // FIN Fetch Indirect
-    // Not sure if this uses 'Temp' reg, i'll do it anyway.
     //FORMER: void FIN(uint8_t rpar) { SetRegPair(rpar, ROM[(PCs[0] & 0xf00) | GetRegPair(0)]); IncPC(); }
-    void FIN(uint8_t rpar) { if (!Cycle) { RegSel = 0; FINFetch = 1; Cycle = 1; } else { RegSel = rpar; SetRegPair(); IncPC(); } }
+    void FIN(uint8_t rpar) { if (!Cycle) { CMReg = 0; FINFetch = 1; Cycle = 1; } else { CMReg = rpar; SetRegPair(); IncPC(); } }
 
     // JIN Jump Indirect
-    void JIN(uint8_t rpar) { RegSel = rpar; PCs[0] = (PCs[0] & 0xf00) | GetRegPair(); if (*Pins & TEST) PCs[0] &= 255; }
+    void JIN(uint8_t rpar) { CMReg = rpar; PCs[0] = (PCs[0] & 0xf00) | GetRegPair(); if (*Pins & TEST) PCs[0] &= 255; }
 
     // JUN Jump Uncoditional
     //FORMER: void JUN(uint8_t addr) { PCs[0] = addr | nextCode(); if (*Pins & TEST) { PCs[0] &= 255; } }
@@ -445,19 +471,19 @@ public:
 
     //JMS Jump to Subroutine
     //FORMER: void JMS(uint8_t addr)
-    //{ Temp = addr | nextCode(); if (sp < 3) { sp++; for (char i = sp; i > 0; i--) { PCs[i] = PCs[i - 1]; } PCs[0] = Temp; if (*Pins & TEST) PCs[0] &= 255; } }
+    //{ Temp = addr | nextCode(); if (StackP < 3) { StackP++; for (char i = StackP; i > 0; i--) { PCs[i] = PCs[i - 1]; } PCs[0] = Temp; if (*Pins & TEST) PCs[0] &= 255; } }
     //  else { IncPC(); if (LOG_On && LOG) { *LOG += "PCs overflow\n"; } }
     void JMS(uint8_t addr)
     {
         if (!Cycle) { Cycle = 1; }
         else
         {
-            if (sp < 3)
+            if (StackP < 3)
             {
-                sp++; for (char i = sp; i > 0; i--) { PCs[i] = PCs[i - 1]; }
+                StackP++; for (uint8_t i = StackP; i > 0; i--) { PCs[i] = PCs[i - 1]; }
                 PCs[0] = addr | OPR_OPA; if (*Pins & TEST) PCs[0] &= 255;
             }
-            else { IncPC(); if (LOG_On && LOG) { *LOG += "Stack overflow\n"; } }
+            else { IncPC(); if (LOG) { *LOG += "Stack overflow\n"; } }
         } 
     }
 
@@ -472,10 +498,7 @@ public:
     // ISZ Increment and Skip:
     void ISZ(uint8_t reg)
     {
-        if (!Cycle)
-        {
-            Cycle = 1;
-        }
+        if (!Cycle) { Cycle = 1; }
         else
         {
             Temp = OPR_OPA;
@@ -484,14 +507,14 @@ public:
                 reg >>= 1; if ((Regs[reg] & 0xf) == 0xf) { Regs[reg] &= 0xf0; }
                 else { ++Regs[reg]; }
                 if (Regs[reg] & 0xf) { PCs[0] = (PCs[0] & 0xf00) | Temp; }
-                else IncPC();
+                else { IncPC(); }
             }
             else
             {
                 reg >>= 1; if ((Regs[reg] & 0xf0) == 0xf0) { Regs[reg] &= 0xf; }
                 else { Regs[reg] += 16; }
                 if (Regs[reg] & 0xf0) { PCs[0] = (PCs[0] & 0xf00) | Temp; }
-                else IncPC();
+                else { IncPC(); }
             }
         }
     }
@@ -501,7 +524,7 @@ public:
     {
         //ACC = ACC + Regs[reg] + C & 1;
         if (reg % 2) { reg >>= 1; ACC = ACC + (Regs[reg] & 0xf) + (C & 1); }
-        else { reg >>= 1; ACC = ACC + (Regs[reg] >> 4) + (C & 1); } // & 0xf if you prefer
+        else { reg >>= 1; ACC = ACC + (Regs[reg] >> 4) + (C & 1); }
         C = 0; if (ACC & 0xf0) { ACC &= 0xf; C = 1; }
         IncPC();
     }
@@ -535,13 +558,13 @@ public:
     // BBL Branch Back and Load:
     void BBL(uint8_t data)
     {
-        if (sp > 0)
+        if (StackP > 0)
         {
-            for (uint8_t i = 0; i < sp; i++) { PCs[i] = PCs[i + 1]; }
-            PCs[sp] = 0;
-            sp--; ACC = data;
+            for (uint8_t i = 0; i < StackP; i++) { PCs[i] = PCs[i + 1]; }
+            PCs[StackP] = 0;
+            StackP--; ACC = data;
         }
-        if (LOG_On && LOG) { *LOG += "! PCs error !\n"; }
+        if (LOG) { *LOG += "! PCs error !\n"; }
         IncPC();
     }
 
@@ -551,34 +574,30 @@ public:
     // ### MEMORY FUNCTIONS:
 
     // WRM Write Main Memory
-    // FORMER: void WRM() { RAM.ramAdrDecoder(addr); RAM.RAM[RAM.pm][RAM.pl] = ACC; IncPC(); }
-    /*
-    void WRM() { Bus->Data = ACC; IncPC(); }
+    void WRM() { MemOpCall = STROBE_WRM; IncPC(); }
 
     // WMP Write RAM Port
-    // FORMER: void WMP() { RAM.ramAdrDecoder(addr); RAM.O[RAM.ph] = ACC; if (*Pins & TEST) { if (!(RAM.O[0] & 1)) { *Pins |= TEST; } } IncPC(); }
-    void WMP() { RAM.O[RAM.ph] = ACC; if (*Pins & TEST) { if (!(RAM.O[0] & 1)) { *Pins |= TEST; } } IncPC(); }
+    void WMP() { MemOpCall = STROBE_WMP; IncPC(); }
     
-    // WRR Write ROM Port
-    void WRR() { ROMport = ACC; IncPC(); }
+    /* WRR Write ROM Port
+    void WRR() { ROMport = ACC; IncPC(); }*/
     
     // WRx Write Status Char
-    // FORMER: void WR(uint8_t status) { RAM.ramAdrDecoder(addr); RAM.RAM[RAM.ph][status + 16] = ACC; IncPC(); }
-    void WR(uint8_t status) { RAM.ramAdrDecoder(addr); RAM.RAM[RAM.ph][status + 16] = ACC; IncPC(); }
+    void WR(uint8_t status) { MemOpCall = STROBE_WRx; MemOpParam = status & 0x3; IncPC(); }
     
     // SBM Subtract Main Memory
-    void SBM()
+    /*void SBM()
     {
         RAM.ramAdrDecoder(addr);
         ACC = ACC + ((~RAM.RAM[RAM.pm][RAM.pl]) & 0xf) + (~(C & 1) & 1);
         C = 0; if (ACC & 0xf0) { ACC &= 0xf; C = 1; }
         IncPC();
-    }
+    }*/
 
     // RDM Read Main Memory
-    void RDM() { RAM.ramAdrDecoder(addr); ACC = RAM.RAM[RAM.ph][RAM.pm][RAM.pl]; IncPC(); }
+    void RDM() { MemOpCall = STROBE_RDM; IncPC(); }
 
-    // RDR Read ROM Port
+    /*RDR Read ROM Port
     void RDR() { if (*Pins & TEST) { ROMport = RAM.O[1]; } ACC = ROMport; IncPC(); }
 
     // ADM Add Main Memory
@@ -588,11 +607,10 @@ public:
         ACC = ACC + RAM.RAM[RAM.pm][RAM.pl] + (C & 1);
         C = 0; if (ACC & 0xf0) { ACC &= 0xf; C = 1; }
         IncPC();
-    }
+    }*/
 
     // RDx Read Status Char
-    void RD(uint8_t status) { RAM.ramAdrDecoder(addr); ACC = RAM.RAM[RAM.ph][status + 16]; IncPC(); }
-    */
+    void WR(uint8_t status) { MemOpCall = STROBE_RDx; MemOpParam = status & 0x3; IncPC(); }
 
     // CLB Clear Both
     void CLB() { ACC = 0; C = 0; IncPC(); }
@@ -635,7 +653,7 @@ public:
     // DAA Decimal Adjust Accumulator
     void DAA() { if (ACC > 9 || C & 1) { ACC += 6; } if (ACC & 0xf0) { ACC &= 0xf; C = 1; } IncPC(); }
 
-    // KBP Keybord Process:
+    // KBP Keyboard Process:
     void KBP()
     {
         switch (ACC)
@@ -665,25 +683,8 @@ public:
     // DCL Designate Command Line
     void DCL()
     {
-        switch (ACC & 0x7)
-        {
-        case 0:
-            *Pins = *Pins & 0xf1; break;
-        case 1:
-            *Pins = *Pins & 0xf2; break;
-        case 2:
-            *Pins = *Pins & 0xf4; break;
-        case 3:
-            *Pins = *Pins & 0xf3; break;
-        case 4:
-            *Pins = *Pins & 0xf8; break;
-        case 5:
-            *Pins = *Pins & 0xfa; break;
-        case 6:
-            *Pins = *Pins & 0xfc; break;
-        case 7:
-            *Pins = *Pins & 0xfe; break;
-        }
+        *Pins &= 0xF0;
+        *Pins |= (1 << (ACC & 0x3));
         IncPC();
     }
 
@@ -694,12 +695,12 @@ public:
     {
         if (Bus->RESET)
         {
-            *LOG += "RESET = ON; Reseting...\n";
+            if (LOG) { *LOG += "RESET = ON; Reseting...\n"; }
             ResetCPU();
         }
         else
         {
-            if (LOG_On && LOG) { *LOG += "Instr.: " + std::to_string((short)H) + '\n'; }
+            if (LOG) { *LOG += "Instr.: " + std::to_string((uint16_t)H) + '\n'; }
             if (H == 0) { NOP(); }
             else if ((H & 0xf0) == 0x10) { JCN((H & 0xf)); }
             else if (((H & 0xf1) ^ 0x21) == 1) { FIM((H & 0xf) >> 1); }
@@ -716,13 +717,13 @@ public:
             else if ((H & 0xf0) == 0xB0) { XCH((H & 0xf)); }
             else if ((H & 0xf0) == 0xC0) { BBL((H & 0xf)); }
             else if ((H & 0xf0) == 0xD0) { LDM((H & 0xf)); }
-            else if (H == 0xE0) { std::cout << "WRM to be fixed!\n"; } // WRM(); }
-            else if (H == 0xE1) { std::cout << "WMP to be fixed!\n"; } // WMP(); }
+            else if (H == 0xE0) { WRM(); }
+            else if (H == 0xE1) { WMP(); }
             else if (H == 0xE2) { std::cout << "WRR to be fixed!\n"; } // WRR(); }
-            else if ((H & 0xFC) == 0xE4) { std::cout << "WR to be fixed!\n"; } // WR((H & 0xf) - 4); }
-            else if ((H & 0xFC) == 0xEC) { std::cout << "RD to be fixed!\n"; } // RD((H & 0xf) - 4); }
+            else if ((H & 0xFC) == 0xE4) { WR(H & 0x3); }
+            else if ((H & 0xFC) == 0xEC) { RD(H & 0x3); }
             else if (H == 0xE8) { std::cout << "SBM to be fixed!\n"; } // SBM(); }
-            else if (H == 0xE9) { std::cout << "RDM to be fixed!\n"; } // RDM(); }
+            else if (H == 0xE9) { RDM(); }
             else if (H == 0xEA) { std::cout << "RDR to be fixed!\n"; } // RDR(); }
             else if (H == 0xEB) { std::cout << "ADM to be fixed!\n"; } // ADM(); }
             else if (H == 0xF0) { CLB(); }
@@ -739,13 +740,15 @@ public:
             else if (H == 0xFB) { DAA(); }
             else if (H == 0xFC) { KBP(); }
             else if (H == 0xFD) { DCL(); }
-            if (LOG_On && LOG) { LogState(); }
+            if (LOG) { LogState(); }
         }
     }
 };
 
-// ###############################################################################################################################################################################
-// ####### MAIN #################################################################################################################################################################
-// ###############################################################################################################################################################################
 
-#endif // SCPARSE_
+// #################################################
+// #################################################
+// #################################################
+
+
+#endif
