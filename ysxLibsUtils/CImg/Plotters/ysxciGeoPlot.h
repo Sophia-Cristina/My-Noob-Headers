@@ -22,7 +22,7 @@ using namespace cimg_library;
 void ysxCIMG_DRAW_Circle(CImg<uint8_t>& Img, double r, size_t x, size_t y, uint8_t* C = nullptr)
 {
 	size_t yc, xc;
-	double dt = 1.0 / r; bool LC = false;
+	double dt = 1.0 / r;
 	uint8_t Cc[3];
 
 	for (double rad = 0; rad <= TAU; rad += dt) // MUDAR SE NESCESSARIO
@@ -75,111 +75,77 @@ void ysxCIMG_DRAW_Arc(CImg<uint8_t>& Img, double r, size_t x, size_t y, double I
 // ############## RADIUS:
 
 // PLOT RADIUS:
-void ysxCIMG_DRAW_Radius(CImg<uint8_t>& Img, double r, size_t x, int16_t y, double rad, bool Triangle, bool Border, uint8_t* C = nullptr)
+void ysxCIMG_DRAW_Radius(CImg<uint8_t>& Img, double r, size_t x, size_t y, double rad, bool Triangle, bool Border, uint8_t* C = nullptr)
 {
-	size_t xc, yc, rn;
-	double Sin = sin(TAU - rad), Cos = cos(rad);
-	int xend = round(Cos * r);
-	uint8_t IC[3]; uint8_t c[3];
+	size_t yc, xc, rn, xend = (size_t)round(cos(rad) * r), yend = (size_t)round(sin(rad) * r);
+	uint8_t c[3], IC[3];
 
-	for (rn = 0; rn <= r; ++rn)
+	for (rn = 0; rn <= r; rn = ++rn)
 	{
-		yc = y + round(Sin * rn);
-		xc = x + round(Cos * rn);
+		yc = y + round(sin(rad) * rn); xc = x + round(cos(rad) * rn);
+
 		if (ysxCIMG_InImg(Img, yc, xc))
 		{
-			if (!C) 
-			{
-				ysxCOLOR_LinearRGB(rn / r, 1, 1, c);
-				Img.draw_point(xc, yc, c);
-			}
+			if (!C) { ysxCOLOR_LinearRGB(rn / r, 1, 1, c); Img.draw_point(xc, yc, c); }
 			else { Img.draw_point(xc, yc, C); }
 			if (Triangle)
 			{
 				if (!C) { IC[0] = 255 - c[0]; IC[1] = 255 - c[1]; IC[2] = 255 - c[2]; }
 				else { IC[0] = 255 - C[0]; IC[1] = 255 - C[1]; IC[2] = 255 - C[2]; }
-				Img.draw_point(xc, y, IC);
-				Img.draw_point(x + xend, yc, IC);
+				Img.draw_point(xc, y, IC); Img.draw_point(x + xend, yc, IC);
 			}
 		}
-	}	
+	}
 	if (Border) { if (!C) { ysxCIMG_DRAW_Circle(Img, r, x, y, c); } else { ysxCIMG_DRAW_Circle(Img, r, x, y, C); } }
 }
-void ysxCIMG_DRAW_RadiusQuick(CImg<uint8_t>& Img, double r, size_t x, int16_t y, double rad, bool Triangle, bool Border, uint8_t* C)
-{
-	size_t xc, yc;
-	double Sin = sin(TAU - rad), Cos = cos(rad);
-	int xend = round(Cos * r), yend = round(Sin * r);
-	uint8_t IC[3];
 
-	if (ysxCIMG_InImg(Img, y, x) && ysxCIMG_InImg(Img, y + yend, x + xend))
-	{
-		Img.draw_line(x, y, x + xend, y + yend, C);
-		if (Triangle)
-		{
-			IC[0] = 255 - C[0]; IC[1] = 255 - C[1]; IC[2] = 255 - C[2];
-			Img.draw_line(x, y, x + xend, y, IC);
-			Img.draw_line(x + xend, y, x + xend, y + yend, IC);
-		}
-	}
-	if (Border) { ysxCIMG_DRAW_Circle(Img, r, x, y, C); }
-}
 
-void ysxCIMG_DRAW_RadiusPolygon(CImg<uint8_t>& Img, double r, size_t x, int16_t y, double OffSet, int Divisions, bool Triangle, bool Border, uint8_t* C = nullptr)
+void ysxCIMG_DRAW_RadiusPolygon(CImg<uint8_t>& Img, double r, size_t x, size_t y, double OffSet, int Divisions, bool Triangle, bool Border, uint8_t* C = nullptr)
 {
 	double Div = TAU / Divisions;
 	for (double n = OffSet; n < TAU + OffSet; n += Div)
 	{
-		if (!C) { ysxCIMG_DRAW_Radius(Img, r, x, y, n, Triangle, Border); }
+		if (!C) { ysxCIMG_DRAW_Radius(Img, r, x, y, n, Triangle, Border); } // Make 'Border' to be painted only once
 		else { ysxCIMG_DRAW_Radius(Img, r, x, y, n, Triangle, Border, C); }		
 	}
 }
-void ysxCIMG_DRAW_RadiusPolygonQuick(CImg<uint8_t>& Img, double r, size_t x, int16_t y, double OffSet, int Divisions, uint8_t* C, bool Triangle, bool Border)
-{
-	double Div = TAU / Divisions;
-	for (double n = OffSet; n < TAU + OffSet; n += Div)
-	{
-		ysxCIMG_DRAW_RadiusQuick(Img, r, x, y, n, Triangle, Border, C);
-	}
-}
+
 
 // ######################################################################
 
 // ############## CYCLOIDS:
 
-// HYPOCYCLOID (FIX PERIMETER OR MAYBE THE PROBLEM IS ON THE COORDS):
-void ysxCIMG_DRAW_HypoCycl(CImg<uint8_t>& I, double R, double r, double x, double y, double t1, double t2, uint8_t* C = nullptr)
+// HYPOCYCLOID / HYPOTROCHOID:
+// Hypocycloid if 'd = r'.
+void ysxDRAW_HypoCycl(CImg<uint8_t>& Img, double R, double r, size_t x, size_t y, double t0, double t1, double d = 1, uint8_t* C = nullptr)
 {
-	double Arc = (r * 8 * ((R / r) - 1)), dt = (t2 - t1) / Arc;
-	if (t1 < 0) { t1 = TAU + t1; } if (t2 < t1) { double T = t1; t1 = t2; t2 = T; }
-	size_t yc, xc; uint8_t c[3];
-	for (double t = t1; t <= t2; t += dt)
+	double Arc = (r * 8 * ((R / r) - 1)), dt = ((t1 - t0) / Arc) / (PI * 4);
+	if (t0 < 0) { t0 = TAU + t0; } if (t1 < t0) { double T = t0; t0 = t1; t1 = T; }
+	size_t yc, xc;
+	uint8_t c[] = { 0, 0, 0 };
+	for (double t = t0; t <= t1; t += dt)
 	{
-		xc = x + ((R - r) * cos(t) + r * cos(t * (R - r) / r));
-		yc = y + ((R - r) * sin(t) + r * sin(t * (R - r) / r)); // Old: yc = y + ((R - r) * sin(t) - r * sin(t * (R - r) / r));
-		if (!C) { ysxCOLOR_LinearRGB((t - t1) / (t2 - t1), 1, 1, c); I.draw_point(xc, yc, c); }
-		else { I.draw_point(xc, yc, C); }
+		xc = x + ((R - r) * cos(t) + d * cos(t * (R - r) / r));
+		yc = y + ((R - r) * sin(t) - d * sin(t * (R - r) / r));
+		if (!C) { ysxCOLOR_LinearRGB((t - t0) / (t1 - t0), 1, 1, c); Img.draw_point(xc, yc, c); }
+		else { Img.draw_point(xc, yc, C); }
 	}
 }
 
-// EPICYCLOID (WIP, PERIMETER AND MORE):
-void ysxCIMG_DRAW_EpiCycl(CImg<uint8_t>& I, double R, double r, double x, double y, double t1, double t2, uint8_t* C = nullptr)
+// EPICYCLOID / EPITROCHOID:
+// Epicycloid if 'd = r'.
+void ysxDRAW_EpiCycl(CImg<uint8_t>& Img, double R, double r, size_t x, size_t y, double t0, double t1, double d = 1, uint8_t* C = nullptr)
 {
-	if (t1 < 0) { t1 = TAU + t1; } if (t2 < t1) { double T = t1; t1 = t2; t2 = T; }
-	double dt = (t2 - t1) / (TAU * (R + r)); // Não lembro, mudar depois
-	/*The perimeter calculation is off.
-	  seems like a placeholder. Needs proper arc-length parameterization.*/
-
-	size_t yc, xc; uint8_t c[3];
-	for (double t = t1; t <= t2; t += dt)
+	if (t0 < 0) { t0 = TAU + t0; } if (t1 < t0) { double T = t0; t0 = t1; t1 = T; }
+	double dt = ((t1 - t0) / (TAU * (R + r))) / (PI * 4);
+	size_t yc, xc;
+	uint8_t c[] = { 0, 0, 0 };
+	for (double t = t0; t <= t1; t += dt)
 	{
-		yc = y + ((R + r) * sin(t) - r * sin(t * (R + r) / r));
-		xc = x + ((R + r) * cos(t) - r * cos(t * (R + r) / r));
-		if (ysxCIMG_InImg(I, yc, xc))
-		{
-			if (!C) { ysxCOLOR_LinearRGB((t - t1) / (t2 - t1), 1, 1, c); I.draw_point(xc, yc, c); }
-			else { I.draw_point(xc, yc, C); }
-		}
+		yc = y + ((R + r) * sin(t) - d * sin(t * (R + r) / r));
+		xc = x + ((R + r) * cos(t) - d * cos(t * (R + r) / r));
+		if (!C) { ysxCOLOR_LinearRGB((t - t0) / (t1 - t0), 1, 1, c); Img.draw_point(xc, yc, c); }
+		else { Img.draw_point(xc, yc, C); }
 	}
 }
 
@@ -382,12 +348,12 @@ public:
 	void TriBisectorPrint(bool Text)
 	{
 		double Angle = 0;
-		if (gamma <= 90) { Angle = Ang2Rad(beta + (alpha * 0.5)); }	else { Angle = Ang2Rad(beta + (alpha * 0.5)); }
-		ysxCIMG_DRAW_Line(TriOut, bisa * Scale, Angle, x[2], y[2], false, ClrBiLine);
+		if (gamma <= 90) { Angle = Ang2Rad(beta + (alpha * 0.5)); } else { Angle = Ang2Rad(beta + (alpha * 0.5)); }
+		ysxCIMG_DRAW_LineRay(TriOut, bisa * Scale, Angle, x[2], y[2], false, ClrBiLine);
 		if (gamma <= 90) { Angle = Ang2Rad(180 + (beta * 0.5)); } else { Angle = Ang2Rad(180 + (beta * 0.5)); }
-		ysxCIMG_DRAW_Line(TriOut, bisb * Scale, Angle, x[1], y[1], false, ClrBiLine);
+		ysxCIMG_DRAW_LineRay(TriOut, bisb * Scale, Angle, x[1], y[1], false, ClrBiLine);
 		if (gamma <= 90) { Angle = Ang2Rad(360 - (gamma * 0.5)); } else { Angle = Ang2Rad(360 - (gamma * 0.5)); }
-		ysxCIMG_DRAW_Line(TriOut, bisc * Scale, Angle, x[0], y[0], false, ClrBiLine);
+		ysxCIMG_DRAW_LineRay(TriOut, bisc * Scale, Angle, x[0], y[0], false, ClrBiLine);
 		if (Text)
 		{
 			ysxCIMG_AddText(TriOut, round(Width * 0.5), Offy - ((SclCrd[2].y) - 24), "BisA: " + std::to_string(bisa), ClrBiLine);

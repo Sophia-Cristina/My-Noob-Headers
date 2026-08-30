@@ -20,8 +20,8 @@ using namespace cimg_library;
 
 // ############## LINES:
 
-// PLOT LINE (soon to be named LineRay):
-void ysxCIMG_DRAW_Line(CImg<uint8_t>& Img, double r, double rad, uint16_t x, uint16_t y, bool Triangle, uint8_t* C = nullptr)
+// PLOT LINE:
+void ysxCIMG_DRAW_LineRay(CImg<uint8_t>& Img, double r, double rad, uint16_t x, uint16_t y, bool Triangle, uint8_t* C = nullptr)
 {
 	size_t yc, xc, rn, xend = (size_t)round(cos(rad) * r), yend = (size_t)round(sin(rad) * r);
 	uint8_t c[3], IC[3];
@@ -32,7 +32,7 @@ void ysxCIMG_DRAW_Line(CImg<uint8_t>& Img, double r, double rad, uint16_t x, uin
 
 		if (ysxCIMG_InImg(Img, yc, xc))
 		{
-			if (!C) { ysxCOLOR_LinearRGB(rn / r, 1, 1, c);	Img.draw_point(xc, yc, c); }
+			if (!C) { ysxCOLOR_LinearRGB(rn / r, 1, 1, c); Img.draw_point(xc, yc, c); }
 			else { Img.draw_point(xc, yc, C); }
 			if (Triangle)
 			{

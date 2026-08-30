@@ -56,7 +56,6 @@ void ysxCIMG_Invert(CImg<uint8_t>& Img)
 }
 
 
-
 // EXPAND IMAGE BORDERS:
 // (char as byte, '0' to '8', '0 = center', imagine an octagon, '1 = top side', clock-wise, '2 = top-right side', and that is how it goes)
 CImg<uint8_t> ysxCIMG_ExpandImgBorders(CImg<uint8_t>& Img, uint8_t Size, uint8_t Side)
@@ -77,6 +76,32 @@ CImg<uint8_t> ysxCIMG_ExpandImgBorders(CImg<uint8_t>& Img, uint8_t Size, uint8_t
 	else { Ex.draw_image(0, 0, Img); } // Top-Left
 
 	return(Ex);
+}
+
+// DRAW IMAGE OVER ANOTHER IMAGE, BUT IGNORE SPECIFIC COLOR:
+// Change this function to another header! Add an 'if' to avoid 'nullptr'.
+CImg<uint8_t> ysxCIMG_DrawImageIgnClr(CImg<uint8_t>& Img0, CImg<uint8_t>& Img1, uint32_t x, uint32_t y, uint8_t IgnoreColor[3])
+{
+	if (x < 0) { x = 0; } if (y < 0) { y = 0; }
+	uint32_t  Width = Img1.width(), Height = Img1.height();
+	CImg<uint8_t> Ret = Img0;
+	Point3D<uint8_t> RGB;
+	uint8_t Clr[3];
+	for (uint32_t i = 0; i < Height; ++i)
+	{
+		for (uint32_t j = 0; j < Width; ++j)
+		{
+			if (j + x >= Img0.width() - 1) { break; }
+			RGB = ysxCIMG_BitmapRGB(Img1, j, i);
+			if (IgnoreColor[0] != RGB.x || IgnoreColor[1] != RGB.y || IgnoreColor[2] != RGB.z)
+			{
+				Clr[0] = RGB.x; Clr[1] = RGB.y; Clr[2] = RGB.z;
+				Ret.draw_point(j + x, i + y, Clr);
+			}
+		}
+		if (i + y >= Img0.height() - 1) { break; }
+	}
+	return (Ret);
 }
 
 // ############################################################################################################################################
@@ -139,7 +164,7 @@ CImg<uint8_t> ysxCIMG_RectCell(uint16_t x, uint16_t y, uint16_t Borderx, uint16_
 {
 	if (x <= Borderx) { x = Borderx + 1; } if (y <= Bordery) { y = Bordery + 1; }
 	CImg<uint8_t> Cell(x - Bordery, y - Borderx, 1, 3, 0);
-	FillArea(Cell, x * 0.5, y * 0.5, C);
+	FillFlood(Cell, x * 0.5, y * 0.5, C);
 	C[0] = 255 - C[0]; C[1] = 255 - C[1]; C[2] = 255 - C[2];
 	if (Borderx == 0) { ++Borderx; } if (Bordery == 0) { ++Bordery; }
 	Cell = ysxCIMG_AddBorder(Cell, Borderx, Bordery, C);
@@ -160,7 +185,7 @@ CImg<uint8_t> ysxCIMG_ValueBarAbs(uint16_t Width, double Value, double Ratio, ui
 		if (Width <= Borderx) { Width = Borderx + 1; } if (Value <= Bordery) { Value = Bordery + 1; }
 		if (xAxis) { Bar = CImg<uint8_t>::CImg(Value - Bordery, Width - Borderx, 1, 3, 0); }
 		else { Bar = CImg<uint8_t>::CImg(Width - Bordery, Value - Borderx, 1, 3, 0); }
-		FillArea(Bar, Bar.width() * 0.5, Bar.height() * 0.5, C);
+		FillFlood(Bar, Bar.width() * 0.5, Bar.height() * 0.5, C);
 		if (Borderx > 0 && Bordery > 0) { Bar = ysxCIMG_AddBorder(Bar, Borderx, Bordery, InvC); }
 	}
 	return(Bar);
@@ -177,7 +202,7 @@ CImg<uint8_t> ysxCIMG_ValueBarAbs(uint16_t Width, double Value, double Ratio, ui
 		if (xAxis) { Bar = CImg<uint8_t>::CImg(Value - Bordery, Width - Borderx, 1, 3, 0); }
 		else { Bar = CImg<uint8_t>::CImg(Width - Bordery, Value - Borderx, 1, 3, 0); }
 		ysxCOLOR_LinearRGB(Value / Ratio, 1, 1, C);
-		FillArea(Bar, Bar.width() * 0.5, Bar.height() * 0.5, C);
+		FillFlood(Bar, Bar.width() * 0.5, Bar.height() * 0.5, C);
 		C[0] = 255 - C[0]; C[1] = 255 - C[1]; C[2] = 255 - C[2];
 		if (Borderx > 0 && Bordery > 0) { Bar = ysxCIMG_AddBorder(Bar, Borderx, Bordery, C); }		
 	}
@@ -195,7 +220,7 @@ CImg<uint8_t> ysxCIMG_ValueBar(uint16_t Width, double Value, double Ratio, uint1
 		else { Bar = CImg<uint8_t>::CImg(Width - Bordery, Value - Borderx, 1, 3, 0); }
 		uint8_t C[3]; ysxCOLOR_LinearRGB(Value / Ratio, 1, 1, C);
 		CImg<uint8_t> BarFill = Bar;
-		FillArea(BarFill, Bar.width() * 0.5, Bar.height() * 0.5, C);
+		FillFlood(BarFill, Bar.width() * 0.5, Bar.height() * 0.5, C);
 		C[0] = 255 - C[0]; C[1] = 255 - C[1]; C[2] = 255 - C[2];
 		if (Borderx > 0 && Bordery > 0) { BarFill = ysxCIMG_AddBorder(Bar, Borderx, Bordery, C); }
 		if (xAxis) { if (Value < 0) { ysxCIMG_JoinImg(Bar, BarFill, 0); } if (Value >= 0) { ysxCIMG_JoinImg(BarFill, Bar, 0); } }
@@ -214,7 +239,7 @@ CImg<uint8_t> ysxCIMG_ValueBar(uint16_t Width, double Value, double Ratio, uint1
 		if (xAxis) { CImg<uint8_t> XIMG(Value - Bordery, Width - Borderx, 1, 3, 0); Bar = XIMG; }
 		else { CImg<uint8_t> YIMG(Width - Bordery, Value - Borderx, 1, 3, 0); Bar = YIMG; }
 		CImg<uint8_t> BarFill = Bar;
-		FillArea(BarFill, Bar.width() * 0.5, Bar.height() * 0.5, C);
+		FillFlood(BarFill, Bar.width() * 0.5, Bar.height() * 0.5, C);
 		C[0] = 255 - C[0]; C[1] = 255 - C[1]; C[2] = 255 - C[2];
 		if (Borderx > 0 && Bordery > 0) { BarFill = ysxCIMG_AddBorder(Bar, Borderx, Bordery, C); }
 		if (xAxis) { if (Value < 0) { ysxCIMG_JoinImg(Bar, BarFill, 0); } if (Value >= 0) { ysxCIMG_JoinImg(BarFill, Bar, 0); } }
@@ -329,6 +354,9 @@ void ysxCIMG_AddVert(CImg<uint8_t>& Img, uint16_t x, uint16_t y, uint16_t Size, 
 	}
 }
 
-// ################################################# FIM ####################################################################################
 
-#endif // SCPARSE_
+// #################################################
+// #################################################
+// #################################################
+
+#endif

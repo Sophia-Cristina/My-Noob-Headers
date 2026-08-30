@@ -27,23 +27,14 @@
 ####### header i made in my C++ journey. So there is a lot to fix and i'm too lazy for that.
 #####################*/
 
+
 using namespace cimg_library; // COMMENT IF YOU ARE HAVING A PROBLEM
 
-// ############################################################################################################################################
-// ################################################# NOTES AND ATTENTIONS #################################################
-// !!!	CATALOGUE ANY CHANGE THAT CAN AFFECT CODE VERSIONS:
-// !!!	* Lot of name changes! Prefix added to lot of things!
-// !!!	* BIG CHANGES, TAKE CARE! Templates, references and more! 21/07/22;
-// !!!	* Soon to add "ysxCIMG_" prefix on the "Fill" functions! 06/12/23;
-// ################################################# NOTES AND ATTENTIONS #################################################
-// ############################################################################################################################################
 
 // ###################################
-// ############## FORWARD DECLARATIONS:
-CImg<uint8_t> ysxCIMG_DRAW_ImageIgnClr(CImg<uint8_t>&, CImg<uint8_t>&, uint32_t, uint32_t, uint8_t[3]);
-CImg<uint8_t> ysxCIMG_JoinImg(CImg<uint8_t>&, CImg<uint8_t>&, bool);
-// ###################################
 
+
+// ###################################
 // ############## GENERALLY USEFUL:
 	
 // POINT3D TO UI8[3]:
@@ -71,27 +62,22 @@ void ysxCIMG_CleanImg(CImg<uint8_t>& Img, uint8_t* C = nullptr)
 	if (C) { Img.draw_fill(1, 1, C, 1, 1, false); }
 }
 
-// ############################################################################################################################################
-// ############################################################################################################################################
-// ############################################################################################################################################
 
-// ############################################################################################################################################
+// ###################################
 // ############## TECHNICAL:
 
 // SAVE:
 void ysxCIMG_SaveBMP(CImg<uint8_t> Image, std::string FileName) { Image.save_bmp(FileName.data()); }
 void ysxCIMG_SavePNG(CImg<uint8_t> Image, std::string FileName) { Image.save_png(FileName.data()); }
-void ysxCIMG_SavePNG(CImg<uint8_t> Image, std::string FileName, int BytesPerPixel) { Image.save_png(FileName.data(), BytesPerPixel); } // needs 'libpng' defined
+void ysxCIMG_SavePNG(CImg<uint8_t> Image, std::string FileName, int BytesPerPixel) { Image.save_png(FileName.data(), BytesPerPixel); }
 void ysxCIMG_SaveJPG(CImg<uint8_t> Image, std::string FileName) { Image.save_jpeg(FileName.data(), 100); } // 100% quality
 void ysxCIMG_SaveJPG(CImg<uint8_t> Image, std::string FileName, int QualityPercent) { Image.save_jpeg(FileName.data(), QualityPercent); }
 
-// SEE IMG, LIKE, CIMG, GOTCHA?:
+// POP UP IMAGE:
 void ysxCIMG_CIMG(std::string File, std::string Title = "CIMG:") { CImg<uint8_t> Img(File.data()); CImgDisplay d(Img, Title.data()); while (!d.is_closed()) { d.wait(); } }
 void ysxCIMG_CIMG(CImg<uint8_t>& Img, std::string Title = "CIMG:") { CImgDisplay d(Img, Title.data()); while (!d.is_closed()) { d.wait(); } }
 
-// ############################################################################################################################################
-// ############################################################################################################################################
-// ############################################################################################################################################
+// ###################################
 
 // ############## GRAPHICS:
 
@@ -99,7 +85,7 @@ void ysxCIMG_CIMG(CImg<uint8_t>& Img, std::string Title = "CIMG:") { CImgDisplay
 CImg<uint8_t> ysxCIMG_NewImgBGColor(int Width, int Height, uint8_t C[3])
 {
 	CImg<uint8_t> FilledImg(Width, Height, 1, 3, 0);
-	FilledImg.draw_fill(1, 1, C, 1, 1, false);
+	if (C) { FilledImg.draw_rectangle(0, 0, FilledImg.width() - 1, FilledImg.height() - 1, C); }
 	return(FilledImg);
 }
 
@@ -114,32 +100,11 @@ void FillAlpha(CImg<uint8_t>& Img, uint8_t* Clr = nullptr)
 }
 
 // Fill / clean entire image, but by drawing a rectangle over it:
-void FillRect(CImg<uint8_t>& Img) { uint8_t c[] = { 0, 0, 0 }; Img.draw_rectangle(0, 0, Img.width() - 1, Img.height() - 1, c); }
-void FillRect(CImg<uint8_t>& Img, uint8_t C[3]) { Img.draw_rectangle(0, 0, Img.width() - 1, Img.height() - 1, C); }
+void ImgCleanRect(CImg<uint8_t>& Img) { uint8_t c[] = { 0, 0, 0 }; Img.draw_rectangle(0, 0, Img.width() - 1, Img.height() - 1, c); }
+void ImgCleanRect(CImg<uint8_t>& Img, uint8_t C[3]) { Img.draw_rectangle(0, 0, Img.width() - 1, Img.height() - 1, C); }
 
 // FILL (PAINT BUCKET) SOME PLACE:
-void FillArea(CImg<uint8_t>& Img, uint16_t x, uint16_t y, uint8_t* C) { Img.draw_fill(x, y, C, 1, 1, false); }
-
-// ###################################
-// ############## CLASSES ##############
-// ###################################
-
-/*
-#define cimg_use_png
-#include "CImg.h"
-using namespace cimg_library;
-int main(int argc, char **argv)
-{
-  const CImg<> bg("background.png"); // RGB image
-  const CImg<> fg("foreground.png"); // RGBA image.
-  const CImg<> fg_rgb = fg.get_shared_channels(0,2); // Only RGB part of the foreground.
-  const CImg<> fg_a = fg.get_shared_channel(3); // Only Alpha part of the foreground.
-  CImg<> result(bg);
-  result.draw_image(30,30,fg_rgb,fg_a,1,255);
-
- (bg,fg,result).display();
-}
-*/
+void FillFlood(CImg<uint8_t>& Img, uint16_t x, uint16_t y, uint8_t* C) { Img.draw_fill(x, y, C, 1, 1, false); }
 
 // ###################################
 // EXTRA:
@@ -150,7 +115,7 @@ int main(int argc, char **argv)
 #include "ysxLibsUtils/CImg/ysxciMisc.h"
 // ###################################
 
-	// ############################################################################################################################################
-	// ############################################################################################################################################
-	// ############################################################################################################################################	
-#endif // SCPARSE_
+// ###################################
+
+
+#endif
