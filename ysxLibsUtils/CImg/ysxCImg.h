@@ -89,23 +89,6 @@ CImg<uint8_t> ysxCIMG_NewImgBGColor(int Width, int Height, uint8_t C[3])
 	return(FilledImg);
 }
 
-// ############## FILL:
-
-// REDO IMAGE WITH SPECIFIC COLOR (OR ELSE, IT IS BLACK):
-void FillAlpha(CImg<uint8_t>& Img, uint8_t* Clr = nullptr)
-{
-	Img = CImg<uint8_t>::CImg(Img.width(), Img.height(), 1, 4, 0);
-	if (!Clr) { uint8_t C[] = { 0, 0, 0, 0 }; Img.draw_fill(1, 1, C, 1, 1); }
-	else { Img.draw_fill(1, 1, Clr, 1, 1); }
-}
-
-// Fill / clean entire image, but by drawing a rectangle over it:
-void ImgCleanRect(CImg<uint8_t>& Img) { uint8_t c[] = { 0, 0, 0 }; Img.draw_rectangle(0, 0, Img.width() - 1, Img.height() - 1, c); }
-void ImgCleanRect(CImg<uint8_t>& Img, uint8_t C[3]) { Img.draw_rectangle(0, 0, Img.width() - 1, Img.height() - 1, C); }
-
-// FILL (PAINT BUCKET) SOME PLACE:
-void FillFlood(CImg<uint8_t>& Img, uint16_t x, uint16_t y, uint8_t* C) { Img.draw_fill(x, y, C, 1, 1, false); }
-
 // ###################################
 // EXTRA:
 #include "ysxLibsUtils/CImg/ysxciColors.h"

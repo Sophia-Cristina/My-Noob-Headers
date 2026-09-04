@@ -53,7 +53,7 @@ CImg<uint8_t> ysxCIMG_SieveEratosthenes(uint32_t  n)
 		else if (!((m + 1) % 5)) { C[0] = RGBs[2].x; C[1] = RGBs[2].y; C[2] = RGBs[2].z; }
 		else if (!((m + 1) % 7)) { C[0] = RGBs[3].x; C[1] = RGBs[3].y; C[2] = RGBs[3].z; }
 
-		Square = CImg<uint8_t> ysxCIMG_NewImgBGColor(31, 31, C);
+		Square = ysxCIMG_NewImgBGColor(31, 31, C);
 		C[0] = 255 - C[0], C[1] = 255 - C[1], C[2] = 255 - C[2];
 		Square = ysxCIMG_AddBorder(Square, 1, 1, C);
 		ysxCIMG_AddText(Square, 7, 15, std::to_string(m + 1), C);

@@ -10,13 +10,31 @@ using namespace cimg_library;
 // ####### Things to draw basic graphs!
 // #####################
 
-// WARNING: THINGS HERE ARE LATER GOING TO BE FOR MULTIPLE LIBS AND CONTROLLED BY PRE-COMPILER CODES!
+// WARNING: SOME OF THE CODES HERE ARE LATER GOING TO BE FOR MULTIPLE LIBS AND CONTROLLED BY PRE-COMPILER DEFIMITIONS!
 
-// ####################################################################################
-// ####################################################################################
-// ####################################################################################
+// #################################################
 
-// ######################################################################
+
+// #################################################
+
+
+// ############## FILL:
+
+// REDO IMAGE WITH SPECIFIC RGBA COLOR (OR ELSE, IT IS BLACK):
+void ysxCIMG_FillAlpha(CImg<uint8_t>& Img, uint8_t* Clr = nullptr)
+{
+	Img = CImg<uint8_t>::CImg(Img.width(), Img.height(), 1, 4, 0);
+	if (!Clr) { uint8_t C[] = { 0, 0, 0, 0 }; Img.draw_fill(1, 1, C, 1, 1); }
+	else { Img.draw_fill(1, 1, Clr, 1, 1); }
+}
+
+// Fill / clean entire image, but by drawing a rectangle over it:
+void ysxCIMG_ImgCleanRect(CImg<uint8_t>& Img) { uint8_t c[] = { 0, 0, 0 }; Img.draw_rectangle(0, 0, Img.width() - 1, Img.height() - 1, c); }
+void ysxCIMG_ImgCleanRect(CImg<uint8_t>& Img, uint8_t C[3]) { Img.draw_rectangle(0, 0, Img.width() - 1, Img.height() - 1, C); }
+
+// FILL (PAINT BUCKET) SOME PLACE:
+void ysxCIMG_FillFlood(CImg<uint8_t>& Img, uint16_t x, uint16_t y, uint8_t* C) { Img.draw_fill(x, y, C, 1, 1, false); }
+
 
 // ############## LINES:
 
